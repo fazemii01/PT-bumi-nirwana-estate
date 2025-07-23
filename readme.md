@@ -72,7 +72,7 @@ E. Milestone MVP
 
 ──────────────────────────────────────── 2. SYSTEM OVERVIEW
 
-![alt text]({96943107-6254-4FB3-9848-3438CB6C776B}.png)
+![alt text]({A1A2CAC5-557A-4BA7-A55F-EA1CEA2BE633}.png)
 
 ──────────────────────────────────────── 3. TECH STACK DETAIL
 
