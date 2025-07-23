@@ -1,0 +1,67 @@
+{
+  "SITE_DEVELOPMENT": "Site development",
+  "THE_REQUEST_COULD_NOT_BE_SENT": "The request could not be sent. Try again",
+  "SENT": "Sent",
+  "INPUT_PHONE_VALIDATION": "Enter a 12-digit phone number (starting with +, numbers only, no spaces or dashes)",
+  "MAIN_OFFICE_ADDRESS": "Kyiv, str. Poleva, 24 D (03056)",
+  "IN": "in",
+  "ON": "on the",
+  "ALL": "All",
+  "ANY_AMOUNT": "Any amount",
+  "FIRSTNAME_LASTNAME": "Full name",
+  "PHONE_NUMBER": "Phone number",
+  "PROPERTY_TYPE": "Property type",
+  "CITY": "City",
+  "FIND_REAL_ESTATE": "Find real estate",
+  "SEND_A_REQUEST": "Send a request",
+  "LOADING": "Loading...",
+  "BUILDING": "Building",
+  "WE_ARE_ON_SOCIAL_NETWORKS": "We are on social networks",
+  "ALL_RIGHTS_RESERVED": "All rights reserved",
+  "IMAGE": "Image",
+  "PAGE_NOT_FOUND": "<0>Page not found - Error 404.</0> <0>Sorry, but we could not find the page you requested. Maybe it was moved, deleted, or never existed. You can return to the Main page or choose another page of the site.</0>",
+  "NAVIGATION": {
+    "MAIN": "Home",
+    "MAIN_PAGE": "Home page",
+    "ALL_REAL_ESTATE": "All real estate",
+    "SERVICES": "Services",
+    "TO_THE_CATALOGUE": "To the Catalogue"
+  },
+  "TYPE_OF_REAL_ESTATE": {
+    "TYPE_OF_REAL_ESTATE": "Type of real estate",
+    "APARTMENTS": "Apartments",
+    "HOUSES": "Houses",
+    "NEW_BUILDING": "New Buildings",
+    "OFFICE_SPACES": "Office Spaces",
+    "PREMISES_FOR_ANY_TYPE_OF_ACTIVITY": "Premises for any type of activity",
+    "MARKETPLACES": "Marketplaces",
+    "WAREHOUSE_FACILITIES": "Warehouses",
+    "LAND_PLOTS": "Land Plots"
+  },
+  "FEEDBACK": {
+    "INTERESTED_IN_COOPERATION": "Interested in collaborating?",
+    "IF_YOU_HAVE_ANY_QUESTIONS_ABOUT_OUR_SERVICES": "If you have any questions about our services, please leave your contact details in the contact form below and our specialists will contact you shortly. We are happy to help you with any questions about buying, selling, renting real estate and other services we offer.",
+    "TO_LEARN_MORE_DETAILS_ABOUT_OUR_SERVICES_DESC": "To learn more details about our services and to benefit from the support of knowledgeable property management professionals, leave your information in the feedback form below. If you own a property and want to make it a source of income, we know how to help you!",
+    "DO_YOU_OWN_REAL_ESTATE": "Do you own real estate?",
+    "COOPERATION_WITH_THE_AKULA": "Cooperation with the Akula Development Partner team will be beneficial for you. We are ready to provide you with support in the commercially profitable management of the real estate that you own. Our specialists will help you find customers for renting premises and offer a strategy for improving conditions at the facilities in order to obtain maximum profit. If you are interested in effective real estate management, Akula Development Partner has something to offer you."
+  },
+  "CITY_LIST": {
+    "KYIV": "Kyiv",
+    "KYIV_REGION": "Kyiv region"
+  },
+  "OBJECT_INFO": {
+    "SELLING": "Selling",
+    "RENT": "Rent",
+    "GROUND_SECTION": "Ground section",
+    "NON_RESIDENTIAL_REAL_ESTATE": "Non residential real estate",
+    "RESIDENTIAL_REAL_ESTATE": "Residential real estate",
+    "APARTMENT": "Apartment",
+    "NEW_BUILDING": "New building",
+    "HOUSE": "House",
+    "OFFICE": "Office",
+    "PREMISES_FOR_ANY_TYPE_OF_ACTIVITY": "Premises for any type of activity",
+    "RETAIL_SPACE": "Retail space",
+    "STORAGE_ROOM": "Storage room",
+    "LAND": "Land"
+  }
+}

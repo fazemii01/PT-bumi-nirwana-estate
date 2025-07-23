@@ -1,0 +1,32 @@
+.container {
+  margin-bottom: 150px;
+
+  @include media-laptop {
+    margin-bottom: 80px;
+  }
+  
+  @include media-tablet {
+    margin-bottom: 50px;
+  }
+}
+
+.item {
+  @include flex-align(center);
+  background-color: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  height: 100%;
+  overflow: visible;
+
+  img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 100%;
+
+    @include media-tablet {
+      max-width: 140px;
+      height: auto;
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "UNFORTUNATELY_NOTHING_WAS_FOUND": "Unfortunately, nothing was found",
+  "REQUIREMENTS_OF_THE_LAW_OF_UKRAINE": "The price specified in this announcement is calculated at the selling rate of US dollars ({{uah}} hryvnia for 1 US dollar on {{date}} year), for cash hryvnias, set by JSC \"UKREXIMBANK\" and published on the official website (page) of JSC \"UKREXIMBANK\" at the link: <Link>https://www.eximb.com/</Link>. The price varies depending on the selling rate of US dollars for cash hryvnias, set by JSC \"UKREXIMBANK\" by reference to the date of sale.",
+  "ACCORDING_TO_THE_REQUIREMENTS": "According to the requirements of the Law of Ukraine \"On Advertising\", the prices of all real estate objects on the website are displayed in hryvnias.",
+  "TYPE_OF_AGREEMENT": "Type of agreement",
+  "ADDRESS": "Address",
+  "DESCRIPTION": "Description",
+  "INFORMATION": "Information",
+  "VIDEO": "Video",
+  "OBJECT_ID": "Object ID:",
+  "OBJECTS": "objects",
+  "HELLO_I_AM_INTERESTED": "Hello, I am interested",
+  "CATALOG": {
+    "CHOOSE_THE_PERFECT_PROPERTY": "Choose the perfect property",
+    "SEARCH_RESULTS": "Search Results",
+    "CLEAR_ALL_FILTERS": "Clear all filters",
+    "SORTING_BY_TOTAL_AREA": "Sorting by Total Area",
+    "SORTING_BY_PRICE": "Sorting by Price"
+  },
+  "FEEDBACK": {
+    "DO_YOU_LIKE_THIS_PROPERTY": "Do you like this property?",
+    "IF_YOU_LIKE_THIS_PROPERTY": "If you like this property and are interested in it, please complete the application below. Our team will contact you shortly to provide additional information and arrange a viewing."
+  },
+  "TABLE": {
+    "TOTALAREA": "Total area",
+    "PURPOSE": "Purpose",
+    "USABLEAREA": "Usable area",
+    "OFFICES": "Offices",
+    "KITCHEN": "Kitchen",
+    "BATHROOMS": "Bathrooms",
+    "FLOOR": "Floor",
+    "LIVINGSPACE": "Living space",
+    "ROOMS": "Rooms",
+    "LANDPLOT": "Land plot",
+    "RENT1M2": "Rent 1 m²",
+    "OPERATIONAL1M2": "Operational 1 m²",
+    "TOTALCOST": "Total cost"
+  }
+}

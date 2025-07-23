@@ -1,0 +1,85 @@
+.heading {
+  @include flex-justify-align(space-between, baseline);
+  margin-bottom: 14px;
+  gap: 20px;
+
+  @include media-tablet {
+    flex-direction: column;
+    gap: 16px;
+  }
+}
+
+.address {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 28px;
+  font-weight: 400;
+
+  @include media-laptop {
+    font-size: 24px;
+  }
+}
+
+.price {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--blue);
+  min-width: 300px;
+  text-align: right;
+
+  @include media-laptop {
+    font-size: 28px;
+  }
+
+  @include media-tablet {
+    text-align: left;
+  }
+}
+
+
+.description {
+  @include flex-align(center);
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+
+  @include media-laptop {
+    margin-bottom: 40px;
+  }
+
+  @include media-tablet {
+    margin-bottom: 24px;
+  }
+}
+
+.tags {
+  display: flex;
+  list-style-type: none;
+  gap: 10px;
+  flex-wrap: wrap;
+
+  @include media-laptop {
+    gap: 8px;
+  }
+
+  li {
+    font-size: 12px;
+    font-weight: 500;
+
+    padding: 6px 12px;
+    border-radius: 14px;
+    background-color: var(--nude);
+  }
+}
+
+.city {
+  @include flex-align(center);
+  gap: 4px;
+  color: var(--gray);
+
+  font-size: 12px;
+  font-weight: 500;
+
+  svg {
+    pointer-events: none;
+  }
+}

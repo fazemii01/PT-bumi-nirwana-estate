@@ -1,0 +1,48 @@
+.container {
+  margin-bottom: 150px;
+
+  @include media-laptop {
+    margin-top: 150px;
+    margin-bottom: 120px;
+  }
+
+  @include media-tablet {
+    margin-top: 100px;
+    margin-bottom: 60px;
+  }
+}
+
+.item {
+  @include flex-align(flex-start);
+  gap: 12px;
+  padding: 20px;
+
+  img {
+    width: 80px;
+    height: 80px;
+    pointer-events: none;
+    border-radius: 12px;
+  }
+
+  &Text {
+    margin-bottom: 5px;
+    margin-top: 5px;
+    min-height: 58px;
+    font-weight: 500;
+  }
+
+  &Counter {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--gray);
+  }
+}
+
+.heading {
+  @include flex-justify-align(space-between, center);
+}
+
+.cardSlider {
+  margin-top: -20px;
+}
+

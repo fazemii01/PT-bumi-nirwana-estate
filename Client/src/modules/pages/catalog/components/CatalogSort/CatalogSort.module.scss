@@ -1,0 +1,33 @@
+.container {
+  @include flex-align(center);
+  padding-top: 8px;
+  gap: 24px;
+
+  @include media-laptop {
+    gap: 16px;
+  }
+}
+
+.clean, .iconButton {
+  background-color: transparent;
+  border: none;
+}
+
+.clean {
+  @include flex-align(center);
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--dark);
+  transition: all .4s ease-in-out;
+
+  &:hover {
+    color: var(--primary);
+    transition: all .4s ease-in-out;
+
+    path {
+      stroke: var(--primary);
+      transition: all .4s ease-in-out;
+    }
+  }
+}

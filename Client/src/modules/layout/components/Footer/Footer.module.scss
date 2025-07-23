@@ -1,0 +1,146 @@
+.container {
+  flex-shrink: 0;
+  padding-top: 50px;
+  padding-bottom: 21px;
+  position: relative;
+  z-index: 2;
+
+  @include media-laptop {
+    padding-top: 40px;
+    padding-bottom: 16px;
+  }
+
+  &:before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    left: calc((100% - 100vw) / 2);
+    top: 0;
+    width: 100vw;
+    height: 100%;
+    background-color: var(--blue);
+  }
+}
+
+.inner {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  column-gap: 50px;
+
+  @include media-laptop {
+    column-gap: 24px;
+  }
+
+  @include media-tablet {
+    grid-template-columns: 1fr;
+    max-width: 700px;
+  }
+}
+
+.socials {
+  text-align: center;
+  width: fit-content;
+
+  @include media-tablet {
+    margin-top: 24px;
+    margin-bottom: 40px;
+  }
+
+  p {
+    font-size: 20px;
+    font-weight: 500;
+    margin-bottom: 16px;
+    color: var(--primary);
+
+    @include media-laptop {
+      font-size: 16px;
+    }
+  }
+
+  &List {
+    @include flex-align(center);
+    gap: 40px;
+    list-style-type: none;
+
+    @include media-laptop {
+      gap: 24px;
+    }
+  }
+
+  &Item {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.contacts {
+  display: grid;
+  grid-template-columns: 1fr 170px;
+  justify-self: end;
+  grid-gap: 20px;
+  max-width: 600px;
+  width: 100%;
+  list-style-type: none;
+  color: var(--white);
+  font-size: 16px;
+  font-weight: 300;
+
+  @include media-laptop {
+    font-size: 14px;
+    grid-template-columns: 275px 155px;
+    max-width: 530px;
+    width: fit-content;
+  }
+
+  @include media-tablet {
+    justify-self: baseline;
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    width: auto;
+    max-width: 100%;
+
+    & li:nth-child(2) {
+      order: 1;
+    }
+  }
+
+  @include media-mobile {
+    grid-template-columns: 1fr;
+  }
+
+  & a {
+    @include flex-align(center);
+    gap: 8px;
+    transition: color .4s ease-in-out;
+
+    &:hover {
+      color: var(--primary);
+      transition: color .4s ease-in-out;
+
+      path {
+        fill: var(--primary);
+      }
+    }
+  }
+}
+
+.rights {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--gray);
+  text-align: center;
+  margin-top: 50px;
+
+  @include media-laptop {
+    margin-top: 40px;
+  }
+
+  @include media-mobile {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  a {
+    text-decoration: none;
+  }
+}

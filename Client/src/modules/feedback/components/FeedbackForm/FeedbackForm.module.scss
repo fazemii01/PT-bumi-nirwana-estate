@@ -1,0 +1,62 @@
+.container {
+  @include flex-align(flex-end);
+  gap: 30px;
+
+  @include media-tablet {
+    gap: 24px;
+  }
+
+  @include media-mobile {
+    flex-direction: column;
+    align-items: baseline;
+    gap: 16px;
+  }
+
+
+  textarea {
+    font-family: 'Montserrat', sans-serif;
+    width: 100%;
+    resize: vertical;
+    max-width: 420px;
+    min-height: 150px;
+    max-height: 300px;
+    padding: 8px;
+    font-size: 16px;
+    font-weight: 300;
+    color: var(--dark);
+    border-radius: 8px;
+    border: 1px solid var(--nude);
+
+    @include media-laptop {
+      max-width: 830px;
+      min-height: 100px;
+      font-size: 14px;
+      padding: 10px;
+    }
+
+    &:focus {
+      outline: none;
+    }
+  }
+}
+
+.column {
+  flex-direction: column;
+  align-items: baseline;
+
+  @include media-laptop {
+    flex-direction: row;
+    flex-wrap: wrap;
+    max-width: 830px;
+
+    & label {
+      max-width: calc(50% - 15px);
+    }
+  }
+
+  @include media-mobile {
+    & label {
+      max-width: 100%;
+    }
+  }
+}

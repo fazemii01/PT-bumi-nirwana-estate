@@ -1,0 +1,116 @@
+.container {
+  margin-top: 48px;
+  padding: 34px 20px;
+  background-color: var(--white);
+  box-shadow: 0 4px 12px 0 rgba(175, 175, 175, 0.25);
+  position: relative;
+  z-index: 1;
+  border: 1px solid var(--nude);
+
+  @include media-laptop {
+    padding-left: 50px;
+    padding-right: 50px;
+  }
+
+  @include media-tablet {
+    padding: 24px 16px;
+  }
+
+  &.left {
+    border-radius: 0 18px 18px 18px;
+
+    @include media-mobile {
+      border-top-right-radius: 0;
+    }
+  }
+
+  &.center {
+    border-radius: 18px;
+
+    @include media-mobile {
+      border-top-right-radius: 0;
+      border-top-left-radius: 0;
+    }
+  }
+}
+
+.tabs {
+  display: flex;
+  align-items: center;
+  position: absolute;
+  left: -1px;
+  top: -49px;
+  width: calc(100% + 2px);
+  z-index: 2;
+
+  &.left {
+    justify-content: flex-start;
+  }
+
+  &.center {
+    justify-content: center;
+  }
+}
+
+.tab {
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--gray);
+  padding: 12px;
+  border-top: 1px solid var(--nude);
+  border-right: 1px solid var(--nude);
+  border-left: 1px solid var(--nude);
+  border-bottom: none;
+  max-width: 252px;
+  width: 100%;
+  border-radius: 18px 18px 0 0;
+  transition: background-color .4s ease-in-out, color .4s ease-in-out;
+
+  @include media-laptop {
+    font-size: 16px;
+    min-height: 49px;
+  }
+
+  @include media-mobile {
+    max-width: 50%;
+  }
+
+  &.active {
+    color: var(--primary);
+    background-color: var(--white);
+    transition: background-color .4s ease-in-out, color .4s ease-in-out;
+  }
+
+  &:not(.active) {
+    background-color: var(--nude);
+  }
+}
+
+.form {
+  @include flex-justify-align(center, flex-end);
+  gap: 46px;
+
+  @include media-laptop {
+    justify-content: flex-start;
+  }
+
+  @include media-tablet {
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  @include media-low-tablet {
+    flex-direction: column;
+    align-items: baseline;
+  }
+}
+
+.inputField {
+  @include media-laptop {
+    max-width: 200px;
+  }
+
+  @include media-low-tablet {
+    max-width: 380px;
+  }
+}

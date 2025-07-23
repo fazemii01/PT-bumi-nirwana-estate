@@ -1,0 +1,102 @@
+.container {
+  margin-bottom: 150px;
+
+  @include media-tablet {
+    margin-bottom: 100px;
+  }
+}
+
+.list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  list-style-type: none;
+
+  @include media-laptop {
+    grid-template-columns: repeat(2, 1fr);
+    column-gap: 10px;
+    row-gap: 16px;
+  }
+
+  @include media-tablet {
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  }
+
+  @include media-mobile {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  }
+}
+
+.item, .techSupport {
+  padding: 20px;
+  border-radius: 18px;
+  box-shadow: 0 18px 34px 0 rgba(0, 0, 0, 0.11);
+}
+
+.techSupport {
+  text-align: center;
+  background-color: var(--secondary-blue);
+  color: var(--white);
+  position: relative;
+  overflow: hidden;
+
+  @include media-laptop {
+    padding-top: 27px;
+    padding-bottom: 27px;
+  }
+
+  .clock {
+    position: absolute;
+    right: -38px;
+    bottom: -50px;
+    width: 164px;
+    height: 164px;
+  }
+
+  p {
+    font-size: 20px;
+    font-weight: 400;
+    max-width: 55%;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+
+    @include media-laptop {
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 15px;
+    }
+
+    @include media-mobile {
+      max-width: 60%;
+    }
+  }
+
+  span {
+    font-family: 'Playfair Display', serif;
+    font-size: 50px;
+    line-height: 1;
+    font-weight: 700;
+
+    @include media-laptop {
+      font-size: 32px;
+    }
+  }
+}
+
+.item {
+  @include flex-align(center);
+  gap: 15px;
+  background-color: var(--white);
+  border: 1px solid var(--nude);
+
+  img {
+    border-radius: 12px;
+    width: 80px;
+    height: 80px;
+  }
+}
+
+.allRealEstateButton {
+  margin-top: 24px;
+}

@@ -1,0 +1,12 @@
+.container {
+  font-size: 32px;
+  margin-bottom: 24px;
+
+  @include media-laptop {
+    font-size: 26px;
+  }
+
+  @include media-tablet {
+    margin-bottom: 16px;
+  }
+}

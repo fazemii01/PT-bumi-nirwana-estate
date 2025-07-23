@@ -1,0 +1,40 @@
+.container {
+  &.full {
+    @include flex-justify-align(center, center);
+    flex-direction: column;
+    height: 100vh;
+    width: 100%;
+  }
+
+  img, p {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  img {
+    display: block;
+    width: 110px;
+    height: 110px;
+    animation: rotate 20s linear infinite;
+
+    @include media-tablet {
+      width: 80px;
+      height: 80px;
+    }
+  }
+
+  p {
+    margin-top: 20px;
+    width: fit-content;
+    color: var(--gray);
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
