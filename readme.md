@@ -98,13 +98,18 @@ Front-End Web
 
 Front-End Mobile
 
-- Framework: React-Native 0.74 (Expo SDK 49).
-- Navigation: Expo Router v3.
-- Maps: react-native-maps (Google on Android, MapKit on iOS).
-- State: same Zustand stores auto-generated from OpenAPI.
-- Offline: WatermelonDB (optional) for saved favorites.
-- Push: Expo Notifications (Firebase/APNs).
-- Build & OTA: EAS build + EAS update.
+- Framework: Flutter 3.22 (Dart 3)
+- Architecture: Clean Architecture + Riverpod (Generator)
+- DI: get_it + injectable
+- Routing: Auto_route (deep-links)
+- Networking: Retrofit/Dio (REST) + Hive cache
+- JSON: freezed + json_annotation
+- Maps: google_maps_flutter + flutter_map fallback
+- Image / PDF viewer: extended_image + flutter_pdfview + photo_view
+- Local storage: Hive (favorites), flutter_secure_storage (tokens)
+- Push: Firebase Cloud Messaging
+- CI/CD: GitHub Actions → EAS-like via Flutter workflow
+- OTA hot-fix: Shorebird
 
 DevOps & Tooling
 
