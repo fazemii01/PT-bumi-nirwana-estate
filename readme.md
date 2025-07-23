@@ -231,4 +231,3 @@ Week 8 – Release
 ☐ Sentry DSN configured for staging & prod  
 ☐ App store assets (screenshots, privacy policy) ready
 
-You now have a concise, English-language plan and tech stack that you can paste directly into Confluence or Notion and share with the SPV.
