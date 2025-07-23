@@ -96,6 +96,24 @@ Front-End Web
 - Chatbot: React-Chatbotify or custom UI wired to WebSocket.
 - Image viewer: yet-another-react-lightbox + next/image.
 
+  Animation base
+
+  Based on my analysis of the website's HTML and CSS, the animations can be broken down into three main categories:
+
+  CSS Transitions: The most common animations are simple transitions on interactive elements like buttons, links, and cards. These are handled by Tailwind CSS utility classes (e.g., transition-all, duration-300), which create smooth changes in properties like color, background, and shadows on hover or focus.
+
+  Pre-built CSS Animations: The site uses standard animations provided by Tailwind CSS, including:
+
+  bounce: For elements that need to grab attention, like a "scroll down" indicator.
+  pulse: A subtle fading animation often used for loading skeletons or to indicate a live status.
+  spin: A classic rotating animation used for loading spinners.
+  Scroll-Triggered Animations: It is highly probable that the website uses a JavaScript library to trigger animations as you scroll. This is a very common technique in modern web design. As you scroll down the page, elements like text blocks, images, and entire sections likely fade in, slide into view, or scale up. These effects are typically orchestrated by libraries such as:
+
+  Framer Motion: A very popular and powerful animation library for React.
+  AOS (Animate On Scroll): A lightweight library specifically for scroll-triggered animations.
+  GSAP (GreenSock Animation Platform): A professional-grade animation library for more complex and high-performance animations.
+  In summary, the website's animations are a combination of simple CSS transitions for user interactions, a few standard CSS keyframe animations for emphasis, and almost certainly a JavaScript library to create engaging animations that are revealed on scroll.
+
 Front-End Mobile
 
 - Framework: Flutter 3.22 (Dart 3)
