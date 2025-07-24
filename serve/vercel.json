@@ -6,14 +6,14 @@
       "use": "@vercel/node",
       "config": {
         "buildCommand": "npm run build",
-        "includeFiles": ["dist/**"]
+        "includeFiles": ["public/**"]
       }
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "dist/main.js"
+      "dest": "public/main.js"
     }
   ]
 }
