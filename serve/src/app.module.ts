@@ -12,7 +12,6 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { UserFavoritesModule } from './user-favorites/user-favorites.module';
 import { ChatbotModule } from './chatbot/chatbot.module';
-import postgres from 'postgres'
 
 @Module({
   imports: [
@@ -30,6 +29,9 @@ import postgres from 'postgres'
         database: configService.get<string>('DB_DATABASE'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: true, // Shouldn't be used in production
+        ssl: {
+          rejectUnauthorized: false,
+        },
       }),
       inject: [ConfigService],
     }),
