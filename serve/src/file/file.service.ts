@@ -4,7 +4,7 @@ import { join } from 'path';
 
 @Injectable()
 export class FileService {
-  private readonly uploadPath = join(__dirname, '..', '..', 'uploads');
+  private readonly uploadPath = join('/tmp', 'uploads');
 
   constructor() {
     this.ensureUploadsDirectoryExists();
