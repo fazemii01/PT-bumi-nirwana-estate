@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToMany,
+} from 'typeorm';
 import { UserFavorite } from './user-favorite.entity';
 
 @Entity('users')
@@ -8,6 +15,9 @@ export class User {
 
   @Column({ type: 'varchar', length: 255, unique: true, nullable: false })
   email: string;
+
+  @Column({ type: 'varchar', length: 255, nullable: false })
+  phone_number: string;
 
   @Column({ type: 'varchar', length: 255, nullable: false })
   password_hash: string;
