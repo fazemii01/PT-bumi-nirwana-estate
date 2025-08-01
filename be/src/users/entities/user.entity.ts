@@ -1,5 +1,5 @@
 import { UserFavorite } from '@/user-favorites/entities/user-favorite.entity';
-import { Role } from '@/users/entities/role.entity';
+
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -8,6 +8,7 @@ import {
   UpdateDateColumn,
   OneToMany,
 } from 'typeorm';
+import { Role } from './role.entity';
 
 @Entity('users')
 export class User {
