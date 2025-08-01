@@ -7,7 +7,7 @@ const port = 5000;
 app.use((req, res, next) => {
 	const isProduction = app.get('env') === 'production';
 	const IP = isProduction ? 'https://pt-bumi-nirwana-estate.vercel.app/' : 'http://localhost:3000';
-	res.setHeader('Access-Control-Allow-Origin', IP);
+	res.setHeader('*', IP);
 	next();
 });
 
