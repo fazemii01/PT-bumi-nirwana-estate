@@ -1,33 +1,34 @@
-import { Controller, Get, Post, Body, Param, Put, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { DevelopersService } from './developers.service';
-import { Developer } from './developer.entity';
+import { CreateDeveloperDto } from './dto/create-developer.dto';
+import { UpdateDeveloperDto } from './dto/update-developer.dto';
 
 @Controller('developers')
 export class DevelopersController {
   constructor(private readonly developersService: DevelopersService) {}
 
+  @Post()
+  create(@Body() createDeveloperDto: CreateDeveloperDto) {
+    return this.developersService.create(createDeveloperDto);
+  }
+
   @Get()
-  findAll(): Promise<Developer[]> {
+  findAll() {
     return this.developersService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): Promise<Developer> {
-    return this.developersService.findOne(id);
+  findOne(@Param('id') id: string) {
+    return this.developersService.findOne(+id);
   }
 
-  @Post()
-  create(@Body() developerData: Partial<Developer>): Promise<Developer> {
-    return this.developersService.create(developerData);
-  }
-
-  @Put(':id')
-  update(@Param('id') id: string, @Body() developerData: Partial<Developer>): Promise<Developer> {
-    return this.developersService.update(id, developerData);
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() updateDeveloperDto: UpdateDeveloperDto) {
+    return this.developersService.update(+id, updateDeveloperDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string): Promise<void> {
-    return this.developersService.remove(id);
+  remove(@Param('id') id: string) {
+    return this.developersService.remove(+id);
   }
 }

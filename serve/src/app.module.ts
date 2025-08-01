@@ -1,18 +1,20 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { Module, ValidationPipe } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { DevelopersModule } from './developers/developers.module';
-import { AgentsModule } from './agents/agents.module';
+import { UsersModule } from './users/users.module';
 import { PropertiesModule } from './properties/properties.module';
+import { AgentsModule } from './agents/agents.module';
+import { AuthsModule } from './auths/auths.module';
+import { ChatbotModule } from './chatbot/chatbot.module';
+import { DevelopersModule } from './developers/developers.module';
 import { FileModule } from './file/file.module';
 import { SearchModule } from './search/search.module';
-import { UsersModule } from './users/users.module';
-import { AuthModule } from './auth/auth.module';
 import { UserFavoritesModule } from './user-favorites/user-favorites.module';
-import { ChatbotModule } from './chatbot/chatbot.module';
-import { LoggerMiddleware } from './middleware/logger.middleware';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { APP_GUARD, APP_PIPE } from '@nestjs/core';
+import { JwtAuthGuard } from '@/auths/jwt-auth-guard.guard';
+import { RoleGuard } from '@/auths/auths.guard';
 
 @Module({
   imports: [
@@ -23,11 +25,6 @@ import { LoggerMiddleware } from './middleware/logger.middleware';
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
-        //host: configService.get<string>('DB_HOST'),
-        //port: configService.get<number>('DB_PORT', 5432),
-        //username: configService.get<string>('DB_USERNAME'),
-        //password: configService.get<string>('DB_PASSWORD'),
-        //database: configService.get<string>('DB_DATABASE'),
         url: configService.get<string>('DATABASE_URL'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: true, // Shouldn't be used in production
@@ -37,21 +34,32 @@ import { LoggerMiddleware } from './middleware/logger.middleware';
       }),
       inject: [ConfigService],
     }),
-    DevelopersModule,
-    AgentsModule,
+    UsersModule,
     PropertiesModule,
+    AgentsModule,
+    AuthsModule,
+    ChatbotModule,
+    DevelopersModule,
     FileModule,
     SearchModule,
-    UsersModule,
-    AuthModule,
     UserFavoritesModule,
-    ChatbotModule,
   ],
+
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RoleGuard,
+    },
+    {
+      provide: APP_PIPE,
+      useClass: ValidationPipe,
+    },
+  ],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggerMiddleware).forRoutes('*');
-  }
-}
+export class AppModule {}

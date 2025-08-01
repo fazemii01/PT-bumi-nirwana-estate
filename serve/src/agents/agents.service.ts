@@ -1,38 +1,26 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Agent } from './agent.entity';
+import { Injectable } from '@nestjs/common';
+import { CreateAgentDto } from './dto/create-agent.dto';
+import { UpdateAgentDto } from './dto/update-agent.dto';
 
 @Injectable()
 export class AgentsService {
-  constructor(
-    @InjectRepository(Agent)
-    private agentsRepository: Repository<Agent>,
-  ) {}
-
-  findAll(): Promise<Agent[]> {
-    return this.agentsRepository.find();
+  create(createAgentDto: CreateAgentDto) {
+    return 'This action adds a new agent';
   }
 
-  async findOne(id: string): Promise<Agent> {
-    const agent = await this.agentsRepository.findOneBy({ id });
-    if (!agent) {
-      throw new NotFoundException(`Agent with ID "${id}" not found`);
-    }
-    return agent;
+  findAll() {
+    return `This action returns all agents`;
   }
 
-  async create(agentData: Partial<Agent>): Promise<Agent> {
-    const newAgent = this.agentsRepository.create(agentData);
-    return this.agentsRepository.save(newAgent);
+  findOne(id: number) {
+    return `This action returns a #${id} agent`;
   }
 
-  async update(id: string, agentData: Partial<Agent>): Promise<Agent> {
-    await this.agentsRepository.update(id, agentData);
-    return this.findOne(id);
+  update(id: number, updateAgentDto: UpdateAgentDto) {
+    return `This action updates a #${id} agent`;
   }
 
-  async remove(id: string): Promise<void> {
-    await this.agentsRepository.delete(id);
+  remove(id: number) {
+    return `This action removes a #${id} agent`;
   }
 }
