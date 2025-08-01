@@ -6,11 +6,11 @@ const port = 5000;
 
 app.use((req, res, next) => {
 	const isProduction = app.get('env') === 'production';
-	const IP = isProduction ? 'https://pt-bumi-nirwana-estate.vercel.app/' : 'http://localhost:3000';
+	const IP = isProduction ? 'https://pt-bumi-nirwana-estate.vercel.app/' : 'http://localhost:4400';
 	res.setHeader('*', IP);
 	next();
 });
-
+app.options("*", IP());
 const startServer = () => {
 	try {
 		app.use('/', routes);

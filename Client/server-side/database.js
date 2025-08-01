@@ -4,15 +4,16 @@ import mysql from 'mysql';
 dotenv.config();
 
 const pool = mysql.createPool({
-	connectionLimit: 20,
-	host: process.env.DB_HOST,
-	user: process.env.DB_USER,
-	password: process.env.DB_PASSWORD,
-	database: process.env.DB_TABLE_NAME,
+	//connectionLimit: 20,
+	//host: process.env.DB_HOST,
+	//user: process.env.DB_USER,
+	//password: process.env.DB_PASSWORD,
+	//database: process.env.DB_TABLE_NAME,
+	database: DATABASE_URL,
 });
 
 const databaseConnection = (res) => {
-	const query = 'SELECT * FROM real_estate';
+	const query = 'SELECT * FROM postgres';
 	
 	pool.getConnection((err, connection) => {
 		if (err) {
