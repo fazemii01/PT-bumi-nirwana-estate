@@ -13,4 +13,4 @@ export const AUTHOR_INFO = {
 
 export const BACKEND_LOCALHOST = IS_PRODUCTION
 	? PRODUCTION_LINK
-	: 'http://localhost:5000';
+	: 'http://localhost:3000';
