@@ -12,9 +12,9 @@ const SwitchLanguage = () => {
 	const { i18n } = useTranslation();
 
 	const languages = [
-		{ value: 'ua', title: 'ua' },
-		{ value: 'ru', title: 'ru' },
+		{ value: 'id', title: 'id' },
 		{ value: 'en', title: 'en' },
+		
 	];
 
 	const switchLanguage = (selectedLanguage: DropdownOptions) => {

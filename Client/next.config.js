@@ -8,8 +8,8 @@ const nextConfig = {
 		additionalData: `@import "src/assets/styles/variables.scss"; @import "src/assets/styles/mixins.scss";`,
 	},
 	i18n: {
-		locales: ['en', 'ru', 'ua'],
-		defaultLocale: 'ua',
+		locales: ['en', 'id', 'ru', 'ua'],
+		defaultLocale: 'id',
 		localeDetection: false,
 	},
 	exportPathMap: async () => {
@@ -17,35 +17,35 @@ const nextConfig = {
 			'/': {
 				page: '/',
 				query: {
-					lang: 'ua',
-					__nextDefaultLocale: 'ua',
-					__nextLocale: 'ua',
+					lang: 'id',
+					__nextDefaultLocale: 'id',
+					__nextLocale: 'id',
 				},
 			},
 			'/catalog': {
 				page: '/catalog',
 				query: {
-					lang: 'ua',
-					__nextDefaultLocale: 'ua',
-					__nextLocale: 'ua',
+					lang: 'id',
+					__nextDefaultLocale: 'id',
+					__nextLocale: 'id',
 				},
 			},
 			'/services': {
 				page: '/services',
 				query: {
-					lang: 'ua',
-					__nextDefaultLocale: 'ua',
-					__nextLocale: 'ua',
+					lang: 'id',
+					__nextDefaultLocale: 'id',
+					__nextLocale: 'id',
 				},
 			},
 		};
 		
-		const languages = ['en', 'ru', 'ua'];
-		const defaultLanguage = 'ua';
+		const languages = ['id', 'en', 'ru', 'ua'];
+		const defaultLanguage = 'id';
 		
 		for (const language of languages) {
 			paths[`/${language}`] = {
-				page: `/${language}`,
+				page: `/`,
 				query: {
 					lang: language,
 					__nextDefaultLocale: defaultLanguage,
@@ -89,6 +89,16 @@ const nextConfig = {
 		
 		return config;
 	},
+	images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        port: '',
+        pathname: '/**',
+      },
+    ],
+  },
 };
 
 export default nextConfig;

@@ -19,31 +19,32 @@ const HomeIntro = () => {
 	const isMobile = useMediaQuery(MOBILE_BREAKPOINT);
 	const buildingText = tCommon('BUILDING');
 
-	const advantages = [
-		{ text: tHome('INTRO.M_2_UNDER_THE_MANAGEMENT'), value: 96000 },
-		{
-			text: tHome('INTRO.OBJECTS_UNDER_THE_MANAGEMENT'),
-			value: 240,
-		},
-		{ text: tHome('INTRO.TENANTS'), value: 730 },
-	];
+	//const advantages = [
+	//	{ text: tHome('INTRO.M_2_UNDER_THE_MANAGEMENT'), value: 96000 },
+	//	{
+	//		text: tHome('INTRO.OBJECTS_UNDER_THE_MANAGEMENT'),
+	//		value: 240,
+	//	},
+    //  <ul className={s.list}>
+	//				{advantages.map((item) => (
+	//					<li key={item.value}>
+	//						<p className={s.listValue}>
+	//							{item.value}
+	//							<span>+</span>
+	//						</p>
+	//						<p className={s.listText}>{item.text}</p>
+	//					</li>
+	//				))}
+	//			//</ul>
+	//	{ text: tHome('INTRO.TENANTS'), value: 730 },
+	//];
 
 	return (
 		<section className={s.container}>
 			<article className={s.intro}>
 				<h1 className={s.title}>{tHome('INTRO.WE_WILL_FIND')}</h1>
 				<p className={s.description}>{tHome('INTRO.YOUR_RELIABLE_ASSISTANT')}</p>
-				<ul className={s.list}>
-					{advantages.map((item) => (
-						<li key={item.value}>
-							<p className={s.listValue}>
-								{item.value}
-								<span>+</span>
-							</p>
-							<p className={s.listText}>{item.text}</p>
-						</li>
-					))}
-				</ul>
+				
 			</article>
 			<article className={s.posters}>
 				<Loader className={s.loader} />

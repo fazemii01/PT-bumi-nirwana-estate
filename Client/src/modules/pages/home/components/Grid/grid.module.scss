@@ -1,0 +1,46 @@
+// PinterestGrid.module.scss
+
+.gridContainer {
+  // Define column properties
+  column-gap: 1rem; // Space between columns
+  padding: 1rem;
+
+  // --- Responsive Columns ---
+  // Start with 2 columns on small screens
+  column-count: 2;
+
+  // 3 columns on tablets
+  @media (min-width: 768px) {
+    column-count: 3;
+  }
+
+  // 4 columns on laptops
+  @media (min-width: 1024px) {
+    column-count: 4;
+  }
+  
+  // 5 columns on large desktops
+  @media (min-width: 1400px) {
+    column-count: 5;
+  }
+}
+
+.gridItem {
+  // This is crucial to prevent items from splitting across columns
+  break-inside: avoid;
+  
+  // Add margin to the bottom for vertical spacing
+  margin-bottom: 1rem; 
+  
+  // Optional: Add some styling to the cards
+  border-radius: 8px;
+  overflow: hidden; // Ensures the image corners are rounded too
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.image {
+  // Make the image fill its container while maintaining aspect ratio
+  width: 100%;
+  height: auto;
+  display: block; // Removes any bottom spacing on the image
+}

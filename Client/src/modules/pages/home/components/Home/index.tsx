@@ -10,6 +10,9 @@ import HomePartners from '@modules/pages/home/components/HomePartners';
 import HomeReviews from '@modules/pages/home/components/HomeReviews';
 import HomeTeam from '@modules/pages/home/components/HomeTeam';
 import HomeWhoWeAre from '@modules/pages/home/components/HomeWhoWeAre';
+import Chatbot from '@modules/chatbot/components/Chatbot';
+import Grid from '@modules/pages/home/components/Grid/container';
+
 
 const Home = () => {
 	const { t } = useTranslation('common');
@@ -17,6 +20,7 @@ const Home = () => {
 		<>
 			<Meta title={t('NAVIGATION.MAIN')} />
 			<HomeIntro />
+			<Grid />
 			<Filter />
 			<HomeWhoWeAre />
 			<HomeTeam />
@@ -26,6 +30,7 @@ const Home = () => {
 			<HomePartners />
 			<HomeReviews />
 			<Feedback type="owner" />
+			<Chatbot />
 		</>
 	);
 };
