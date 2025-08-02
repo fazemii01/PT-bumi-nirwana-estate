@@ -7,6 +7,7 @@ export const COMPANY_INFO = {
 	SECOND_CONTACT_NUMBER: '+6285852585898',
 	INSTAGRAM: 'https://www.instagram.com/akuladevelopmentpartner/',
 	FACEBOOK: 'https://www.facebook.com/profile.php?id=61578323264587',
+	VIBER: "",
 	TIKTOK: 'https://www.tiktok.com/@buminirwana.estate',
 	WHATSAPP: 'wa.me/+6281959948000',
 };
