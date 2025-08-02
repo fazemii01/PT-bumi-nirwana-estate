@@ -8,6 +8,7 @@ export const COMPANY_INFO = {
 	INSTAGRAM: 'https://www.instagram.com/akuladevelopmentpartner/',
 	FACEBOOK: 'https://www.facebook.com/profile.php?id=61578323264587',
 	VIBER: "",
+	TELEGRAM : "",
 	TIKTOK: 'https://www.tiktok.com/@buminirwana.estate',
 	WHATSAPP: 'wa.me/+6281959948000',
 };
