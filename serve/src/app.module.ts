@@ -7,7 +7,6 @@ import { AgentsModule } from './agents/agents.module';
 import { AuthsModule } from './auths/auths.module';
 import { ChatbotModule } from './chatbot/chatbot.module';
 import { DevelopersModule } from './developers/developers.module';
-import { FileModule } from './file/file.module';
 import { SearchModule } from './search/search.module';
 import { UserFavoritesModule } from './user-favorites/user-favorites.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -40,7 +39,6 @@ import { RoleGuard } from '@/auths/auths.guard';
     AuthsModule,
     ChatbotModule,
     DevelopersModule,
-    FileModule,
     SearchModule,
     UserFavoritesModule,
   ],

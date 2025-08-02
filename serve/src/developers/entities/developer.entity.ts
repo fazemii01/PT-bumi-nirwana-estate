@@ -14,7 +14,7 @@ export class Developer {
   @Column({ type: 'varchar', length: 255, nullable: false })
   name: string;
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   logo_url: string;
 
   @Column({ type: 'text', nullable: true })
