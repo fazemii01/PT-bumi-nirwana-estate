@@ -2,7 +2,7 @@ export const COMPANY_INFO = {
 	NAME: 'PT Bumi Nirwana Estate',
 	EMAIL: 'margojoyoland@gmail.com',
 	ADDRESS: 'Jl. Ahmad Yani Np. 172, Kepuharjo, Lumajang',
-	ADDRESS_MAP: 'https://goo.gl/maps/jRdfTgXSXZGxwQ636',
+	ADDRESS_MAP: 'https://maps.app.goo.gl/SZha7MmKWKcGyyK99',
 	MAIN_CONTACT_NUMBER: '+6285852585898',
 	SECOND_CONTACT_NUMBER: '+6285852585898',
 	INSTAGRAM: 'https://www.instagram.com/akuladevelopmentpartner/',

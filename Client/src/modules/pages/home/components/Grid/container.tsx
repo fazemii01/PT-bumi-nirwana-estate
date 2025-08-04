@@ -3,7 +3,7 @@ import GridItem from './grid';
 import styles from './grid.module.scss';
 
 // Sample data - in a real app, this would come from an API
-const imageData = [
+export const imageData = [
   { id: 1, url: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952' },
   { id: 2, url: 'https://images.unsplash.com/photo-1543269865-cbf427effbad' },
   { id: 3, url: 'https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca' },
