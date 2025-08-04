@@ -1,38 +1,26 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Property } from './property.entity';
+import { Injectable } from '@nestjs/common';
+import { CreatePropertyDto } from './dto/create-property.dto';
+import { UpdatePropertyDto } from './dto/update-property.dto';
 
 @Injectable()
 export class PropertiesService {
-  constructor(
-    @InjectRepository(Property)
-    private propertiesRepository: Repository<Property>,
-  ) {}
-
-  findAll(): Promise<Property[]> {
-    return this.propertiesRepository.find({ relations: ['developer', 'agent', 'images', 'floor_plans'] });
+  create(createPropertyDto: CreatePropertyDto) {
+    return 'This action adds a new property';
   }
 
-  async findOne(id: string): Promise<Property> {
-    const property = await this.propertiesRepository.findOne({ where: { id }, relations: ['developer', 'agent', 'images', 'floor_plans'] });
-    if (!property) {
-      throw new NotFoundException(`Property with ID "${id}" not found`);
-    }
-    return property;
+  findAll() {
+    return `This action returns all properties`;
   }
 
-  async create(propertyData: Partial<Property>): Promise<Property> {
-    const newProperty = this.propertiesRepository.create(propertyData);
-    return this.propertiesRepository.save(newProperty);
+  findOne(id: number) {
+    return `This action returns a #${id} property`;
   }
 
-  async update(id: string, propertyData: Partial<Property>): Promise<Property> {
-    await this.propertiesRepository.update(id, propertyData);
-    return this.findOne(id);
+  update(id: number, updatePropertyDto: UpdatePropertyDto) {
+    return `This action updates a #${id} property`;
   }
 
-  async remove(id: string): Promise<void> {
-    await this.propertiesRepository.delete(id);
+  remove(id: number) {
+    return `This action removes a #${id} property`;
   }
 }

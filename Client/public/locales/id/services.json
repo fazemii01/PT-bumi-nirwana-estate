@@ -1,0 +1,66 @@
+{
+  "COMPANY_SERVICES": "Layanan Perusahaan",
+  "AKULA_TEAM": "Tim <0>Mitra Pengembang Akula</0> adalah spesialis dengan pengalaman luas di pasar real estat. Kami memberikan keahlian dan strategi luar biasa kepada klien kami untuk memaksimalkan investasi real estat melalui manajemen dan pemasaran yang efektif.",
+  "WE_ARE_CONSTANTLY_EXPANDING": "Kami terus memperluas jangkauan layanan kami. Jika Anda tertarik untuk menghasilkan pendapatan dari real estat yang Anda miliki, kami siap membantu Anda mencapai tujuan yang Anda inginkan!",
+  "WE_ARE_A_SPECIALIZED_COMPANY": "Kami adalah perusahaan khusus yang menyediakan layanan perantara antara pelanggan dan pemilik di pasar real estat. Untuk menyediakan layanan real estat: pembelian, penjualan, sewa real estat residensial dan komersial, bantuan dalam memperoleh hipotek.",
+  "SERVICES_LIST": {
+    "STRATEGIC_SUPPORT_AND_DEVELOPMENT": "Dukungan dan pengembangan strategis",
+    "CONSULTING_SUPPORT": "Dukungan konsultasi",
+    "MAINTENANCE_AND_UPGRADE": "Pemeliharaan dan peningkatan",
+    "COMFORT_AND_SAFETY_OF_OBJECTS": "Kenyamanan dan keamanan objek",
+    "SUBLIST": {
+      "SERVICES_FOR_DEVELOPERS_INVESTORS": {
+        "TITLE": "Layanan untuk pengembang/investor",
+        "DESC": "<0>Analisis investasi proyek.</0><0>Pengembangan konsep proyek dengan mempertimbangkan analisis dan peramalan laba atas investasi objek.</0><0>Penelitian dan analisis bidang tanah yang ditujukan untuk pembangunan objek.</0><0>Konsultasi dan dukungan dalam negosiasi.</0><0>Pembuatan perkiraan keuangan dengan mempertimbangkan semua kebutuhan untuk manajemen objek real estat yang efektif.</0><0>Pengembangan desain real estat.</0><0>Pembangunan fasilitas secara langsung.</0><0>Pembentukan materi presentasi.</0><0>Commissioning objek.</0><0>Pemasaran dan pencarian pelanggan untuk objek real estat yang sudah jadi.</0><0>Manajemen kompleks real estat dengan tujuan meningkatkan keuntungan komersialnya.</0><0>Dukungan kompleks, termasuk pemasaran, hukum, akuntansi, dan komponen lainnya.</0>"
+      },
+      "SERVICES_FOR_OWNERS": {
+        "TITLE": "Layanan untuk pemilik",
+        "DESC": "<0>Estimasi nilai objek.</0><0>Pencarian penyewa/pembeli potensial (perantaraan).</0><0>Penyusunan perjanjian sewa dan penetapan syarat.</0><0>Pembuatan konsep baru objek real estat.</0><0>Desain dan dekorasi objek.</0><0>Dukungan pemasaran.</0><0>Konsultasi pemilik real estat.</0><0>Pergantian penyewa secara teratur dan pembaruan tarif sewa sesuai dengan tren pasar.</0><0>Memastikan kepatuhan terhadap syarat kontrak oleh penyewa.</0><0>Pengembangan dan persetujuan anggaran manajemen real estat.</0><0>Audit fungsionalitas/manajemen perubahan (jika perlu).</0><0>Manajemen, hukum, akuntansi, dukungan teknis.</0>"
+      },
+      "SERVICES_FOR_BUSINESS": {
+        "TITLE": "Layanan untuk bisnis",
+        "DESC": "<0>Pencarian dan pemilihan objek real estat yang sesuai.</0><0>Merancang perkiraan biaya yang diperlukan untuk manajemen objek real estat yang efektif.</0><0>Pengembangan desain dan penataan tempat.</0><0>Layanan konsultasi untuk penyewa dan pembeli.</0><0>Manajemen, hukum, akuntansi, dukungan teknis.</0>"
+      },
+      "COMMERCIAL_MANAGEMENT": {
+        "TITLE": "Manajemen komersial",
+        "DESC": "<0>Menyediakan layanan yang berkaitan dengan dukungan hukum, akuntansi, dan manajemen kontrak, serta memantau pemenuhan semua syarat sewa.</0><0>Kontrol pendapatan dan indeksasi sewa sesuai dengan syarat perjanjian sewa, pembentukan faktur sesuai dengan perjanjian sewa.</0><0>Manajemen dan pelacakan penerimaan pembayaran sewa tepat waktu ke rekening pemilik properti.</0><0>Konsultasi hukum dan perlindungan kepentingan pemilik real estat di semua organisasi publik/swasta.</0><0>Manajemen dan implementasi penyerahan objek kepada penyewa tempat sesuai dengan syarat kontrak yang telah dibentuk sebelumnya, penerimaan tempat setelah berakhirnya perjanjian sewa.</0><0>Kontrol dan jaminan pemenuhan semua kewajiban oleh penyewa sesuai dengan perjanjian sewa yang telah dibentuk.</0><0>Analisis masalah yang timbul dalam proses pengelolaan objek real estat.</0><0>Asuransi objek real estat.</0><0>Implementasi pemilihan cepat klien baru untuk disewakan jika terjadi penghentian dini perjanjian sewa oleh penyewa sebelumnya.</0><0>Dukungan pemasaran dan implementasi strategi yang efektif di bidang manajemen real estat.</0>"
+      },
+      "BROKERAGE": {
+        "TITLE": "Perantaraan",
+        "DESC": "<0>Pembuatan tarif sewa yang optimal dengan mempertimbangkan tren pasar.</0><0>Keseimbangan arus keuangan dengan mempertimbangkan konsep proyek.</0><0>Pembentukan syarat kontrak sewa, jual beli.</0><0>Membuat kumpulan penyewa sesuai dengan persyaratan dan konsep proyek.</0><0>Konsultasi dan negosiasi awal dengan klien potensial.</0><0>Menyusun perjanjian sewa.</0><0>Perantaraan teknis dan koordinasi penyerahan tempat kepada penyewa.</0><0>Perantaraan operasional: pencarian dan pergantian tuan tanah, memantau tren pertumbuhan sewa di pasar.</0><0>Kontrol dan memastikan bahwa pemberi sewa memenuhi syarat perjanjian sewa.</0>"
+      },
+      "CONSULTING": {
+        "TITLE": "Konsultasi",
+        "DESC": "<0>Pembentukan strategi pengembangan real estat.</0><0>Analisis pilihan yang optimal dan efektif untuk menggunakan objek real estat.</0><0>Dukungan proyek dalam aspek observasi ahli, dengan mempertimbangkan eksploitasi lebih lanjut.</0><0>Memilih solusi arsitektur, konstruksi, dan rekayasa yang optimal untuk objek real estat.</0><0>Pemasaran dan penentuan posisi objek di pasar.</0><0>Pembentukan strategi personel dan implementasinya lebih lanjut.</0><0>Merencanakan dan menyelenggarakan pelatihan dan seminar bisnis.</0>"
+      },
+      "TECHNICAL_CONSULTING": {
+        "TITLE": "Konsultasi teknis",
+        "DESC": "<0>Pembentukan dan analisis tugas untuk pengembangan sistem rekayasa.</0><0>Penelitian solusi teknis dari sudut pandang eksploitasi lebih lanjut.</0><0>Rekomendasi tentang pembentukan dan penempatan pusat energi real estat dan objek komersial yang tepat.</0><0>Penelitian sistem rekayasa dasar dari sudut pandang operasi lebih lanjut.</0><0>Analisis dan persetujuan dokumentasi proyek yang ada dalam hal kepatuhan terhadap semua standar dan persyaratan saat ini.</0>"
+      },
+      "BEFORE_COMMISSIONING": {
+        "TITLE": "Sebelum commissioning",
+        "DESC": "<0>Pembentukan daftar sistem dan struktur yang memerlukan dokumentasi peralatan dari kontraktor umum.</0><0>Penerimaan objek dengan penandatanganan akta yang relevan.</0><0>Pembentukan jadwal pekerjaan perbaikan dan pembelian alat, perangkat, dan bahan jika perlu.</0><0>Membuat gudang dan memelihara dokumentasi yang berkaitan dengan bahan yang tersedia.</0><0>Kontrol atas kinerja pekerjaan yang berkaitan dengan dekorasi tempat pemberi sewa.</0>"
+      },
+      "NETWORK_MAINTENANCE": {
+        "TITLE": "Pemeliharaan jaringan",
+        "DESC": "<0>Pemeliharaan sistem rekayasa, modernisasi dan manajemennya.</0><0>Implementasi perbaikan yang diperlukan untuk peralatan dan persiapan dokumentasi yang relevan.</0><0>Penyusunan laporan pekerjaan yang telah selesai (periodisitas) dan pengembangan rencana perbaikan modal.</0><0>Dukungan teknis 24/7.</0><0>Pengembangan aturan untuk pelaksanaan pekerjaan finishing dan kontrol implementasinya dari sudut pandang koneksi ke sistem rekayasa dasar.</0><0>Memproses aplikasi penyewa untuk layanan operasional, dll.</0>"
+      },
+      "RENOVATION_OF_OBJECTS": {
+        "TITLE": "Renovasi objek",
+        "DESC": "<0>Modernisasi dan penggantian peralatan usang.</0><0>Perubahan rencana dan tujuan tempat.</0><0>Konversi dan perlengkapan objek real estat untuk pengoperasian yang nyaman.</0><0>Renovasi interior dan desain ulang ruang kantor/perumahan/komersial.</0><0>Organisasi transfer secara permanen.</0>"
+      },
+      "SECURITY": {
+        "TITLE": "Keamanan",
+        "DESC": "<0>Perlindungan objek 24 jam dan memastikan keamanan tempat.</0><0>Memastikan keselamatan orang di lokasi.</0><0>Kontrol dan pemeliharaan sistem alarm dan keselamatan kebakaran.</0><0>Dukungan pesanan administratif.</0><0>Bantuan parkir dan perutean transportasi.</0>"
+      },
+      "CLEANING": {
+        "TITLE": "Pembersihan",
+        "DESC": "<0>Disinfeksi, derating dan pengendalian hama di area umum, area sekitar dan fasilitas.</0><0>Pembersihan permukaan kaca, jendela dan fasad.</0><0>Pembersihan dan perawatan karpet tetap, menggantinya jika perlu.</0><0>Perawatan dan pembersihan atap dari salju dan puing-puing kecil.</0><0>Pembersihan pasca konstruksi dan/atau umum sebelum mengambil alih fasilitas atau mengganti penyewa.</0>"
+      },
+      "RECEPTIONIST": {
+        "TITLE": "Resepsionis",
+        "DESC": "<0>Pendaftaran dan penerbitan pass elektronik.</0><0>Menerima banding dan aplikasi dari penyewa.</0><0>Pembentukan informasi dan penciptaan suasana yang ramah di wilayah objek.</0>"
+      }
+    }
+  }
+}

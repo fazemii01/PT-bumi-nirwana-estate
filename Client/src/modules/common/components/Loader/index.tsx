@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import Image from 'next/image';
 import cn from 'classnames';
 
-import LOADER from '@public/assets/loader.svg';
+import LOADER from '../../../../assets/icons/putar-removebg-preview (1).png';
 
 import s from './Loader.module.scss';
 

@@ -18,7 +18,6 @@ export default function Layout({
           <div className="page-wrapper-sub flex flex-col w-full ">
             {/* Top Header  */}
             <Header />
-
             <div className={`h-100`}>
               {/* Body Content  */}
               <div className={`w-full`}>

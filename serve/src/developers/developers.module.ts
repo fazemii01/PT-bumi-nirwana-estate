@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { DevelopersController } from './developers.controller';
 import { DevelopersService } from './developers.service';
-import { Developer } from './developer.entity';
+import { DevelopersController } from './developers.controller';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Developer } from '@/developers/entities/developer.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Developer])],

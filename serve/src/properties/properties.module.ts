@@ -1,19 +1,16 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { PropertiesController } from './properties.controller';
 import { PropertiesService } from './properties.service';
-import { Property } from './property.entity';
-import { PropertyImage } from './property-image.entity';
-import { PropertyFloorPlan } from './property-floor-plan.entity';
-import { FileModule } from '../file/file.module';
-import { FileService } from '../file/file.service';
+import { PropertiesController } from './properties.controller';
+import { Property } from '@/properties/entities/property.entity';
+import { PropertyImage } from '@/properties/entities/property-image.entity';
+import { PropertyFloorPlan } from '@/properties/entities/property-floor-plan.entity';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Property, PropertyImage, PropertyFloorPlan]),
-    FileModule,
   ],
   controllers: [PropertiesController],
-  providers: [PropertiesService, FileService],
+  providers: [PropertiesService],
 })
 export class PropertiesModule {}
