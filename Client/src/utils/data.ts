@@ -5,7 +5,7 @@ export const COMPANY_INFO = {
 	ADDRESS_MAP: 'https://maps.app.goo.gl/SZha7MmKWKcGyyK99',
 	MAIN_CONTACT_NUMBER: '+6285852585898',
 	SECOND_CONTACT_NUMBER: '+6285852585898',
-	INSTAGRAM: 'https://www.instagram.com/akuladevelopmentpartner/',
+	INSTAGRAM: 'https://www.instagram.com/umi_buminirwanaestate/',
 	FACEBOOK: 'https://www.facebook.com/profile.php?id=61578323264587',
 	VIBER: "",
 	TELEGRAM : "",
