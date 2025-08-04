@@ -11,8 +11,8 @@ const Logo: FC<{ type?: 'white' | 'black' }> = ({ type = 'black' }) => {
 	const isTablet = useMediaQuery(TABLET_BREAKPOINT);
 	const isLaptop = useMediaQuery(LAPTOP_BREAKPOINT);
 
-	const width = isTablet ? 100 : isLaptop ? 130 : 140;
-	const height = isTablet ? 50 : isLaptop ? 42 : 59;
+	const width = isTablet ? 100 : isLaptop ? 130 : 160;
+	const height = isTablet ? 100 : isLaptop ? 80 : 80;
 
 	return (
 		<Link href="/">

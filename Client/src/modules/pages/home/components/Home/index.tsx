@@ -20,12 +20,12 @@ const Home = () => {
 		<>
 			<Meta title={t('NAVIGATION.MAIN')} />
 			<HomeIntro />
-			<Grid />
 			<Filter />
 			<HomeWhoWeAre />
 			<HomeTeam />
 			<HomeAdvantages />
 			<Feedback type="cooperation" />
+			<Grid />
 			<HomeObjectsInManagement />
 			<HomePartners />
 			<HomeReviews />

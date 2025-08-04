@@ -11,17 +11,17 @@
 
   // 3 columns on tablets
   @media (min-width: 768px) {
-    column-count: 3;
+    column-count: 2;
   }
 
   // 4 columns on laptops
   @media (min-width: 1024px) {
-    column-count: 4;
+    column-count: 2;
   }
   
   // 5 columns on large desktops
   @media (min-width: 1400px) {
-    column-count: 5;
+    column-count: 3;
   }
 }
 

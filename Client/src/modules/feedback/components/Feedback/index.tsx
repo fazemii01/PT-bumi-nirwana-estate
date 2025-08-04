@@ -5,7 +5,8 @@ import cn from 'classnames';
 
 import BlockTitle from '@modules/common/components/BlockTitle';
 import FeedbackForm from '@modules/feedback/components/FeedbackForm';
-
+import Grid from '@modules/pages/home/components/Grid/grid';
+import { imageData } from '@modules/pages/home/components/Grid/container';
 import { useMediaQuery } from '@hooks/index';
 import { TABLET_BREAKPOINT } from '@utils/const';
 
@@ -26,8 +27,8 @@ const Feedback: FC<{
 			desc: t('FEEDBACK.COOPERATION_WITH_THE_AKULA'),
 		},
 		cooperation: {
-			title: t('FEEDBACK.INTERESTED_IN_COOPERATION'),
-			desc: t('FEEDBACK.TO_LEARN_MORE_DETAILS_ABOUT_OUR_SERVICES_DESC'),
+			title: t('FEEDBACK.TITLE'),
+			desc: t('FEEDBACK.SUBTITLE')
 		},
 	};
 
@@ -36,7 +37,7 @@ const Feedback: FC<{
 			<article className={cn(s.inner, type === 'owner' && s.reverse)}>
 				<BlockTitle title={info[type].title} />
 				<p className={s.description}>{info[type].desc}</p>
-				<FeedbackForm />
+				
 			</article>
 
 			{!isTablet && (

@@ -6,10 +6,10 @@ import Loader from '@modules/common/components/Loader';
 import { useMediaQuery } from '@hooks/index';
 import { MOBILE_BREAKPOINT, TABLET_BREAKPOINT } from '@utils/const';
 
-import FIRST_BUILDING from './assets/first.png';
+import FIRST_BUILDING from './assets/preum 1.jpg';
 import MOBILE_BUILDING from './assets/mobile-background.png';
 import SECOND_BUILDING from './assets/second.png';
-import THIRD_BUILDING from './assets/third.png';
+import THIRD_BUILDING from './assets/perum 2.jpg';
 
 import s from './HomeIntro.module.scss';
 
