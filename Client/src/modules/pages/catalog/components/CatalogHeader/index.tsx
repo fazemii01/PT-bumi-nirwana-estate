@@ -10,7 +10,7 @@ import {
 } from '@utils/const';
 
 import BACKGROUND_IMG_MOBILE from './assets/background-building--mobile.png';
-import BACKGROUND_IMG from './assets/background-building.png';
+import BACKGROUND_IMG from './assets/pic 1.png';
 
 import s from './CatalogHeader.module.scss';
 

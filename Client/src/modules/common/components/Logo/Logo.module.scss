@@ -1,0 +1,14 @@
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+}
+
+.logo-container {
+  max-width: 100px;
+  
+  @media (min-width: 768px) {
+    max-width: 160px;
+  }
+}

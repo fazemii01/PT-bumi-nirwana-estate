@@ -1,19 +1,19 @@
 export const COMPANY_INFO = {
-	NAME: 'AKULA DEVELOPMENT PARTNER',
-	EMAIL: 'akula.in.ua@gmail.com',
-	ADDRESS: 'м. Київ, вул. Польова, 24 Д (03056)',
-	ADDRESS_MAP: 'https://goo.gl/maps/jRdfTgXSXZGxwQ636',
-	MAIN_CONTACT_NUMBER: '+38 050 134 29 76',
-	SECOND_CONTACT_NUMBER: '+38 068 373 33 22',
-	INSTAGRAM: 'https://www.instagram.com/akuladevelopmentpartner/',
-	FACEBOOK: 'https://www.facebook.com/profile.php?id=61550874983068',
-	VIBER: 'viber://add?number=380501342976',
-	TELEGRAM: 'https://t.me/akuladevelopment',
-	TIKTOK: 'https://www.tiktok.com/@akuladevelopmentpartner',
-	WHATSAPP: 'https://wa.me/message/3HREPFEJSLUAM1',
+	NAME: 'PT Bumi Nirwana Estate',
+	EMAIL: 'margojoyoland@gmail.com',
+	ADDRESS: 'Jl. Ahmad Yani Np. 172, Kepuharjo, Lumajang',
+	ADDRESS_MAP: 'https://maps.app.goo.gl/SZha7MmKWKcGyyK99',
+	MAIN_CONTACT_NUMBER: '+6285852585898',
+	SECOND_CONTACT_NUMBER: '+6285852585898',
+	INSTAGRAM: 'https://www.instagram.com/umi_buminirwanaestate/',
+	FACEBOOK: 'https://www.facebook.com/profile.php?id=61578323264587',
+	VIBER: "",
+	TELEGRAM : "",
+	TIKTOK: 'https://www.tiktok.com/@buminirwana.estate',
+	WHATSAPP: 'wa.me/+6281959948000',
 };
 
 export const DEFAULT_CURRENCY_INFO = {
-	RATE: 37.77,
-	DATE: '01.10',
+	RATE: 16000,
+	DATE: '02.08',
 };

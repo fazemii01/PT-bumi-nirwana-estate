@@ -40,6 +40,16 @@
 .info {
   max-width: 675px;
   width: 100%;
+
+  // Add this new rule below
+  p {
+    margin-bottom: 20px; // Adjust this value to your desired spacing
+  }
+
+  // If you want to prevent spacing on the last paragraph
+  p:not(:last-child) {
+    margin-bottom: 20px;
+  }
 }
 
 .list {

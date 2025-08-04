@@ -1,0 +1,68 @@
+{
+  "SITE_DEVELOPMENT": "Design inspired by",
+  "THE_REQUEST_COULD_NOT_BE_SENT": "Permintaan tidak dapat dikirim. Coba lagi",
+  "SENT": "Terkirim",
+  "INPUT_PHONE_VALIDATION": "Masukkan nomor telepon 12 digit (dimulai dengan +, hanya angka, tanpa spasi atau tanda hubung)",
+  "MAIN_OFFICE_ADDRESS": "Jl. Jendral Ahmad Yani No.172, Kepuharjo, Kec. Lumajang 67316",
+  "IN": "di",
+  "ON": "di",
+  "ALL": "Semua",
+  "ANY_AMOUNT": "Jumlah berapa pun",
+  "FIRSTNAME_LASTNAME": "Nama lengkap",
+  "PHONE_NUMBER": "Nomor telepon",
+  "PROPERTY_TYPE": "Tipe properti",
+  "CITY": "Kota",
+  "FIND_REAL_ESTATE": "Temukan real estat",
+  "SEND_A_REQUEST": "Kirim permintaan",
+  "LOADING": "Memuat...",
+  "BUILDING": "Bangunan",
+  "WE_ARE_ON_SOCIAL_NETWORKS": "Kami di jejaring sosial",
+  "ALL_RIGHTS_RESERVED": "Hak cipta dilindungi",
+  "IMAGE": "Gambar",
+  "PAGE_NOT_FOUND": "<0>Halaman tidak ditemukan - Kesalahan 404.</0> <0>Maaf, tapi kami tidak dapat menemukan halaman yang Anda minta. Mungkin halaman itu dipindahkan, dihapus, atau tidak pernah ada. Anda dapat kembali ke halaman Utama atau memilih halaman lain dari situs.</0>",
+  "NAVIGATION": {
+    "MAIN": "Beranda",
+    "MAIN_PAGE": "Halaman beranda",
+    "ALL_REAL_ESTATE": "Semua real estat",
+    "SERVICES": "Layanan",
+    "TO_THE_CATALOGUE": "Ke Katalog"
+  },
+  "TYPE_OF_REAL_ESTATE": {
+    "TYPE_OF_REAL_ESTATE": "Jenis real estat",
+    "APARTMENTS": "Apartemen",
+    "HOUSES": "Rumah",
+    "NEW_BUILDING": "Bangunan Baru",
+    "OFFICE_SPACES": "Ruang Kantor",
+    "PREMISES_FOR_ANY_TYPE_OF_ACTIVITY": "Properti untuk semua jenis kegiatan",
+    "MARKETPLACES": "Pasar",
+    "WAREHOUSE_FACILITIES": "Gudang",
+    "LAND_PLOTS": "Kavling Tanah"
+  },
+  "FEEDBACK": {
+    "INTERESTED_IN_COOPERATION": "Tertarik untuk bekerja sama?",
+    "IF_YOU_HAVE_ANY_QUESTIONS_ABOUT_OUR_SERVICES": "Jika Anda memiliki pertanyaan tentang layanan kami, silakan tinggalkan detail kontak Anda di formulir kontak di bawah ini dan spesialis kami akan segera menghubungi Anda. Kami senang membantu Anda dengan pertanyaan apa pun tentang pembelian, penjualan, penyewaan real estat, dan layanan lain yang kami tawarkan.",
+    "TO_LEARN_MORE_DETAILS_ABOUT_OUR_SERVICES_DESC": "Untuk mempelajari lebih detail tentang layanan kami dan untuk mendapatkan manfaat dari dukungan para profesional manajemen properti yang berpengetahuan, tinggalkan informasi Anda di formulir umpan balik di bawah ini. Jika Anda memiliki properti dan ingin menjadikannya sumber pendapatan, kami tahu cara membantu Anda!",
+    "DO_YOU_OWN_REAL_ESTATE": "Apakah Anda memiliki real estat?",
+    "COOPERATION_WITH_THE_AKULA": "Kerja sama dengan tim Mitra Pengembangan Akula akan bermanfaat bagi Anda. Kami siap memberikan Anda dukungan dalam manajemen real estat yang menguntungkan secara komersial yang Anda miliki. Spesialis kami akan membantu Anda menemukan pelanggan untuk menyewa tempat dan menawarkan strategi untuk meningkatkan kondisi di fasilitas untuk mendapatkan keuntungan maksimal. Jika Anda tertarik dengan manajemen real estat yang efektif, Mitra Pengembangan Akula memiliki sesuatu untuk ditawarkan kepada Anda.",
+    "TITLE": "KOLEKSI KAMI",
+    "SUBTITLE": "Kami mengembangkan Solusi Manajemen Perumahan terbaik untuk kebutuhan Anda"
+  },
+  "CITY_LIST": {
+    "KYIV": "Kyiv",
+    "KYIV_REGION": "Wilayah Kyiv"
+  },
+  "OBJECT_INFO": {
+    "SELLING": "Jual",
+    "GROUND_SECTION": "Bagian tanah",
+    "NON_RESIDENTIAL_REAL_ESTATE": "Real estat non-hunian",
+    "RESIDENTIAL_REAL_ESTATE": "Real estat hunian",
+    "APARTMENT": "Apartemen",
+    "NEW_BUILDING": "Bangunan baru",
+    "HOUSE": "Rumah",
+    "OFFICE": "Kantor",
+    "PREMISES_FOR_ANY_TYPE_OF_ACTIVITY": "Properti untuk semua jenis kegiatan",
+    "RETAIL_SPACE": "Ruang ritel",
+    "STORAGE_ROOM": "Ruang penyimpanan",
+    "LAND": "Tanah"
+  }
+}

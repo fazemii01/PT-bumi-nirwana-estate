@@ -1,0 +1,39 @@
+{
+  "UNFORTUNATELY_NOTHING_WAS_FOUND": "Sayangnya, tidak ada yang ditemukan",
+  "REQUIREMENTS_OF_THE_LAW_OF_UKRAINE": "Harga yang ditentukan dalam pengumuman ini dihitung dengan kurs jual dolar AS ({{uah}} hryvnia untuk 1 dolar AS pada {{date}} tahun), untuk hryvnia tunai, yang ditetapkan oleh JSC \"UKREXIMBANK\" dan dipublikasikan di situs web resmi (halaman) JSC \"UKREXIMBANK\" di tautan: <Link>https://www.eximb.com/</Link>. Harga bervariasi tergantung pada kurs jual dolar AS untuk hryvnia tunai, yang ditetapkan oleh JSC \"UKREXIMBANK\" dengan mengacu pada tanggal penjualan.",
+  "ACCORDING_TO_THE_REQUIREMENTS": "Sesuai dengan persyaratan Undang-Undang Ukraina \"Tentang Periklanan\", harga semua objek real estat di situs web ditampilkan dalam hryvnia.",
+  "TYPE_OF_AGREEMENT": "Jenis perjanjian",
+  "ADDRESS": "Alamat",
+  "DESCRIPTION": "Deskripsi",
+  "INFORMATION": "Informasi",
+  "VIDEO": "Video",
+  "OBJECT_ID": "ID Objek:",
+  "OBJECTS": "objek",
+  "HELLO_I_AM_INTERESTED": "Halo, saya tertarik",
+  "CATALOG": {
+    "CHOOSE_THE_PERFECT_PROPERTY": "Pilih properti yang sempurna",
+    "SEARCH_RESULTS": "Hasil Pencarian",
+    "CLEAR_ALL_FILTERS": "Hapus semua filter",
+    "SORTING_BY_TOTAL_AREA": "Urutkan berdasarkan Luas Total",
+    "SORTING_BY_PRICE": "Urutkan berdasarkan Harga"
+  },
+  "FEEDBACK": {
+    "DO_YOU_LIKE_THIS_PROPERTY": "Apakah Anda suka properti ini?",
+    "IF_YOU_LIKE_THIS_PROPERTY": "Jika Anda menyukai properti ini dan tertarik, silakan lengkapi aplikasi di bawah ini. Tim kami akan segera menghubungi Anda untuk memberikan informasi tambahan dan mengatur waktu untuk melihat."
+  },
+  "TABLE": {
+    "TOTALAREA": "Luas total",
+    "PURPOSE": "Tujuan",
+    "USABLEAREA": "Area yang dapat digunakan",
+    "OFFICES": "Kantor",
+    "KITCHEN": "Dapur",
+    "BATHROOMS": "Kamar Mandi",
+    "FLOOR": "Lantai",
+    "LIVINGSPACE": "Ruang tamu",
+    "ROOMS": "Kamar",
+    "LANDPLOT": "Kavling tanah",
+    "RENT1M2": "Sewa 1 m²",
+    "OPERATIONAL1M2": "Operasional 1 m²",
+    "TOTALCOST": "Total biaya"
+  }
+}

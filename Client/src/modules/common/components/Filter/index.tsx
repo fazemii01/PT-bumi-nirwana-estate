@@ -35,7 +35,7 @@ const Filter: FC<{
 	const { data } = useDataFetching();
 	const router = useRouter();
 
-	const tabs = [t('OBJECT_INFO.RENT'), t('OBJECT_INFO.SELLING')];
+	const tabs = [t('OBJECT_INFO.SELLING')];
 
 	const parseUniqueFilterItem = (
 		data: ICatalogData[],
