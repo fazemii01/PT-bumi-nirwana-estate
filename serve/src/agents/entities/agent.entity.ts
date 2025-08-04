@@ -1,9 +1,11 @@
+import { Property } from '@/properties/entities/property.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 
 @Entity('agents')
@@ -22,6 +24,9 @@ export class Agent {
 
   @Column({ type: 'text', nullable: true })
   avatar_url: string;
+
+  @OneToMany(() => Property, (property) => property.agent)
+  property: Property[];
 
   @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
