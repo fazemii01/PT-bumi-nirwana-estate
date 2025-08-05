@@ -101,6 +101,7 @@ const CatalogList = () => {
 						</ul>
 					) : (
 						<p className={s.notFound}>{t('UNFORTUNATELY_NOTHING_WAS_FOUND')}</p>
+						
 					)}
 				</>
 			)}

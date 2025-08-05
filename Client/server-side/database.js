@@ -1,10 +1,10 @@
 import dotenv from 'dotenv';
-import psql from 'pg';
+import pg from 'pg';
 
 dotenv.config();
-const { Pool } = require('pg');
+const { Pool } = pg ;
 const pool = new Pool({
-	connectionLimit: 20,
+	
 	host: process.env.DB_HOST,
 	user: process.env.DB_USER,
 	password: process.env.DB_PASSWORD,
@@ -16,7 +16,7 @@ const pool = new Pool({
 const databaseConnection = (res) => {
 	
 	
-	app.get('/api/properties/:id', (req, res) => {
+	app.get('localhost:5000/properties/:id', (req, res) => {
 		const propertyId = req.params.id;
 		const queryText = 'SELECT * FROM properties WHERE id = $1';
 		db.query(queryText, [propertyId], (err, result) => {
