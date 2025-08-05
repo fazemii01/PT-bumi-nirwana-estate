@@ -10,7 +10,7 @@ app.use((req, res, next) => {
 	res.setHeader('*', IP);
 	next();
 });
-app.options("*", IP());
+
 const startServer = () => {
 	try {
 		app.use('/', routes);
