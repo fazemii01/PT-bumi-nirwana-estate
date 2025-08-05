@@ -40,8 +40,8 @@ const useDataFetching = () => {
 
   const sortData = (data: Property[]) => {
     const result = data.map((property: Property) => {
-      const address = property.address as { street?: string; city?: string } || {};
-      const specifications = property.specifications as Record<string, unknown> || {};
+      const address = typeof property.address === 'string' ? JSON.parse(property.address) : property.address || {};
+      const specifications = typeof property.specifications === 'string' ? JSON.parse(property.specifications) : property.specifications || {};
 
       const location: ITransVersion = {
         lat: property.location?.coordinates?.[1]?.toString() || null,
@@ -61,17 +61,16 @@ const useDataFetching = () => {
         },
         location,
         table: specifications as ICatalogTable,
-        contractType: '',
-        propertyType: '',
-        realEstateType: '',
+        contractType: (specifications as { contractType?: string }).contractType || '',
+        propertyType: (specifications as { propertyType?: string }).propertyType || '',
+        realEstateType: (specifications as { realEstateType?: string }).realEstateType || '',
         city: address.city || '',
         station: {},
       };
     });
 
     const sortResult = result
-      .sort((a, b) => b.id - a.id)
-      .filter((item) => item.visibility);
+      .sort((a, b) => b.id - a.id);
     setData(sortResult);
     setLoading(false);
   };
