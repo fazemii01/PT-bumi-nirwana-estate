@@ -1,9 +1,9 @@
 import dotenv from 'dotenv';
-import mysql from 'mysql';
+import psql from 'pg';
 
 dotenv.config();
-
-const pool = mysql.createPool({
+const { Pool } = require('pg');
+const pool = new Pool({
 	connectionLimit: 20,
 	host: process.env.DB_HOST,
 	user: process.env.DB_USER,
