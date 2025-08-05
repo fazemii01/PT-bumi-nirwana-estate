@@ -2,7 +2,7 @@ import {useEffect, useMemo, useState} from 'react';
 
 import {BACKEND_LOCALHOST} from '@utils/const';
 
-import type { ICatalogData, ITransVersion } from '../types/data';
+import type { ICatalogData, ITransVersion, ICatalogTable } from '../types/data';
 import type { Property } from '../types/property-entity';
 
 const useDataFetching = () => {
@@ -40,8 +40,8 @@ const useDataFetching = () => {
 
   const sortData = (data: Property[]) => {
     const result = data.map((property: Property) => {
-      const address = property.address || {};
-      const specifications = property.specifications || {};
+      const address = property.address as { street?: string; city?: string } || {};
+      const specifications = property.specifications as Record<string, unknown> || {};
 
       const location: ITransVersion = {
         lat: property.location?.coordinates?.[1]?.toString() || null,
@@ -60,9 +60,7 @@ const useDataFetching = () => {
           en: address.street || '',
         },
         location,
-        table: {
-          ...specifications,
-        },
+        table: specifications as ICatalogTable,
         contractType: '',
         propertyType: '',
         realEstateType: '',

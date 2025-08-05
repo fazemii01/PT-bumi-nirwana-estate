@@ -14,7 +14,7 @@ import IconViber from '@icons/components/IconViber';
 import IconWhatsapp from '@icons/components/IconWhatsapp';
 
 import { useMediaQuery } from '@hooks/index';
-import { AUTHOR_INFO, MOBILE_BREAKPOINT } from '@utils/const';
+import {  MOBILE_BREAKPOINT } from '@utils/const';
 import { COMPANY_INFO } from '@utils/data';
 
 import s from './Footer.module.scss';
@@ -96,14 +96,14 @@ const Footer = () => {
 			<p className={s.rights}>
 				<span>
 					{t('SITE_DEVELOPMENT')}{' '}
-					<a
+					{/* <a
 						className="link"
 						target="_blank"
 						rel="noreferrer"
 						href={`https://${AUTHOR_INFO.SIGNATURE}`}
 					>
 						{AUTHOR_INFO.SIGNATURE}
-					</a>{' '}
+					</a>{' '} */}
 				</span>
 				{!isMobile && ` • `}
 				{t('ALL_RIGHTS_RESERVED')}/{currentYear}
