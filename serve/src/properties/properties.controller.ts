@@ -39,13 +39,11 @@ export class PropertiesController {
     );
   }
 
-  @Roles('ADMIN')
   @Get()
   async findAll(): Promise<Property[]> {
     return await this.propertiesService.findAll();
   }
 
-  @Roles('ADMIN')
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return this.propertiesService.findOne(id);
