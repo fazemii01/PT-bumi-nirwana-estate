@@ -1,5 +1,11 @@
 import { Property } from '@/properties/entities/property.entity';
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 
 @Entity('property_images')
 export class PropertyImage {
@@ -9,6 +15,7 @@ export class PropertyImage {
   @ManyToOne(() => Property, (property) => property.images, {
     onDelete: 'CASCADE',
   })
+  @JoinColumn({ name: 'propertyId' })
   property: Property;
 
   @Column({ type: 'text', nullable: false })

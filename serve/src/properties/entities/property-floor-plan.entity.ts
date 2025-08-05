@@ -1,5 +1,11 @@
 import { Property } from '@/properties/entities/property.entity';
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 
 @Entity('property_floor_plans')
 export class PropertyFloorPlan {
@@ -9,6 +15,7 @@ export class PropertyFloorPlan {
   @ManyToOne(() => Property, (property) => property.floor_plans, {
     onDelete: 'CASCADE',
   })
+  @JoinColumn({ name: 'propertyId' })
   property: Property;
 
   @Column({ type: 'varchar', length: 255, nullable: false })

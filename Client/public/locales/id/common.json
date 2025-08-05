@@ -1,5 +1,5 @@
 {
-  "SITE_DEVELOPMENT": "Pengembangan situs",
+  "SITE_DEVELOPMENT": "Design inspired by",
   "THE_REQUEST_COULD_NOT_BE_SENT": "Permintaan tidak dapat dikirim. Coba lagi",
   "SENT": "Terkirim",
   "INPUT_PHONE_VALIDATION": "Masukkan nomor telepon 12 digit (dimulai dengan +, hanya angka, tanpa spasi atau tanda hubung)",
@@ -53,7 +53,6 @@
   },
   "OBJECT_INFO": {
     "SELLING": "Jual",
-    "RENT": "Sewa",
     "GROUND_SECTION": "Bagian tanah",
     "NON_RESIDENTIAL_REAL_ESTATE": "Real estat non-hunian",
     "RESIDENTIAL_REAL_ESTATE": "Real estat hunian",

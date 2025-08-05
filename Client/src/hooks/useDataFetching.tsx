@@ -2,7 +2,7 @@ import {useEffect, useMemo, useState} from 'react';
 
 import {BACKEND_LOCALHOST} from '@utils/const';
 
-import type { ICatalogData, ITransVersion } from '../types/data';
+import type { ICatalogData, ITransVersion, ICatalogTable } from '../types/data';
 import type { Property } from '../types/property-entity';
 
 const useDataFetching = () => {
@@ -40,8 +40,8 @@ const useDataFetching = () => {
 
   const sortData = (data: Property[]) => {
     const result = data.map((property: Property) => {
-      const address = property.address || {};
-      const specifications = property.specifications || {};
+      const address = typeof property.address === 'string' ? JSON.parse(property.address) : property.address || {};
+      const specifications = typeof property.specifications === 'string' ? JSON.parse(property.specifications) : property.specifications || {};
 
       const location: ITransVersion = {
         lat: property.location?.coordinates?.[1]?.toString() || null,
@@ -60,20 +60,17 @@ const useDataFetching = () => {
           en: address.street || '',
         },
         location,
-        table: {
-          ...specifications,
-        },
-        contractType: '',
-        propertyType: '',
-        realEstateType: '',
+        table: specifications as ICatalogTable,
+        contractType: (specifications as { contractType?: string }).contractType || '',
+        propertyType: (specifications as { propertyType?: string }).propertyType || '',
+        realEstateType: (specifications as { realEstateType?: string }).realEstateType || '',
         city: address.city || '',
         station: {},
       };
     });
 
     const sortResult = result
-      .sort((a, b) => b.id - a.id)
-      .filter((item) => item.visibility);
+      .sort((a, b) => b.id - a.id);
     setData(sortResult);
     setLoading(false);
   };

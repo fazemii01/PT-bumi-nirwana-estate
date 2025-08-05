@@ -11,6 +11,7 @@ import {
   UpdateDateColumn,
   ManyToOne,
   OneToMany,
+  JoinColumn,
 } from 'typeorm';
 
 export enum PropertyStatus {
@@ -31,10 +32,18 @@ export class Property {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Developer, { nullable: true, onDelete: 'SET NULL' })
+  @ManyToOne(() => Developer, (developer) => developer.property, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'developerId' })
   developer: Developer;
 
-  @ManyToOne(() => Agent, { nullable: true, onDelete: 'SET NULL' })
+  @ManyToOne(() => Agent, (agent) => agent.property, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'agentId' })
   agent: Agent;
 
   @Column({ type: 'varchar', length: 255, nullable: false })
@@ -50,8 +59,8 @@ export class Property {
   })
   status: PropertyStatus;
 
-  @Column({ type: 'numeric', precision: 18, scale: 2, nullable: false })
-  price: number;
+  @Column({ type: 'varchar', nullable: false })
+  price: string;
 
   @Column({
     type: 'enum',
@@ -70,9 +79,12 @@ export class Property {
     type: 'geography',
     spatialFeatureType: 'Point',
     srid: 4326,
-    nullable: true,
+    nullable: false,
   })
-  location: string;
+  location: {
+    type: 'Point';
+    coordinates: [number, number];
+  };
 
   @Column({ type: 'jsonb', nullable: true })
   address: object;
@@ -80,10 +92,16 @@ export class Property {
   @Column({ type: 'jsonb', nullable: true })
   specifications: object;
 
-  @OneToMany(() => PropertyImage, (image) => image.property)
+  @OneToMany(() => PropertyImage, (image) => image.property, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   images: PropertyImage[];
 
-  @OneToMany(() => PropertyFloorPlan, (floorPlan) => floorPlan.property)
+  @OneToMany(() => PropertyFloorPlan, (floorPlan) => floorPlan.property, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   floor_plans: PropertyFloorPlan[];
 
   @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })

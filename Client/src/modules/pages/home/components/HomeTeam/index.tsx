@@ -29,20 +29,16 @@ const HomeTeam = () => {
 					<Trans t={t} i18nKey="TEAM.AKULA_TEAM_IS">
 						<b />
 					</Trans>
+					
+				</p>
+				
+				<p>
+					<Trans t={t} i18nKey="TEAM.NIRWANA">
+						<b />
+					</Trans>
 				</p>
 
-				<ul className={s.list}>
-					{teamDescription.map((item) => (
-						<li key={item}>
-							<IconStar />
-							<p>
-								<Trans t={t} i18nKey={item}>
-									<strong />
-								</Trans>
-							</p>
-						</li>
-					))}
-				</ul>
+				
 			</article>
 		</section>
 	);
