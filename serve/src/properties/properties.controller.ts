@@ -14,6 +14,7 @@ import { UpdatePropertyDto } from './dto/update-property.dto';
 import { UseMultipleFileUploadInterceptor } from '@/file/multi-upload.interceptor';
 import { Roles } from '@/auths/role.decorator';
 import { Property } from '@/properties/entities/property.entity';
+import { Public } from '@/auths/public.decorator';
 
 @Controller('properties')
 export class PropertiesController {
@@ -39,11 +40,13 @@ export class PropertiesController {
     );
   }
 
+  @Public()
   @Get()
   async findAll(): Promise<Property[]> {
     return await this.propertiesService.findAll();
   }
 
+  @Public()
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return this.propertiesService.findOne(id);
