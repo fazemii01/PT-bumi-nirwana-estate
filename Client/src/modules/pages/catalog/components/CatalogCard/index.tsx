@@ -46,7 +46,7 @@ const CatalogCard: FC<{
 	const {t: tCatalog} = useTranslation('catalog');
 	const {currencyRate} = useCurrencyFetching();
 
-	const postersList = usePropertyPhoto(id);
+	const postersList = usePropertyPhoto(id.toString());
 	const fullAddress = useCatalogItemFullAddress(
 		realEstateType,
 		location,

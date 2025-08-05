@@ -8,7 +8,9 @@ import s from './DefaultPoster.module.scss';
 const DefaultPoster: FC<{ className?: string }> = ({ className }) => {
 	return (
 		<div className={cn(s.container, className)}>
-			<IconGrayLogo />
+			<img src="/assets/logo 2.png" alt="Default Poster" 
+				style={{ width: '100px', height: 'auto' }}
+			/>
 		</div>
 	);
 };

@@ -9,7 +9,7 @@ interface IGalleryList {
 	video?: string;
 }
 
-const usePropertyPhoto = (id: number): IGalleryList[] => {
+const usePropertyPhoto = (id: string): IGalleryList[] => {
 	const [fileList, setFileList] = useState<IGalleryList[]>([]);
 
 	const getPath = useMemo(() => {
@@ -68,7 +68,7 @@ const usePropertyPhoto = (id: number): IGalleryList[] => {
 			}
 		};
 
-		if (id >= 1) {
+		if (id) {
 			fetchFileList().then();
 		}
 		// eslint-disable-next-line

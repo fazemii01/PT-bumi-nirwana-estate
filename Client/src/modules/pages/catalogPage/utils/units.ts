@@ -9,6 +9,16 @@ export const UNITS = {
 		priceTo: 'to ',
 		separator: ' or ',
 	},
+	id: {
+		pieces: 'buah',
+		landPlot: 'are',
+		squareMeters: 'm²',
+		month: 'per bulan',
+		currency: 'rp',
+		priceFrom: 'dari ',
+		priceTo: 'ke ',
+		separator: ' atau ',
+	},
 	ru: {
 		pieces: 'шт.',
 		landPlot: 'соток',

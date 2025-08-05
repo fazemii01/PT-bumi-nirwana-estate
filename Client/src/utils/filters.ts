@@ -3,7 +3,7 @@ import type { IFilters } from '@t-types/filters';
 export const allValue = 'All';
 
 export const initialFilters: IFilters = {
-	contractType: 'Оренда',
+	contractType: allValue,
 	propertyType: allValue,
 	realEstateType: allValue,
 	city: allValue,
