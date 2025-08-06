@@ -3,7 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 // Import your stylesheet
-import s from './logo.module.scss'; 
+import s from './Logo.module.scss'; 
 
 import NEW_LOGO from '../../../../assets/icons/20250801_140054.svg';
 

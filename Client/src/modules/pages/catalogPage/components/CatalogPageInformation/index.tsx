@@ -40,7 +40,7 @@ const CatalogPageInformation: FC<{
 	      price,
       }) => {
 	const {t} = useTranslation('catalog');
-	const postersList = usePropertyPhoto(id);
+	const postersList = usePropertyPhoto(String(id));
 	const isLaptop = useMediaQuery(LAPTOP_BREAKPOINT);
 	const isVideoBlock = postersList.some(item => item.video);
 
