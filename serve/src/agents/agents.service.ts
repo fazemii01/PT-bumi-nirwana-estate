@@ -71,7 +71,7 @@ export class AgentsService {
     }
 
     Object.assign(agent, updateAgentDto);
-    return this.agentRepository.save(agent);
+    return await this.agentRepository.save(agent);
   }
 
   async remove(id: string) {

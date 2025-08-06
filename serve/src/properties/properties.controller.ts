@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UploadedFiles,
+  UploadedFile,
 } from '@nestjs/common';
 import { PropertiesService } from './properties.service';
 import { CreatePropertyDto } from './dto/create-property.dto';
@@ -15,6 +16,9 @@ import { UseMultipleFileUploadInterceptor } from '@/file/multi-upload.intercepto
 import { Roles } from '@/auths/role.decorator';
 import { Property } from '@/properties/entities/property.entity';
 import { Public } from '@/auths/public.decorator';
+import { UpdatePropertyImagesDto } from '@/properties/dto/update-property-images.dto';
+import { UseFileUploadInterceptor } from '@/file/upload.interceptor';
+import { UpdatePropertyFloorPlansDto } from '@/properties/dto/update-property-floor-plans.dto';
 
 @Controller('properties')
 export class PropertiesController {
@@ -46,18 +50,54 @@ export class PropertiesController {
     return await this.propertiesService.findAll();
   }
 
+  // @Public()
+  // @Get(':id')
+  // async findOne(@Param('id') id: string) {
+  //   return this.propertiesService.findOne(id);
+  // }
+
   @Public()
-  @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return this.propertiesService.findOne(id);
+  @Get(':slug')
+  async findOneBySlug(@Param('slug') slug: string) {
+    return this.propertiesService.findOneBySlug(slug);
   }
 
   @Patch(':id')
+  @Roles('ADMIN')
   async update(
     @Param('id') id: string,
     @Body() updatePropertyDto: UpdatePropertyDto,
   ) {
-    return this.propertiesService.update(+id, updatePropertyDto);
+    return this.propertiesService.update(id, updatePropertyDto);
+  }
+
+  @Patch('property-image/:id')
+  @Roles('ADMIN')
+  @UseFileUploadInterceptor('image_url', 'property/property_images')
+  async updatePropertyImage(
+    @Param('id') id: string,
+    @Body() updatePropertyImageDto: UpdatePropertyImagesDto,
+    @UploadedFile() image_url: Express.Multer.File,
+  ) {
+    return this.propertiesService.updatePropertyImages(
+      id,
+      updatePropertyImageDto,
+      image_url,
+    );
+  }
+  @Patch('property-floor-plan/:id')
+  @Roles('ADMIN')
+  @UseFileUploadInterceptor('file_url', 'property/property_floor_plans')
+  async updateFloorPlan(
+    @Param('id') id: string,
+    @Body() UpdatePropertyFloorPlansDto: UpdatePropertyFloorPlansDto,
+    @UploadedFile() file_url: Express.Multer.File,
+  ) {
+    return this.propertiesService.updatePropertyFloorPlan(
+      id,
+      UpdatePropertyFloorPlansDto,
+      file_url,
+    );
   }
 
   @Delete(':id')
