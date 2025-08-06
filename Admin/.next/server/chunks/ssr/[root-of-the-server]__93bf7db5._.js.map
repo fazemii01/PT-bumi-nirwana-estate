@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 6, "column": 0}, "map": {"version":3,"sources":[],"names":[],"mappings":"","debugId":null}},
+    {"offset": {"line": 18, "column": 0}, "map": {"version":3,"sources":["file:///D:/PT-bumi-nirwana-estate/Admin/app/page.tsx"],"sourcesContent":["// app/page.tsx\r\nimport { redirect } from 'next/navigation';\r\n\r\nexport default function Home() {\r\n  redirect('/login');\r\n}\r\n"],"names":[],"mappings":"AAAA,eAAe;;;;AACf;AAAA;;AAEe,SAAS;IACtB,CAAA,GAAA,qLAAA,CAAA,WAAQ,AAAD,EAAE;AACX","debugId":null}}]
+}
