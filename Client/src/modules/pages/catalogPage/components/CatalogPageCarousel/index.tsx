@@ -15,7 +15,7 @@ import {TABLET_BREAKPOINT} from '@utils/const';
 
 const CatalogPageCarousel: FC<{ id: number }> = ({id}) => {
 	const isTablet = useMediaQuery(TABLET_BREAKPOINT);
-	const postersList = usePropertyPhoto(id);
+	const postersList = usePropertyPhoto(String(id));
 	const [isFullScreenMode, setIsFullScreenMode] = useState<boolean>(false);
 
 	const handleOnScreenChange = (value: boolean) => {
