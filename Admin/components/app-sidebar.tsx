@@ -47,8 +47,8 @@ const data = {
       icon: IconDashboard,
     },
     {
-      title: "",
-      url: "#",
+      title: "Properties",
+      url: "properties",
       icon: IconListDetails,
     },
     // {
