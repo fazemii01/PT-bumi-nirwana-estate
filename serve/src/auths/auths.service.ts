@@ -1,3 +1,4 @@
+import { User } from './../users/entities/user.entity';
 import { AuthDto } from '@/auths/dto/auth.dto';
 import { CreateUserDto } from '@/users/dto/create-user.dto';
 import { UsersService } from '@/users/users.service';
@@ -12,7 +13,10 @@ export class AuthsService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async signIn(authDto: AuthDto): Promise<{ access_token: string }> {
+  async signIn(authDto: AuthDto): Promise<{
+    access_token: string;
+    user: User;
+  }> {
     const user = await this.usersService.findOneByEmail(authDto.email);
     if (
       !user ||
@@ -28,6 +32,7 @@ export class AuthsService {
     };
     return {
       access_token: await this.jwtService.signAsync(payload),
+      user: user,
     };
   }
 
