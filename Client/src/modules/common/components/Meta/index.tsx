@@ -1,7 +1,7 @@
 import {FC} from 'react';
 import Head from 'next/head';
 
-import {AUTHOR_INFO, PRODUCTION_LINK} from '@utils/const';
+import {PRODUCTION_LINK} from '@utils/const';
 import {COMPANY_INFO} from '@utils/data';
 import {APP_META_DATA} from '@utils/meta';
 
@@ -46,10 +46,10 @@ const Meta: FC<{
 				<>
 					<meta name="description" content={desc}/>
 					<meta name="keywords" content={APP_META_DATA.KEYWORDS}/>
-					<meta
+					{/* <meta
 						name="author"
 						content={AUTHOR_INFO.NAME + ' => ' + AUTHOR_INFO.SIGNATURE}
-					/>
+					/> */}
 					<meta name="image" content={LOGO.src}/>
 					<meta property="og:type" content="website"/>
 					<meta property="og:title" content={metaTitle}/>

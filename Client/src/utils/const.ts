@@ -6,10 +6,7 @@ export const USD_SYMBOL = '$';
 export const PRODUCTION_LINK = 'https://pt-bumi-nirwana-estate.vercel.app/';
 export const CATALOG_NAME = 'catalog';
 
-export const AUTHOR_INFO = {
-	NAME: 'Anton Shaposhnikov',
-	SIGNATURE: 'shaposhnikov.in',
-};
+
 
 export const BACKEND_LOCALHOST = IS_PRODUCTION
 	? PRODUCTION_LINK

@@ -34,15 +34,17 @@ const CatalogList = () => {
 		const down = 'down';
 		const up = 'up';
 
+		console.log('Data before filtering:', data);
+		console.log('Filters:', filters);
 		return data
 			.filter(
 				(item) =>
-					filters.contractType === item.contractType &&
-					(filters.city === all || item.city === filters.city) &&
+					(filters.contractType === all || filters.contractType.toLowerCase() === item.contractType.toLowerCase()) &&
+					(filters.city === all || item.city.toLowerCase() === filters.city.toLowerCase()) &&
 					(filters.propertyType === all ||
-						item.propertyType === filters.propertyType) &&
+						item.propertyType.toLowerCase() === filters.propertyType.toLowerCase()) &&
 					(filters.realEstateType === all ||
-						item.realEstateType === filters.realEstateType),
+						item.realEstateType.toLowerCase() === filters.realEstateType.toLowerCase()),
 			)
 			.sort((a, b) => {
 				const prev = formatToNumbersOnly(a.price);
