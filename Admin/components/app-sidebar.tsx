@@ -23,6 +23,7 @@ import { NavDocuments } from "@/components/nav-documents"
 import { NavMain } from "@/components/nav-main"
 import { NavSecondary } from "@/components/nav-secondary"
 import { NavUser } from "@/components/nav-user"
+import { Button } from "@/components/ui/button"
 import {
   Sidebar,
   SidebarContent,
@@ -42,7 +43,7 @@ const data = {
   navMain: [
     {
       title: "Dashboard",
-      url: "#",
+      url: "/dashboard",
       icon: IconDashboard,
     },
     {
@@ -73,14 +74,8 @@ const data = {
       isActive: true,
       url: "#",
       items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
+        { title: "Active Proposals", url: "#" },
+        { title: "Archived", url: "#" },
       ],
     },
     {
@@ -88,14 +83,8 @@ const data = {
       icon: IconFileDescription,
       url: "#",
       items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
+        { title: "Active Proposals", url: "#" },
+        { title: "Archived", url: "#" },
       ],
     },
     {
@@ -103,14 +92,8 @@ const data = {
       icon: IconFileAi,
       url: "#",
       items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
+        { title: "Active Proposals", url: "#" },
+        { title: "Archived", url: "#" },
       ],
     },
   ],
@@ -151,6 +134,9 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  // Simulasi status login
+  const [isAuthenticated, setIsAuthenticated] = React.useState(false)
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -168,13 +154,31 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
+
       <SidebarContent>
         <NavMain items={data.navMain} />
         <NavDocuments items={data.documents} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
+
       <SidebarFooter>
-        <NavUser user={data.user} />
+        {/* Jika sudah login, tampilkan NavUser */}
+        {isAuthenticated ? (
+          <NavUser user={data.user} />
+        ) : (
+          /* Jika belum login, tampilkan tombol Login */
+          <SidebarMenu className="p-2">
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <Button asChild variant="outline" className="w-full justify-center">
+                  <a href="/login">
+                    🔐 Login
+                  </a>
+                </Button>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        )}
       </SidebarFooter>
     </Sidebar>
   )
