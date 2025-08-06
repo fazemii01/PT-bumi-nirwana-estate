@@ -23,8 +23,16 @@ import { NavDocuments } from "@/components/nav-documents";
 import { NavMain } from "@/components/nav-main";
 import { NavSecondary } from "@/components/nav-secondary";
 import { NavUser } from "@/components/nav-user";
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
-import { Button } from "./ui/button";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
+import Image from "next/image";
 
 const data = {
   user: {
@@ -66,8 +74,14 @@ const data = {
       isActive: true,
       url: "#",
       items: [
-        { title: "Active Proposals", url: "#" },
-        { title: "Archived", url: "#" },
+        {
+          title: "Active Proposals",
+          url: "#",
+        },
+        {
+          title: "Archived",
+          url: "#",
+        },
       ],
     },
     {
@@ -75,8 +89,14 @@ const data = {
       icon: IconFileDescription,
       url: "#",
       items: [
-        { title: "Active Proposals", url: "#" },
-        { title: "Archived", url: "#" },
+        {
+          title: "Active Proposals",
+          url: "#",
+        },
+        {
+          title: "Archived",
+          url: "#",
+        },
       ],
     },
     {
@@ -84,8 +104,14 @@ const data = {
       icon: IconFileAi,
       url: "#",
       items: [
-        { title: "Active Proposals", url: "#" },
-        { title: "Archived", url: "#" },
+        {
+          title: "Active Proposals",
+          url: "#",
+        },
+        {
+          title: "Archived",
+          url: "#",
+        },
       ],
     },
   ],
@@ -106,68 +132,55 @@ const data = {
       icon: IconSearch,
     },
   ],
-  // documents: [
-  //   {
-  //     name: "Data Library",
-  //     url: "#",
-  //     icon: IconDatabase,
-  //   },
-  //   {
-  //     name: "Reports",
-  //     url: "#",
-  //     icon: IconReport,
-  //   },
-  //   {
-  //     name: "Word Assistant",
-  //     url: "#",
-  //     icon: IconFileWord,
-  //   },
-  // ],
+  documents: [
+    {
+      name: "Data Library",
+      url: "#",
+      icon: IconDatabase,
+    },
+    {
+      name: "Reports",
+      url: "#",
+      icon: IconReport,
+    },
+    {
+      name: "Word Assistant",
+      url: "#",
+      icon: IconFileWord,
+    },
+  ],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  // Simulasi status login
-  const [isAuthenticated, setIsAuthenticated] = React.useState(false)
-
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:!p-1.5">
+            <SidebarMenuButton
+              asChild
+              className="data-[slot=sidebar-menu-button]:!p-1.5"
+            >
               <a href="#">
-                <IconInnerShadowTop className="!size-5" />
-                <span className="text-base font-semibold">Acme Inc.</span>
+                <Image
+                  src="/logo.svg"
+                  width={90}
+                  height={64}
+                  alt="logo"
+                  className="flex items-center justify-center"
+                />
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-
       <SidebarContent>
         <NavMain items={data.navMain} />
         {/* <NavDocuments items={data.documents} /> */}
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
-
       <SidebarFooter>
-        {/* Jika sudah login, tampilkan NavUser */}
-        {isAuthenticated ? (
-          <NavUser user={data.user} />
-        ) : (
-          /* Jika belum login, tampilkan tombol Login */
-          <SidebarMenu className="p-2">
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild>
-                <Button asChild variant="outline" className="w-full justify-center">
-                  <a href="/login">
-                    🔐 Login
-                  </a>
-                </Button>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        )}
+        <NavUser user={data.user} />
       </SidebarFooter>
     </Sidebar>
   );
