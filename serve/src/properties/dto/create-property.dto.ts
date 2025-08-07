@@ -36,7 +36,7 @@ export class CreatePropertyDto {
   price_unit: PriceUnit;
 
   @IsString()
-  currency: string;
+  luas: string;
 
   @IsOptional()
   @IsString()
