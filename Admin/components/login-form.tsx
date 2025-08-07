@@ -6,10 +6,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
-import { AuthResponse } from "@/types/user";
 import { login } from "@/api/auth";
 import { useRouter } from "next/navigation";
-import { setCookie } from "cookies-next";
+import { AuthResponse } from "@/types/user";
+import Cookies from "js-cookie";
 export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -22,10 +22,10 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
     setError(null);
 
     try {
-      await login(email, password);
+      const response: AuthResponse = await login(email, password);
       // setCookie("token", response.token);
-      // localStorage.setItem("accessToken", response.token);
-      // localStorage.setItem("user", JSON.stringify(response.user));
+      Cookies.set("access_token", response.access_token, { expires: 7, secure: true, sameSite: "strict" });
+      localStorage.setItem("user", JSON.stringify(response.user));
       router.push("/dashboard");
     } catch (err: any) {
       setError(err.message || "Login failed. Please check your credentials.");

@@ -703,10 +703,6 @@
     container: card-header / inline-size;
   }
 
-  .\@container\/main {
-    container: main / inline-size;
-  }
-
   .pointer-events-none {
     pointer-events: none;
   }
@@ -3193,20 +3189,8 @@
   }
 
   @media (min-width: 48rem) {
-    .md\:gap-6 {
-      gap: calc(var(--spacing) * 6);
-    }
-  }
-
-  @media (min-width: 48rem) {
     .md\:p-10 {
       padding: calc(var(--spacing) * 10);
-    }
-  }
-
-  @media (min-width: 48rem) {
-    .md\:py-6 {
-      padding-block: calc(var(--spacing) * 6);
     }
   }
 
