@@ -43,12 +43,12 @@ const data = {
   navMain: [
     {
       title: "Dashboard",
-      url: "dashboard",
+      url: "/dashboard",
       icon: IconDashboard,
     },
     {
       title: "Properties",
-      url: "properties",
+      url: "/properties",
       icon: IconListDetails,
     },
     // {
@@ -163,12 +163,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             >
               <a href="#">
                 <Image
-                  src="/logo.svg"
-                  width={90}
-                  height={64}
+                  src="/logo_bar.svg"
+                  width={32}
+                  height={32}
                   alt="logo"
-                  className="flex items-center justify-center"
+                  className="flex items-center justify-center object-cover"
                 />
+                <span className="text-base font-semibold">Bumi Nirwana</span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
