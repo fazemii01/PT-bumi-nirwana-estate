@@ -1,0 +1,44 @@
+.container {
+	display: flex;
+	align-items: center;
+	margin-bottom: 3rem;
+	padding: 2rem;
+	border-radius: 8px;
+	background-color: #f9f9f9;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.logo {
+	margin-right: 2rem;
+	flex-shrink: 0;
+
+	img {
+		border-radius: 50%;
+	}
+}
+
+.content {
+	flex-grow: 1;
+}
+
+.name {
+	font-size: 1.8rem;
+	font-weight: bold;
+	margin-bottom: 1rem;
+	color: #333;
+}
+
+.description {
+	font-size: 1.1rem;
+	line-height: 1.6;
+	color: #666;
+}
+
+.projectImage {
+	margin-left: 2rem;
+	flex-shrink: 0;
+
+	img {
+		border-radius: 8px;
+	}
+}
