@@ -19,13 +19,18 @@
   "WE_ARE_ON_SOCIAL_NETWORKS": "Kami di jejaring sosial",
   "ALL_RIGHTS_RESERVED": "Hak cipta dilindungi",
   "IMAGE": "Gambar",
+  "BOTTOM" : {
+    "TITLE" : "BERSAMA KAMI KUAT",
+    "SUB" : "Kami mengembangkan Solusi Manajemen Properti terbaik untuk kebutuhan Anda" 
+  },
   "PAGE_NOT_FOUND": "<0>Halaman tidak ditemukan - Kesalahan 404.</0> <0>Maaf, tapi kami tidak dapat menemukan halaman yang Anda minta. Mungkin halaman itu dipindahkan, dihapus, atau tidak pernah ada. Anda dapat kembali ke halaman Utama atau memilih halaman lain dari situs.</0>",
   "NAVIGATION": {
     "MAIN": "Beranda",
     "MAIN_PAGE": "Halaman beranda",
     "ALL_REAL_ESTATE": "Semua real estat",
     "SERVICES": "Layanan",
-    "TO_THE_CATALOGUE": "Ke Katalog"
+    "TO_THE_CATALOGUE": "Ke Katalog",
+    "ABOUT": "Tentang Kami"
   },
   "TYPE_OF_REAL_ESTATE": {
     "TYPE_OF_REAL_ESTATE": "Jenis real estat",
@@ -64,5 +69,18 @@
     "RETAIL_SPACE": "Ruang ritel",
     "STORAGE_ROOM": "Ruang penyimpanan",
     "LAND": "Tanah"
+  },
+  "TESTIMONIALS": {
+    "TITLE": "Testimonial",
+    "CLIENT_1": {
+      "NAME": "Klien 1",
+      "POSITION": "Pemilik Rumah",
+      "TEXT": "Bumi Nirwana Estate membantu saya menemukan rumah impian saya. Prosesnya lancar dan profesional."
+    },
+    "CLIENT_2": {
+      "NAME": "Klien 2",
+      "POSITION": "Investor",
+      "TEXT": "Saya telah berinvestasi dengan Bumi Nirwana Estate selama beberapa tahun sekarang. Proyek mereka selalu menguntungkan dan dikelola dengan baik."
+    }
   }
 }

@@ -1,0 +1,12 @@
+.testimonials {
+  padding: 2rem;
+  background-color: #ffffff;
+  text-align: center;
+}
+
+.testimonialCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 1rem;
+}
