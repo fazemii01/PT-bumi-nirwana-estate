@@ -51,11 +51,11 @@ const data = {
       url: "/properties",
       icon: IconListDetails,
     },
-    // {
-    //   title: "Analytics",
-    //   url: "#",
-    //   icon: IconChartBar,
-    // },
+    {
+      title: "Agents",
+      url: "#",
+      icon: IconChartBar,
+    },
     // {
     //   title: "Projects",
     //   url: "#",
@@ -130,23 +130,6 @@ const data = {
       title: "Search",
       url: "#",
       icon: IconSearch,
-    },
-  ],
-  documents: [
-    {
-      name: "Data Library",
-      url: "#",
-      icon: IconDatabase,
-    },
-    {
-      name: "Reports",
-      url: "#",
-      icon: IconReport,
-    },
-    {
-      name: "Word Assistant",
-      url: "#",
-      icon: IconFileWord,
     },
   ],
 };

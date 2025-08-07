@@ -1,15 +1,10 @@
-<<<<<<< HEAD
-# compiled output
-/dist
-/.next
-=======
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
 README.md
->>>>>>> ec8f0dacd73199464f52232fa9b614bfdc36c247
 /node_modules
 /build
+/.next
 
 # Logs
 logs

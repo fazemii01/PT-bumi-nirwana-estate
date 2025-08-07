@@ -13,6 +13,8 @@ import { fontVariables } from "@/lib/font";
 import { cn } from "@/lib/utils";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,6 +35,11 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const token = (await cookies()).get("access_token")?.value;
+
+  if (!token) {
+    redirect("/login");
+  }
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
