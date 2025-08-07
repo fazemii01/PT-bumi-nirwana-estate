@@ -1,0 +1,28 @@
+.missionVision {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 50px;
+  padding: 2rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mission,
+.vision {
+  text-align: left;
+  position: relative;
+  padding-left: 20px;
+
+  &:before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 2px;
+    height: 100%;
+    background-color: var(--primary);
+    border-radius: 10px;
+  }
+}
