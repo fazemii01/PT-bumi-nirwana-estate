@@ -71,16 +71,26 @@
     "LAND": "Tanah"
   },
   "TESTIMONIALS": {
-    "TITLE": "Testimonial",
+    "TITLE": "Partner Kami",
     "CLIENT_1": {
-      "NAME": "Klien 1",
-      "POSITION": "Pemilik Rumah",
-      "TEXT": "Bumi Nirwana Estate membantu saya menemukan rumah impian saya. Prosesnya lancar dan profesional."
+      "NAME": "PT. Margojoyo Anugrah Persada",
+      "POSITION": "Developer & Property",
+      "TEXT": " "
     },
     "CLIENT_2": {
       "NAME": "Klien 2",
       "POSITION": "Investor",
       "TEXT": "Saya telah berinvestasi dengan Bumi Nirwana Estate selama beberapa tahun sekarang. Proyek mereka selalu menguntungkan dan dikelola dengan baik."
     }
+  },
+  "GOALS": {
+    "MISSION" : "MISI Kami",
+    "SUB_1" : "Untuk menciptakan ruang hidup dan kerja luar biasa yang meningkatkan kualitas hidup pelanggan kami dan berkontribusi terhadap pembangunan berkelanjutan komunitas kami.",
+    "VISIONS" : "VISI Kami",
+    "SUB_2" : "Menjadi pengembang properti terkemuka di kawasan ini, yang dikenal karena komitmen kami terhadap kualitas, inovasi, dan kepuasan pelanggan."
+  }, 
+  "ABOUT_YOU" : {
+    "TITLE" : "Tentang Kami",
+    "SUB_1" : "Mitra Tepercaya Anda dalam Properti."
   }
 }

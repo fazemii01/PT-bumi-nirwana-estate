@@ -4,6 +4,7 @@ import Testimonial from '../../Testimonial';
 
 import s from './AboutTestimonials.module.scss';
 import { useTranslation } from 'react-i18next';
+import MARGOJOYO from './assets/margojoyo.png';
 
 const AboutTestimonials: FC = () => {
 	const { t } = useTranslation('common');
@@ -12,15 +13,10 @@ const AboutTestimonials: FC = () => {
 		{
 			name: 'TESTIMONIALS.CLIENT_1.NAME',
 			position: 'TESTIMONIALS.CLIENT_1.POSITION',
-			image: '/assets/property/source/999/client1.jpg',
+			image: MARGOJOYO,
 			text: 'TESTIMONIALS.CLIENT_1.TEXT',
 		},
-		{
-			name: 'TESTIMONIALS.CLIENT_2.NAME',
-			position: 'TESTIMONIALS.CLIENT_2.POSITION',
-			image: '/assets/property/source/999/client2.jpg',
-			text: 'TESTIMONIALS.CLIENT_2.TEXT',
-		},
+	
 	];
 
 	return (
@@ -30,10 +26,10 @@ const AboutTestimonials: FC = () => {
 				{testimonials.map((testimonial) => (
 					<Testimonial
 						key={testimonial.name}
+						text={t(testimonial.text)}
 						name={t(testimonial.name)}
 						position={t(testimonial.position)}
 						image={testimonial.image}
-						text={t(testimonial.text)}
 					/>
 				))}
 			</div>
