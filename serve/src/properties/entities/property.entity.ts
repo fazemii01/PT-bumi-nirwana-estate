@@ -69,8 +69,8 @@ export class Property {
   })
   price_unit: PriceUnit;
 
-  @Column({ type: 'varchar', length: 3, nullable: false, default: 'IDR' })
-  currency: string;
+  @Column({ type: 'varchar', length: 20, nullable: false })
+  luas: string;
 
   @Column({ type: 'text', nullable: true })
   description: string;

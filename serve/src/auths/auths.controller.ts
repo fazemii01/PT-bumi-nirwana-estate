@@ -18,14 +18,15 @@ export class AuthsController {
     const { access_token, user } = await this.authsService.signIn(authDto);
     res.cookie('access_token', access_token, {
       httpOnly: true,
-      secure: false, // jika pakai HTTPS
-      sameSite: 'lax', // atau 'strict' tergantung kebutuhan
-      maxAge: 1000 * 60 * 60 * 24, // 1 hari
+      secure: false, // jika pakai HTTPS true
+      sameSite: 'lax',
+      maxAge: 1000 * 60 * 60 * 24,
     });
 
     return {
       message: 'Login successful',
-      user, // Tambahkan data user di sini
+      user,
+      access_token,
     };
   }
 
