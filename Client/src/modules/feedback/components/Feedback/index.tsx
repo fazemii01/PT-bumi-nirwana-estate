@@ -14,6 +14,7 @@ import BLUE_BUILDING from './assets/blue-building.png';
 import YELLOW_BUILDING from './assets/yellow-building.png';
 
 import s from './Feedback.module.scss';
+import NavigationContacts from '@modules/navigation/components/NavigationContacts';
 
 const Feedback: FC<{
 	type: 'owner' | 'cooperation';
@@ -37,7 +38,7 @@ const Feedback: FC<{
 			<article className={cn(s.inner, type === 'owner' && s.reverse)}>
 				<BlockTitle title={info[type].title} />
 				<p className={s.description}>{info[type].desc}</p>
-				
+				<NavigationContacts />
 			</article>
 
 			{!isTablet && (

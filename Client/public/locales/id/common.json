@@ -13,7 +13,7 @@
   "PROPERTY_TYPE": "Tipe properti",
   "CITY": "Kota",
   "FIND_REAL_ESTATE": "Temukan real estat",
-  "SEND_A_REQUEST": "Kirim permintaan",
+  "SEND_A_REQUEST": "Hubungi Kami",
   "LOADING": "Memuat...",
   "BUILDING": "Bangunan",
   "WE_ARE_ON_SOCIAL_NETWORKS": "Kami di jejaring sosial",
@@ -44,11 +44,11 @@
     "LAND_PLOTS": "Kavling Tanah"
   },
   "FEEDBACK": {
-    "INTERESTED_IN_COOPERATION": "Tertarik untuk bekerja sama?",
-    "IF_YOU_HAVE_ANY_QUESTIONS_ABOUT_OUR_SERVICES": "Jika Anda memiliki pertanyaan tentang layanan kami, silakan tinggalkan detail kontak Anda di formulir kontak di bawah ini dan spesialis kami akan segera menghubungi Anda. Kami senang membantu Anda dengan pertanyaan apa pun tentang pembelian, penjualan, penyewaan real estat, dan layanan lain yang kami tawarkan.",
+    "INTERESTED_IN_COOPERATION": "Apakah anda ingin mewujudkan rumah impian anda?",
+    "IF_YOU_HAVE_ANY_QUESTIONS_ABOUT_OUR_SERVICES": "Mari wujudkan rumah impian Anda menjadi kenyataan! Kami siap membantu Anda melalui setiap langkahnya, mulai dari perencanaan hingga pembangunan, dengan solusi yang disesuaikan dengan kebutuhan dan anggaran Anda.",
     "TO_LEARN_MORE_DETAILS_ABOUT_OUR_SERVICES_DESC": "Untuk mempelajari lebih detail tentang layanan kami dan untuk mendapatkan manfaat dari dukungan para profesional manajemen properti yang berpengetahuan, tinggalkan informasi Anda di formulir umpan balik di bawah ini. Jika Anda memiliki properti dan ingin menjadikannya sumber pendapatan, kami tahu cara membantu Anda!",
-    "DO_YOU_OWN_REAL_ESTATE": "Apakah Anda memiliki real estat?",
-    "COOPERATION_WITH_THE_AKULA": "Kerja sama dengan tim Mitra Pengembangan Akula akan bermanfaat bagi Anda. Kami siap memberikan Anda dukungan dalam manajemen real estat yang menguntungkan secara komersial yang Anda miliki. Spesialis kami akan membantu Anda menemukan pelanggan untuk menyewa tempat dan menawarkan strategi untuk meningkatkan kondisi di fasilitas untuk mendapatkan keuntungan maksimal. Jika Anda tertarik dengan manajemen real estat yang efektif, Mitra Pengembangan Akula memiliki sesuatu untuk ditawarkan kepada Anda.",
+    "DO_YOU_OWN_REAL_ESTATE": "Apakah anda ingin mewujudkan rumah impian anda?",
+    "COOPERATION_WITH_THE_AKULA": "Mari wujudkan rumah impian Anda menjadi kenyataan! Kami siap membantu Anda melalui setiap langkahnya, mulai dari perencanaan hingga pembangunan, dengan solusi yang disesuaikan dengan kebutuhan dan anggaran Anda.",
     "TITLE": "KOLEKSI KAMI",
     "SUBTITLE": "Kami mengembangkan Solusi Manajemen Perumahan terbaik untuk kebutuhan Anda"
   },
