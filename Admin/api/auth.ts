@@ -16,9 +16,6 @@ export async function login(email: string, password_hash: string): Promise<AuthR
       { withCredentials: true }
     );
 
-    if (res) {
-      console.log(res.data);
-    }
     return res.data;
   } catch (error) {
     if (error instanceof AxiosError) {
