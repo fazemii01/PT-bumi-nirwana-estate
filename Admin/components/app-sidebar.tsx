@@ -39,11 +39,11 @@ const data = {
       url: "properties",
       icon: IconListDetails,
     },
-    // {
-    //   title: "Analytics",
-    //   url: "#",
-    //   icon: IconChartBar,
-    // },
+    {
+      title: "Agent",
+      url: "agent",
+      icon: IconChartBar,
+    },
     // {
     //   title: "Projects",
     //   url: "#",

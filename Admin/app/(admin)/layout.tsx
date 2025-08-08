@@ -11,6 +11,7 @@ import { redirect } from "next/navigation";
 import ThemeInitializer from "@/components/theme-initializer";
 import { AuthProvider } from "@/app/contexts/AuthContext";
 import { AdminLayoutClient } from "@/components/layout/admin-layout-client";
+import ThemeWrapper from "@/components/theme-wrapper";
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const token = (await cookies()).get("access_token")?.value;
@@ -19,21 +20,18 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   }
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html>
       <head>
         <meta name="theme-color" content={META_THEME_COLORS.light} />
       </head>
-      <body
-        suppressHydrationWarning
-        className={cn("text-foreground group/body overscroll-none font-sans antialiased [--footer-height:calc(var(--spacing)*14)] [--header-height:calc(var(--spacing)*14)] xl:[--footer-height:calc(var(--spacing)*24)]", fontVariables)}
-      >
+      <body>
         <AuthProvider>
           <ThemeInitializer />
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <ThemeWrapper>
             <ActiveThemeProvider>
               <AdminLayoutClient>{children}</AdminLayoutClient>
             </ActiveThemeProvider>
-          </ThemeProvider>
+          </ThemeWrapper>
         </AuthProvider>
       </body>
     </html>

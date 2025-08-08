@@ -18,7 +18,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    // Ambil data user dari localStorage saat komponen pertama kali dimuat
     const userData = localStorage.getItem("user");
     if (userData) {
       try {
@@ -46,7 +45,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return <AuthContext.Provider value={{ user, loading, login, logout }}>{children}</AuthContext.Provider>;
 }
 
-// Custom Hook untuk mengakses Context
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
