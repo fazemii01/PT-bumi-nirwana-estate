@@ -25,7 +25,7 @@ const Home = () => {
 			<HomeTeam />
 			<HomeAdvantages />
 			<Feedback type="cooperation" />
-			<Grid />
+			{/* <Grid /> */}
 			<HomeObjectsInManagement />
 			<HomePartners />
 			<HomeReviews />
