@@ -4,10 +4,13 @@
   @include media-laptop {
     margin-bottom: 80px;
   }
-  
+
   @include media-tablet {
     margin-bottom: 50px;
   }
+  // Add this to ensure no excessive horizontal padding
+  padding-left: 0 !important;
+  padding-right: 0 !important;
 }
 
 .item {
@@ -16,17 +19,29 @@
   border-color: transparent;
   box-shadow: none;
   height: 100%;
-  overflow: visible;
+  overflow: hidden;
 
   img {
     display: block;
     margin-left: auto;
     margin-right: auto;
-    max-width: 100%;
+    max-width: 185px;
+    max-height: 150px; // Adjust this value as needed
+    height: auto;
 
     @include media-tablet {
       max-width: 140px;
-      height: auto;
+      max-height: 60px; // Adjust this value for tablets
+    }
+
+    @include media-mobile {
+      max-width: 100px;
+      max-height: 40px; // Adjust this value for mobile
+    }
+
+    @include media-laptop {
+      max-width: 180px;
+      max-height: 70px; // Adjust this value for laptops
     }
   }
 }
