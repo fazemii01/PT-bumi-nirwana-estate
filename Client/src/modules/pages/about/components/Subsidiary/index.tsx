@@ -14,7 +14,7 @@ const Subsidiary: FC<ISubsidiaryProps> = ({ name, description, logo, projectImag
 	return (
 		<div className={s.container}>
 			<div className={s.logo}>
-				<Image src={logo} alt={name} width={100} height={100} />
+				<Image src={logo} alt={name} width={80} height={80} />
 			</div>
 			<div className={s.content}>
 				<h3 className={s.name}>{name}</h3>

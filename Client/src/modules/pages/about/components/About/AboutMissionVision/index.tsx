@@ -1,23 +1,35 @@
 import { FC } from 'react';
 
 import s from './AboutMissionVision.module.scss';
+import { useTranslation, Trans } from 'react-i18next';
+
 
 const AboutMissionVision: FC = () => {
+	const { t } = useTranslation('common');
 	return (
 		<div className={s.missionVision}>
 			<div className={s.mission}>
-				<h3>Our Mission</h3>
+				<h3>
+					<Trans t={t} i18nKey="GOALS.MISSION">
+						<strong />
+					</Trans>
+				</h3>
 				<p>
-					To create exceptional living and working spaces that enhance the
-					quality of life for our customers and contribute to the sustainable
-					development of our communities.
+					<Trans t={t} i18nKey="GOALS.SUB_1">
+						<strong />
+					</Trans>
 				</p>
 			</div>
 			<div className={s.vision}>
-				<h3>Our Vision</h3>
+				<h3>
+					<Trans t={t} i18nKey="GOALS.VISIONS">
+						<strong />
+					</Trans>
+				</h3>
 				<p>
-					To be the leading property developer in the region, known for our
-					commitment to quality, innovation, and customer satisfaction.
+					<Trans t={t} i18nKey="GOALS.SUB_2">
+						<strong />
+					</Trans>
 				</p>
 			</div>
 		</div>

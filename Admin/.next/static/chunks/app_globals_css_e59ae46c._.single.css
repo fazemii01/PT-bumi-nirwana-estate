@@ -1340,10 +1340,6 @@
     overflow-y: auto;
   }
 
-  .overscroll-none {
-    overscroll-behavior: none;
-  }
-
   .rounded-\[2px\] {
     border-radius: 2px;
   }
@@ -1655,10 +1651,6 @@
 
   .font-mono {
     font-family: var(--font-geist-mono);
-  }
-
-  .font-sans {
-    font-family: var(--font-geist-sans);
   }
 
   .text-2xl {
@@ -1986,14 +1978,6 @@
 
   .zoom-in-95 {
     --tw-enter-scale: .95;
-  }
-
-  .\[--footer-height\:calc\(var\(--spacing\)\*14\)\] {
-    --footer-height: calc(var(--spacing) * 14);
-  }
-
-  .\[--header-height\:calc\(var\(--spacing\)\*14\)\] {
-    --header-height: calc(var(--spacing) * 14);
   }
 
   .group-focus-within\/menu-item\:opacity-100:is(:where(.group\/menu-item):focus-within *) {
@@ -3242,12 +3226,6 @@
   @media (min-width: 64rem) {
     .lg\:px-6 {
       padding-inline: calc(var(--spacing) * 6);
-    }
-  }
-
-  @media (min-width: 80rem) {
-    .xl\:\[--footer-height\:calc\(var\(--spacing\)\*24\)\] {
-      --footer-height: calc(var(--spacing) * 24);
     }
   }
 

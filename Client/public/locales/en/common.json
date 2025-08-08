@@ -71,5 +71,29 @@
     "RETAIL_SPACE": "Retail space",
     "STORAGE_ROOM": "Storage room",
     "LAND": "Land"
+  },
+  "TESTIMONIALS": {
+    "TITLE": "Our Partner",
+    "CLIENT_1": {
+      "NAME": "PT. Margojoyo Anugrah Persada",
+      "POSITION": "Developer & Property",
+      "TEXT": "The company's business activities include real estate and housing development, such as the D'Margojoyo Land and The Margojoyo Residence projects. Their registered business address is in Lumajang, East Java, Indonesia."
+    },
+    "CLIENT_2": {
+      "NAME": "Klien 2",
+      "POSITION": "Investor",
+      "TEXT": "Saya telah berinvestasi dengan Bumi Nirwana Estate selama beberapa tahun sekarang. Proyek mereka selalu menguntungkan dan dikelola dengan baik."
+    }
+
+  },
+  "GOALS": {
+    "MISSION" : "Our Mission",
+    "SUB_1" : "To create exceptional living and working spaces that enhance the quality of life for our customers and contribute to the sustainable development of our communities.",
+    "VISIONS" : "Our Vision",
+    "SUB_2" : "To be the leading property developer in the region, known for our commitment to quality, innovation, and customer satisfaction."
+  },
+   "ABOUT_YOU" : {
+    "TITLE" : "About Us",
+    "SUB_1" : "Your Trusted Partner in Property."
   }
 }

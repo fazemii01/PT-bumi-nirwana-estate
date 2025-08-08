@@ -48,8 +48,8 @@ const data = {
       icon: IconListDetails,
     },
     {
-      title: "Agents",
-      url: "#",
+      title: "Agent",
+      url: "agent",
       icon: IconChartBar,
     },
     // {
