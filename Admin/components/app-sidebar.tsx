@@ -23,7 +23,15 @@ import { NavDocuments } from "@/components/nav-documents";
 import { NavMain } from "@/components/nav-main";
 import { NavSecondary } from "@/components/nav-secondary";
 import { NavUser } from "@/components/nav-user";
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
 import Image from "next/image";
 import { User } from "@/types/user";
 
@@ -31,12 +39,12 @@ const data = {
   navMain: [
     {
       title: "Dashboard",
-      url: "dashboard",
+      url: "/dashboard",
       icon: IconDashboard,
     },
     {
       title: "Properties",
-      url: "properties",
+      url: "/properties",
       icon: IconListDetails,
     },
     {
@@ -132,9 +140,19 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:!p-1.5">
+            <SidebarMenuButton
+              asChild
+              className="data-[slot=sidebar-menu-button]:!p-1.5"
+            >
               <a href="#">
-                <Image src="/logo.svg" width={90} height={64} alt="logo" className="flex items-center justify-center" />
+                <Image
+                  src="/logo_bar.svg"
+                  width={32}
+                  height={32}
+                  alt="logo"
+                  className="flex items-center justify-center object-cover"
+                />
+                <span className="text-base font-semibold">Bumi Nirwana</span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>

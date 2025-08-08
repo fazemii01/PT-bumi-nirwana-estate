@@ -8,34 +8,42 @@ import React, { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import ThemeInitializer from "@/components/theme-initializer";
 
-// Komponen klien ini akan menggunakan data dari AuthContext
 export function AdminLayoutClient({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center h-screen bg-transparent">
+        <img
+          src="/logo-loading.png"
+          alt="Loading..."
+          className="h-24 w-24 animate-spin"
+        />
+      </div>
+    );
   }
 
-  // Jika user tidak ada (misalnya token sudah expired),
-  // Anda bisa melakukan redirect di sini, atau biarkan AuthProvider menanganinya.
   if (!user) {
-    redirect("/login"); // Redirect ini harus ditangani oleh Next.js client-side router
+    redirect("/login");
   }
 
   return (
-    <SidebarProvider
-      style={
-        {
-          "--sidebar-width": "calc(var(--spacing) * 72)",
-          "--header-height": "calc(var(--spacing) * 12)",
-        } as React.CSSProperties
-      }
-    >
-      <AppSidebar variant="inset" user={user} />
-      <SidebarInset>
-        <SiteHeader />
-        <main className="px-4 py-4">{children}</main>
-      </SidebarInset>
-    </SidebarProvider>
+    <>
+      <ThemeInitializer />
+      <SidebarProvider
+        style={
+          {
+            "--sidebar-width": "calc(var(--spacing) * 72)",
+            "--header-height": "calc(var(--spacing) * 12)",
+          } as React.CSSProperties
+        }
+      >
+        <AppSidebar variant="inset" user={user} />
+        <SidebarInset>
+          <SiteHeader />
+          <main className="px-4 py-4">{children}</main>
+        </SidebarInset>
+      </SidebarProvider>
+    </>
   );
 }
