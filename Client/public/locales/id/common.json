@@ -92,5 +92,8 @@
   "ABOUT_YOU" : {
     "TITLE" : "Tentang Kami",
     "SUB_1" : "Mitra Tepercaya Anda dalam Properti."
+  },
+    "MAP" : {
+    "TITLE" : "Temukan Kami Disini" 
   }
 }

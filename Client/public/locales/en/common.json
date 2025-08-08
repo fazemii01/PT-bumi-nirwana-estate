@@ -90,5 +90,8 @@
    "ABOUT_YOU" : {
     "TITLE" : "About Us",
     "SUB_1" : "Your Trusted Partner in Property."
+  },
+  "MAP" : {
+    "TITLE" : "Found Us Here." 
   }
 }
