@@ -1,0 +1,45 @@
+@mixin flex-align($align: flex-start) {
+    display: flex;
+    justify-content: $align;
+    align-items: $align;
+}
+
+.header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background-color: #3730a3; // indigo-800
+    color: white;
+    padding: 1.5rem;
+    z-index: 1000;
+    text-align: center;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.footer {
+    width: 100%;
+    background-color: #3730a3; // indigo-800
+    color: white;
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.container {
+    @include flex-align(center);
+    flex-direction: column;
+    min-height: 100vh;
+    font-family: "Inter", sans-serif;
+}
+
+.content {
+    margin-top: 90px;
+    flex-grow: 1;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
+    @media (max-width: 1024px) {
+        margin-top: 60px;
+    }
+}

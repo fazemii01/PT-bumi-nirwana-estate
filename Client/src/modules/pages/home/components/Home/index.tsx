@@ -12,7 +12,7 @@ import HomeTeam from '@modules/pages/home/components/HomeTeam';
 import HomeWhoWeAre from '@modules/pages/home/components/HomeWhoWeAre';
 import Chatbot from '@modules/chatbot/components/Chatbot';
 import Grid from '@modules/pages/home/components/Grid/container';
-
+import Map from '@modules/pages/home/components/MapTiller/Map';
 
 const Home = () => {
 	const { t } = useTranslation('common');
@@ -28,6 +28,7 @@ const Home = () => {
 			{/* <Grid /> */}
 			<HomeObjectsInManagement />
 			<HomePartners />
+			{/* <Map /> */}
 			<HomeReviews />
 			<Feedback type="owner" />
 			<Chatbot />
