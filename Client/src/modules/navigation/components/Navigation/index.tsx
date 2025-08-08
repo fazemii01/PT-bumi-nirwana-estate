@@ -26,7 +26,7 @@ const Navigation = () => {
 
 	const NAVIGATION: INavigation[] = [
 		{ title: 'MAIN', path: `/` },
-		{ title: 'SERVICES', path: `/services` },
+		// { title: 'SERVICES', path: `/services` },
 		{ title: 'ALL_REAL_ESTATE', path: `/${CATALOG_NAME}` },
 		{ title: 'ABOUT', path: `/about` },
 	];

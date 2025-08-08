@@ -49,16 +49,15 @@ const HomeObjectsInManagement = () => {
 	};
 
 	const objectsInManagement = [
-		{ text: 'APARTMENTS', filter: 'Квартира' },
+		
 		{ text: 'HOUSES', filter: 'Будинок' },
 		{ text: 'NEW_BUILDING', filter: 'Новобудова' },
-		{ text: 'OFFICE_SPACES', filter: 'Офіс' },
-		{
-			text: 'PREMISES_FOR_ANY_TYPE_OF_ACTIVITY',
-			filter: 'Приміщення під будь-який вид діяльності',
-		},
-		{ text: 'MARKETPLACES', filter: 'Торгова площа' },
-		{ text: 'WAREHOUSE_FACILITIES', filter: 'Складське приміщення' },
+		// {
+		// 	text: 'PREMISES_FOR_ANY_TYPE_OF_ACTIVITY',
+		// 	filter: 'Приміщення під будь-який вид діяльності',
+		// },
+		// { text: 'MARKETPLACES', filter: 'Торгова площа' },
+		// { text: 'WAREHOUSE_FACILITIES', filter: 'Складське приміщення' },
 		{ text: 'LAND_PLOTS', filter: 'Земля' },
 	];
 

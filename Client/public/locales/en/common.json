@@ -34,13 +34,8 @@
   },
   "TYPE_OF_REAL_ESTATE": {
     "TYPE_OF_REAL_ESTATE": "Type of real estate",
-    "APARTMENTS": "Apartments",
     "HOUSES": "Houses",
     "NEW_BUILDING": "New Buildings",
-    "OFFICE_SPACES": "Office Spaces",
-    "PREMISES_FOR_ANY_TYPE_OF_ACTIVITY": "Premises for any type of activity",
-    "MARKETPLACES": "Marketplaces",
-    "WAREHOUSE_FACILITIES": "Warehouses",
     "LAND_PLOTS": "Land Plots"
   },
   "FEEDBACK": {

@@ -9,6 +9,7 @@ import { useMediaQuery } from '@hooks/index';
 import { CATALOG_NAME, TABLET_BREAKPOINT } from '@utils/const';
 
 import CLOCK_IMG from './assets/clock.svg';
+import HOME from './assets/icons8-home.svg';
 
 import s from './HomeAdvantages.module.scss';
 
@@ -49,8 +50,8 @@ const HomeAdvantages = () => {
 			<ul className={s.list}>
 				<li className={s.techSupport}>
 					<p>{tHome('ADVANTAGES.TECHNICAL_CUSTOMER_SUPPORT')}</p>
-					<span>24/7</span>
-					<Image className={s.clock} src={CLOCK_IMG} alt="Clock Image" />
+					<span>1 Juta</span>
+					<Image className={s.clock} src={HOME} alt="Home Image" />
 				</li>
 				{getAdvantagesList.map((item) => (
 					<li key={item} className={s.item}>
