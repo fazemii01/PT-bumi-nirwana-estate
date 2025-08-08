@@ -6,10 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
-import { login } from "@/api/auth";
 import { useRouter } from "next/navigation";
-import { AuthResponse } from "@/types/user";
-import Cookies from "js-cookie";
 export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
   const [email, setEmail] = useState<string>("");
   const [password_hash, setPassword] = useState<string>("");
@@ -39,7 +36,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auths/signin`, {
         method: "POST",
-        credentials: "include", // penting!
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
@@ -49,7 +46,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
       if (!res.ok) throw new Error("Login failed");
 
       const data = await res.json();
-      localStorage.setItem("user", JSON.stringify(data.user)); // simpan user info
+      localStorage.setItem("user", JSON.stringify(data.user));
       router.push("/dashboard");
     } catch (err: any) {
       setError(err.message || "Login failed");
