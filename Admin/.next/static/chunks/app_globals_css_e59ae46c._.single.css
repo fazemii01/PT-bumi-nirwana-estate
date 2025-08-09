@@ -1715,10 +1715,6 @@
     background-color: rgba(0, 0, 0, 0);
   }
 
-  .bg-white {
-    background-color: var(--color-white);
-  }
-
   .bg-yellow-100 {
     background-color: var(--color-yellow-100);
   }
@@ -3629,10 +3625,6 @@
     .dark\:bg-destructive\/60:is(.dark *) {
       background-color: color-mix(in oklab, var(--destructive) 60%, transparent);
     }
-  }
-
-  .dark\:bg-gray-900:is(.dark *) {
-    background-color: var(--color-gray-900);
   }
 
   .dark\:bg-input\/30:is(.dark *) {
