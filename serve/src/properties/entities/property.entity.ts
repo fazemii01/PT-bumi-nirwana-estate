@@ -72,6 +72,9 @@ export class Property {
   @Column({ type: 'varchar', length: 20, nullable: false })
   luas: string;
 
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  jenis: string;
+
   @Column({ type: 'text', nullable: true })
   description: string;
 

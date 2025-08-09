@@ -37,6 +37,8 @@ export class CreatePropertyDto {
 
   @IsString()
   luas: string;
+  @IsString()
+  jenis: string;
 
   @IsOptional()
   @IsString()
