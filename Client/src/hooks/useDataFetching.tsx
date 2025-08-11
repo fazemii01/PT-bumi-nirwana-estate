@@ -9,16 +9,19 @@ const useDataFetching = () => {
   const initialData: ICatalogData = {
     city: '',
     contractType: '',
-    id: 0,
+    id: '',
     price: '',
     propertyType: '',
     realEstateType: '',
     station: {},
     visibility: false,
-    description: {},
+    description: '',
     address: {},
     location: {},
     table: {},
+    images: [],
+    floor_plans: [],
+    luas: ''
   };
 
   const [data, setData] = useState<ICatalogData[]>([initialData]);
@@ -49,28 +52,31 @@ const useDataFetching = () => {
       };
 
       return {
-        ...initialData,
-        id: parseInt(property.id, 10) || 0,
+        ...property,
         price: property.price.toString(),
         visibility: property.status === 'AVAILABLE',
-        description: {
-          en: property.description,
-        },
         address: {
-          en: address.street || '',
+        	en: address.street || '',
+        	id: address.street || '',
         },
         location,
-        table: specifications as ICatalogTable,
+        table: {
+        	rooms: specifications.kamar + specifications.kamar_mandi,
+        	bathrooms: specifications.kamar_mandi,
+        	offices: specifications.offices,
+        },
+       
         contractType: (specifications as { contractType?: string }).contractType || '',
         propertyType: (specifications as { propertyType?: string }).propertyType || '',
         realEstateType: (specifications as { realEstateType?: string }).realEstateType || '',
         city: address.city || '',
         station: {},
+        images: property.images || [],
       };
     });
 
     const sortResult = result
-      .sort((a, b) => b.id - a.id);
+      .sort((a, b) => (a.id > b.id ? -1 : 1));
     setData(sortResult);
     setLoading(false);
   };

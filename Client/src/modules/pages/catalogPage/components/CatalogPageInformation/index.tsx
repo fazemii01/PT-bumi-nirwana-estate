@@ -20,7 +20,7 @@ import s from './CatalogPageInformation.module.scss';
 
 const CatalogPageInformation: FC<{
 	description: string;
-	id: number;
+	id: string;
 	tableInfo: ICatalogTable;
 	address: string;
 	originalAddress: string;
@@ -40,27 +40,18 @@ const CatalogPageInformation: FC<{
 	      price,
       }) => {
 	const {t} = useTranslation('catalog');
-	const postersList = usePropertyPhoto(String(id));
 	const isLaptop = useMediaQuery(LAPTOP_BREAKPOINT);
-	const isVideoBlock = postersList.some(item => item.video);
+	// const isVideoBlock = postersList.some(item => item.video);
 
 	return (
 		<>
-			{isVideoBlock && (
-				<article className={s.container}>
-					<h4 className={s.title}>{t('VIDEO')}</h4>
-					<hr className={s.line}/>
-					{postersList.map((item) => item.video && (
-						<CatalogPageVideo key={item.video} source={item.video}/>
-					))}
-				</article>
-			)}
+			
 
 			<article className={cn(s.container, s.info)}>
 				<div className={s.infoHeading}>
 					<h4 className={s.title}>{t('INFORMATION')}</h4>
 					<p>
-						{t('OBJECT_ID')} <span className={s.id}>{id}</span>
+						{t('OBJECT_ID')} <span className={s.id}>{id.toString().substring(0, 4)}</span>
 					</p>
 				</div>
 

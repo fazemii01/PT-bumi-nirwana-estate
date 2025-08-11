@@ -1,80 +1,54 @@
-import {useEffect, useMemo, useState} from 'react';
-import axios from 'axios';
-
+import {useMemo} from 'react';
 import {BACKEND_LOCALHOST} from '@utils/const';
 
-interface IGalleryList {
-	original: string;
-	thumbnail: string;
-	video?: string;
+interface PropertyImage {
+    id: string;
+    image_url: string;
+    caption: string;
+    sort_order: number;
 }
 
-const usePropertyPhoto = (id: string): IGalleryList[] => {
-	const [fileList, setFileList] = useState<IGalleryList[]>([]);
+interface FloorPlan {
+    id: string;
+    name: string;
+    file_url: string;
+    sort_order: number;
+}
 
-	const getPath = useMemo(() => {
-		return (fileName: string) => `/assets/property/source/${id}/${fileName}`;
-	}, [id]);
+interface IGalleryList {
+    original: string;
+    thumbnail: string;
+    video?: string;
+}
 
-	const getImageList = (data: string[]) => {
-		const sortFiles = data.sort((a, b) => {
-			const firstItemPattern = '1.';
-			const lastItemPattern = '999';
-			const beforeLastItemPattern = '998';
+const usePropertyPhoto = (images: PropertyImage[] = [], floorPlans: FloorPlan[] = []): IGalleryList[] => {
+    const getImagePath = (fileName: string) => `${BACKEND_LOCALHOST}/uploads/property/property_images/${fileName}`;
+    const getFloorPlanPath = (fileName: string) => `${BACKEND_LOCALHOST}/uploads/property/property_floor_plans/${fileName}`;
 
-			if (a.includes(firstItemPattern) && !b.includes(firstItemPattern)) {
-				return -1;
-			} else if (!a.includes(firstItemPattern) && b.includes(firstItemPattern)) {
-				return 1;
-			} else if (a.includes(lastItemPattern) && !b.includes(lastItemPattern)) {
-				return 1;
-			} else if (!a.includes(lastItemPattern) && b.includes(lastItemPattern)) {
-				return -1;
-			} else if (a.includes(beforeLastItemPattern) && !b.includes(beforeLastItemPattern)) {
-				return 1;
-			} else if (!a.includes(beforeLastItemPattern) && b.includes(beforeLastItemPattern)) {
-				return -1;
-			} else {
-				return a.localeCompare(b);
-			}
-		});
+    const fileList = useMemo(() => {
+        const allFiles = [
+            ...images.map(img => ({...img, type: 'image'})),
+            ...floorPlans.map(plan => ({...plan, type: 'floor_plan'}))
+        ];
 
-		const buildImagesList = sortFiles.map((filename: string) => {
-			const videoRegExp = /(mp4|webm|mov)/;
-			const isVideo = videoRegExp.test(filename);
-			const filePath = getPath(filename);
-			return {
-				original: filePath,
-				thumbnail: filePath,
-				video: isVideo ? filePath : undefined,
-			};
-		});
+        allFiles.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
 
-		setFileList(buildImagesList);
-	};
+        return allFiles.map(file => {
+            const videoRegExp = /(mp4|webm|mov)/;
+            const isImage = file.type === 'image';
+            const fileName = isImage ? (file as PropertyImage).image_url : (file as FloorPlan).file_url;
+            const isVideo = videoRegExp.test(fileName);
+            const filePath = isImage ? getImagePath(fileName) : getFloorPlanPath(fileName);
 
-	useEffect(() => {
-		const fetchFileList = async () => {
-			try {
-				const response = await axios.get<string[]>(
-					`${BACKEND_LOCALHOST}/filenames/${id}`,
-				);
-				getImageList(response.data);
-			} catch (error) {
-				console.error(
-					`Error fetching Images file list => for id-${id} object:`,
-					error,
-				);
-			}
-		};
+            return {
+                original: filePath,
+                thumbnail: filePath,
+                video: isVideo ? filePath : undefined,
+            };
+        });
+    }, [images, floorPlans]);
 
-		if (id) {
-			fetchFileList().then();
-		}
-		// eslint-disable-next-line
-	}, [id]);
-
-	return fileList;
+    return fileList;
 };
 
 export default usePropertyPhoto;

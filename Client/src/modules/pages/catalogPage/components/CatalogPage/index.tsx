@@ -1,4 +1,4 @@
-import {FC, memo, useEffect, useState} from 'react';
+import {FC, useEffect, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useRouter} from 'next/router';
 
@@ -36,14 +36,14 @@ import type {ICatalogData} from '@t-types/data';
 import s from './CatalogPage.module.scss';
 import Page404 from "@modules/pages/page404/components/Page404";
 
-const CatalogPage: FC = memo(() => {
+const CatalogPage: FC = () => {
 	const router = useRouter();
 	const {catalog} = router.query;
 	const {data, loading, initialData} = useDataFetching();
 	const {i18n, t: tCommon} = useTranslation('common');
 	const {t: tCatalog} = useTranslation('catalog');
 	const isLaptop = useMediaQuery(LAPTOP_BREAKPOINT);
-	const currentPageId = Number(catalog);
+	const currentPageId = catalog;
 
 	const [pageData, setPageData] = useState<ICatalogData>(initialData);
 	const {
@@ -58,6 +58,8 @@ const CatalogPage: FC = memo(() => {
 		table,
 		location,
 		contractType,
+		images,
+		floor_plans,
 	} = pageData;
 
 	useEffect(() => {
@@ -79,7 +81,10 @@ const CatalogPage: FC = memo(() => {
 	const itemAddress = formatTranslation(i18n.language, address);
 	const itemStation = formatTranslation(i18n.language, station);
 	const itemLocation = formatTranslation(i18n.language, location);
-	const itemDescription = formatTranslation(i18n.language, description);
+	const itemDescription = formatTranslation(i18n.language, {
+		en: description,
+		ua: description,
+	});
 	const itemCity = tCommon(formatCityTranslation(city));
 	const itemOriginalFullAddress = `${city}, ${location.ua}, ${address.ua}`;
 	const itemCityWithLocationAndAddress = `${itemCity}, ${itemLocation}, ${itemAddress}`;
@@ -103,7 +108,7 @@ const CatalogPage: FC = memo(() => {
 		return <Loader type="fullscreen"/>;
 	}
 
-	if (pageData.id === 0) {
+	if (pageData.id === '0' || !pageData.id) {
 		return <Page404/>
 	}
 
@@ -120,7 +125,7 @@ const CatalogPage: FC = memo(() => {
 			/>
 			<section className={s.container}>
 				<div>
-					<CatalogPageCarousel id={id}/>
+					{id && <CatalogPageCarousel images={images} floorPlans={floor_plans}/>}
 					<CatalogPageInformation
 						contractType={contractType}
 						realEstateType={realEstateType}
@@ -149,6 +154,5 @@ const CatalogPage: FC = memo(() => {
 			{isLaptop && <CatalogPageNotice/>}
 		</>
 	);
-});
-CatalogPage.displayName = CATALOG_NAME;
+};
 export default CatalogPage;

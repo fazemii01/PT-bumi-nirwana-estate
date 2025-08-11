@@ -15,9 +15,9 @@ import IconRuler from '@icons/components/IconRuler';
 import {
 	useCatalogItemFullAddress,
 	useCurrencyFetching,
-	usePropertyPhoto,
+	// usePropertyPhoto,
 } from '@hooks/index';
-import {CATALOG_NAME} from '@utils/const';
+import {BACKEND_LOCALHOST, CATALOG_NAME} from '@utils/const';
 import {
 	formatCatalogTranslation,
 	formatCityTranslation,
@@ -37,65 +37,74 @@ const CatalogCard: FC<{
 		city,
 		price,
 		address,
+		description,
 		realEstateType,
 		table,
 		location,
+		images,
+		luas,
 	} = props;
 
 	const {i18n, t: tCommon} = useTranslation('common');
 	const {t: tCatalog} = useTranslation('catalog');
 	const {currencyRate} = useCurrencyFetching();
 
-	const postersList = usePropertyPhoto(id.toString());
+	const mainImage = images?.find((image) => image.sort_order === 0) || null;
+
 	const fullAddress = useCatalogItemFullAddress(
 		realEstateType,
 		location,
 		address,
 	);
 	const itemCity = tCommon(formatCityTranslation(city));
-	const itemContractType = tCommon(formatCatalogTranslation(contractType));
-	const itemPropertyType = tCommon(formatCatalogTranslation(propertyType));
+	// const itemContractType = tCommon(formatCatalogTranslation(contractType));
+	// const itemPropertyType = tCommon(formatCatalogTranslation(propertyType));
 	const itemTotalArea = Number(table.totalArea).toFixed();
 
-	const isRoomsIcon = (table.offices && table.offices !== 'any') || table.rooms;
+	const totalRooms = Number(table.rooms);
+
 	return (
 		<li className={cn('yellow-shadow', s.container)}>
 			<Link className={s.inner} href={`/${CATALOG_NAME}/${id}`}>
-				{postersList.length > 0 ? (
+				{mainImage ? (
 					<Image
 						className={s.image}
 						width={400}
 						height={300}
-						src={postersList[0].original}
-						alt="Photo"
+						src={`${BACKEND_LOCALHOST}/uploads/property/property_images/${mainImage.image_url}`}
+						alt={mainImage.caption}
 					/>
 				) : (
 					<DefaultPoster className={s.image}/>
 				)}
 				<div className={s.info}>
 					<ul className={s.tags}>
-						<li>{itemContractType}</li>
-						<li>{itemPropertyType}</li>
+						{images &&
+							images
+								.sort((a, b) => a.sort_order - b.sort_order)
+								.map(
+									(image) =>
+										image.caption && <li key={image.id}>{image.caption}</li>,
+								)}
 					</ul>
 					<h3 className={s.city}>{itemCity}</h3>
-					<address className={s.address}>{fullAddress}</address>
+					<address className={s.address}>{`${description}, ${fullAddress}, ${itemCity}`}</address>
 					<ul className={s.description}>
+						
 						<li>
 							{currencyRate &&
 								formatToPrefixAndPrice(i18n.language, price, currencyRate)}
 						</li>
-						{table.totalArea && (
+						{luas && (
 							<li title={tCatalog('TABLE.TOTALAREA')}>
 								<IconRuler/>
-								{itemTotalArea + ' ' + UNITS[i18n.language].squareMeters}
+								{luas + ' ' + UNITS[i18n.language].squareMeters}
 							</li>
 						)}
-						{isRoomsIcon && (
-							<li
-								title={tCatalog(`${table.offices ? 'TABLE.OFFICES' : 'TABLE.ROOMS'}`)}
-							>
-								<IconFloorPlan/>
-								{table.offices || table.rooms}
+						{totalRooms > 0 && (
+							<li title={tCatalog('TABLE.ROOMS')}>
+								<IconFloorPlan />
+								{totalRooms}
 							</li>
 						)}
 					</ul>

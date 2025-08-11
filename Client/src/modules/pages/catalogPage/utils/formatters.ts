@@ -26,8 +26,8 @@ export const formatToPrefixAndPrice = (
 	currencyRate: number,
 ) => {
 	const formatToNumbers = formatToNumbersOnly(value);
-	const price = formatToFullUahPrice(formatToNumbers, currencyRate);
-	return formatToPricePrefix(lang, value) + price + ' ' + UNITS[lang].currency;
+	const price = formatToFullPrice(lang, formatToNumbers, currencyRate);
+	return formatToPricePrefix(lang, value) + price;
 };
 
 export const formatToPrefixOnly = (lang: string, value: string) => {
@@ -38,17 +38,33 @@ export const formatToNumbersOnly = (value: string) => {
 	return Number(value.replace(/[^\d.]/g, ''));
 };
 
-const formatToSeparatedNumber = (value: number) => {
-	return new Intl.NumberFormat('uk-UA', {
-		currency: 'UAH',
+const formatToSeparatedNumber = (lang: string, value: number) => {
+	const locales: { [key: string]: string } = {
+		ua: 'uk-UA',
+		en: 'en-US',
+		id: 'id-ID',
+	};
+	const currencies: { [key: string]: string } = {
+		ua: 'UAH',
+		en: 'USD',
+		id: 'IDR',
+	};
+	return new Intl.NumberFormat(locales[lang] || 'en-US', {
+		style: 'currency',
+		currency: currencies[lang] || 'USD',
+		minimumFractionDigits: 0,
+		maximumFractionDigits: 0,
 	}).format(value);
 };
 
-const formatToFullUahPrice = (value: number, currencyRate: number) => {
-	const calcPriceUah = value * currencyRate;
-	const slicePriceUah = calcPriceUah.toFixed();
+const formatToFullPrice = (
+	lang: string,
+	value: number,
+	currencyRate: number,
+) => {
+	const slicePrice = value.toFixed();
 
-	return formatToSeparatedNumber(+slicePriceUah);
+	return formatToSeparatedNumber(lang, +slicePrice);
 };
 
 export const formatTableFullPrice = (
@@ -57,12 +73,11 @@ export const formatTableFullPrice = (
 	currencyRate: number,
 ) => {
 	const removedLetters = formatToNumbersOnly(value);
-	const priceUsd = formatToSeparatedNumber(removedLetters) + USD_SYMBOL;
+	const priceUsd = formatToSeparatedNumber(lang, removedLetters) + USD_SYMBOL;
 
 	return (
 		formatToPricePrefix(lang, value) +
-		formatToFullUahPrice(removedLetters, currencyRate) +
-		UNITS[lang].currency +
+		formatToFullPrice(lang, removedLetters, currencyRate) +
 		UNITS[lang].separator +
 		priceUsd
 	);
