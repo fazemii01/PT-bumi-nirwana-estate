@@ -12,6 +12,7 @@ const CreateAgent = ({ open, setOpen }: { open: boolean; setOpen: (value: boolea
   const [dragActive, setDragActive] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [form, setForm] = useState<Agent>({
+    id:'',
     full_name: "",
     email: "",
     phone_number: "",
@@ -69,7 +70,7 @@ const CreateAgent = ({ open, setOpen }: { open: boolean; setOpen: (value: boolea
   };
 
   const handleCancel = () => {
-    setForm({ full_name: "", email: "", phone_number: "", avatar_url: "" });
+    setForm({id:"", full_name: "", email: "", phone_number: "", avatar_url: "" });
     setSelectedFile(null);
     setPreviewUrl(null);
     setOpen(false);
@@ -89,7 +90,7 @@ const CreateAgent = ({ open, setOpen }: { open: boolean; setOpen: (value: boolea
     startTransition(async () => {
       try {
         await addAgent({ data: form });
-        setForm({ full_name: "", email: "", phone_number: "", avatar_url: "" });
+        setForm({id:"", full_name: "", email: "", phone_number: "", avatar_url: "" });
         setSelectedFile(null);
         setPreviewUrl(null);
         setOpen(false);
