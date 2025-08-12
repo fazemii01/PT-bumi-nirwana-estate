@@ -44,6 +44,9 @@ export class CreatePropertyDto {
   @IsOptional()
   @IsString()
   description: string;
+  @IsOptional()
+  @IsString()
+  detail_description: string;
 
   @IsOptional()
   @IsObject()

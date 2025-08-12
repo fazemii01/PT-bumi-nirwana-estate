@@ -77,6 +77,8 @@ export class Property {
 
   @Column({ type: 'text', nullable: true })
   description: string;
+  @Column({ type: 'text', nullable: true })
+  detail_description: string;
 
   @Column({
     type: 'geography',
