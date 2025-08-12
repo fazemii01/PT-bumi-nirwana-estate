@@ -52,11 +52,11 @@ const data = {
       url: "agent",
       icon: IconChartBar,
     },
-    // {
-    //   title: "Projects",
-    //   url: "#",
-    //   icon: IconFolder,
-    // },
+    {
+      title: "Developer",
+      url: "developer",
+      icon: IconFolder,
+    },
     // {
     //   title: "Team",
     //   url: "#",

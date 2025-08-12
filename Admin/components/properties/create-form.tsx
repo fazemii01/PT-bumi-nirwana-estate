@@ -1,314 +1,562 @@
 "use client";
+import React, { useState, useRef } from "react";
+import { useTheme } from "next-themes";
+import { useThemeConfig } from "@/components/active-theme";
+import { X, Upload, ImageIcon, FileText, Eye, Save } from "lucide-react";
 
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import Image from "next/image";
-import * as z from "zod";
-import { createProperty } from "@/api/property";
-import { IoCloudUploadOutline, IoTrashOutline } from "react-icons/io5";
-import { BarLoader } from "react-spinners";
-import { useRef, useState, useTransition } from "react";
+const PropertyCreateForm = () => {
+  const { theme } = useTheme();
+  const { activeTheme } = useThemeConfig();
 
-const propertySchema = z.object({
-  name: z.string().min(2, "Nama harus diisi"),
-  status: z.string().min(1, "Status harus dipilih"),
-  price: z.coerce.number().min(1000, "Harga minimal 1000"),
-  price_unit: z.string().min(1, "Satuan harga harus diisi"),
-  currency: z.string().min(1, "Mata uang harus diisi"),
-  description: z.string().min(5, "Deskripsi harus diisi"),
-});
-
-type PropertyFormValues = z.infer<typeof propertySchema>;
-
-function CreatePropertyForm() {
-  const form = useForm<PropertyFormValues>({
-    resolver: zodResolver(propertySchema),
-    defaultValues: {
-      name: "",
-      status: "",
-      price: 1000,
-      price_unit: "",
-      currency: "IDR",
-      description: "",
-    },
+  const [formData, setFormData] = useState({
+    name: "",
+    status: "AVAILABLE",
+    price: "",
+    priceUnit: "PER_MONTH",
+    luas: "",
+    description: "",
+    images: [],
+    floorPlans: [],
   });
 
-  const inputFileRef = useRef<HTMLInputElement>(null);
-  const [image, setImage] = useState("");
-  const [message, setMessage] = useState("");
-  const [pending, startTransition] = useTransition();
+  const [errors, setErrors] = useState({});
+  const imageInputRef = useRef(null);
+  const floorPlanInputRef = useRef(null);
 
-  const onSubmit = async (data: PropertyFormValues) => {
+  const statusOptions = [
+    { value: "AVAILABLE", label: "Available" },
+    { value: "SOLD", label: "Sold" },
+    { value: "RENTED", label: "Rented" },
+  ];
+
+  const priceUnitOptions = [
+    { value: "PER_MONTH", label: "Per Month" },
+    { value: "PER_YEAR", label: "Per Year" },
+    { value: "TOTAL", label: "Total Price" },
+  ];
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: "",
+      }));
+    }
+  };
+
+  const handleFileUpload = (files, type) => {
+    const fileArray = Array.from(files);
+    const maxFiles = type === "images" ? 5 : 3;
+    const currentFiles = formData[type];
+
+    if (currentFiles.length + fileArray.length > maxFiles) {
+      alert(`Maximum ${maxFiles} ${type} allowed`);
+      return;
+    }
+
+    const newFiles = fileArray.map((file) => ({
+      id: Date.now() + Math.random(),
+      file,
+      preview: URL.createObjectURL(file),
+      name: file.name,
+    }));
+
+    setFormData((prev) => ({
+      ...prev,
+      [type]: [...prev[type], ...newFiles],
+    }));
+  };
+
+  const removeFile = (id, type) => {
+    setFormData((prev) => ({
+      ...prev,
+      [type]: prev[type].filter((file) => {
+        if (file.id === id) {
+          URL.revokeObjectURL(file.preview);
+        }
+        return file.id !== id;
+      }),
+    }));
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (e, type) => {
+    e.preventDefault();
+    const files = e.dataTransfer.files;
+    handleFileUpload(files, type);
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.name.trim()) newErrors.name = "Name is required";
+    if (!formData.price.trim()) newErrors.price = "Price is required";
+    if (!formData.luas.trim()) newErrors.luas = "Luas is required";
+    if (!formData.description.trim())
+      newErrors.description = "Description is required";
+    if (formData.images.length === 0)
+      newErrors.images = "At least one image is required";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
     try {
-      await createProperty(data);
-      alert("Properti berhasil disimpan!");
-      form.reset();
+      // Create FormData for file upload
+      const submitData = new FormData();
+
+      // Append text fields
+      Object.keys(formData).forEach((key) => {
+        if (key !== "images" && key !== "floorPlans") {
+          submitData.append(key, formData[key]);
+        }
+      });
+
+      // Append files
+      formData.images.forEach((img) => {
+        submitData.append("images", img.file);
+      });
+
+      formData.floorPlans.forEach((plan) => {
+        submitData.append("floorPlans", plan.file);
+      });
+
+      // Make API call with axios
+      // const response = await axios.post('/api/properties', submitData, {
+      //   headers: {
+      //     'Content-Type': 'multipart/form-data',
+      //   },
+      // });
+
+      console.log("Form submitted successfully", submitData);
+      alert("Property created successfully!");
     } catch (error) {
-      console.error("Error create:", error);
-      alert("Gagal menyimpan properti.");
+      console.error("Error submitting form:", error);
+      alert("Error creating property. Please try again.");
+    }
+  };
+
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      minimumFractionDigits: 0,
+    }).format(price || 0);
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "AVAILABLE":
+        return "bg-green-600 text-green-50";
+      case "SOLD":
+        return "bg-red-600 text-red-50";
+      case "RENTED":
+        return "bg-yellow-600 text-yellow-50";
+      default:
+        return "bg-muted text-muted-foreground";
     }
   };
 
   return (
-    <div className="min-h-screen bg-transparent p-4">
-      <div className="max-w-5xl mx-auto">
-        <div className="bg-transparent rounded-3xl shadow-sm overflow-hidden">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
-              <div className="grid grid-cols-1 lg:grid-cols-5 min-h-[600px]">
-                {/* Left Panel - Image Upload */}
-                <div className="lg:col-span-2 dark:bg-gradient-to-br from-gray-200 to-gray-100 p-8 flex flex-col items-center justify-center">
-                  <div className="w-full max-w-xs">
-                    {/* Profile-like circle for property image */}
-                    <div className="relative mb-6">
-                      <label
-                        htmlFor="input-file"
-                        className="block relative cursor-pointer group"
-                      >
-                        <div className="w-32 h-32 mx-auto rounded-full border-4 border-white shadow-lg overflow-hidden bg-gray-200 flex items-center justify-center relative">
-                          {pending ? (
-                            <BarLoader color="#3b82f6" />
-                          ) : image ? (
-                            <>
-                              <Image
-                                src={image}
-                                alt="Property preview"
-                                fill
-                                className="object-cover"
-                              />
-                              <button
-                                type="button"
-                                className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 transition-colors z-10"
-                              >
-                                <IoTrashOutline className="w-3 h-3" />
-                              </button>
-                            </>
-                          ) : (
-                            <div className="text-center">
-                              <IoCloudUploadOutline className="w-8 h-8 text-gray-400 mx-auto mb-1" />
-                              <p className="text-xs text-gray-500">Upload</p>
-                            </div>
-                          )}
-                        </div>
-                        <input
-                          type="file"
-                          ref={inputFileRef}
-                          id="input-file"
-                          className="hidden"
-                        />
-                      </label>
-                    </div>
+    <div className="min-h-screen bg-background text-foreground">
+      <div className="container mx-auto px-6 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-foreground">
+            Create New Property
+          </h1>
+          <p className="text-muted-foreground mt-2">
+            Add a new property to your listings
+          </p>
+        </div>
 
-                    {/* Additional image upload area */}
-                    <div className="w-full">
-                      <label
-                        htmlFor="input-file-2"
-                        className="flex flex-col items-center justify-center h-40 border-2 border-gray-300 border-dashed rounded-2xl cursor-pointer bg-white hover:bg-gray-50 transition-colors"
-                      >
-                        <div className="text-center p-4">
-                          <div className="bg-blue-50 rounded-full p-3 mb-3 mx-auto w-fit">
-                            <IoCloudUploadOutline className="w-6 h-6 text-blue-500" />
-                          </div>
-                          <p className="text-sm font-medium mb-1">
-                            Upload More Photos
-                          </p>
-                          {message ? (
-                            <p className="text-xs text-red-500">{message}</p>
-                          ) : (
-                            <p className="text-xs text-gray-500">
-                              PNG, JPG, GIF (max: 4MB)
-                            </p>
-                          )}
-                        </div>
-                        <input
-                          type="file"
-                          ref={inputFileRef}
-                          id="input-file"
-                          className="hidden"
-                        />
-                      </label>
-                    </div>
-                  </div>
-                </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Form Section */}
+          <div className="lg:col-span-2">
+            <div className="space-y-6">
+              {/* Basic Information */}
+              <div className="bg-card rounded-lg p-6 border">
+                <h3 className="text-xl font-semibold mb-4 flex items-center text-card-foreground">
+                  <FileText className="mr-2" size={20} />
+                  Basic Information
+                </h3>
 
-                {/* Right Panel - Form Fields */}
-                <div className="lg:col-span-3 p-8">
-                  {/* Header */}
-                  <div className="mb-8">
-                    <h2 className="text-2xl font-semibold mb-2">
-                      Property Information
-                    </h2>
-                    <p className="text-gray-500">
-                      Fill in the property details below
-                    </p>
-                  </div>
-
-                  <div className="space-y-6">
-                    {/* Name and Status Row */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <FormField
-                        control={form.control}
-                        name="name"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-sm font-medium">
-                              Property Name
-                            </FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="Enter property name"
-                                className="h-12 bg-gray-50 border-0 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="status"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-sm font-medium">
-                              Status
-                            </FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="Available / For Sale / For Rent"
-                                className="h-12 bg-gray-50 border-0 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-
-                    {/* Price Row */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="price"
-                        render={({ field }) => (
-                          <FormItem className="md:col-span-1">
-                            <FormLabel className="text-sm font-medium">
-                              Price
-                            </FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                placeholder="500000000"
-                                className="h-12 bg-gray-50 border-0 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="currency"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-sm font-medium">
-                              Currency
-                            </FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="IDR"
-                                className="h-12 bg-gray-50 border-0 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="price_unit"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-sm font-medium">
-                              Price Unit
-                            </FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="/m² or /unit"
-                                className="h-12 bg-gray-50 border-0 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-
-                    {/* Description */}
-                    <FormField
-                      control={form.control}
-                      name="description"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-sm font-medium">
-                            Description
-                          </FormLabel>
-                          <FormControl>
-                            <Textarea
-                              rows={4}
-                              placeholder="Describe the property details, available facilities, strategic location, and other advantages..."
-                              className="bg-gray-50 border-0 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 transition-all resize-none"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2 text-foreground">
+                      Property Name
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      className={`w-full px-3 py-2 bg-input border rounded-md focus:outline-none focus:ring-2 focus:ring-ring text-foreground ${
+                        errors.name ? "border-destructive" : "border-border"
+                      }`}
+                      placeholder="Enter property name"
                     />
+                    {errors.name && (
+                      <p className="text-destructive text-sm mt-1">
+                        {errors.name}
+                      </p>
+                    )}
+                  </div>
 
-                    {/* Action Buttons */}
-                    <div className="flex gap-4 pt-6">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="flex-1 h-12 rounded-xl border-gray-200 hover:bg-gray-50"
-                      >
-                        Discard Changes
-                      </Button>
-                      <Button
-                        type="submit"
-                        className="flex-1 h-12 rounded-xl transition-colors"
-                      >
-                        Save Changes
-                      </Button>
-                    </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2 text-foreground">
+                      Status
+                    </label>
+                    <select
+                      name="status"
+                      value={formData.status}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 bg-input border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
+                    >
+                      {statusOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2 text-foreground">
+                      Price
+                    </label>
+                    <input
+                      type="number"
+                      name="price"
+                      value={formData.price}
+                      onChange={handleInputChange}
+                      className={`w-full px-3 py-2 bg-input border rounded-md focus:outline-none focus:ring-2 focus:ring-ring text-foreground ${
+                        errors.price ? "border-destructive" : "border-border"
+                      }`}
+                      placeholder="Enter price"
+                    />
+                    {errors.price && (
+                      <p className="text-destructive text-sm mt-1">
+                        {errors.price}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2 text-foreground">
+                      Price Unit
+                    </label>
+                    <select
+                      name="priceUnit"
+                      value={formData.priceUnit}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 bg-input border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
+                    >
+                      {priceUnitOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium mb-2 text-foreground">
+                      Luas (m²)
+                    </label>
+                    <input
+                      type="number"
+                      name="luas"
+                      value={formData.luas}
+                      onChange={handleInputChange}
+                      className={`w-full px-3 py-2 bg-input border rounded-md focus:outline-none focus:ring-2 focus:ring-ring text-foreground ${
+                        errors.luas ? "border-destructive" : "border-border"
+                      }`}
+                      placeholder="Enter area in square meters"
+                    />
+                    {errors.luas && (
+                      <p className="text-destructive text-sm mt-1">
+                        {errors.luas}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium mb-2 text-foreground">
+                      Description
+                    </label>
+                    <textarea
+                      name="description"
+                      value={formData.description}
+                      onChange={handleInputChange}
+                      rows="4"
+                      className={`w-full px-3 py-2 bg-input border rounded-md focus:outline-none focus:ring-2 focus:ring-ring text-foreground resize-none ${
+                        errors.description
+                          ? "border-destructive"
+                          : "border-border"
+                      }`}
+                      placeholder="Enter property description"
+                    />
+                    {errors.description && (
+                      <p className="text-destructive text-sm mt-1">
+                        {errors.description}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
-            </form>
-          </Form>
+
+              {/* Property Images */}
+              <div className="bg-card rounded-lg p-6 border">
+                <h3 className="text-xl font-semibold mb-4 flex items-center text-card-foreground">
+                  <ImageIcon className="mr-2" size={20} />
+                  Property Images ({formData.images.length}/5)
+                </h3>
+
+                <div
+                  className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
+                    errors.images
+                      ? "border-destructive"
+                      : "border-border hover:border-primary"
+                  }`}
+                  onDragOver={handleDragOver}
+                  onDrop={(e) => handleDrop(e, "images")}
+                  onClick={() => imageInputRef.current?.click()}
+                >
+                  <Upload
+                    className="mx-auto mb-2 text-muted-foreground"
+                    size={32}
+                  />
+                  <p className="text-muted-foreground">
+                    Drag & drop images here or click to browse
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Maximum 5 images, JPG, PNG (Max 5MB each)
+                  </p>
+                </div>
+
+                <input
+                  ref={imageInputRef}
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={(e) => handleFileUpload(e.target.files, "images")}
+                  className="hidden"
+                />
+
+                {errors.images && (
+                  <p className="text-destructive text-sm mt-2">
+                    {errors.images}
+                  </p>
+                )}
+
+                {formData.images.length > 0 && (
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+                    {formData.images.map((image) => (
+                      <div key={image.id} className="relative group">
+                        <img
+                          src={image.preview}
+                          alt={image.name}
+                          className="w-full h-32 object-cover rounded-lg border"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeFile(image.id, "images")}
+                          className="absolute -top-2 -right-2 bg-destructive hover:bg-destructive/80 text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Floor Plans */}
+              <div className="bg-card rounded-lg p-6 border">
+                <h3 className="text-xl font-semibold mb-4 flex items-center text-card-foreground">
+                  <FileText className="mr-2" size={20} />
+                  Floor Plans ({formData.floorPlans.length}/3)
+                </h3>
+
+                <div
+                  className="border-2 border-dashed border-border rounded-lg p-6 text-center cursor-pointer hover:border-primary transition-colors"
+                  onDragOver={handleDragOver}
+                  onDrop={(e) => handleDrop(e, "floorPlans")}
+                  onClick={() => floorPlanInputRef.current?.click()}
+                >
+                  <Upload
+                    className="mx-auto mb-2 text-muted-foreground"
+                    size={32}
+                  />
+                  <p className="text-muted-foreground">
+                    Drag & drop floor plans here or click to browse
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Maximum 3 files, JPG, PNG, PDF (Max 10MB each)
+                  </p>
+                </div>
+
+                <input
+                  ref={floorPlanInputRef}
+                  type="file"
+                  multiple
+                  accept="image/*,.pdf"
+                  onChange={(e) =>
+                    handleFileUpload(e.target.files, "floorPlans")
+                  }
+                  className="hidden"
+                />
+
+                {formData.floorPlans.length > 0 && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    {formData.floorPlans.map((plan) => (
+                      <div
+                        key={plan.id}
+                        className="relative group bg-muted rounded-lg p-4 border"
+                      >
+                        {plan.file.type.startsWith("image/") ? (
+                          <img
+                            src={plan.preview}
+                            alt={plan.name}
+                            className="w-full h-32 object-cover rounded border"
+                          />
+                        ) : (
+                          <div className="h-32 flex items-center justify-center">
+                            <FileText
+                              size={48}
+                              className="text-muted-foreground"
+                            />
+                          </div>
+                        )}
+                        <p className="text-sm text-foreground mt-2 truncate">
+                          {plan.name}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => removeFile(plan.id, "floorPlans")}
+                          className="absolute -top-2 -right-2 bg-destructive hover:bg-destructive/80 text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Submit Button */}
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={handleSubmit}
+                  className="px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-lg transition-colors flex items-center"
+                >
+                  <Save className="mr-2" size={20} />
+                  Save Property
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Live Preview */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-8">
+              <div className="bg-card rounded-lg p-6 border">
+                <h3 className="text-xl font-semibold mb-4 flex items-center text-card-foreground">
+                  <Eye className="mr-2" size={20} />
+                  Live Preview
+                </h3>
+
+                <div className="bg-muted rounded-lg overflow-hidden border">
+                  {/* Property Image */}
+                  <div className="h-48 bg-muted-foreground/10 flex items-center justify-center border-b">
+                    {formData.images.length > 0 ? (
+                      <img
+                        src={formData.images[0].preview}
+                        alt="Property preview"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <ImageIcon size={48} className="text-muted-foreground" />
+                    )}
+                  </div>
+
+                  {/* Property Details */}
+                  <div className="p-4">
+                    <h4 className="text-lg font-semibold mb-2 text-foreground">
+                      {formData.name || "Property Name"}
+                    </h4>
+
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xl font-bold text-primary">
+                        {formatPrice(formData.price)}
+                      </span>
+                      <span
+                        className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(
+                          formData.status
+                        )}`}
+                      >
+                        {formData.status}
+                      </span>
+                    </div>
+
+                    <div className="text-sm text-muted-foreground mb-2">
+                      {formData.priceUnit.replace("_", " ").toLowerCase()}
+                      {formData.luas && ` • ${formData.luas} m²`}
+                    </div>
+
+                    <p className="text-sm text-muted-foreground line-clamp-3">
+                      {formData.description ||
+                        "Property description will appear here..."}
+                    </p>
+
+                    {formData.images.length > 1 && (
+                      <div className="flex mt-3 space-x-2">
+                        {formData.images.slice(1, 4).map((img) => (
+                          <div
+                            key={img.id}
+                            className="w-12 h-12 rounded overflow-hidden border"
+                          >
+                            <img
+                              src={img.preview}
+                              alt="Thumbnail"
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        ))}
+                        {formData.images.length > 4 && (
+                          <div className="w-12 h-12 bg-muted rounded flex items-center justify-center text-xs border">
+                            +{formData.images.length - 4}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   );
-}
+};
 
-export default CreatePropertyForm;
+export default PropertyCreateForm;

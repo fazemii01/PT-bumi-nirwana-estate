@@ -34,10 +34,6 @@ export const columns: ColumnDef<Property>[] = [
     header: "Price Unit",
   },
   {
-    accessorKey: "currency",
-    header: "Currency",
-  },
-  {
     accessorKey: "description",
     header: "Description",
   },

@@ -1,16 +1,8 @@
 "use client";
 
-import { IconCirclePlusFilled, IconMail, type Icon } from "@tabler/icons-react";
+import { type Icon } from "@tabler/icons-react";
 import { usePathname } from "next/navigation";
-
-import { Button } from "@/components/ui/button";
-import {
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@/components/ui/sidebar";
+import { SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import Link from "next/link";
 
 export function NavMain({
@@ -29,13 +21,12 @@ export function NavMain({
       <SidebarGroupContent className="flex flex-col gap-2">
         <SidebarMenu>
           {items.map((item) => {
-            const isActive =
-              pathname.includes(item.url) || pathname === `/${item.url}`;
+            const isActive = pathname.includes(item.url) || pathname === `/${item.url}`;
 
             return (
               <Link href={item.url} key={item.title}>
-                <SidebarMenuItem className="hover:cursor-pointer">
-                  <SidebarMenuButton tooltip={item.title} isActive={isActive}>
+                <SidebarMenuItem>
+                  <SidebarMenuButton tooltip={item.title} isActive={isActive} className="cursor-pointer">
                     {item.icon && <item.icon />}
                     <span>{item.title}</span>
                   </SidebarMenuButton>
