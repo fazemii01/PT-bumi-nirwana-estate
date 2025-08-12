@@ -87,9 +87,15 @@ export async function updateAgent({data, originalData}:{data:Agent, originalData
     formData.append("avatar_url",data.file_avatar)
   }
 
+  for (const pair of formData.entries()) {
+    console.log(pair[0], pair[1]);
+  
+  }
   await api({
     url:`/agents/${data.id}`,
     method:"PATCH",
-    data:formData
+    data:formData,
   })
+
+  revalidatePath('/agent')
 }

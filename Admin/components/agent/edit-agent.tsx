@@ -22,6 +22,8 @@ import { Agent } from "@/types/agent";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { showToastError, showToastSuccess } from "../toast";
+import { AgentZod } from "@/lib/zod";
+import { ZodError } from "zod";
 
 const EditAgent = ({
   edit,
@@ -39,7 +41,7 @@ const EditAgent = ({
   const [form, setForm] = useState<Agent>({
     id: agent.id ?? "",
     full_name: agent.full_name ?? "",
-    email: agent.full_name ?? "",
+    email: agent.email ?? "",
     phone_number: agent.phone_number ?? "",
     avatar_url: agent.avatar_url ?? "",
     file_avatar: undefined,
@@ -60,15 +62,6 @@ const EditAgent = ({
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const validate = () => {
-    const newErrors: Record<string, string> = {};
-    if (!form.full_name.trim()) newErrors.full_name = "Full name is required";
-    if (!form.email.trim()) newErrors.email = "Email is required";
-    if (!form.phone_number.trim())
-      newErrors.phone_number = "Phone number is required";
-    return newErrors;
   };
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -122,24 +115,27 @@ const EditAgent = ({
   };
 
   const handleSubmit = () => {
-    const validationErrors = validate();
-    setErrors(validationErrors);
-    if (Object.keys(validationErrors).length > 0) return;
+    const result = AgentZod.safeParse(form);
+
+    if (!result.success) {
+      const zodErrors: Record<string, string> = {};
+      (result.error as ZodError).errors.forEach((err) => {
+        if (err.path.length > 0) {
+          zodErrors[err.path[0]] = err.message;
+        }
+      });
+      setErrors(zodErrors);
+      return;
+    }
+    setErrors({});
 
     startTransition(async () => {
       try {
         await updateAgent({ data: form, originalData: agent });
-        setForm({
-          id: "",
-          full_name: "",
-          email: "",
-          phone_number: "",
-          avatar_url: "",
-        });
-        setSelectedFile(null);
-        setPreviewUrl(null);
+        // setSelectedFile(null);
+        // setPreviewUrl(null);
         setEdit(false);
-        showToastSuccess("Update agent successfull");
+        showToastSuccess("Update agent successful");
       } catch (err) {
         showToastError(`${err}`);
       }
