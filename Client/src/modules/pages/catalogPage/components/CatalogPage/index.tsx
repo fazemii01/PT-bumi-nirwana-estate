@@ -81,10 +81,7 @@ const CatalogPage: FC = () => {
 	const itemAddress = formatTranslation(i18n.language, address);
 	const itemStation = formatTranslation(i18n.language, station);
 	const itemLocation = formatTranslation(i18n.language, location);
-	const itemDescription = formatTranslation(i18n.language, {
-		en: description,
-		ua: description,
-	});
+	const itemDescription = formatTranslation(i18n.language, description);
 	const itemCity = tCommon(formatCityTranslation(city));
 	const itemOriginalFullAddress = `${city}, ${location.ua}, ${address.ua}`;
 	const itemCityWithLocationAndAddress = `${itemCity}, ${itemLocation}, ${itemAddress}`;

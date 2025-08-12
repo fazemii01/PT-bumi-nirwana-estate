@@ -65,17 +65,15 @@ const CatalogPageInformation: FC<{
 				<CatalogPageNotice type="short"/>
 			</article>
 
-			{description && (
-				<article className={cn(s.container)}>
-					<h4 className={s.title}>{t('DESCRIPTION')}</h4>
-					<hr className={s.line}/>
-					<p
-						dangerouslySetInnerHTML={{
-							__html: description,
-						}}
-					/>
-				</article>
-			)}
+			<article className={cn(s.container)}>
+				<h4 className={s.title}>{t('DESCRIPTION')}</h4>
+				<hr className={s.line}/>
+				{description && <p
+					dangerouslySetInnerHTML={{
+						__html: description,
+					}}
+				/>}
+			</article>
 
 			<article className={cn(s.container, s.address)}>
 				<h4 className={s.title}>{t('ADDRESS')}</h4>

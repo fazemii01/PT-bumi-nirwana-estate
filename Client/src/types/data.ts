@@ -28,7 +28,7 @@ export interface IFloorPlan {
 export interface ICatalogData extends ICatalogStaticData {
 	visibility: boolean;
 	table: ICatalogTable;
-	description: string;
+	description: ITransVersion;
 	location: ITransVersion;
 	address: ITransVersion;
 	station: ITransVersion;

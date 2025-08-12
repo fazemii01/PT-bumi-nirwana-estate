@@ -15,7 +15,7 @@ const useDataFetching = () => {
     realEstateType: '',
     station: {},
     visibility: false,
-    description: '',
+    description: {},
     address: {},
     location: {},
     table: {},
@@ -61,11 +61,12 @@ const useDataFetching = () => {
         },
         location,
         table: {
-        	rooms: specifications.kamar + specifications.kamar_mandi,
+        	rooms: specifications.kamar,
         	bathrooms: specifications.kamar_mandi,
         	offices: specifications.offices,
         },
        
+        description: property.description || {},
         contractType: (specifications as { contractType?: string }).contractType || '',
         propertyType: (specifications as { propertyType?: string }).propertyType || '',
         realEstateType: (specifications as { realEstateType?: string }).realEstateType || '',

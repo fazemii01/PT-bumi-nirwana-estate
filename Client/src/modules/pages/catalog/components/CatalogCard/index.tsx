@@ -61,7 +61,7 @@ const CatalogCard: FC<{
 	// const itemPropertyType = tCommon(formatCatalogTranslation(propertyType));
 	const itemTotalArea = Number(table.totalArea).toFixed();
 
-	const totalRooms = Number(table.rooms);
+	const totalRooms = Number(table.rooms) + Number(table.bathrooms);
 
 	return (
 		<li className={cn('yellow-shadow', s.container)}>

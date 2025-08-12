@@ -26,7 +26,7 @@ export const formatToPrefixAndPrice = (
 	currencyRate: number,
 ) => {
 	const formatToNumbers = formatToNumbersOnly(value);
-	const price = formatToFullPrice(lang, formatToNumbers, currencyRate);
+	const price = formatToFullPrice(lang, formatToNumbers);
 	return formatToPricePrefix(lang, value) + price;
 };
 
@@ -60,7 +60,7 @@ const formatToSeparatedNumber = (lang: string, value: number) => {
 const formatToFullPrice = (
 	lang: string,
 	value: number,
-	currencyRate: number,
+	
 ) => {
 	const slicePrice = value.toFixed();
 
@@ -70,14 +70,13 @@ const formatToFullPrice = (
 export const formatTableFullPrice = (
 	lang: string,
 	value: string,
-	currencyRate: number,
 ) => {
 	const removedLetters = formatToNumbersOnly(value);
 	const priceUsd = formatToSeparatedNumber(lang, removedLetters) + USD_SYMBOL;
 
 	return (
 		formatToPricePrefix(lang, value) +
-		formatToFullPrice(lang, removedLetters, currencyRate) +
+		formatToFullPrice(lang, removedLetters) +
 		UNITS[lang].separator +
 		priceUsd
 	);
