@@ -13,10 +13,27 @@ import s from './CatalogPageCarousel.module.scss';
 
 import {TABLET_BREAKPOINT} from '@utils/const';
 
-const CatalogPageCarousel: FC<{ id: number }> = ({id}) => {
+interface PropertyImage {
+    id: string;
+    image_url: string;
+    caption: string;
+    sort_order: number;
+}
+
+interface FloorPlan {
+    id: string;
+    name: string;
+    file_url: string;
+    sort_order: number;
+}
+
+const CatalogPageCarousel: FC<{
+	images: PropertyImage[];
+	floorPlans: FloorPlan[];
+}> = ({images, floorPlans}) => {
 	const isTablet = useMediaQuery(TABLET_BREAKPOINT);
-	const postersList = usePropertyPhoto(String(id));
-	const [isFullScreenMode, setIsFullScreenMode] = useState<boolean>(false);
+	const postersList = usePropertyPhoto(images, floorPlans);
+    const [isFullScreenMode, setIsFullScreenMode] = useState<boolean>(false);
 
 	const handleOnScreenChange = (value: boolean) => {
 		isFullScreenMode !== value && setIsFullScreenMode(value);
