@@ -1,21 +1,43 @@
-import { FC } from 'react';
-import { useTranslation } from 'react-i18next';
+import { FC, useEffect, useState } from 'react';
+import { LatLngExpression } from 'leaflet';
+import dynamic from 'next/dynamic';
 
-import { GOOGLE_SERVICES } from '@utils/credentials';
+import { geocodeAddress } from '@utils/geocoding';
 
 import s from './CatalogPageMap.module.scss';
 
+const MapClient = dynamic(
+  () => import('@modules/pages/home/components/MapTiller/MapClient'),
+  {
+    ssr: false,
+  },
+);
+
 const CatalogPageMap: FC<{
-	fullAddress: string;
+  fullAddress: string;
 }> = ({ fullAddress }) => {
-	const { i18n } = useTranslation();
+  const [position, setPosition] = useState<LatLngExpression | null>(null);
 
-	const lang = i18n.language === 'ua' ? 'uk' : i18n.language;
-	const encodedAddress = encodeURIComponent(fullAddress);
+  useEffect(() => {
+    const getPosition = async () => {
+      const coordinates = await geocodeAddress(fullAddress);
+      if (coordinates) {
+        setPosition(coordinates);
+      }
+    };
 
-	const embeddedMapURL = `https://www.google.com/maps/embed/v1/place?q=${encodedAddress}&key=${GOOGLE_SERVICES.GOOGLE_MAPS_API_KEY}&language=${lang}`;
+    getPosition();
+  }, [fullAddress]);
 
-	return <iframe className={s.container} src={embeddedMapURL} allowFullScreen />;
+  if (!position) {
+    return <div>Loading map...</div>;
+  }
+
+  return (
+    <div className={s.container}>
+      <MapClient position={position} />
+    </div>
+  );
 };
 
 export default CatalogPageMap;

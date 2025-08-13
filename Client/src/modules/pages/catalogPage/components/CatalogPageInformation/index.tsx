@@ -19,7 +19,7 @@ import type {ICatalogTable} from '@t-types/data';
 import s from './CatalogPageInformation.module.scss';
 
 const CatalogPageInformation: FC<{
-	description: string;
+	detail_description: string;
 	id: string;
 	tableInfo: ICatalogTable;
 	address: string;
@@ -28,8 +28,11 @@ const CatalogPageInformation: FC<{
 	contractType: string;
 	realEstateType: string;
 	price: string;
+	jenis: string;
+	luas: string;
+	status: string;
 }> = ({
-	      description,
+	      detail_description,
 	      tableInfo,
 	      id,
 	      address,
@@ -38,7 +41,10 @@ const CatalogPageInformation: FC<{
 	      realEstateType,
 	      contractType,
 	      price,
-      }) => {
+	      jenis,
+		  luas,
+		  status
+	     }) => {
 	const {t} = useTranslation('catalog');
 	const isLaptop = useMediaQuery(LAPTOP_BREAKPOINT);
 	// const isVideoBlock = postersList.some(item => item.video);
@@ -48,8 +54,10 @@ const CatalogPageInformation: FC<{
 			
 
 			<article className={cn(s.container, s.info)}>
+				<h4 className={s.title}>{t('INFORMATION')}</h4>
+				<hr className={s.line}/>
 				<div className={s.infoHeading}>
-					<h4 className={s.title}>{t('INFORMATION')}</h4>
+					
 					<p>
 						{t('OBJECT_ID')} <span className={s.id}>{id.toString().substring(0, 4)}</span>
 					</p>
@@ -60,6 +68,9 @@ const CatalogPageInformation: FC<{
 					contractType={contractType}
 					realEstateType={realEstateType}
 					tableInfo={tableInfo}
+					jenis={jenis}
+					luas={luas}
+					status={status}
 				/>
 
 				<CatalogPageNotice type="short"/>
@@ -68,11 +79,11 @@ const CatalogPageInformation: FC<{
 			<article className={cn(s.container)}>
 				<h4 className={s.title}>{t('DESCRIPTION')}</h4>
 				<hr className={s.line}/>
-				{description && <p
-					dangerouslySetInnerHTML={{
-						__html: description,
-					}}
-				/>}
+				{detail_description && <ul className={s.descriptionList}>
+					{detail_description.split("\n").map((line, index) => (
+						<li key={index}>{line.replace(/^- /, '')}</li>
+					))}
+				</ul>}
 			</article>
 
 			<article className={cn(s.container, s.address)}>

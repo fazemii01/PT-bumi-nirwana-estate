@@ -22,6 +22,8 @@ export interface Property {
   price: number;
   currency: string;
   description: string;
+  jenis: string;
+  detail_description: string;
   luas: string;
   location: Location;
   address: Address;
