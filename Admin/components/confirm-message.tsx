@@ -14,21 +14,24 @@ import { IconAlertTriangle } from "@tabler/icons-react";
 const ConfirmMessage = ({
   open,
   setOpen,
+  data,
+  onConfirm,
 }: {
   open: boolean;
   setOpen: (value: boolean) => void;
+  data: string;
+  onConfirm: (id: string) => void;
 }) => {
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>
-            <div className="mx-auto flex size-12 shrink-0 items-center justify-center rounded-full bg-red-500/10 sm:mx-0 sm:size-10">
-              <IconAlertTriangle />
-            </div>
-            <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-              {" "}
-              Are you absolutely sure?
+            <div className="flex items-center gap-3">
+              <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-red-500/10 sm:size-10">
+                <IconAlertTriangle className="text-red-600" />
+              </div>
+              <span>Are you absolutely sure?</span>
             </div>
           </AlertDialogTitle>
           <AlertDialogDescription>
@@ -37,8 +40,15 @@ const ConfirmMessage = ({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction>Continue</AlertDialogAction>
+          <AlertDialogCancel className="cursor-pointer">
+            Cancel
+          </AlertDialogCancel>
+          <AlertDialogAction
+            className="bg-red-600 text-white hover:bg-red-700 cursor-pointer"
+            onClick={() => onConfirm(data)}
+          >
+            Continue
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

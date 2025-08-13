@@ -1,9 +1,13 @@
 import "../globals.css";
+import "primereact/resources/primereact.min.css";
+import "primereact/resources/themes/lara-light-blue/theme.css";
+import "primeicons/primeicons.css";
 import { ActiveThemeProvider } from "@/components/active-theme";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { AuthProvider } from "@/app/contexts/AuthContext";
 import { AdminLayoutClient } from "@/components/layout/admin-layout-client";
+import { ToastGlobal } from "@/components/toast";
 
 export default async function RootLayout({
   children,
@@ -19,6 +23,7 @@ export default async function RootLayout({
     <AuthProvider>
       <ActiveThemeProvider>
         <AdminLayoutClient>{children}</AdminLayoutClient>
+        <ToastGlobal />
       </ActiveThemeProvider>
     </AuthProvider>
   );

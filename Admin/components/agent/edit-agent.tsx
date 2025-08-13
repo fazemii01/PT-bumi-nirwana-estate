@@ -17,62 +17,58 @@ import {
   IconImageInPicture,
 } from "@tabler/icons-react";
 import { useEffect, useRef, useState, useTransition } from "react";
-import { addAgent } from "@/api/agent"; // asumsi endpoint kamu pakai ini
+import { addAgent, updateAgent } from "@/api/agent"; // asumsi endpoint kamu pakai ini
 import { Agent } from "@/types/agent";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { showToastError, showToastSuccess } from "../toast";
+import { AgentZod } from "@/lib/zod";
+import { ZodError } from "zod";
 
-const CreateAgent = ({
-  open,
-  setOpen,
+const EditAgent = ({
+  edit,
+  setEdit,
+  agent,
 }: {
-  open: boolean;
-  setOpen: (value: boolean) => void;
+  edit: boolean;
+  setEdit: (value: boolean) => void;
+  agent: Agent;
 }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [dragActive, setDragActive] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [form, setForm] = useState<Agent>({
-    id: "",
-    full_name: "",
-    email: "",
-    phone_number: "",
-    avatar_url: "",
+    id: agent.id ?? "",
+    full_name: agent.full_name ?? "",
+    email: agent.email ?? "",
+    phone_number: agent.phone_number ?? "",
+    avatar_url: agent.avatar_url ?? "",
     file_avatar: undefined,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [pending, startTransition] = useTransition();
 
   useEffect(() => {
-    return () => {
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-      }
-    };
-  }, [previewUrl]);
+    if (agent?.avatar_url) {
+      setPreviewUrl(
+        `${process.env.NEXT_PUBLIC_API_URL}/uploads/agent/${agent.avatar_url}`
+      );
+    } else {
+      setPreviewUrl(null);
+    }
+  }, [agent]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const validate = () => {
-    const newErrors: Record<string, string> = {};
-    if (!form.full_name.trim()) newErrors.full_name = "Full name is required";
-    if (!form.email.trim()) newErrors.email = "Email is required";
-    if (!form.phone_number.trim())
-      newErrors.phone_number = "Phone number is required";
-    return newErrors;
-  };
-
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file && file.type.startsWith("image/")) {
-      const url = URL.createObjectURL(file);
       setSelectedFile(file);
-      setPreviewUrl(url);
+      setPreviewUrl(URL.createObjectURL(file));
       setForm((prev) => ({
         ...prev,
         file_avatar: file,
@@ -102,16 +98,7 @@ const CreateAgent = ({
   };
 
   const handleCancel = () => {
-    setForm({
-      id: "",
-      full_name: "",
-      email: "",
-      phone_number: "",
-      avatar_url: "",
-    });
-    setSelectedFile(null);
-    setPreviewUrl(null);
-    setOpen(false);
+    setEdit(false);
   };
 
   const removeFile = () => {
@@ -128,24 +115,27 @@ const CreateAgent = ({
   };
 
   const handleSubmit = () => {
-    const validationErrors = validate();
-    setErrors(validationErrors);
-    if (Object.keys(validationErrors).length > 0) return;
+    const result = AgentZod.safeParse(form);
+
+    if (!result.success) {
+      const zodErrors: Record<string, string> = {};
+      (result.error as ZodError).errors.forEach((err) => {
+        if (err.path.length > 0) {
+          zodErrors[err.path[0]] = err.message;
+        }
+      });
+      setErrors(zodErrors);
+      return;
+    }
+    setErrors({});
 
     startTransition(async () => {
       try {
-        await addAgent({ data: form });
-        setForm({
-          id: "",
-          full_name: "",
-          email: "",
-          phone_number: "",
-          avatar_url: "",
-        });
-        setSelectedFile(null);
-        setPreviewUrl(null);
-        setOpen(false);
-        showToastSuccess("Create agent successfull");
+        await updateAgent({ data: form, originalData: agent });
+        // setSelectedFile(null);
+        // setPreviewUrl(null);
+        setEdit(false);
+        showToastSuccess("Update agent successful");
       } catch (err) {
         showToastError(`${err}`);
       }
@@ -153,7 +143,7 @@ const CreateAgent = ({
   };
 
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
+    <AlertDialog open={edit} onOpenChange={setEdit}>
       <AlertDialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
           <AlertDialogHeader className="space-y-3">
@@ -161,10 +151,10 @@ const CreateAgent = ({
               <div className="p-2 bg-yellow-100 rounded-full">
                 <IconUser className="size-5 text-yellow-600" />
               </div>
-              Create New Agent
+              Update Agent
             </AlertDialogTitle>
             <AlertDialogDescription className="text-gray-600">
-              Fill in the information below to create a new agent profile.
+              Fill in the information below to update agent profile.
             </AlertDialogDescription>
           </AlertDialogHeader>
 
@@ -249,12 +239,11 @@ const CreateAgent = ({
                 >
                   {selectedFile && previewUrl ? (
                     <>
-                      <div className="relative w-32 h-32  overflow-hidden mb-3">
+                      <div className="relative w-32 h-32 verflow-hidden mb-3">
                         <Image
                           src={previewUrl}
                           alt="Preview"
-                          fill // ganti width & height jadi fill
-                          sizes="128px" // optional, biar Next tahu perkiraan ukuran
+                          fill
                           className="object-cover"
                         />
                         <button
@@ -263,11 +252,12 @@ const CreateAgent = ({
                             e.preventDefault();
                             removeFile();
                           }}
-                          className="flex  items-center justify-center bg-red-500 size-6 rounded-full absolute right-0 top-0 text-white hover:bg-red-600 cursor-pointer"
+                          className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs transition-colors"
                         >
-                          x
+                          ×
                         </button>
                       </div>
+
                       <div className="text-center space-y-3">
                         <p className="text-sm font-medium text-green-700 truncate max-w-48">
                           {selectedFile.name}
@@ -277,6 +267,35 @@ const CreateAgent = ({
                         </p>
                       </div>
 
+                      <p className="text-xs text-gray-500">
+                        Click to change image
+                      </p>
+                    </>
+                  ) : previewUrl ? (
+                    <>
+                      <div className="relative w-32 h-32 overflow-hidden mb-3">
+                        <Image
+                          fill
+                          src={previewUrl}
+                          alt="Preview"
+                          className=" object-cover "
+                        />
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            removeFile();
+                          }}
+                          className="absolute -right-0 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs transition-colors"
+                        >
+                          ×
+                        </button>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-sm font-medium text-green-700 truncate max-w-48">
+                          {agent.avatar_url}
+                        </p>
+                      </div>
                       <p className="text-xs text-gray-500">
                         Click to change image
                       </p>
@@ -343,7 +362,7 @@ const CreateAgent = ({
               disabled={pending}
               className="flex-1 bg-yellow-600 hover:bg-yellow-700 cursor-pointer"
             >
-              {pending ? "Submitting..." : "Create Agent"}
+              {pending ? "Submitting..." : "Update Agent"}
             </Button>
           </AlertDialogFooter>
         </form>
@@ -352,4 +371,4 @@ const CreateAgent = ({
   );
 };
 
-export default CreateAgent;
+export default EditAgent;

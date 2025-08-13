@@ -46,7 +46,8 @@ export class AgentsService {
     updateAgentDto: UpdateAgentDto,
     avatar_url: Express.Multer.File,
   ) {
-    const agent = await this.agentRepository.findOneBy({ id });
+    try {
+      const agent = await this.agentRepository.findOneBy({ id });
     if (!agent) {
       throw new NotFoundException('Agent not found');
     }
@@ -72,6 +73,11 @@ export class AgentsService {
 
     Object.assign(agent, updateAgentDto);
     return await this.agentRepository.save(agent);
+    } catch (error) {
+      console.log(error);
+      
+    }
+    
   }
 
   async remove(id: string) {

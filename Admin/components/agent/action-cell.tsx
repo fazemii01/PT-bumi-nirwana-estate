@@ -12,8 +12,22 @@ import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
 import { IconEdit, IconTrash } from "@tabler/icons-react";
 import ConfirmMessage from "@/components/confirm-message";
+import { deleteAgent } from "@/api/agent";
+import { showToastError, showToastSuccess } from "../toast";
+import EditAgent from "./edit-agent";
+
 const ActionAgentCell = ({ agent }: { agent: Agent }) => {
   const [open, setOpen] = useState(false);
+  const [edit, setEdit] = useState(false);
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteAgent({ id });
+      setOpen(false);
+      showToastSuccess("Delete agent successfull");
+    } catch (error) {
+      showToastError(`${error}`);
+    }
+  };
   return (
     <>
       <DropdownMenu>
@@ -25,7 +39,10 @@ const ActionAgentCell = ({ agent }: { agent: Agent }) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem className="cursor-pointer">
+          <DropdownMenuItem
+            className="cursor-pointer"
+            onClick={() => setEdit(true)}
+          >
             <IconEdit />
             Edit
           </DropdownMenuItem>
@@ -38,7 +55,13 @@ const ActionAgentCell = ({ agent }: { agent: Agent }) => {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <ConfirmMessage open={open} setOpen={setOpen} />
+      <ConfirmMessage
+        open={open}
+        setOpen={setOpen}
+        data={agent.id}
+        onConfirm={handleDelete}
+      />
+      <EditAgent edit={edit} setEdit={setEdit} agent={agent} />
     </>
   );
 };
