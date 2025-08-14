@@ -19,8 +19,8 @@ import type {ICatalogTable} from '@t-types/data';
 import s from './CatalogPageInformation.module.scss';
 
 const CatalogPageInformation: FC<{
-	description: string;
-	id: number;
+	detail_description: string;
+	id: string;
 	tableInfo: ICatalogTable;
 	address: string;
 	originalAddress: string;
@@ -28,8 +28,11 @@ const CatalogPageInformation: FC<{
 	contractType: string;
 	realEstateType: string;
 	price: string;
+	jenis: string;
+	luas: string;
+	status: string;
 }> = ({
-	      description,
+	      detail_description,
 	      tableInfo,
 	      id,
 	      address,
@@ -38,29 +41,25 @@ const CatalogPageInformation: FC<{
 	      realEstateType,
 	      contractType,
 	      price,
-      }) => {
+	      jenis,
+		  luas,
+		  status
+	     }) => {
 	const {t} = useTranslation('catalog');
-	const postersList = usePropertyPhoto(String(id));
 	const isLaptop = useMediaQuery(LAPTOP_BREAKPOINT);
-	const isVideoBlock = postersList.some(item => item.video);
+	// const isVideoBlock = postersList.some(item => item.video);
 
 	return (
 		<>
-			{isVideoBlock && (
-				<article className={s.container}>
-					<h4 className={s.title}>{t('VIDEO')}</h4>
-					<hr className={s.line}/>
-					{postersList.map((item) => item.video && (
-						<CatalogPageVideo key={item.video} source={item.video}/>
-					))}
-				</article>
-			)}
+			
 
 			<article className={cn(s.container, s.info)}>
+				<h4 className={s.title}>{t('INFORMATION')}</h4>
+				<hr className={s.line}/>
 				<div className={s.infoHeading}>
-					<h4 className={s.title}>{t('INFORMATION')}</h4>
+					
 					<p>
-						{t('OBJECT_ID')} <span className={s.id}>{id}</span>
+						{t('OBJECT_ID')} <span className={s.id}>{id.toString().substring(0, 4)}</span>
 					</p>
 				</div>
 
@@ -69,22 +68,23 @@ const CatalogPageInformation: FC<{
 					contractType={contractType}
 					realEstateType={realEstateType}
 					tableInfo={tableInfo}
+					jenis={jenis}
+					luas={luas}
+					status={status}
 				/>
 
 				<CatalogPageNotice type="short"/>
 			</article>
 
-			{description && (
-				<article className={cn(s.container)}>
-					<h4 className={s.title}>{t('DESCRIPTION')}</h4>
-					<hr className={s.line}/>
-					<p
-						dangerouslySetInnerHTML={{
-							__html: description,
-						}}
-					/>
-				</article>
-			)}
+			<article className={cn(s.container)}>
+				<h4 className={s.title}>{t('DESCRIPTION')}</h4>
+				<hr className={s.line}/>
+				{detail_description && <ul className={s.descriptionList}>
+					{detail_description.split("\n").map((line, index) => (
+						<li key={index}>{line.replace(/^- /, '')}</li>
+					))}
+				</ul>}
+			</article>
 
 			<article className={cn(s.container, s.address)}>
 				<h4 className={s.title}>{t('ADDRESS')}</h4>

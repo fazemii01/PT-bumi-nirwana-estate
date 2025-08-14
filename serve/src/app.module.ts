@@ -15,6 +15,7 @@ import { APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { JwtAuthGuard } from '@/auths/jwt-auth-guard.guard';
 import { RoleGuard } from '@/auths/auths.guard';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { FeedbackModule } from './feedbackform/feedback.module';
 import { join } from 'path';
 
 @Module({
@@ -41,6 +42,7 @@ import { join } from 'path';
     }),
     UsersModule,
     PropertiesModule,
+    FeedbackModule,
     AgentsModule,
     AuthsModule,
     ChatbotModule,

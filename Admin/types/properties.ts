@@ -1,9 +1,91 @@
 export type Property = {
   id: string;
+  developerId: string;
+  agentId: string;
   name: string;
-  status: string;
-  price: number;
-  price_unit: string;
-  currency: string;
+  status: PropertyStatus;
+  price: string;
+  price_unit: PriceUnit;
+  luas: string;
+  jenis: string;
   description: string;
+  detail_description: string;
+  location?: {
+    type: "Point";
+    coordinates: [number, number];
+  };
+  address?: Address;
+  specifications?: Specifications;
+
+  property_images?: File[];
+  property_floor_plans?: File[];
+
+  images: ImageProperty[];
+  floor_plans: FloorPlan[];
 };
+
+export type ImageProperty = {
+  image_url?: string;
+  caption: string;
+  sort_order?: number;
+  file?: File;
+  preview?: string;
+};
+
+export type FloorPlan = {
+  name: string;
+  file_url?: string;
+  sort_order?: number;
+  file?: File;
+  preview?: string;
+};
+
+export type Address = {
+  street?: string;
+  village?: string;
+  district?: string;
+  city?: string;
+  province?: string;
+  postal_code?: string;
+};
+
+export type Specifications = {
+  // Dimensi
+  bedrooms?: number;
+  bathrooms?: number;
+  landSize?: number; // m²
+  buildingSize?: number; // m²
+  garage?: number;
+  floors?: number;
+
+  // Material
+  structure?: string;
+  floor?: string;
+  walls?: string;
+  roof?: string;
+  doors?: string;
+  windows?: string;
+
+  // Utilitas
+  electricity?: string;
+  water_source?: string;
+  internet?: string; 
+  security?: string; 
+
+  // Fasilitas
+  facilities?: string; 
+};
+
+
+export enum PropertyStatus {
+  PRE_LAUNCH = "PRE_LAUNCH",
+  AVAILABLE = "AVAILABLE",
+  SOLD_OUT = "SOLD_OUT",
+  RESERVED = "RESERVED",
+}
+
+export enum PriceUnit {
+  TOTAL = "TOTAL",
+  PER_MONTH = "PER_MONTH",
+  PER_SQM = "PER_SQM",
+}

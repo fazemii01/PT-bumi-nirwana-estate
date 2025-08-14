@@ -26,8 +26,8 @@ export const formatToPrefixAndPrice = (
 	currencyRate: number,
 ) => {
 	const formatToNumbers = formatToNumbersOnly(value);
-	const price = formatToFullUahPrice(formatToNumbers, currencyRate);
-	return formatToPricePrefix(lang, value) + price + ' ' + UNITS[lang].currency;
+	const price = formatToFullPrice(lang, formatToNumbers);
+	return formatToPricePrefix(lang, value) + price;
 };
 
 export const formatToPrefixOnly = (lang: string, value: string) => {
@@ -38,33 +38,44 @@ export const formatToNumbersOnly = (value: string) => {
 	return Number(value.replace(/[^\d.]/g, ''));
 };
 
-const formatToSeparatedNumber = (value: number) => {
-	return new Intl.NumberFormat('uk-UA', {
-		currency: 'UAH',
+const formatToSeparatedNumber = (lang: string, value: number) => {
+	const locales: { [key: string]: string } = {
+		ua: 'uk-UA',
+		en: 'en-US',
+		id: 'id-ID',
+	};
+	const currencies: { [key: string]: string } = {
+		ua: 'IDR',
+		en: 'IDR',
+		id: 'IDR',
+	};
+	return new Intl.NumberFormat(locales[lang] || 'en-US', {
+		style: 'currency',
+		currency: currencies[lang] || 'USD',
+		minimumFractionDigits: 0,
+		maximumFractionDigits: 0,
 	}).format(value);
 };
 
-const formatToFullUahPrice = (value: number, currencyRate: number) => {
-	const calcPriceUah = value * currencyRate;
-	const slicePriceUah = calcPriceUah.toFixed();
+const formatToFullPrice = (
+	lang: string,
+	value: number,
+	
+) => {
+	const slicePrice = value.toFixed();
 
-	return formatToSeparatedNumber(+slicePriceUah);
+	return formatToSeparatedNumber(lang, +slicePrice);
 };
 
 export const formatTableFullPrice = (
 	lang: string,
 	value: string,
-	currencyRate: number,
 ) => {
 	const removedLetters = formatToNumbersOnly(value);
-	const priceUsd = formatToSeparatedNumber(removedLetters) + USD_SYMBOL;
 
 	return (
 		formatToPricePrefix(lang, value) +
-		formatToFullUahPrice(removedLetters, currencyRate) +
-		UNITS[lang].currency +
-		UNITS[lang].separator +
-		priceUsd
+		formatToFullPrice(lang, removedLetters)
 	);
 };
 
@@ -76,7 +87,7 @@ export const formatTableAfterPrefix = (
 	const starElement = `<span class="star">*</span>`;
 
 	const translation: Record<string, string> = {
-		TOTALAREA: UNITS[lang].squareMeters,
+		TOTALAREA: UNITS[lang]?.squareMeters,
 		USABLEAREA: UNITS[lang].squareMeters,
 		OFFICES: UNITS[lang].pieces,
 		KITCHEN: UNITS[lang].squareMeters,
@@ -93,7 +104,7 @@ export const formatTableAfterPrefix = (
 				? `${UNITS[lang].month}${starElement}`
 				: UNITS[lang].squareMeters,
 		TOTALCOST:
-			contractType === 'Оренда' ? `${UNITS[lang].month}${starElement}` : '',
+			contractType === 'Оreнда' ? `${UNITS[lang]?.month}${starElement}` : '',
 	};
 
 	return (value && translation[value]) || '';

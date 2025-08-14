@@ -9,16 +9,22 @@ const useDataFetching = () => {
   const initialData: ICatalogData = {
     city: '',
     contractType: '',
-    id: 0,
+    id: '',
     price: '',
     propertyType: '',
     realEstateType: '',
     station: {},
     visibility: false,
     description: {},
+    status: '',
+    detail_description: '',
     address: {},
     location: {},
     table: {},
+    images: [],
+    floor_plans: [],
+    luas: '',
+    jenis: {}
   };
 
   const [data, setData] = useState<ICatalogData[]>([initialData]);
@@ -49,28 +55,39 @@ const useDataFetching = () => {
       };
 
       return {
-        ...initialData,
-        id: parseInt(property.id, 10) || 0,
+        ...property,
         price: property.price.toString(),
         visibility: property.status === 'AVAILABLE',
-        description: {
-          en: property.description,
-        },
         address: {
-          en: address.street || '',
+        	en: address.street || '',
+        	id: address.street || '',
         },
         location,
-        table: specifications as ICatalogTable,
+        table: {
+        	rooms: specifications.kamar,
+        	bathrooms: specifications.kamar_mandi,
+        	offices: specifications.offices,
+        },
+       
+        description: property.description || {},
+        jenis: {
+        	en: property.jenis || '',
+        	id: property.jenis || '',
+        },
+        luas: property.luas,
+        detail_description: property.detail_description,
+        status: property.status,
         contractType: (specifications as { contractType?: string }).contractType || '',
         propertyType: (specifications as { propertyType?: string }).propertyType || '',
         realEstateType: (specifications as { realEstateType?: string }).realEstateType || '',
         city: address.city || '',
         station: {},
+        images: property.images || [],
       };
     });
 
     const sortResult = result
-      .sort((a, b) => b.id - a.id);
+      .sort((a, b) => (a.id > b.id ? -1 : 1));
     setData(sortResult);
     setLoading(false);
   };
@@ -89,3 +106,4 @@ const useDataFetching = () => {
 };
 
 export default useDataFetching;
+

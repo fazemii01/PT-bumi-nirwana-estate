@@ -35,6 +35,7 @@ export class Property {
   @ManyToOne(() => Developer, (developer) => developer.property, {
     nullable: true,
     onDelete: 'SET NULL',
+    onUpdate:'CASCADE'
   })
   @JoinColumn({ name: 'developerId' })
   developer: Developer;
@@ -42,6 +43,7 @@ export class Property {
   @ManyToOne(() => Agent, (agent) => agent.property, {
     nullable: true,
     onDelete: 'SET NULL',
+    onUpdate:'CASCADE'
   })
   @JoinColumn({ name: 'agentId' })
   agent: Agent;
@@ -72,8 +74,13 @@ export class Property {
   @Column({ type: 'varchar', length: 20, nullable: false })
   luas: string;
 
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  jenis: string;
+
   @Column({ type: 'text', nullable: true })
   description: string;
+  @Column({ type: 'text', nullable: true })
+  detail_description: string;
 
   @Column({
     type: 'geography',

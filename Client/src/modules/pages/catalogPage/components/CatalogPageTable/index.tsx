@@ -3,7 +3,7 @@ import {useTranslation} from 'react-i18next';
 
 import {useCurrencyFetching} from '@hooks/index';
 import {formatCatalogTranslation} from '@utils/formatters';
-
+import {UNITS} from '@modules/pages/catalogPage/utils/units';
 import type {ICatalogTable} from '@t-types/data';
 
 import {
@@ -18,10 +18,13 @@ const CatalogPageTable: FC<{
 	contractType: string;
 	realEstateType: string;
 	price: string;
-}> = ({tableInfo, realEstateType, contractType, price}) => {
+	jenis: string;
+	luas: string;
+	status: string;
+}> = ({tableInfo, realEstateType, contractType, price, jenis, luas, status}) => {
 	const {i18n, t: tCommon} = useTranslation('common');
 	const {t: tCatalog} = useTranslation('catalog');
-	const {currencyRate} = useCurrencyFetching();
+	
 
 	tableInfo.totalCost = price;
 	const table = Object.entries(tableInfo)
@@ -34,20 +37,25 @@ const CatalogPageTable: FC<{
 		)
 		.filter(Boolean);
 
-	const itemContractType = tCommon(formatCatalogTranslation(contractType));
-	const itemRealEstateType = tCommon(formatCatalogTranslation(realEstateType));
+	// const itemContractType = tCommon(formatCatalogTranslation(contractType));
+	// const itemRealEstateType = tCommon(formatCatalogTranslation(realEstateType));
 
 	return (
 		<table className={s.container}>
 			<tbody>
 			<tr>
-				<td>{tCatalog('TYPE_OF_AGREEMENT' as string)}</td>
-				<td>{itemContractType}</td>
+				<td>{tCatalog('STATUS' as string)}</td>
+				<td>{status}</td>
 			</tr>
 
 			<tr>
-				<td>{tCommon('TYPE_OF_REAL_ESTATE.TYPE_OF_REAL_ESTATE')}</td>
-				<td>{itemRealEstateType}</td>
+				<td>{tCatalog('LUAS')}</td>
+				<td>{luas + ' ' + UNITS[i18n.language].squareMeters}</td>
+			</tr>
+
+			<tr>
+				<td>{tCatalog('TYPE_OF_RESIDENCE')}</td>
+				<td>{jenis}</td>
 			</tr>
 
 			{table.map((item) => {
@@ -79,7 +87,7 @@ const CatalogPageTable: FC<{
 							<td>{tCatalog(`TABLE.${itemKey}`)}</td>
 							<td>
 								{isValueWithPrefix
-									? formatTableFullPrice(i18n.language, itemValue, currencyRate)
+									? formatTableFullPrice(i18n.language, itemValue)
 									: isCanBeAnyAmount
 										? tCommon('ANY_AMOUNT')
 										: isLandPlot
