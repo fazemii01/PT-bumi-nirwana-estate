@@ -6,7 +6,6 @@ import { useMemo } from "react";
 export function HeadingSiteHeader() {
   const pathname = usePathname();
 
-  // Buat mapping path ke judul
   const pageTitle = useMemo(() => {
     if (pathname.startsWith("/properties")) return "Data Properti";
     if (pathname.startsWith("/agent")) return "Data Agent";
