@@ -50,16 +50,32 @@ export type Address = {
 };
 
 export type Specifications = {
-  bedrooms?: string;
-  bathrooms?: string;
-  landSize?: string;
-  buildingSize?: string;
-  garage?: string;
-  floors?: string;
+  // Dimensi
+  bedrooms?: number;
+  bathrooms?: number;
+  landSize?: number; // m²
+  buildingSize?: number; // m²
+  garage?: number;
+  floors?: number;
+
+  // Material
+  structure?: string;
+  floor?: string;
+  walls?: string;
+  roof?: string;
+  doors?: string;
+  windows?: string;
+
+  // Utilitas
   electricity?: string;
   water_source?: string;
-  facilities?: string;
+  internet?: string; 
+  security?: string; 
+
+  // Fasilitas
+  facilities?: string; 
 };
+
 
 export enum PropertyStatus {
   PRE_LAUNCH = "PRE_LAUNCH",

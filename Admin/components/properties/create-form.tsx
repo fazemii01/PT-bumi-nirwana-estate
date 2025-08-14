@@ -1,8 +1,7 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
 import { getAgent } from "@/api/agent";
 import { getDeveloper } from "@/api/developer";
 import { Agent } from "@/types/agent";
@@ -13,8 +12,14 @@ import LocationForm from "./location-form";
 import SpecificationsForm from "./specifications-form";
 import MediaForm from "./media-form";
 import { Camera, Info, MapPin, Settings } from "lucide-react";
+import { PropertyZod } from "@/lib/zod";
+import { showToastError, showToastSuccess } from "../toast";
+import { redirect, useRouter } from "next/navigation";
+import { addProperty } from "@/api/property";
+import { log } from "console";
 
 const PropertyCreateForm = () => {
+  const router = useRouter();
   const [formData, setFormData] = useState<Property>({
     id: "",
     developerId: "",
@@ -42,7 +47,8 @@ const PropertyCreateForm = () => {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [developers, setDevelopers] = useState<Developer[]>([]);
   const [activeTab, setActiveTab] = useState("basic");
-
+  const [error, setError] = useState<{ [key: string]: string }>({});
+  const [pending, startTransition] = useTransition();
   useEffect(() => {
     async function fetchData() {
       const [agentsData, developersData] = await Promise.all([
@@ -124,7 +130,7 @@ const PropertyCreateForm = () => {
       ...prev,
       specifications: {
         ...prev.specifications,
-        [name]: value,
+        [name]: e.target.type === "number" ? Number(value) : value,
       },
     }));
   };
@@ -208,56 +214,68 @@ const PropertyCreateForm = () => {
     });
   };
 
-  // const handleSubmit = async () => {
-  //   // Prepare FormData for submission
-  //   const submitData = new FormData();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const result = PropertyZod.safeParse(formData);
+    if (!result.success) {
+      const firstError = result.error.errors[0];
+      const path = firstError.path;
+      let tab = "basic";
+      if (path.includes("location")) {
+        tab = "location";
+      } else if (path.includes("images") || path.includes("floor_plans")) {
+        tab = "media";
+      } else if (path.includes("specifications")) {
+        tab = "specs";
+      }
+      setActiveTab(tab);
+      setError({
+        [path.join(".")]: firstError.message,
+      });
+      return;
+    }
+    setError({});
 
-  //   // Add basic fields
-  //   Object.keys(formData).forEach((key) => {
-  //     if (
-  //       key !== "images" &&
-  //       key !== "floor_plans" &&
-  //       key !== "location" &&
-  //       key !== "address" &&
-  //       key !== "specifications"
-  //     ) {
-  //       submitData.append(key, formData[key]);
-  //     }
-  //   });
+    startTransition(async () => {
+      try {
+        const res = await addProperty({ property: formData });
+        console.log("Property created:", res);
 
-  //   // Add JSON fields
-  //   submitData.append("location", JSON.stringify(formData.location));
-  //   submitData.append("address", JSON.stringify(formData.address));
-  //   submitData.append(
-  //     "specifications",
-  //     JSON.stringify(formData.specifications)
-  //   );
-
-  //   // Add image files
-  //   formData.images.forEach((image, index) => {
-  //     submitData.append(`images[${index}][file]`, image.file);
-  //     submitData.append(`images[${index}][caption]`, image.caption);
-  //     submitData.append(
-  //       `images[${index}][sort_order]`,
-  //       image.sort_order.toString()
-  //     );
-  //   });
-
-  //   // Add floor plan files
-  //   formData.floor_plans.forEach((floorPlan, index) => {
-  //     submitData.append(`floor_plans[${index}][file]`, floorPlan.file);
-  //     submitData.append(`floor_plans[${index}][name]`, floorPlan.name);
-  //     submitData.append(
-  //       `floor_plans[${index}][sort_order]`,
-  //       floorPlan.sort_order.toString()
-  //     );
-  //   });
-
-  //   // Submit to API
-  //   console.log("Submitting property data:", formData);
-  //   // Replace with actual API call
-  //   // await createProperty(submitData);
-  // };
+        if (res) {
+          showToastSuccess("Property created successfully!");
+          setFormData({
+            id: "",
+            developerId: "",
+            agentId: "",
+            name: "",
+            status: PropertyStatus.AVAILABLE,
+            price: "",
+            price_unit: PriceUnit.TOTAL,
+            luas: "",
+            jenis: "",
+            description: "",
+            detail_description: "",
+            location: {
+              type: "Point",
+              coordinates: [0, 0],
+            },
+            address: {},
+            specifications: {},
+            property_images: [],
+            property_floor_plans: [],
+            images: [],
+            floor_plans: [],
+          });
+          setTimeout(() => {
+            router.push("/properties");
+          }, 1000);
+        }
+      } catch (error) {
+        showToastError("Failed to create property. Please try again.");
+        console.error("Error creating property:", error);
+      }
+    });
+  };
 
   return (
     <div className=" mx-auto  space-y-6">
@@ -265,96 +283,99 @@ const PropertyCreateForm = () => {
         <h1 className="text-3xl font-bold">Create New Property</h1>
       </div>
 
-      <div>
-        <Tabs
-          value={activeTab}
-          onValueChange={setActiveTab}
-          className="space-y-6"
-        >
-          <TabsList className="grid grid-cols-4 w-full h-auto">
-            <TabsTrigger
-              value="basic"
-              className="flex flex-col items-center gap-1 py-2"
-            >
-              <Info className="w-4 h-4" />
-              <span className="text-xs hidden sm:inline">Info Dasar</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="location"
-              className="flex flex-col items-center gap-1 py-2"
-            >
-              <MapPin className="w-4 h-4" />
-              <span className="text-xs hidden sm:inline">Lokasi</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="media"
-              className="flex flex-col items-center gap-1 py-2"
-            >
-              <Camera className="w-4 h-4" />
-              <span className="text-xs hidden sm:inline">Media</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="specs"
-              className="flex flex-col items-center gap-1 py-2"
-            >
-              <Settings className="w-4 h-4" />
-              <span className="text-xs hidden sm:inline">Spesifikasi</span>
-            </TabsTrigger>
-          </TabsList>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="space-y-6"
+          >
+            <TabsList className="grid grid-cols-4 w-full h-auto">
+              <TabsTrigger
+                value="basic"
+                className="flex items-center justify-center py-2 cursor-pointer"
+              >
+                <Info className="w-4 h-4 sm:hidden" />
+                <span className="hidden sm:inline">Info Dasar</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="location"
+                className="flex items-center justify-center py-2 cursor-pointer"
+              >
+                <MapPin className="w-4 h-4 sm:hidden" />
+                <span className="hidden sm:inline">Lokasi</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="media"
+                className="flex items-center justify-center py-2 cursor-pointer"
+              >
+                <Camera className="w-4 h-4 sm:hidden" />
+                <span className="hidden sm:inline">Media</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="specs"
+                className="flex items-center justify-center py-2 cursor-pointer"
+              >
+                <Settings className="w-4 h-4 sm:hidden" />
+                <span className="hidden sm:inline">Spesifikasi</span>
+              </TabsTrigger>
+            </TabsList>
 
-          {/* Basic Information Tab */}
-          <BasicInfoForm
-            formData={formData}
-            handleSelectChange={handleSelectChange}
-            handleInputChange={handleInputChange}
-            handleTextAreaChange={handleTextAreaChange}
-            developers={developers}
-            agents={agents}
-          />
-
-          {/* Location Tab */}
-          {activeTab === "location" && (
-            <LocationForm
+            {/* Basic Information Tab */}
+            <BasicInfoForm
               formData={formData}
-              handleAddressChange={handleAddressChange}
-              handleLocationChange={handleLocationChange}
+              handleSelectChange={handleSelectChange}
+              handleInputChange={handleInputChange}
+              handleTextAreaChange={handleTextAreaChange}
+              developers={developers}
+              agents={agents}
+              error={error}
             />
-          )}
 
-          {/* Media Tab */}
-          {activeTab === "media" && (
-            <MediaForm
-              formData={formData}
-              handleSingleImageUpload={handleSingleImageUpload}
-              handleSingleFloorPlanUpload={handleSingleFloorPlanUpload}
-              updateImageCaption={updateImageCaption}
-              updateFloorPlanName={updateFloorPlanName}
-              removeFloorPlan={removeFloorPlan}
-              removeImage={removeImage}
-            />
-          )}
+            {/* Location Tab */}
+            {activeTab === "location" && (
+              <LocationForm
+                formData={formData}
+                handleAddressChange={handleAddressChange}
+                handleLocationChange={handleLocationChange}
+                error={error}
+              />
+            )}
 
-          {/* Specifications Tab */}
-          {activeTab === "specs" && (
-            <SpecificationsForm
-              formData={formData}
-              handleSpecificationChange={handleSpecificationChange}
-              handleTextAreaSpecificationChange={
-                handleTextAreaSpecificationChange
-              }
-            />
-          )}
-        </Tabs>
+            {/* Media Tab */}
+            {activeTab === "media" && (
+              <MediaForm
+                formData={formData}
+                handleSingleImageUpload={handleSingleImageUpload}
+                handleSingleFloorPlanUpload={handleSingleFloorPlanUpload}
+                updateImageCaption={updateImageCaption}
+                updateFloorPlanName={updateFloorPlanName}
+                removeFloorPlan={removeFloorPlan}
+                removeImage={removeImage}
+                error={error}
+              />
+            )}
 
-        <div className="flex justify-end gap-4 pt-6 border-t">
-          <Button type="button" variant="outline">
-            Simpan Draft
-          </Button>
-          <Button type="button" className="bg-blue-600 hover:bg-blue-700">
-            Publish Property
-          </Button>
+            {/* Specifications Tab */}
+            {activeTab === "specs" && (
+              <SpecificationsForm
+                formData={formData}
+                handleSpecificationChange={handleSpecificationChange}
+                handleTextAreaSpecificationChange={
+                  handleTextAreaSpecificationChange
+                }
+                error={error}
+              />
+            )}
+          </Tabs>
+
+          <div className="flex justify-end gap-4 pt-6 border-t">
+            <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
+              {pending ? "Loading..." : "Publish Property"}
+            </Button>
+          </div>
         </div>
-      </div>
+      </form>
     </div>
   );
 };

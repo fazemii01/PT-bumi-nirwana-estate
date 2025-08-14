@@ -38,6 +38,7 @@ type LocationFormProps = {
       | React.ChangeEvent<HTMLInputElement>
       | { target: { name: string; value: string } }
   ) => void;
+  error?: { [key: string]: string };
 };
 
 const mockFormData: Property = {
@@ -58,6 +59,7 @@ function LocationForm({
   formData = mockFormData,
   handleLocationChange = () => {},
   handleAddressChange = () => {},
+  error = {},
 }: LocationFormProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<any>(null);
@@ -371,7 +373,7 @@ function LocationForm({
               <h4 className="font-semibold">Koordinat dan Alamat</h4>
 
               {/* Coordinates */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="latitude">Latitude</Label>
                   <Input
@@ -382,6 +384,10 @@ function LocationForm({
                     value={formData.location?.coordinates[0] || ""}
                     onChange={handleCoordinateInputChange}
                     placeholder="-6.200000"
+                    autoComplete="off"
+                    autoCorrect="off"
+                    autoCapitalize="off"
+                    spellCheck={false}
                   />
                 </div>
                 <div className="space-y-2">
@@ -394,6 +400,10 @@ function LocationForm({
                     value={formData.location?.coordinates[1] || ""}
                     onChange={handleCoordinateInputChange}
                     placeholder="106.816666"
+                    autoComplete="off"
+                    autoCorrect="off"
+                    autoCapitalize="off"
+                    spellCheck={false}
                   />
                 </div>
               </div>
@@ -411,10 +421,19 @@ function LocationForm({
                       name="street"
                       value={formData.address?.street || ""}
                       onChange={handleAddressChange}
+                      autoComplete="new-password"
+                      autoCorrect="off"
+                      autoCapitalize="off"
+                      spellCheck={false}
                     />
+                    {error["address.street"] && (
+                      <span className="text-red-500 text-xs">
+                        {error["address.street"]}
+                      </span>
+                    )}
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <div className="space-y-2">
                       <Label htmlFor="village">Kelurahan</Label>
                       <Input
@@ -423,7 +442,16 @@ function LocationForm({
                         name="village"
                         value={formData.address?.village || ""}
                         onChange={handleAddressChange}
+                        autoComplete="new-password"
+                        autoCorrect="off"
+                        autoCapitalize="off"
+                        spellCheck={false}
                       />
+                      {error["address.village"] && (
+                        <span className="text-red-500 text-xs">
+                          {error["address.village"]}
+                        </span>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="district">Kecamatan</Label>
@@ -433,11 +461,20 @@ function LocationForm({
                         name="district"
                         value={formData.address?.district || ""}
                         onChange={handleAddressChange}
+                        autoComplete="new-password"
+                        autoCorrect="off"
+                        autoCapitalize="off"
+                        spellCheck={false}
                       />
+                      {error["address.district"] && (
+                        <span className="text-red-500 text-xs">
+                          {error["address.district"]}
+                        </span>
+                      )}
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <div className="space-y-2">
                       <Label htmlFor="city">Kota</Label>
                       <Input
@@ -446,7 +483,16 @@ function LocationForm({
                         name="city"
                         value={formData.address?.city || ""}
                         onChange={handleAddressChange}
+                        autoComplete="new-password"
+                        autoCorrect="off"
+                        autoCapitalize="off"
+                        spellCheck={false}
                       />
+                      {error["address.city"] && (
+                        <span className="text-red-500 text-xs">
+                          {error["address.city"]}
+                        </span>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="province">Provinsi</Label>
@@ -456,7 +502,16 @@ function LocationForm({
                         name="province"
                         value={formData.address?.province || ""}
                         onChange={handleAddressChange}
+                        autoComplete="new-password"
+                        autoCorrect="off"
+                        autoCapitalize="off"
+                        spellCheck={false}
                       />
+                      {error["address.province"] && (
+                        <span className="text-red-500 text-xs">
+                          {error["address.province"]}
+                        </span>
+                      )}
                     </div>
                   </div>
 
@@ -468,8 +523,16 @@ function LocationForm({
                       name="postal_code"
                       value={formData.address?.postal_code || ""}
                       onChange={handleAddressChange}
-                      className="max-w-[150px]"
+                      autoComplete="new-password"
+                      autoCorrect="off"
+                      autoCapitalize="off"
+                      spellCheck={false}
                     />
+                    {error["address.postal_code"] && (
+                      <span className="text-red-500 text-xs">
+                        {error["address.postal_code"]}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>

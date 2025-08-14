@@ -35,6 +35,8 @@ export class PropertiesController {
       property_floor_plans?: Express.Multer.File[];
     },
   ): Promise<Property> {
+    console.log(`api jalan`);
+    
     const property_images = files.property_images || [];
     const property_floor_plans = files.property_floor_plans || [];
     return await this.propertiesService.create(
