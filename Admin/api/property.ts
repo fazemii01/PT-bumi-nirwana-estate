@@ -3,6 +3,7 @@
 import api from "@/service/api";
 import { Property } from "@/types/properties";
 import { AxiosError } from "axios";
+import { revalidatePath } from "next/cache";
 
 export async function getProperty(): Promise<Property[]> {
   const response = await api({
@@ -48,10 +49,7 @@ export async function addProperty({ property }: { property: Property }) {
       property.images.forEach((image, index) => {
         data.append(`images[${index}][caption]`, image.caption);
         if (image.sort_order !== undefined) {
-          data.append(
-            `images[${index}][sort_order]`,
-            image.sort_order.toString()
-          );
+          data.append(`images[${index}][sort_order]`, image.sort_order.toString());
         }
       });
     }
@@ -59,10 +57,7 @@ export async function addProperty({ property }: { property: Property }) {
       property.floor_plans.forEach((plan, index) => {
         data.append(`floor_plans[${index}][name]`, plan.name);
         if (plan.sort_order !== undefined) {
-          data.append(
-            `floor_plans[${index}][sort_order]`,
-            plan.sort_order.toString()
-          );
+          data.append(`floor_plans[${index}][sort_order]`, plan.sort_order.toString());
         }
       });
     }
@@ -72,15 +67,27 @@ export async function addProperty({ property }: { property: Property }) {
       method: "POST",
       data: data,
     });
-    
+
     return response.status === 201 || response.status === 200;
   } catch (error) {
     if (error instanceof AxiosError) {
-      throw new Error(
-        error.response?.data?.message ||
-          "Create new data failed due to network error."
-      );
+      throw new Error(error.response?.data?.message || "Create new data failed due to network error.");
     }
     throw new Error("An unexpected error occurred during agents.");
+  }
+}
+
+export async function deleteProperty(id: string) {
+  try {
+    await api({
+      url: `/properties/${id}`,
+      method: "DELETE",
+    });
+    revalidatePath("/properties");
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      throw new Error(error.response?.data?.message || "Delete property failed due to network error.");
+    }
+    throw new Error("An unexpected error occurred during property deletion.");
   }
 }
