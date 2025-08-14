@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import {
+  IconBuildingSkyscraper,
   IconCamera,
   IconChartBar,
   IconDashboard,
@@ -16,6 +17,7 @@ import {
   IconReport,
   IconSearch,
   IconSettings,
+  IconUser,
   IconUsers,
 } from "@tabler/icons-react";
 
@@ -50,12 +52,12 @@ const data = {
     {
       title: "Agent",
       url: "agent",
-      icon: IconChartBar,
+      icon: IconUser,
     },
     {
       title: "Developer",
       url: "developer",
-      icon: IconFolder,
+      icon: IconBuildingSkyscraper,
     },
     // {
     //   title: "Team",

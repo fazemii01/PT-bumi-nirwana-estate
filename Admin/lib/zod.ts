@@ -1,14 +1,14 @@
 import { object, string, z } from "zod";
 
-export const Agent = object({
-  name: string().min(1, "Name is required"),
+export const AgentZod = object({
+  full_name: string().min(1, "Name is required"),
   email: string()
     .min(1, "Email is required")
     .email("please enter a valid email"),
   phone_number: string().min(10, "Phone number invalid"),
 });
 
-export const Developer = object({
+export const DeveloperSchema = object({
   name: string().min(1, "Name is required"),
   website_url: string()
     .min(1, "Website URL is required")

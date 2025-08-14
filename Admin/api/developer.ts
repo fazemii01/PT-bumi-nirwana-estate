@@ -39,3 +39,54 @@ export async function addDeveloper({ data }: { data: Developer }) {
   revalidatePath("/developer");
   return res.data;
 }
+
+export async function deleteDeveloper({ id }: { id: string }) {
+  try {
+    await api({
+      url: `/developers/${id}`,
+      method: "DELETE",
+    });
+    revalidatePath("/developers");
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      throw new Error(
+        error.response?.data?.message ||
+          "Delete data failed due to network error."
+      );
+    }
+    throw new Error("An unexpected error occurred during developers.");
+  }
+}
+
+export async function updateDeveloper({
+  data,
+  originalData,
+}: {
+  data: Developer;
+  originalData: Developer;
+}) {
+  const formData = new FormData();
+
+  if (data.name !== originalData.name) {
+    formData.append("name", data.name);
+  }
+
+  if (data.website_url !== originalData.website_url) {
+    formData.append("website_url", data.website_url);
+  }
+
+  if (data.file_logo) {
+    formData.append("logo_url", data.file_logo);
+  }
+
+  for (const pair of formData.entries()) {
+    console.log(pair[0], pair[1]);
+  }
+  await api({
+    url: `/developers/${data.id}`,
+    method: "PATCH",
+    data: formData,
+  });
+
+  revalidatePath("/developer");
+}

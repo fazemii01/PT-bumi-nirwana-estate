@@ -39,10 +39,10 @@ const nextConfig = {
 				},
 			},
 		};
-		
+
 		const languages = ['id', 'en', 'ru', 'ua'];
 		const defaultLanguage = 'id';
-		
+
 		for (const language of languages) {
 			paths[`/${language}`] = {
 				page: `/`,
@@ -69,10 +69,10 @@ const nextConfig = {
 				},
 			};
 		}
-		
+
 		return paths;
 	},
-	webpack: (config, {isServer}) => {
+	webpack: (config, { isServer }) => {
 		config.module.rules.push({
 			test: /\.(mp4|webm|mov)$/,
 			use: {
@@ -86,19 +86,32 @@ const nextConfig = {
 				},
 			},
 		});
-		
+
 		return config;
 	},
 	images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'images.unsplash.com',
-        port: '',
-        pathname: '/**',
-      },
-    ],
-  },
+		remotePatterns: [
+			{
+				protocol: 'https',
+				hostname: 'images.unsplash.com',
+				port: '',
+				pathname: '/**',
+			},
+			{
+				protocol: 'http',
+				hostname: 'localhost',
+				port: '5000',
+				pathname: '/properties/images/**',
+			},
+			{
+				protocol: 'http',
+				hostname: 'localhost',
+				port: '5000',
+				pathname: '/uploads/property/property_images/**',
+			},
+		], 
+	},
+
 };
 
 export default nextConfig;

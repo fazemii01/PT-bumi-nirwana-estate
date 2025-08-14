@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { IconPlus } from "@tabler/icons-react";
 import CreateDeveloper from "@/components/developer/create-developer";
 
-const DeveloperCreate = () => {
+const DeveloperButton = () => {
   const [open, setOpen] = useState(false);
   return (
     <div className="flex justify-end mb-4">
@@ -17,10 +17,10 @@ const DeveloperCreate = () => {
       >
         <IconPlus />
         <span className="hidden lg:inline">Add Developer</span>
-        <CreateDeveloper open={open} setOpen={setOpen} />
       </Button>
+      <CreateDeveloper open={open} setOpen={setOpen} />
     </div>
   );
 };
 
-export default DeveloperCreate;
+export default DeveloperButton;

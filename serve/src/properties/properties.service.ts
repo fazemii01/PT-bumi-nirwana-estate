@@ -62,8 +62,10 @@ export class PropertiesService {
       property.status = createPropertyDto.status;
       property.price = createPropertyDto.price;
       property.luas = createPropertyDto.luas;
+      property.jenis = createPropertyDto.jenis;
       property.price_unit = createPropertyDto.price_unit;
       property.description = createPropertyDto.description;
+      property.detail_description = createPropertyDto.description;
       property.address = createPropertyDto.address;
       property.specifications = createPropertyDto.specifications;
 

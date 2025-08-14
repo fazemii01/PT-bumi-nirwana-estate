@@ -10,7 +10,7 @@ export function HeadingSiteHeader() {
   const pageTitle = useMemo(() => {
     if (pathname.startsWith("/properties")) return "Data Properti";
     if (pathname.startsWith("/agent")) return "Data Agent";
-    if (pathname.startsWith("/developers")) return "Data Developer";
+    if (pathname.startsWith("/developer")) return "Data Developer";
     if (pathname.startsWith("/dashboard")) return "Dashboard";
     return "Halaman Tidak Dikenal";
   }, [pathname]);

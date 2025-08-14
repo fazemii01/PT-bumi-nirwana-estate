@@ -37,10 +37,16 @@ export class CreatePropertyDto {
 
   @IsString()
   luas: string;
+  
+  @IsString()
+  jenis: string;
 
   @IsOptional()
   @IsString()
   description: string;
+  @IsOptional()
+  @IsString()
+  detail_description: string;
 
   @IsOptional()
   @IsObject()

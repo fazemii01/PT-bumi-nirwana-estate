@@ -16,10 +16,11 @@ import {
   IconBuildingSkyscraper,
   IconBrandChrome,
 } from "@tabler/icons-react";
-import { startTransition, useState, useTransition } from "react";
+import { startTransition, useEffect, useState, useTransition } from "react";
 import { addDeveloper } from "@/api/developer";
 import { Button } from "@/components/ui/button";
 import { Developer } from "@/types/developer";
+import { showToastError, showToastSuccess } from "../toast";
 
 const CreateDeveloper = ({
   open,
@@ -39,7 +40,15 @@ const CreateDeveloper = ({
     file_logo: undefined,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [pending, setTransition] = useTransition();
+  const [pending, startTransition] = useTransition();
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -92,6 +101,7 @@ const CreateDeveloper = ({
       website_url: "",
       logo_url: "",
     });
+    console.log("kilik ancok");
     setSelectedFile(null);
     setPreviewUrl(null);
     setOpen(false);
@@ -123,16 +133,17 @@ const CreateDeveloper = ({
         setSelectedFile(null);
         setPreviewUrl(null);
         setOpen(false);
-      } catch (error) {
-        console.error("failed create developer:", error);
-        alert("failed to create developer. check console bang");
+        showToastSuccess("Create agent successfull");
+      } catch (err) {
+        showToastError(`${err}`);
+        setOpen(false);
       }
     });
   };
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
-        <form className="space-y-6">
+        <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
           <AlertDialogHeader className="space-y-3">
             <AlertDialogTitle className="text-2xl font-semibold flex items-center gap-2">
               <div className="p-2 rounded-full">
@@ -205,40 +216,42 @@ const CreateDeveloper = ({
                   className="flex flex-col items-center justify-center p-8 cursor-pointer"
                 >
                   {selectedFile && previewUrl ? (
-                    <div className="text-center space-y-3">
-                      {/* Image Preview */}
-                      <div className="relative">
-                        <img
-                          src={previewUrl}
-                          alt="Preview"
-                          className="w-24 h-24 object-cover rounded-lg border-2 border-border/30 dark:border-white/30 shadow-lg backdrop-blur-sm"
-                        />
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            removeFile();
-                          }}
-                          className="absolute -top-2 -right-2 bg-red-500/80 hover:bg-red-600/90 dark:bg-red-400/80 dark:hover:bg-red-500/90 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs transition-colors backdrop-blur-sm"
-                        >
-                          ×
-                        </button>
-                      </div>
+                    <>
+                      <div className="text-center space-y-3">
+                        {/* Image Preview */}
+                        <div className="relative">
+                          <img
+                            src={previewUrl}
+                            alt="Preview"
+                            className="w-24 h-24 object-cover rounded-lg border-2 border-border/30 dark:border-white/30 shadow-lg backdrop-blur-sm"
+                          />
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              removeFile();
+                            }}
+                            className="absolute -top-2 -right-2 bg-red-500/80 hover:bg-red-600/90 dark:bg-red-400/80 dark:hover:bg-red-500/90 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs transition-colors backdrop-blur-sm"
+                          >
+                            ×
+                          </button>
+                        </div>
 
-                      {/* File Info */}
-                      <div>
-                        <p className="text-sm font-medium text-foreground/90 dark:text-white/90 truncate max-w-48">
-                          {selectedFile.name}
-                        </p>
-                        <p className="text-xs text-muted-foreground/70 dark:text-white/70">
-                          {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                        {/* File Info */}
+                        <div>
+                          <p className="text-sm font-medium text-foreground/90 dark:text-white/90 truncate max-w-48">
+                            {selectedFile.name}
+                          </p>
+                          <p className="text-xs text-muted-foreground/70 dark:text-white/70">
+                            {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                          </p>
+                        </div>
+
+                        <p className="text-xs text-muted-foreground/60 dark:text-white/60">
+                          Click to change image
                         </p>
                       </div>
-
-                      <p className="text-xs text-muted-foreground/60 dark:text-white/60">
-                        Click to change image
-                      </p>
-                    </div>
+                    </>
                   ) : (
                     <div className="text-center space-y-2">
                       <div
@@ -282,7 +295,7 @@ const CreateDeveloper = ({
                 />
               </div>
               {errors.logo && (
-                <p className="text-sm text-red-500/90 dark:text-red-400/90 backdrop-blur-sm">
+                <p className="text-sm text-red-500 dark:text-red-500 backdrop-blur-sm">
                   {errors.logo}
                 </p>
               )}
@@ -290,8 +303,8 @@ const CreateDeveloper = ({
           </div>
           <AlertDialogFooter className="pt-6 border-t border-gray-200 gap-3">
             <AlertDialogCancel
-              onClick={handleCancel}
               className="flex-1 cursor-pointer"
+              onClick={handleCancel}
             >
               Cancel
             </AlertDialogCancel>

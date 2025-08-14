@@ -21,7 +21,7 @@ const CatalogPageTable: FC<{
 }> = ({tableInfo, realEstateType, contractType, price}) => {
 	const {i18n, t: tCommon} = useTranslation('common');
 	const {t: tCatalog} = useTranslation('catalog');
-	const {currencyRate} = useCurrencyFetching();
+	
 
 	tableInfo.totalCost = price;
 	const table = Object.entries(tableInfo)
@@ -79,7 +79,7 @@ const CatalogPageTable: FC<{
 							<td>{tCatalog(`TABLE.${itemKey}`)}</td>
 							<td>
 								{isValueWithPrefix
-									? formatTableFullPrice(i18n.language, itemValue, currencyRate)
+									? formatTableFullPrice(i18n.language, itemValue)
 									: isCanBeAnyAmount
 										? tCommon('ANY_AMOUNT')
 										: isLandPlot

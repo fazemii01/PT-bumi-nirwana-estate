@@ -15,68 +15,65 @@ import {
   IconMail,
   IconPhone,
   IconImageInPicture,
+  IconBuildingSkyscraper,
+  IconBrandChrome,
 } from "@tabler/icons-react";
 import { useEffect, useRef, useState, useTransition } from "react";
-import { addAgent } from "@/api/agent"; // asumsi endpoint kamu pakai ini
+import { updateDeveloper } from "@/api/developer";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { showToastError, showToastSuccess } from "../toast";
-import { Agent } from "@/types/agent";
+import { DeveloperSchema } from "@/lib/zod";
+import { ZodError } from "zod";
+import { Developer } from "@/types/developer";
 
-const CreateAgent = ({
-  open,
-  setOpen,
+const EditDeveloper = ({
+  edit,
+  setEdit,
+  developer,
 }: {
-  open: boolean;
-  setOpen: (value: boolean) => void;
+  edit: boolean;
+  setEdit: (value: boolean) => void;
+  developer: Developer;
 }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [dragActive, setDragActive] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [form, setForm] = useState<Agent>({
-    id: "",
-    full_name: "",
-    email: "",
-    phone_number: "",
-    avatar_url: "",
-    file_avatar: undefined,
+  const [form, setForm] = useState<Developer>({
+    id: developer.id ?? "",
+    name: developer.name ?? "",
+    website_url: developer.website_url ?? "",
+    logo_url: developer.logo_url ?? "",
+    file_logo: undefined,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [pending, startTransition] = useTransition();
 
   useEffect(() => {
-    return () => {
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-      }
-    };
-  }, [previewUrl]);
+    if (developer?.logo_url) {
+      setPreviewUrl(
+        `${process.env.NEXT_PUBLIC_API_URL}/uploads/developer/${developer.logo_url}`
+      );
+    } else {
+      setPreviewUrl(null);
+    }
+  }, [developer]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const validate = () => {
-    const newErrors: Record<string, string> = {};
-    if (!form.full_name.trim()) newErrors.full_name = "Full name is required";
-    if (!form.email.trim()) newErrors.email = "Email is required";
-    if (!form.phone_number.trim())
-      newErrors.phone_number = "Phone number is required";
-    return newErrors;
-  };
-
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file && file.type.startsWith("image/")) {
-      const url = URL.createObjectURL(file);
       setSelectedFile(file);
-      setPreviewUrl(url);
+      setPreviewUrl(URL.createObjectURL(file));
       setForm((prev) => ({
         ...prev,
-        file_avatar: file,
-        avatar_url: file.name,
+        file_logo: file,
+        logo_url: file.name,
       }));
     }
   };
@@ -102,16 +99,7 @@ const CreateAgent = ({
   };
 
   const handleCancel = () => {
-    setForm({
-      id: "",
-      full_name: "",
-      email: "",
-      phone_number: "",
-      avatar_url: "",
-    });
-    setSelectedFile(null);
-    setPreviewUrl(null);
-    setOpen(false);
+    setEdit(false);
   };
 
   const removeFile = () => {
@@ -119,8 +107,8 @@ const CreateAgent = ({
     setPreviewUrl(null);
     setForm((prev) => ({
       ...prev,
-      file_avatar: undefined,
-      avatar_url: "",
+      file_logo: undefined,
+      logo_url: "",
     }));
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -128,24 +116,27 @@ const CreateAgent = ({
   };
 
   const handleSubmit = () => {
-    const validationErrors = validate();
-    setErrors(validationErrors);
-    if (Object.keys(validationErrors).length > 0) return;
+    const result = DeveloperSchema.safeParse(form);
+
+    if (!result.success) {
+      const zodErrors: Record<string, string> = {};
+      (result.error as ZodError).errors.forEach((err) => {
+        if (err.path.length > 0) {
+          zodErrors[err.path[0]] = err.message;
+        }
+      });
+      setErrors(zodErrors);
+      return;
+    }
+    setErrors({});
 
     startTransition(async () => {
       try {
-        await addAgent({ data: form });
-        setForm({
-          id: "",
-          full_name: "",
-          email: "",
-          phone_number: "",
-          avatar_url: "",
-        });
-        setSelectedFile(null);
-        setPreviewUrl(null);
-        setOpen(false);
-        showToastSuccess("Create agent successfull");
+        await updateDeveloper({ data: form, originalData: developer });
+        // setSelectedFile(null);
+        // setPreviewUrl(null);
+        setEdit(false);
+        showToastSuccess("Update developer successful");
       } catch (err) {
         showToastError(`${err}`);
       }
@@ -153,85 +144,67 @@ const CreateAgent = ({
   };
 
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
+    <AlertDialog open={edit} onOpenChange={setEdit}>
       <AlertDialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
           <AlertDialogHeader className="space-y-3">
             <AlertDialogTitle className="text-2xl font-semibold flex items-center gap-2">
               <div className="p-2 rounded-full">
-                <IconUser className="size-5" />
+                <IconBuildingSkyscraper className="size-5" />
               </div>
-              Create New Agent
+              Update Developer
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Fill in the information below to create a new agent profile.
+              Fill in the information below to update agent profile.
             </AlertDialogDescription>
           </AlertDialogHeader>
 
           <div className="space-y-5">
             {/* Name */}
             <div className="space-y-1.5">
-              <Label htmlFor="full_name" className="flex items-center gap-2">
-                <IconUser className="size-4" />
-                Full Name
+              <Label htmlFor="name" className="flex items-center gap-2">
+                <IconBuildingSkyscraper />
+                Developer Name
               </Label>
               <Input
-                id="full_name"
-                name="full_name"
-                value={form.full_name}
+                id="name"
+                name="name"
+                value={form.name}
                 onChange={handleChange}
-                placeholder="Enter full name"
+                placeholder="Enter developer name"
               />
-              {errors.full_name && (
-                <p className="text-sm text-red-500">{errors.full_name}</p>
+              {errors.name && (
+                <p className="text-sm text-red-500">{errors.name}</p>
               )}
             </div>
 
             {/* Email */}
             <div className="space-y-1.5">
-              <Label htmlFor="email" className="flex items-center gap-2">
-                <IconMail className="size-4" />
-                Email
+              <Label htmlFor="website_url" className="flex items-center gap-2">
+                <IconBrandChrome />
+                Website URL
               </Label>
               <Input
-                id="email"
-                name="email"
-                value={form.email}
+                id="website_url"
+                name="website_url"
+                value={form.website_url}
                 onChange={handleChange}
                 placeholder="agent@example.com"
               />
-              {errors.email && (
-                <p className="text-sm text-red-500">{errors.email}</p>
+              {errors.website_url && (
+                <p className="text-sm text-red-500">{errors.website_url}</p>
               )}
             </div>
 
-            {/* Phone */}
-            <div className="space-y-1.5">
-              <Label htmlFor="phone_number" className="flex items-center gap-2">
-                <IconPhone className="size-4" />
-                Phone Number
-              </Label>
-              <Input
-                id="phone_number"
-                name="phone_number"
-                value={form.phone_number}
-                onChange={handleChange}
-                placeholder="+62 812 3456 7890"
-              />
-              {errors.phone_number && (
-                <p className="text-sm text-red-500">{errors.phone_number}</p>
-              )}
-            </div>
-
-            {/* Avatar */}
+            {/* Logo */}
             <div className="space-y-2">
               <Label className="text-sm font-medium flex items-center gap-2">
-                <IconImageInPicture className="size-4" />
-                Profile Image
+                <IconImageInPicture />
+                Developer Logo
               </Label>
 
               <div
-                className={`relative border-2 border-dashed rounded-lg transition-all duration-200 backdrop-blur-sm ${
+                className={`relative border-2 border-dashed rounded-lg transition-all duration-200 ${
                   dragActive
                     ? "border-blue-400/60 bg-blue-500/20 dark:border-blue-300/60 dark:bg-blue-400/20"
                     : selectedFile
@@ -249,12 +222,11 @@ const CreateAgent = ({
                 >
                   {selectedFile && previewUrl ? (
                     <>
-                      <div className="relative w-32 h-32  overflow-hidden mb-3">
+                      <div className="relative w-32 h-32 verflow-hidden mb-3">
                         <Image
                           src={previewUrl}
                           alt="Preview"
-                          fill // ganti width & height jadi fill
-                          sizes="128px" // optional, biar Next tahu perkiraan ukuran
+                          fill
                           className="object-cover"
                         />
                         <button
@@ -263,20 +235,50 @@ const CreateAgent = ({
                             e.preventDefault();
                             removeFile();
                           }}
-                          className="flex  items-center justify-center bg-red-500 size-6 rounded-full absolute right-0 top-0 text-white hover:bg-red-600 cursor-pointer"
+                          className="absolute -top-2 -right-2 bg-red-500/80 hover:bg-red-600/90 dark:bg-red-400/80 dark:hover:bg-red-500/90 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs transition-colors backdrop-blur-sm"
                         >
-                          x
+                          ×
                         </button>
                       </div>
+
                       <div className="text-center space-y-3">
-                        <p className="text-sm font-medium text-green-700 truncate max-w-48">
+                        <p className="text-sm font-medium text-foreground/90 dark:text-white/90 truncate max-w-48">
                           {selectedFile.name}
                         </p>
-                        <p className="text-xs text-green-600">
+                        <p className="text-xs text-muted-foreground/70 dark:text-white/70">
                           {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
                         </p>
                       </div>
 
+                      <p className="text-xs text-muted-foreground/60 dark:text-white/60">
+                        Click to change image
+                      </p>
+                    </>
+                  ) : previewUrl ? (
+                    <>
+                      <div className="relative w-32 h-32 overflow-hidden mb-3">
+                        <Image
+                          fill
+                          src={previewUrl}
+                          alt="Preview"
+                          className=" object-cover "
+                        />
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            removeFile();
+                          }}
+                          className="absolute -right-0 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs transition-colors"
+                        >
+                          ×
+                        </button>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-sm font-medium text-green-700 truncate max-w-48">
+                          {developer.logo_url}
+                        </p>
+                      </div>
                       <p className="text-xs text-gray-500">
                         Click to change image
                       </p>
@@ -320,8 +322,8 @@ const CreateAgent = ({
                   onChange={handleFileSelect}
                 />
               </div>
-              {errors.avatar && (
-                <p className="text-sm text-red-500">{errors.avatar}</p>
+              {errors.logo && (
+                <p className="text-sm text-red-500">{errors.logo}</p>
               )}
             </div>
           </div>
@@ -343,7 +345,7 @@ const CreateAgent = ({
               disabled={pending}
               className="flex-1 cursor-pointer"
             >
-              {pending ? "Submitting..." : "Create Agent"}
+              {pending ? "Submitting..." : "Update Agent"}
             </Button>
           </AlertDialogFooter>
         </form>
@@ -352,4 +354,4 @@ const CreateAgent = ({
   );
 };
 
-export default CreateAgent;
+export default EditDeveloper;
