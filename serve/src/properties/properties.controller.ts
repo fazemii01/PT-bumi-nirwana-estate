@@ -36,7 +36,7 @@ export class PropertiesController {
     },
   ): Promise<Property> {
     console.log(`api jalan`);
-    
+
     const property_images = files.property_images || [];
     const property_floor_plans = files.property_floor_plans || [];
     return await this.propertiesService.create(
@@ -52,17 +52,18 @@ export class PropertiesController {
     return await this.propertiesService.findAll();
   }
 
-  // @Public()
-  // @Get(':id')
-  // async findOne(@Param('id') id: string) {
-  //   return this.propertiesService.findOne(id);
-  // }
-
   @Public()
-  @Get(':slug')
-  async findOneBySlug(@Param('slug') slug: string) {
-    return this.propertiesService.findOneBySlug(slug);
+  @Get(':id')
+  async findOne(@Param('id') id: string) {
+    console.log(`Finding property with id: ${id}`);
+    return this.propertiesService.findOne(id);
   }
+
+  // @Public()
+  // @Get(':slug')
+  // async findOneBySlug(@Param('slug') slug: string) {
+  //   return this.propertiesService.findOneBySlug(slug);
+  // }
 
   @Patch(':id')
   @Roles('ADMIN')

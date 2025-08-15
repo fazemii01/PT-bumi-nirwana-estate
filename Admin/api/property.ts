@@ -13,6 +13,14 @@ export async function getProperty(): Promise<Property[]> {
   return response.data;
 }
 
+export async function getPropertyById({ id }: { id: string }): Promise<Property | null> {
+  const res = await api({
+    url: `properties/${id}`,
+    method: "GET",
+  });
+  return res.data;
+}
+
 export async function addProperty({ property }: { property: Property }) {
   try {
     const data = new FormData();

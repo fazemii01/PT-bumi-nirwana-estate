@@ -18,7 +18,7 @@ export class AuthsController {
     const { access_token, user } = await this.authsService.signIn(authDto);
     res.cookie('access_token', access_token, {
       httpOnly: true,
-      secure: false, // jika pakai HTTPS true
+      secure: false,
       sameSite: 'lax',
       maxAge: 1000 * 60 * 60 * 24,
     });

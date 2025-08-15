@@ -8,6 +8,7 @@ import ConfirmMessage from "@/components/confirm-message";
 import { showToastError, showToastSuccess } from "../toast";
 import { Property } from "@/types/properties";
 import { deleteProperty } from "@/api/property";
+import Link from "next/link";
 
 const ActionPropertyCell = ({ property }: { property: Property }) => {
   const [open, setOpen] = useState(false);
@@ -33,15 +34,19 @@ const ActionPropertyCell = ({ property }: { property: Property }) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem className="cursor-pointer">
-            <IconInfoCircle />
-            Detail
-          </DropdownMenuItem>
+          <Link href={`/properties/detail/${property.id}`}>
+            <DropdownMenuItem className="cursor-pointer">
+              <IconInfoCircle />
+              Detail
+            </DropdownMenuItem>
+          </Link>
           <DropdownMenuSeparator />
+
           <DropdownMenuItem className="cursor-pointer">
             <IconPencil />
             Edit
           </DropdownMenuItem>
+
           <DropdownMenuItem className="cursor-pointer" onClick={() => setOpen(true)}>
             <IconTrash />
             Delete

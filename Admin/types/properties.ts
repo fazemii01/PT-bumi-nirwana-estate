@@ -1,8 +1,12 @@
+import { Agent } from "@/types/agent";
+import { Developer } from "@/types/developer";
+
 export type Property = {
   id: string;
   developerId: string;
   agentId: string;
   name: string;
+  slug?: string;
   status: PropertyStatus;
   price: string;
   price_unit: PriceUnit;
@@ -22,9 +26,14 @@ export type Property = {
 
   images: ImageProperty[];
   floor_plans: FloorPlan[];
+  created_at?: Date;
+  updated_at?: Date;
+  developer?: Developer;
+  agent?: Agent;
 };
 
 export type ImageProperty = {
+  id?: string;
   image_url?: string;
   caption: string;
   sort_order?: number;
@@ -33,6 +42,7 @@ export type ImageProperty = {
 };
 
 export type FloorPlan = {
+  id?: string;
   name: string;
   file_url?: string;
   sort_order?: number;
@@ -53,8 +63,8 @@ export type Specifications = {
   // Dimensi
   bedrooms?: number;
   bathrooms?: number;
-  landSize?: number; // m²
-  buildingSize?: number; // m²
+  landSize?: number;
+  buildingSize?: number;
   garage?: number;
   floors?: number;
 
@@ -69,13 +79,12 @@ export type Specifications = {
   // Utilitas
   electricity?: string;
   water_source?: string;
-  internet?: string; 
-  security?: string; 
+  internet?: string;
+  security?: string;
 
   // Fasilitas
-  facilities?: string; 
+  facilities?: string;
 };
-
 
 export enum PropertyStatus {
   PRE_LAUNCH = "PRE_LAUNCH",

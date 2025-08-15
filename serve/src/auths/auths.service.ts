@@ -2,7 +2,11 @@ import { User } from './../users/entities/user.entity';
 import { AuthDto } from '@/auths/dto/auth.dto';
 import { CreateUserDto } from '@/users/dto/create-user.dto';
 import { UsersService } from '@/users/users.service';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
@@ -18,18 +22,27 @@ export class AuthsService {
     user: User;
   }> {
     const user = await this.usersService.findOneByEmail(authDto.email);
-    if (
-      !user ||
-      !(await bcrypt.compare(authDto.password_hash, user.password_hash))
-    ) {
-      throw new UnauthorizedException(`Invalid credential`);
+
+    if (!user) {
+      throw new NotFoundException('Email tidak ditemukan');
     }
+
+    const isPasswordValid = await bcrypt.compare(
+      authDto.password_hash,
+      user.password_hash,
+    );
+
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Password salah');
+    }
+
     const payload = {
       sub: user.id,
       full_name: user.full_name,
       email: user.email,
       role: user.role,
     };
+
     return {
       access_token: await this.jwtService.signAsync(payload),
       user: user,
