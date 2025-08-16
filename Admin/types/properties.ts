@@ -63,8 +63,8 @@ export type Specifications = {
   // Dimensi
   bedrooms?: number;
   bathrooms?: number;
-  landSize?: number;
-  buildingSize?: number;
+  family_room?: number;
+  kitchen?: number;
   garage?: number;
   floors?: number;
 

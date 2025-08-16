@@ -23,10 +23,7 @@ export const columns: ColumnDef<Property>[] = [
     accessorKey: "price_unit",
     header: "Price Unit",
   },
-  {
-    accessorKey: "description",
-    header: "Description",
-  },
+
   {
     id: "actions",
     header: "Actions",

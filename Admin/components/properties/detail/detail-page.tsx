@@ -6,11 +6,10 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { MapPin, Edit, Share2, Heart, Home, Ruler, Car, Bed, Bath, Zap, Droplets, Building, User, Calendar, ChevronLeft, ChevronRight, Download, Eye, Phone, Mail, Globe } from "lucide-react";
+import { MapPin, Home, Car, Bed, Bath, Zap, Droplets, Building, User, Calendar, ChevronLeft, ChevronRight, Download, Eye, Phone, Mail, Globe } from "lucide-react";
 import { DialogTitle } from "@radix-ui/react-dialog";
-import { Address, PriceUnit, Property } from "@/types/properties";
+import { Address, PriceUnit, Property, Specifications } from "@/types/properties";
 import { getImageUrl } from "@/service/imageUrl";
-import { string } from "zod";
 
 const PropertyDetailView = ({ property }: { property: Property }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -50,10 +49,6 @@ const PropertyDetailView = ({ property }: { property: Property }) => {
     return `Rp ${formatted}${unitText[unit] || ""}`;
   };
 
-  const formatAddress = (address: Address) => {
-    return `${address.street}, ${address.village}, ${address.district}, ${address.city}, ${address.province} ${address.postal_code}`;
-  };
-
   const nextImage = () => {
     setCurrentImageIndex((prev) => (prev === property.images.length - 1 ? 0 : prev + 1));
   };
@@ -61,6 +56,34 @@ const PropertyDetailView = ({ property }: { property: Property }) => {
   const prevImage = () => {
     setCurrentImageIndex((prev) => (prev === 0 ? property.images.length - 1 : prev - 1));
   };
+
+  let addressObj: Address | undefined;
+
+  if (typeof property.address === "string") {
+    try {
+      addressObj = JSON.parse(property.address);
+    } catch (e) {
+      console.error("Gagal parse address:", e);
+    }
+  } else {
+    addressObj = property.address;
+  }
+
+  const formatAddress = (address: Address) => {
+    return `${addressObj!.street}, ${addressObj!.village}, ${addressObj!.district}, ${addressObj!.city}, ${addressObj!.province} ${addressObj!.postal_code}`;
+  };
+
+  let specObj: Specifications | undefined;
+
+  if (typeof property.specifications === "string") {
+    try {
+      specObj = JSON.parse(property.specifications);
+    } catch (e) {
+      console.error("Gagal parse specifications:", e);
+    }
+  } else {
+    specObj = property.specifications;
+  }
 
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
@@ -74,7 +97,7 @@ const PropertyDetailView = ({ property }: { property: Property }) => {
           <div className="flex items-center gap-2 text-gray-600">
             <MapPin className="w-4 h-4" />
             <span className="text-sm">
-              {property.address?.city}, {property.address?.province}
+              {addressObj?.city}, {addressObj?.province}
             </span>
           </div>
           <div className="text-2xl md:text-3xl font-bold text-green-600">{formatPrice(property.price, property.price_unit)}</div>
@@ -175,7 +198,7 @@ const PropertyDetailView = ({ property }: { property: Property }) => {
                     <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                       <Bed className="w-5 h-5 text-blue-500" />
                       <div>
-                        <div className="font-semibold">{property.specifications?.bedrooms}</div>
+                        <div className="font-semibold">{specObj!.bedrooms ?? "0"}</div>
                         <div className="text-sm text-gray-600">Kamar Tidur</div>
                       </div>
                     </div>
@@ -183,7 +206,15 @@ const PropertyDetailView = ({ property }: { property: Property }) => {
                     <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                       <Bath className="w-5 h-5 text-blue-500" />
                       <div>
-                        <div className="font-semibold">{property.specifications?.bathrooms}</div>
+                        <div className="font-semibold">{specObj!.bathrooms ?? "0"}</div>
+                        <div className="text-sm text-gray-600">Kamar Mandi</div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                      <Bath className="w-5 h-5 text-blue-500" />
+                      <div>
+                        <div className="font-semibold">{specObj!.family_room ?? "0"}</div>
                         <div className="text-sm text-gray-600">Kamar Mandi</div>
                       </div>
                     </div>
@@ -191,25 +222,25 @@ const PropertyDetailView = ({ property }: { property: Property }) => {
                     <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                       <Car className="w-5 h-5 text-blue-500" />
                       <div>
-                        <div className="font-semibold">{property.specifications?.garage}</div>
+                        <div className="font-semibold">{specObj!.garage ?? "0"}</div>
                         <div className="text-sm text-gray-600">Garasi</div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                      <Building className="w-5 h-5 text-blue-500" />
-                      <div>
-                        <div className="font-semibold">{property.specifications?.floors}</div>
-                        <div className="text-sm text-gray-600">Lantai</div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                      <Building className="w-5 h-5 text-blue-500" />
+                      <div>
+                        <div className="font-semibold">{specObj!.floors ?? "0"}</div>
+                        <div className="text-sm text-gray-600">Lantai</div>
+                      </div>
+                    </div>
+
                     <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                       <Zap className="w-5 h-5 text-yellow-500" />
                       <div>
-                        <div className="font-semibold">{property.specifications?.electricity} VA</div>
+                        <div className="font-semibold">{specObj!.electricity ?? "0"} VA</div>
                         <div className="text-sm text-gray-600">Daya Listrik</div>
                       </div>
                     </div>
@@ -217,7 +248,7 @@ const PropertyDetailView = ({ property }: { property: Property }) => {
                     <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                       <Droplets className="w-5 h-5 text-blue-500" />
                       <div>
-                        <div className="font-semibold">{property.specifications?.water_source}</div>
+                        <div className="font-semibold">{specObj!.water_source ?? "0"}</div>
                         <div className="text-sm text-gray-600">Sumber Air</div>
                       </div>
                     </div>
@@ -225,7 +256,7 @@ const PropertyDetailView = ({ property }: { property: Property }) => {
 
                   <div>
                     <h3 className="text-lg font-semibold mb-3">Fasilitas</h3>
-                    <p className="text-gray-700 leading-relaxed">{property.specifications?.facilities}</p>
+                    <p className="text-gray-700 leading-relaxed">{specObj!.facilities ?? "0"}</p>
                   </div>
                 </TabsContent>
 
