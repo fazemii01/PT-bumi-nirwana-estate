@@ -3,8 +3,9 @@ import {
   WebSocketGateway,
   WebSocketServer,
   MessageBody,
+  ConnectedSocket,
 } from '@nestjs/websockets';
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import { ChatService } from './chat.service';
 
 @WebSocketGateway({
@@ -19,8 +20,11 @@ export class ChatGateway {
   constructor(private readonly chatService: ChatService) {}
 
   @SubscribeMessage('message')
-  async handleMessage(@MessageBody() message: string): Promise<void> {
+  async handleMessage(
+    @MessageBody() message: string,
+    @ConnectedSocket() client: Socket,
+  ): Promise<void> {
     const response = await this.chatService.ask(message);
-    this.server.emit('message', response);
+    client.emit('reply', response);
   }
 }

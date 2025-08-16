@@ -82,15 +82,15 @@ RAG is the best approach for your use case because it doesn't require retraining
 - **Embedding Models:**
     - **Sentence-Transformers (Open Source):** High-quality models that can be run locally/on-premise.
     - **OpenAI `text-embedding-ada-002` (API):** Very powerful and easy to use via API.
-- **LLM (Self-Hosted Open Source):**
-    - **Why Self-Host?** Full data privacy, no API costs, and complete control over the model.
-    - **Recommended Models (Small, Fast, Free):**
-        - **`Gemma-2b-it`:** Google's latest small model. Excellent performance for its size.
-        - **`Phi-3-mini-4k-instruct`:** A very capable small model from Microsoft, designed to run on local hardware.
-        - **`Llama-3-8B-Instruct`:** The smallest version of Meta's Llama 3. Very powerful but requires more resources (VRAM) than the others.
-    - **Embedding Models (Self-Hosted Open Source):**
-        - **`all-MiniLM-L6-v2`:** A great starting point. Fast and lightweight.
-        - **`bge-small-en-v1.5`:** A slightly larger but more powerful model for better retrieval quality.
+- **Self-Hosted AI Models (via Ollama):**
+    - **Why Self-Host?** Full data privacy, no API costs, and complete control over the models.
+    - **A. Generative LLM (for Chat):** This model generates answers.
+        - **`gemma:2b` (Recommended):** A fast and lightweight model from Google, well-suited for chat and summarization. A great starting point.
+        - **`phi-3-mini`:** A very capable small model from Microsoft.
+        - **`llama3:8b`:** Meta's powerful model. Requires more resources (VRAM) but offers higher quality responses.
+    - **B. Embedding Model (for Retrieval):** This model converts text to vectors for database search.
+        - **`nomic-embed-text` (Recommended):** A top-performing and efficient embedding model available on Ollama.
+        - **`all-minilm`:** A classic, lightweight embedding model. Fast and requires minimal resources.
 
 ### D. Self-Hosted AI Environment Options
 
