@@ -54,18 +54,10 @@ export class UsersService {
   }
 
   async findOneByEmail(email: string) {
-    try {
-      const user = await this.usersRepositoty.findOneBy({
-        email,
-      });
-      if (!user)
-        throw new NotFoundException(
-          `User dengan email ${email} tidak ditemukan`,
-        );
-      return user;
-    } catch (error) {
-      throw new InternalServerErrorException('Internal server error');
-    }
+    const user = await this.usersRepositoty.findOneBy({
+      email,
+    });
+    return user;
   }
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User | null> {

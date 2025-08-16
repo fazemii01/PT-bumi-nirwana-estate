@@ -1,10 +1,21 @@
-import CreatePropertyForm from "@/components/properties/create-form";
+import { addProperty } from "@/api/property";
+import { Property } from "@/types/properties";
+import { revalidatePath } from "next/cache";
+import PropertyCreateForm from "@/components/properties/create/create-form";
 
 export default function CreatePropertyPage() {
+  const handleSubmit = async (data: Property) => {
+    "use server";
+    const res = await addProperty({ property: data });
+    if (res) {
+      revalidatePath("/properties");
+      return true;
+    }
+  };
+
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Tambah Properti</h1>
-      <CreatePropertyForm />
+      <PropertyCreateForm onSubmit={handleSubmit} />
     </div>
   );
 }
