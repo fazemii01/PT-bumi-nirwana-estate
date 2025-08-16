@@ -20,12 +20,12 @@ const FeedbackForm: FC<{ message?: string; isColumnType?: boolean }> = ({
 	const { t: tCommon } = useTranslation('common');
 	const { t: tCatalog } = useTranslation('catalog');
 	const { basePath, asPath } = useRouter();
-	const WA_NUMBER = '6285852585898';
+	const WA_NUMBER = '6281959948000';
 	const orderWasByLink = `http:localhost:3001${basePath + asPath}`;
 	const messageText = message ? `[${message}]` : 'Без повідомлення';
 	const initFormData = {
 		name: '',
-		phone: '',
+		phone_number: '',
 		message: messageText,
 	};
 	const [formData, setFormData] = useState(initFormData);
@@ -52,12 +52,35 @@ const FeedbackForm: FC<{ message?: string; isColumnType?: boolean }> = ({
 	const handleFormSubmit = async (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 
+		// 1. Post data to the server
+		try {
+			const response = await fetch('http://localhost:5000/feedback', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					name: formData.name,
+					phone_number: formData.phone_number,
+					message: formData.message,
+				}),
+			});
+
+			if (!response.ok) {
+				// Even if the server post fails, we can still proceed with WhatsApp
+				console.error('Failed to submit feedback to server');
+			}
+		} catch (error) {
+			console.error('Error submitting feedback to server:', error);
+		}
+
+		// 2. Open WhatsApp link
 		const botResponseMessage =
 			'Name: ' +
 			formData.name +
 			'\n' +
 			'Phone: ' +
-			formData.phone +
+			formData.phone_number +
 			'\n' +
 			'Message: ' +
 			formData.message +
@@ -65,26 +88,17 @@ const FeedbackForm: FC<{ message?: string; isColumnType?: boolean }> = ({
 			'Order from: ' +
 			orderWasByLink;
 
-		for (const chatID of TG_BOT.CHAT_ID_LIST) {
-			try {
-				// Encode the message to ensure it's a valid URL parameter
-				const encodedMessage = encodeURIComponent(botResponseMessage);
+		try {
+			const encodedMessage = encodeURIComponent(botResponseMessage);
+			const whatsappUrl = `https://wa.me/${WA_NUMBER}?text=${encodedMessage}`;
+			window.open(whatsappUrl, '_blank');
 
-				// Construct the WhatsApp URL
-				const whatsappUrl = `https://wa.me/${WA_NUMBER}?text=${encodedMessage}`;
-
-				// Open the WhatsApp chat in a new tab
-				window.open(whatsappUrl, '_blank');
-
-				// Proceed with success actions
-				setFormData(initFormData);
-				handleSuccessfulOrder();
-				console.log('Opening WhatsApp chat with pre-filled message!');
-			} catch (error) {
-				// This catch block will be less common with window.open but is good for general error handling
-				window.alert(tCommon('THE_REQUEST_COULD_NOT_BE_SENT'));
-				console.error(error);
-			}
+			// Reset form and show success message after attempting both actions
+			setFormData(initFormData);
+			handleSuccessfulOrder();
+		} catch (error) {
+			window.alert(tCommon('THE_REQUEST_COULD_NOT_BE_SENT'));
+			console.error(error);
 		}
 	};
 
@@ -103,14 +117,30 @@ const FeedbackForm: FC<{ message?: string; isColumnType?: boolean }> = ({
 
 
 
-			{message && (
-				<textarea
-					spellCheck="false"
-					name="message"
-					value={formData.message}
+			<InputField label={tCommon('NAME')}>
+				<input
+					type="text"
+					name="name"
+					value={formData.name}
 					onChange={handleInputChange}
+					required
 				/>
-			)}
+			</InputField>
+			<InputField label={tCommon('PHONE_NUMBER')}>
+				<input
+					type="tel"
+					name="phone_number"
+					value={formData.phone_number}
+					onChange={handleInputChange}
+					required
+				/>
+			</InputField>
+			<textarea
+				spellCheck="false"
+				name="message"
+				value={formData.message}
+				onChange={handleInputChange}
+			/>
 			<Button
 				text={tCommon(isSuccessfulOrderAlert ? 'SENT' : 'SEND_A_REQUEST')}>
 				{isSuccessfulOrderAlert && <IconBird />}

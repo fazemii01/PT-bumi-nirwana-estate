@@ -8,7 +8,11 @@
       "static/media/b0a57561b6cb5495-s.p.da1ebef7.woff2",
       "static/media/8ee3a1ba4ed5baee-s.p.be19f591.woff2"
     ],
-    "[project]/app/(admin)/developer/page": [
+    "[project]/app/(admin)/properties/create/page": [
+      "static/media/b0a57561b6cb5495-s.p.da1ebef7.woff2",
+      "static/media/8ee3a1ba4ed5baee-s.p.be19f591.woff2"
+    ],
+    "[project]/app/(admin)/properties/edit/[id]/page": [
       "static/media/b0a57561b6cb5495-s.p.da1ebef7.woff2",
       "static/media/8ee3a1ba4ed5baee-s.p.be19f591.woff2"
     ],

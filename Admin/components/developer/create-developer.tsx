@@ -196,7 +196,7 @@ const CreateDeveloper = ({
             <div className="space-y-2">
               <Label className="text-sm font-medium flex items-center gap-2">
                 <IconImageInPicture />
-                Logo Image
+                Developer Logo
               </Label>
               <div
                 className={`relative border-2 border-dashed rounded-lg transition-all duration-200 backdrop-blur-sm ${

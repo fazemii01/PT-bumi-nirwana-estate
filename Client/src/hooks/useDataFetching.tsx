@@ -16,12 +16,15 @@ const useDataFetching = () => {
     station: {},
     visibility: false,
     description: {},
+    status: '',
+    detail_description: '',
     address: {},
     location: {},
     table: {},
     images: [],
     floor_plans: [],
-    luas: ''
+    luas: '',
+    jenis: {}
   };
 
   const [data, setData] = useState<ICatalogData[]>([initialData]);
@@ -67,6 +70,13 @@ const useDataFetching = () => {
         },
        
         description: property.description || {},
+        jenis: {
+        	en: property.jenis || '',
+        	id: property.jenis || '',
+        },
+        luas: property.luas,
+        detail_description: property.detail_description,
+        status: property.status,
         contractType: (specifications as { contractType?: string }).contractType || '',
         propertyType: (specifications as { propertyType?: string }).propertyType || '',
         realEstateType: (specifications as { realEstateType?: string }).realEstateType || '',
@@ -96,3 +106,4 @@ const useDataFetching = () => {
 };
 
 export default useDataFetching;
+

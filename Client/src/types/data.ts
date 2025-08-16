@@ -29,12 +29,15 @@ export interface ICatalogData extends ICatalogStaticData {
 	visibility: boolean;
 	table: ICatalogTable;
 	description: ITransVersion;
+	jenis: ITransVersion;
+	detail_description: string;
 	location: ITransVersion;
 	address: ITransVersion;
 	station: ITransVersion;
 	images: IImage[];
 	floor_plans: IFloorPlan[];
 	luas : string;
+	status: string;
 }
 
 export interface ITransVersion {

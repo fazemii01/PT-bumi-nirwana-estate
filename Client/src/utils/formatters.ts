@@ -3,6 +3,9 @@ import { CITY_TRANSLATION, OBJECT_INFO_TRANSLATION } from '@utils/translations';
 import type { ITransVersion } from '@t-types/data';
 
 export const formatTranslation = (lang: string, value: ITransVersion) => {
+	if (!value) {
+		return '';
+	}
 	return value[lang as keyof typeof value] || '';
 };
 
@@ -24,4 +27,8 @@ export const formatCatalogTranslation = (value: string): string => {
 		];
 
 	return getTranslationValue ? `OBJECT_INFO.${getTranslationValue}` : '';
+};
+
+export const formatCaptionTranslation = (value: string): string => {
+	return value;
 };
