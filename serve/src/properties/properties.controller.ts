@@ -88,6 +88,19 @@ export class PropertiesController {
       image_url,
     );
   }
+
+  @Delete('property-image/:id')
+  @Roles('ADMIN')
+  async removePropertyImage(@Param('id') id: string) {
+    return this.propertiesService.removeImageProperty(id);
+  }
+
+  @Delete('property-floor-plan/:id')
+  @Roles('ADMIN')
+  async removePropertyFloorPlan(@Param('id') id: string) {
+    return this.propertiesService.removePropertyFloorPlan(id);
+  }
+
   @Patch('property-floor-plan/:id')
   @Roles('ADMIN')
   @UseFileUploadInterceptor('file_url', 'property/property_floor_plans')
