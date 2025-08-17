@@ -41,10 +41,12 @@ const ActionPropertyCell = ({ property }: { property: Property }) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem className="cursor-pointer">
-            <IconInfoCircle />
-            Detail
-          </DropdownMenuItem>
+          <Link href={`/properties/detail/${property.id}`}>
+            <DropdownMenuItem className="cursor-pointer">
+              <IconInfoCircle />
+              Detail
+            </DropdownMenuItem>
+          </Link>
           <DropdownMenuSeparator />
           <Link href={`/properties/edit/${property.id}`}>
             <DropdownMenuItem

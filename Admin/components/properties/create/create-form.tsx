@@ -7,13 +7,14 @@ import { getDeveloper } from "@/api/developer";
 import { Agent } from "@/types/agent";
 import { Developer } from "@/types/developer";
 import { PriceUnit, Property, PropertyStatus } from "@/types/properties";
-import BasicInfoForm from "./basic-info-form";
-import LocationForm from "./location-form";
-import SpecificationsForm from "./specifications-form";
-import MediaForm from "./media-form";
+
 import { Camera, Info, MapPin, Settings } from "lucide-react";
 import { PropertyZod } from "@/lib/zod";
-import { showToastError, showToastSuccess } from "../toast";
+import { showToastError, showToastSuccess } from "@/components/toast";
+import BasicInfoForm from "@/components/properties/create/basic-info-form";
+import LocationForm from "@/components/properties/create/location-form";
+import MediaForm from "@/components/properties/create/media-form";
+import SpecificationsForm from "@/components/properties/create/specifications-form";
 
 const PropertyCreateForm = ({
   onSubmit,

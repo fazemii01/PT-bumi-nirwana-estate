@@ -1,3 +1,6 @@
+import { Agent } from "@/types/agent";
+import { Developer } from "@/types/developer";
+
 export type PropertyImage = {
   id: string;
   caption?: string;
@@ -19,6 +22,7 @@ export type Property = {
   developerId: string;
   agentId: string;
   name: string;
+  slug?: string;
   status: PropertyStatus;
   price: string;
   price_unit: PriceUnit;
@@ -38,6 +42,10 @@ export type Property = {
 
   images: ImageProperty[];
   floor_plans: FloorPlan[];
+  created_at?: Date;
+  updated_at?: Date;
+  developer?: Developer;
+  agent?: Agent;
 };
 
 export type ImageProperty = {
@@ -71,8 +79,8 @@ export type Specifications = {
   // Dimensi
   bedrooms?: number;
   bathrooms?: number;
-  landSize?: number; // m²
-  buildingSize?: number; // m²
+  family_room?: number;
+  kitchen?: number;
   garage?: number;
   floors?: number;
 

@@ -55,14 +55,15 @@ export class PropertiesController {
   @Public()
   @Get(':id')
   async findOne(@Param('id') id: string) {
+    console.log(`Finding property with id: ${id}`);
     return this.propertiesService.findOne(id);
   }
 
-  @Public()
-  @Get(':slug')
-  async findOneBySlug(@Param('slug') slug: string) {
-    return this.propertiesService.findOneBySlug(slug);
-  }
+  // @Public()
+  // @Get(':slug')
+  // async findOneBySlug(@Param('slug') slug: string) {
+  //   return this.propertiesService.findOneBySlug(slug);
+  // }
 
   @Patch(':id')
   @Roles('ADMIN')

@@ -1,7 +1,7 @@
 import { addProperty } from "@/api/property";
-import CreatePropertyForm from "@/components/properties/create-form";
 import { Property } from "@/types/properties";
 import { revalidatePath } from "next/cache";
+import PropertyCreateForm from "@/components/properties/create/create-form";
 
 export default function CreatePropertyPage() {
   const handleSubmit = async (data: Property) => {
@@ -15,7 +15,7 @@ export default function CreatePropertyPage() {
 
   return (
     <div className="p-6">
-      <CreatePropertyForm onSubmit={handleSubmit} />
+      <PropertyCreateForm onSubmit={handleSubmit} />
     </div>
   );
 }

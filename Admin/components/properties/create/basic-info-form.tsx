@@ -1,16 +1,10 @@
 import { PriceUnit, Property, PropertyStatus } from "@/types/properties";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Input } from "../ui/input";
-import { Textarea } from "../ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Building2, DollarSign, FileText, Tag, User } from "lucide-react";
 
 type BasicInfoFormProps = {
@@ -23,15 +17,7 @@ type BasicInfoFormProps = {
   error?: { [key: string]: string };
 };
 
-export default function BasicInfoForm({
-  formData,
-  handleSelectChange,
-  handleInputChange,
-  handleTextAreaChange,
-  developers,
-  agents,
-  error = {},
-}: BasicInfoFormProps) {
+export default function BasicInfoForm({ formData, handleSelectChange, handleInputChange, handleTextAreaChange, developers, agents, error = {} }: BasicInfoFormProps) {
   return (
     <TabsContent value="basic">
       <Card>
@@ -53,12 +39,7 @@ export default function BasicInfoForm({
                 <Label htmlFor="developer" className="text-sm font-medium">
                   Developer
                 </Label>
-                <Select
-                  value={formData.developerId}
-                  onValueChange={(value) =>
-                    handleSelectChange("developerId", value)
-                  }
-                >
+                <Select value={formData.developerId} onValueChange={(value) => handleSelectChange("developerId", value)}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Pilih Developer" />
                   </SelectTrigger>
@@ -70,23 +51,14 @@ export default function BasicInfoForm({
                     ))}
                   </SelectContent>
                 </Select>
-                {error["developerId"] && (
-                  <span className="text-red-500 text-xs">
-                    {error["developerId"]}
-                  </span>
-                )}
+                {error["developerId"] && <span className="text-red-500 text-xs">{error["developerId"]}</span>}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="agent" className="text-sm font-medium">
                   Agent
                 </Label>
-                <Select
-                  value={formData.agentId}
-                  onValueChange={(value) =>
-                    handleSelectChange("agentId", value)
-                  }
-                >
+                <Select value={formData.agentId} onValueChange={(value) => handleSelectChange("agentId", value)}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Pilih Agent" />
                   </SelectTrigger>
@@ -98,11 +70,7 @@ export default function BasicInfoForm({
                     ))}
                   </SelectContent>
                 </Select>
-                {error["agentId"] && (
-                  <span className="text-red-500 text-xs">
-                    {error["agentId"]}
-                  </span>
-                )}
+                {error["agentId"] && <span className="text-red-500 text-xs">{error["agentId"]}</span>}
               </div>
             </div>
           </div>
@@ -118,22 +86,8 @@ export default function BasicInfoForm({
               <Label htmlFor="name" className="text-sm font-medium">
                 Nama Property <span className="text-red-500">*</span>
               </Label>
-              <Input
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                placeholder="Masukkan nama property"
-                className="w-full"
-                required
-                autoComplete="off"
-                autoCorrect="off"
-                autoCapitalize="off"
-                spellCheck={false}
-              />
-              {error["name"] && (
-                <span className="text-red-500 text-xs">{error["name"]}</span>
-              )}
+              <Input id="name" name="name" value={formData.name} onChange={handleInputChange} placeholder="Masukkan nama property" className="w-full" required autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false} />
+              {error["name"] && <span className="text-red-500 text-xs">{error["name"]}</span>}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -141,54 +95,26 @@ export default function BasicInfoForm({
                 <Label htmlFor="status" className="text-sm font-medium">
                   Status
                 </Label>
-                <Select
-                  value={formData.status}
-                  onValueChange={(value) => handleSelectChange("status", value)}
-                >
+                <Select value={formData.status} onValueChange={(value) => handleSelectChange("status", value)}>
                   <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value={PropertyStatus.PRE_LAUNCH}>
-                      Pre Launch
-                    </SelectItem>
-                    <SelectItem value={PropertyStatus.AVAILABLE}>
-                      Available
-                    </SelectItem>
-                    <SelectItem value={PropertyStatus.SOLD_OUT}>
-                      Sold Out
-                    </SelectItem>
-                    <SelectItem value={PropertyStatus.RESERVED}>
-                      Reserved
-                    </SelectItem>
+                    <SelectItem value={PropertyStatus.PRE_LAUNCH}>Pre Launch</SelectItem>
+                    <SelectItem value={PropertyStatus.AVAILABLE}>Available</SelectItem>
+                    <SelectItem value={PropertyStatus.SOLD_OUT}>Sold Out</SelectItem>
+                    <SelectItem value={PropertyStatus.RESERVED}>Reserved</SelectItem>
                   </SelectContent>
                 </Select>
-                {error["status"] && (
-                  <span className="text-red-500 text-xs">
-                    {error["status"]}
-                  </span>
-                )}
+                {error["status"] && <span className="text-red-500 text-xs">{error["status"]}</span>}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="jenis" className="text-sm font-medium">
                   Jenis Property
                 </Label>
-                <Input
-                  id="jenis"
-                  name="jenis"
-                  value={formData.jenis}
-                  onChange={handleInputChange}
-                  placeholder="e.g. Rumah, Apartemen, Ruko"
-                  className="w-full"
-                  autoComplete="off"
-                  autoCorrect="off"
-                  autoCapitalize="off"
-                  spellCheck={false}
-                />
-                {error["jenis"] && (
-                  <span className="text-red-500 text-xs">{error["jenis"]}</span>
-                )}
+                <Input id="jenis" name="jenis" value={formData.jenis} onChange={handleInputChange} placeholder="e.g. Rumah, Apartemen, Ruko" className="w-full" autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false} />
+                {error["jenis"] && <span className="text-red-500 text-xs">{error["jenis"]}</span>}
               </div>
             </div>
           </div>
@@ -219,60 +145,32 @@ export default function BasicInfoForm({
                   autoCapitalize="off"
                   spellCheck={false}
                 />
-                {error["price"] && (
-                  <span className="text-red-500 text-xs">{error["price"]}</span>
-                )}
+                {error["price"] && <span className="text-red-500 text-xs">{error["price"]}</span>}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="price_unit" className="text-sm font-medium">
                   Satuan Harga
                 </Label>
-                <Select
-                  value={formData.price_unit}
-                  onValueChange={(value) =>
-                    handleSelectChange("price_unit", value)
-                  }
-                >
+                <Select value={formData.price_unit} onValueChange={(value) => handleSelectChange("price_unit", value)}>
                   <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value={PriceUnit.TOTAL}>Total</SelectItem>
-                    <SelectItem value={PriceUnit.PER_MONTH}>
-                      Per Bulan
-                    </SelectItem>
+                    <SelectItem value={PriceUnit.PER_MONTH}>Per Bulan</SelectItem>
                     <SelectItem value={PriceUnit.PER_SQM}>Per M²</SelectItem>
                   </SelectContent>
                 </Select>
-                {error["price_unit"] && (
-                  <span className="text-red-500 text-xs">
-                    {error["price_unit"]}
-                  </span>
-                )}
+                {error["price_unit"] && <span className="text-red-500 text-xs">{error["price_unit"]}</span>}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="luas" className="text-sm font-medium">
                   Luas (m²) <span className="text-red-500">*</span>
                 </Label>
-                <Input
-                  id="luas"
-                  name="luas"
-                  type="number"
-                  value={formData.luas}
-                  onChange={handleInputChange}
-                  placeholder="120"
-                  className="w-full"
-                  required
-                  autoComplete="off"
-                  autoCorrect="off"
-                  autoCapitalize="off"
-                  spellCheck={false}
-                />
-                {error["luas"] && (
-                  <span className="text-red-500 text-xs">{error["luas"]}</span>
-                )}
+                <Input id="luas" name="luas" type="number" value={formData.luas} onChange={handleInputChange} placeholder="120" className="w-full" required autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false} />
+                {error["luas"] && <span className="text-red-500 text-xs">{error["luas"]}</span>}
               </div>
             </div>
           </div>
@@ -289,30 +187,13 @@ export default function BasicInfoForm({
                 <Label htmlFor="description" className="text-sm font-medium">
                   Deskripsi Singkat
                 </Label>
-                <Textarea
-                  id="description"
-                  name="description"
-                  value={formData.description}
-                  onChange={handleTextAreaChange}
-                  placeholder="Deskripsi singkat property untuk preview"
-                  rows={3}
-                  className="w-full resize-none"
-                />
-                {error["description"] && (
-                  <span className="text-red-500 text-xs">
-                    {error["description"]}
-                  </span>
-                )}
-                <p className="text-xs text-gray-500">
-                  Maksimal 200 karakter. Akan ditampilkan di preview property.
-                </p>
+                <Textarea id="description" name="description" value={formData.description} onChange={handleTextAreaChange} placeholder="Deskripsi singkat property untuk preview" rows={3} className="w-full resize-none" />
+                {error["description"] && <span className="text-red-500 text-xs">{error["description"]}</span>}
+                <p className="text-xs text-gray-500">Maksimal 200 karakter. Akan ditampilkan di preview property.</p>
               </div>
 
               <div className="space-y-2">
-                <Label
-                  htmlFor="detail_description"
-                  className="text-sm font-medium"
-                >
+                <Label htmlFor="detail_description" className="text-sm font-medium">
                   Deskripsi Detail
                 </Label>
                 <Textarea
@@ -324,14 +205,8 @@ export default function BasicInfoForm({
                   rows={5}
                   className="w-full resize-none"
                 />
-                {error["detail_description"] && (
-                  <span className="text-red-500 text-xs">
-                    {error["detail_description"]}
-                  </span>
-                )}
-                <p className="text-xs text-gray-500">
-                  Deskripsi lengkap untuk halaman detail property.
-                </p>
+                {error["detail_description"] && <span className="text-red-500 text-xs">{error["detail_description"]}</span>}
+                <p className="text-xs text-gray-500">Deskripsi lengkap untuk halaman detail property.</p>
               </div>
             </div>
           </div>

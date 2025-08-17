@@ -10,7 +10,7 @@ import HomePartners from '@modules/pages/home/components/HomePartners';
 import HomeReviews from '@modules/pages/home/components/HomeReviews';
 import HomeTeam from '@modules/pages/home/components/HomeTeam';
 import HomeWhoWeAre from '@modules/pages/home/components/HomeWhoWeAre';
-import Chatbot from '@modules/chatbot/components/Chatbot';
+import Chatbot from '@modules/chatbot/components/index';
 import Grid from '@modules/pages/home/components/Grid/container';
 import Map from '@modules/pages/home/components/MapTiller/Map';
 

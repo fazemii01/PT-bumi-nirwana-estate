@@ -50,6 +50,7 @@
     "@types/dotenv": "^8.2.0",
     "@types/express": "^4.17.20",
     "@types/gtag.js": "^0.0.12",
+    "@types/multer": "^2.0.0",
     "@types/mysql": "^2.15.23",
     "@types/node": "18.11.18",
     "@types/nuka-carousel": "^4.4.6",

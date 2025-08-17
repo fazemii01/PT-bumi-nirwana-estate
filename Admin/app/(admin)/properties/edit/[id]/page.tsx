@@ -8,12 +8,12 @@ import { notFound } from "next/navigation";
 export default async function EditPropertyPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const { id } = params;
+  const { id } = await params;
 
   // 1. Ambil data properti yang akan diedit (nama fungsi diperbaiki)
-  const propertyData = await getPropertyById(id);
+  const propertyData = await getPropertyById({ id });
 
   // Jika data tidak ditemukan, tampilkan halaman 404
   if (!propertyData) {
@@ -22,28 +22,24 @@ export default async function EditPropertyPage({
 
   // 2. Definisikan fungsi untuk handle update (ini adalah Server Action)
   const handleUpdateSubmit = async ({
-    id,
     data,
     originalData,
   }: {
-    id: string;
     data: Property;
     originalData: Property;
   }) => {
     "use server";
-    try {
-      const res = await updateProperty({ id, data, originalData });
-      if (res) {
-        revalidatePath("/properties"); // Refresh data di halaman tabel
-        revalidatePath(`/properties/edit/${id}`); // Refresh halaman ini juga
-        return true;
-      }
-    } catch (error) {
-      // Server action akan melempar error kembali ke client component
-      // yang akan ditangkap oleh blok try-catch di sana.
-      // Kita bisa melempar error spesifik jika perlu.
-      throw new Error("Failed to update property on the server.");
+    const ok = await updateProperty({
+      data,
+      originalData,
+    });
+
+    if (ok) {
+      revalidatePath("/properties");
+      revalidatePath(`/properties/edit/${id}`);
+      return true;
     }
+    return false;
   };
 
   return (

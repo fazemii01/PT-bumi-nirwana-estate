@@ -23,10 +23,7 @@ const MapClient = ({ position }: MapClientProps) => {
       scrollWheelZoom={true}
       style={{ height: '100%', width: '100%' }}
     >
-      <TileLayer
-        attribution='<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>'
-        url={`https://api.maptiler.com/maps/streets-v2/256/{z}/{x}/{y}.png?key=UZq3MGzKrUuo8QWddqqK`}
-      />
+       
       <Marker position={position}>
         <Popup>
           A pretty CSS3 popup. <br /> Easily customizable.
@@ -36,4 +33,4 @@ const MapClient = ({ position }: MapClientProps) => {
   );
 };
 
-export default MapClient;
+export default MapClient;    

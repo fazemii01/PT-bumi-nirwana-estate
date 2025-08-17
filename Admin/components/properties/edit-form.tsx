@@ -7,12 +7,11 @@ import { getDeveloper } from "@/api/developer";
 import { Agent } from "@/types/agent";
 import { Developer } from "@/types/developer";
 import { PriceUnit, Property, PropertyStatus } from "@/types/properties";
-import BasicInfoForm from "./basic-info-form";
-import LocationForm from "./location-form";
-import SpecificationsForm from "./specifications-form";
-import MediaForm from "./media-form";
+import BasicInfoForm from "@/components/properties/create/basic-info-form";
+import LocationForm from "@/components/properties/create/location-form";
+import SpecificationsForm from "@/components/properties/create/specifications-form";
 import { Camera, Info, MapPin, Settings } from "lucide-react";
-import { PropertyZod } from "@/lib/zod";
+import { PropertyZod, UpdatePropertyZod } from "@/lib/zod";
 import { showToastError, showToastSuccess } from "../toast";
 
 type UpdateSubmitHandler = (props: {
@@ -162,7 +161,7 @@ const PropertyEditForm = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const result = PropertyZod.safeParse(formData);
+    const result = UpdatePropertyZod.safeParse(formData);
     if (!result.success) {
       // Logika validasi error tetap sama
       const firstError = result.error.errors[0];
@@ -174,8 +173,6 @@ const PropertyEditForm = ({
         path.includes("coordinates")
       ) {
         tab = "location";
-      } else if (path.includes("images") || path.includes("floor_plans")) {
-        tab = "media";
       } else if (path.includes("specifications")) {
         tab = "specs";
       }

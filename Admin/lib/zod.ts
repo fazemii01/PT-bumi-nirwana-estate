@@ -1,5 +1,34 @@
-import { object, string, number, array, nativeEnum, literal, tuple } from "zod";
+import {
+  object,
+  string,
+  number,
+  array,
+  nativeEnum,
+  literal,
+  tuple,
+  z,
+} from "zod";
 import { PropertyStatus, PriceUnit } from "../types/properties";
+
+const emptyToUndef = z
+  .string()
+  .transform((v) => (v?.trim() === "" ? undefined : v))
+  .optional();
+
+// Lokasi [lng, lat]
+const LocationZod = z.object({
+  type: z.literal("Point"),
+  coordinates: z
+    .tuple([z.number(), z.number()])
+    .refine(
+      ([lng, lat]) =>
+        typeof lng === "number" &&
+        typeof lat === "number" &&
+        !isNaN(lng) &&
+        !isNaN(lat),
+      { message: "Koordinat lokasi wajib diisi" }
+    ),
+});
 
 export const AgentZod = object({
   full_name: string().min(1, "Name is required"),
@@ -102,4 +131,37 @@ export const PropertyZod = object({
 
   images: array(ImagePropertyZod).optional(),
   floor_plans: array(FloorPlanZod),
+});
+
+export const UpdatePropertyZod = z.object({
+  id: z.string().optional(),
+  developerId: z.string().min(1, "Developer wajib diisi"),
+  agentId: z.string().min(1, "Agent wajib diisi"),
+  name: z.string().min(1, "Nama properti wajib diisi"),
+  status: z.nativeEnum(PropertyStatus),
+  price: z.string().min(1, "Harga wajib diisi"),
+  price_unit: z.nativeEnum(PriceUnit),
+
+  // ini optional di edit
+  luas: emptyToUndef,
+  jenis: emptyToUndef,
+  description: emptyToUndef,
+  detail_description: emptyToUndef,
+
+  // kalau kamu ingin lokasi TIDAK wajib di edit:
+  // - opsi A: optional penuh
+  // location: LocationZod.optional(),
+  // - opsi B: tetap wajib (kalau BE mengharuskan selalu ada):
+  location: LocationZod,
+
+  address: AddressZod.optional(),
+  specifications: SpecificationsZod.optional(),
+
+  // EDIT TIDAK MENYENTUH MEDIA → jadikan optional TANPA min()
+  property_images: z.array(z.object({})).optional(),
+  property_floor_plans: z.array(z.object({})).optional(),
+
+  // kamu edit media di halaman detail terpisah → optional
+  images: z.array(ImagePropertyZod).optional(),
+  floor_plans: z.array(FloorPlanZod).optional(),
 });
