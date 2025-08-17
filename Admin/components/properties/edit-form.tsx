@@ -6,12 +6,12 @@ import { getAgent } from "@/api/agent";
 import { getDeveloper } from "@/api/developer";
 import { Agent } from "@/types/agent";
 import { Developer } from "@/types/developer";
-import { PriceUnit, Property, PropertyStatus } from "@/types/properties";
+import { Property } from "@/types/properties";
 import BasicInfoForm from "@/components/properties/create/basic-info-form";
 import LocationForm from "@/components/properties/create/location-form";
 import SpecificationsForm from "@/components/properties/create/specifications-form";
-import { Camera, Info, MapPin, Settings } from "lucide-react";
-import { PropertyZod, UpdatePropertyZod } from "@/lib/zod";
+import { Info, MapPin, Settings } from "lucide-react";
+import { UpdatePropertyZod } from "@/lib/zod";
 import { showToastError, showToastSuccess } from "../toast";
 
 type UpdateSubmitHandler = (props: {
@@ -27,10 +27,39 @@ const PropertyEditForm = ({
   initialData: Property;
   onSubmit: UpdateSubmitHandler;
 }) => {
-  // State untuk data form saat ini
-  const [formData, setFormData] = useState<Property>(initialData);
-  // State untuk menyimpan data original, untuk perbandingan saat update
-  const [originalData, setOriginalData] = useState<Property>(initialData);
+  const safeParsed = React.useMemo(() => {
+    const parsed: Property = { ...initialData };
+
+    if (typeof parsed.address === "string") {
+      try {
+        parsed.address = JSON.parse(parsed.address as unknown as string);
+      } catch {
+        parsed.address = {};
+      }
+    } else {
+      parsed.address = parsed.address ?? {};
+    }
+
+    if (typeof parsed.specifications === "string") {
+      try {
+        parsed.specifications = JSON.parse(
+          parsed.specifications as unknown as string
+        );
+      } catch {
+        parsed.specifications = {};
+      }
+    } else {
+      parsed.specifications = parsed.specifications ?? {};
+    }
+
+    // fallback aman untuk location
+    parsed.location = parsed.location ?? { type: "Point", coordinates: [0, 0] };
+
+    return parsed;
+  }, [initialData]);
+
+  const [formData, setFormData] = useState<Property>(safeParsed);
+  const [originalData, setOriginalData] = useState<Property>(safeParsed);
 
   const [agents, setAgents] = useState<Agent[]>([]);
   const [developers, setDevelopers] = useState<Developer[]>([]);
@@ -39,63 +68,43 @@ const PropertyEditForm = ({
   const [pending, startTransition] = useTransition();
 
   useEffect(() => {
-    console.log("Initial Data Received:", initialData);
-    const parsedData = { ...initialData };
+    setFormData(safeParsed);
+    setOriginalData(safeParsed);
+  }, [safeParsed]);
 
-    if (typeof initialData.address === "string") {
+  useEffect(() => {
+    (async () => {
       try {
-        parsedData.address = JSON.parse(initialData.address);
-      } catch (e) {
-        console.error("Gagal mem-parsing JSON address:", e);
-        parsedData.address = {};
+        const [agentsData, developersData] = await Promise.all([
+          getAgent(),
+          getDeveloper(),
+        ]);
+        setAgents(agentsData);
+        setDevelopers(developersData);
+      } catch {
+        /* optional toast */
       }
-    }
-
-    if (typeof initialData.specifications === "string") {
-      try {
-        parsedData.specifications = JSON.parse(initialData.specifications);
-      } catch (e) {
-        console.error("Gagal mem-parsing JSON specifications:", e);
-        parsedData.specifications = {}; // Set ke objek kosong jika gagal
-      }
-    }
-
-    setFormData(parsedData);
-    setOriginalData(parsedData);
-
-    async function fetchData() {
-      const [agentsData, developersData] = await Promise.all([
-        getAgent(),
-        getDeveloper(),
-      ]);
-      setAgents(agentsData);
-      setDevelopers(developersData);
-    }
-
-    fetchData();
-  }, [initialData]);
+    })();
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    const { name, value, type } = e.target;
+    setFormData(
+      (prev) =>
+        ({
+          ...prev,
+          [name]: type === "number" ? (value as unknown as number) : value,
+        } as Property)
+    );
   };
 
   const handleTextAreaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value } as Property));
   };
 
-  const handleSelectChange = (name: string, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  const handleSelectChange = (name: keyof Property, value: string) => {
+    setFormData((prev) => ({ ...prev, [name]: value } as Property));
   };
 
   const handleLocationChange = (
@@ -104,18 +113,20 @@ const PropertyEditForm = ({
       | { target: { name: string; value: string } }
   ) => {
     const { name, value } = e.target;
-    const numValue = parseFloat(value) || 0;
-    setFormData((prev) => ({
-      ...prev,
-      location: {
-        ...prev.location,
-        type: "Point",
-        coordinates:
-          name === "lng"
-            ? [numValue, prev.location!.coordinates[1]]
-            : [prev.location!.coordinates[0], numValue],
-      },
-    }));
+    const numValue = parseFloat(value);
+
+    setFormData((prev) => {
+      const [prevLng, prevLat] = prev.location?.coordinates ?? [0, 0];
+      const next: [number, number] =
+        name === "lng"
+          ? [isNaN(numValue) ? prevLng : numValue, prevLat]
+          : [prevLng, isNaN(numValue) ? prevLat : numValue];
+
+      return {
+        ...prev,
+        location: { type: "Point", coordinates: next },
+      } as Property;
+    });
   };
 
   const handleAddressChange = (
@@ -124,46 +135,52 @@ const PropertyEditForm = ({
       | { target: { name: string; value: string } }
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      address: {
-        ...prev.address,
-        [name]: value,
-      },
-    }));
+    setFormData(
+      (prev) =>
+        ({
+          ...prev,
+          address: { ...(prev.address as Record<string, any>), [name]: value },
+        } as Property)
+    );
   };
 
   const handleSpecificationChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      specifications: {
-        ...prev.specifications,
-        [name]: e.target.type === "number" ? Number(value) : value,
-      },
-    }));
+    const { name, value, type } = e.target;
+    setFormData(
+      (prev) =>
+        ({
+          ...prev,
+          specifications: {
+            ...(prev.specifications as Record<string, any>),
+            [name]: type === "number" ? Number(value) : value,
+          },
+        } as Property)
+    );
   };
 
   const handleTextAreaSpecificationChange = (
     e: React.ChangeEvent<HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      specifications: {
-        ...prev.specifications,
-        [name]: value,
-      },
-    }));
+    setFormData(
+      (prev) =>
+        ({
+          ...prev,
+          specifications: {
+            ...(prev.specifications as Record<string, any>),
+            [name]: value,
+          },
+        } as Property)
+    );
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
     const result = UpdatePropertyZod.safeParse(formData);
     if (!result.success) {
-      // Logika validasi error tetap sama
       const firstError = result.error.errors[0];
       const path = firstError.path;
       let tab = "basic";
@@ -177,38 +194,35 @@ const PropertyEditForm = ({
         tab = "specs";
       }
       setActiveTab(tab);
-      setError({
-        [path.join(".")]: firstError.message,
-      });
+      setError({ [path.join(".")]: firstError.message });
       return;
     }
     setError({});
 
     startTransition(async () => {
       try {
-        // Panggil fungsi onSubmit dengan parameter yang sesuai untuk update
-        const res = await onSubmit({
+        const ok = await onSubmit({
           id: formData.id,
           data: formData,
-          originalData: originalData,
+          originalData,
         });
 
-        if (res) {
+        if (ok) {
           showToastSuccess("Property updated successfully!");
-          // Setelah berhasil, update originalData agar sesuai dengan data baru
           setOriginalData(formData);
+        } else {
+          showToastError("Failed to update property. Please try again.");
         }
-      } catch (error) {
+      } catch (err) {
         showToastError("Failed to update property. Please try again.");
-        console.error("Error updating property:", error);
+        console.error("Error updating property:", err);
       }
     });
   };
 
   return (
-    <div className=" mx-auto space-y-6">
+    <div className="mx-auto space-y-6">
       <div className="flex items-center justify-between">
-        {/* Ubah Judul */}
         <h1 className="text-3xl font-bold">Edit Property</h1>
       </div>
 
@@ -219,7 +233,6 @@ const PropertyEditForm = ({
             onValueChange={setActiveTab}
             className="space-y-6"
           >
-            {/* TABS TETAP SAMA */}
             <TabsList className="grid grid-cols-3 w-full h-auto">
               <TabsTrigger
                 value="basic"
@@ -243,16 +256,17 @@ const PropertyEditForm = ({
                 <span className="hidden sm:inline">Spesifikasi</span>
               </TabsTrigger>
             </TabsList>
-            {/* KOMPONEN FORM (BasicInfoForm, dll) TETAP SAMA */}
+
             <BasicInfoForm
               formData={formData}
-              handleSelectChange={handleSelectChange}
+              handleSelectChange={handleSelectChange as any}
               handleInputChange={handleInputChange}
               handleTextAreaChange={handleTextAreaChange}
               developers={developers}
               agents={agents}
               error={error}
             />
+
             {activeTab === "location" && (
               <LocationForm
                 formData={formData}
@@ -261,6 +275,7 @@ const PropertyEditForm = ({
                 error={error}
               />
             )}
+
             {activeTab === "specs" && (
               <SpecificationsForm
                 formData={formData}
@@ -279,7 +294,6 @@ const PropertyEditForm = ({
               className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
               disabled={pending}
             >
-              {/* Ubah Teks Tombol */}
               {pending ? "Saving..." : "Save Changes"}
             </Button>
           </div>

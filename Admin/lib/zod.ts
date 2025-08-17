@@ -56,6 +56,8 @@ export const AddressZod = object({
 export const SpecificationsZod = object({
   bedrooms: number().int().min(0).optional(),
   bathrooms: number().int().min(0).optional(),
+  family_room: number().int().min(0).optional(), // disesuaikan dgn tipe & form
+  kitchen: number().int().min(0).optional(),
   landSize: number().min(0).optional(),
   buildingSize: number().min(0).optional(),
   garage: number().int().min(0).optional(),

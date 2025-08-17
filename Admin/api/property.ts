@@ -1,4 +1,3 @@
-"use server";
 import api from "@/service/api";
 import { Property } from "@/types/properties";
 import { AxiosError } from "axios";
@@ -17,10 +16,10 @@ export async function getPropertyById({
   id: string;
 }): Promise<Property | null> {
   const res = await api({
-    url: `properties/${id}`,
+    url: `/properties/${id}`,
     method: "GET",
   });
-  return res.data;
+  return res.data ?? null;
 }
 
 export async function addProperty({ property }: { property: Property }) {
@@ -103,68 +102,74 @@ export async function updateProperty({
   data: Property;
   originalData: Property;
 }) {
-  const formData = new FormData();
+  try {
+    const formData = new FormData();
 
-  if (data.developerId !== originalData.developerId) {
-    formData.append("developerId", data.developerId);
-  }
-  if (data.agentId !== originalData.agentId) {
-    formData.append("agentId", data.agentId);
-  }
-  if (data.name !== originalData.name) {
-    formData.append("name", data.name);
-  }
-  if (data.status !== originalData.status) {
-    formData.append("status", data.status);
-  }
-  if (data.price !== originalData.price) {
-    formData.append("price", data.price);
-  }
+    if (data.developerId !== originalData.developerId) {
+      formData.append("developerId", data.developerId);
+    }
+    if (data.agentId !== originalData.agentId) {
+      formData.append("agentId", data.agentId);
+    }
+    if (data.name !== originalData.name) {
+      formData.append("name", data.name);
+    }
+    if (data.status !== originalData.status) {
+      formData.append("status", data.status);
+    }
+    if (data.price !== originalData.price) {
+      formData.append("price", data.price);
+    }
+    if (data.price_unit !== originalData.price_unit) {
+      formData.append("price_unit", data.price_unit);
+    }
+    if (data.luas !== originalData.luas) {
+      formData.append("luas", data.luas);
+    }
+    if (data.jenis !== originalData.jenis) {
+      formData.append("jenis", data.jenis);
+    }
+    if (data.description !== originalData.description) {
+      formData.append("description", data.description);
+    }
+    if (data.detail_description !== originalData.detail_description) {
+      formData.append("detail_description", data.detail_description);
+    }
+    if (
+      data.location &&
+      JSON.stringify(data.location) !== JSON.stringify(originalData.location)
+    ) {
+      formData.append("location", JSON.stringify(data.location));
+    }
+    if (
+      data.address &&
+      JSON.stringify(data.address) !== JSON.stringify(originalData.address)
+    ) {
+      formData.append("address", JSON.stringify(data.address));
+    }
+    if (
+      data.specifications &&
+      JSON.stringify(data.specifications) !==
+        JSON.stringify(originalData.specifications)
+    ) {
+      formData.append("specifications", JSON.stringify(data.specifications));
+    }
 
-  if (data.price_unit !== originalData.price_unit) {
-    formData.append("price_unit", data.price_unit);
+    await api({
+      url: `/properties/${data.id}`,
+      method: "PATCH",
+      data: formData,
+    });
+    return true;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      throw new Error(
+        error.response?.data?.message ||
+          "Update property failed due to network error."
+      );
+    }
+    throw new Error("An unexpected error occurred during property update.");
   }
-  if (data.luas !== originalData.luas) {
-    formData.append("luas", data.luas);
-  }
-  if (data.jenis !== originalData.jenis) {
-    formData.append("jenis", data.jenis);
-  }
-  if (data.description !== originalData.description) {
-    formData.append("description", data.description);
-  }
-  if (data.detail_description !== originalData.detail_description) {
-    formData.append("detail_description", data.detail_description);
-  }
-  if (
-    data.location &&
-    JSON.stringify(data.location) !== JSON.stringify(originalData.location)
-  ) {
-    formData.append("location", JSON.stringify(data.location));
-  }
-  if (
-    data.address &&
-    JSON.stringify(data.address) !== JSON.stringify(originalData.address)
-  ) {
-    formData.append("address", JSON.stringify(data.address));
-  }
-  if (
-    data.specifications &&
-    JSON.stringify(data.specifications) !==
-      JSON.stringify(originalData.specifications)
-  ) {
-    formData.append("specifications", JSON.stringify(data.specifications));
-  }
-
-  for (const pair of formData.entries()) {
-    console.log(pair[0], pair[1]);
-  }
-  await api({
-    url: `/properties/${data.id}`,
-    method: "PATCH",
-    data: formData,
-  });
-  return true;
 }
 
 export async function deleteProperty(id: string) {
@@ -173,7 +178,6 @@ export async function deleteProperty(id: string) {
       url: `/properties/${id}`,
       method: "DELETE",
     });
-    revalidatePath("/properties");
   } catch (error) {
     if (error instanceof AxiosError) {
       throw new Error(
