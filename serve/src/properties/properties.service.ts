@@ -307,6 +307,14 @@ export class PropertiesService {
     return await this.propertyImageRepository.save(propertyImage);
   }
 
+  async removeImageProperty(id: string) {
+    const propertyImage = await this.propertyImageRepository.findOneBy({ id });
+    if (!propertyImage) throw new NotFoundException('Property image not found');
+
+    this.deleteFileFromUploads('property_images', propertyImage.image_url);
+    await this.propertyImageRepository.remove(propertyImage);
+  }
+
   async updatePropertyFloorPlan(
     id: string,
     updateDto: UpdatePropertyFloorPlansDto,
@@ -328,6 +336,20 @@ export class PropertiesService {
 
     Object.assign(propertyFloorPlan, updateDto);
     return await this.propertyFloorPlanRepository.save(propertyFloorPlan);
+  }
+
+  async removePropertyFloorPlan(id: string) {
+    const propertyFloorPlan = await this.propertyFloorPlanRepository.findOneBy({
+      id,
+    });
+    if (!propertyFloorPlan)
+      throw new NotFoundException('Property floor plan not found');
+
+    this.deleteFileFromUploads(
+      'property_floor_plans',
+      propertyFloorPlan.file_url,
+    );
+    await this.propertyFloorPlanRepository.remove(propertyFloorPlan);
   }
 
   private async deleteFileFromUploads(subFolder: string, filename: string) {
