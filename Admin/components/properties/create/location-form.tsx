@@ -28,16 +28,8 @@ declare global {
 
 type LocationFormProps = {
   formData: Property;
-  handleLocationChange: (
-    e:
-      | React.ChangeEvent<HTMLInputElement>
-      | { target: { name: string; value: string } }
-  ) => void;
-  handleAddressChange: (
-    e:
-      | React.ChangeEvent<HTMLInputElement>
-      | { target: { name: string; value: string } }
-  ) => void;
+  handleLocationChange: (e: React.ChangeEvent<HTMLInputElement> | { target: { name: string; value: string } }) => void;
+  handleAddressChange: (e: React.ChangeEvent<HTMLInputElement> | { target: { name: string; value: string } }) => void;
   error?: { [key: string]: string };
 };
 
@@ -55,19 +47,12 @@ const mockFormData: Property = {
   },
 };
 
-function LocationForm({
-  formData = mockFormData,
-  handleLocationChange = () => {},
-  handleAddressChange = () => {},
-  error = {},
-}: LocationFormProps) {
+function LocationForm({ formData = mockFormData, handleLocationChange = () => {}, handleAddressChange = () => {}, error = {} }: LocationFormProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<any>(null);
   const [marker, setMarker] = useState<any>(null);
   const [isLoadingAddress, setIsLoadingAddress] = useState(false);
-  const [currentLatLng, setCurrentLatLng] = useState<[number, number] | null>(
-    null
-  );
+  const [currentLatLng, setCurrentLatLng] = useState<[number, number] | null>(null);
 
   // Initialize map when component mounts and when tab becomes visible
   useEffect(() => {
@@ -75,8 +60,7 @@ function LocationForm({
       // Load Leaflet dynamically if not already loaded
       if (!window.L) {
         const script = document.createElement("script");
-        script.src =
-          "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js";
+        script.src = "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js";
         script.onload = () => {
           // Small delay to ensure tab is fully rendered
           setTimeout(initializeMap, 100);
@@ -85,8 +69,7 @@ function LocationForm({
 
         const link = document.createElement("link");
         link.rel = "stylesheet";
-        link.href =
-          "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css";
+        link.href = "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css";
         document.head.appendChild(link);
       } else if (!map) {
         // Leaflet is loaded but map not initialized
@@ -109,15 +92,9 @@ function LocationForm({
     // Listen for tab changes
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
-        if (
-          mutation.type === "attributes" &&
-          mutation.attributeName === "data-state"
-        ) {
+        if (mutation.type === "attributes" && mutation.attributeName === "data-state") {
           const target = mutation.target as HTMLElement;
-          if (
-            target.getAttribute("data-state") === "active" &&
-            target.textContent?.includes("Lokasi")
-          ) {
+          if (target.getAttribute("data-state") === "active" && target.textContent?.includes("Lokasi")) {
             handleTabChange();
           }
         }
@@ -196,9 +173,7 @@ function LocationForm({
   const fetchAddress = async (lat: number, lng: number) => {
     setIsLoadingAddress(true);
     try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`
-      );
+      const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`);
       const data = await response.json();
       // console.log("Fetched address data:", data);
 
@@ -207,12 +182,8 @@ function LocationForm({
 
         // Map OpenStreetMap address components to our form fields
         const addressUpdates = {
-          street:
-            address.road || address.house_number
-              ? `${address.house_number || ""} ${address.road || ""}`.trim()
-              : "",
-          village:
-            address.village || address.neighbourhood || address.suburb || "",
+          street: address.road || address.house_number ? `${address.house_number || ""} ${address.road || ""}`.trim() : "",
+          village: address.village || address.neighbourhood || address.suburb || "",
           district: address.county || address.district || "",
           city: address.city || address.town || address.municipality || "",
           province: address.state || address.province || "",
@@ -234,21 +205,13 @@ function LocationForm({
     }
   };
 
-  const handleCoordinateInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleCoordinateInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     handleLocationChange(e);
 
     // Update map marker position
     if (map && marker) {
-      const lat =
-        e.target.name === "lat"
-          ? parseFloat(e.target.value)
-          : formData.location?.coordinates[0];
-      const lng =
-        e.target.name === "lng"
-          ? parseFloat(e.target.value)
-          : formData.location?.coordinates[1];
+      const lat = e.target.name === "lat" ? parseFloat(e.target.value) : formData.location?.coordinates[0];
+      const lng = e.target.name === "lng" ? parseFloat(e.target.value) : formData.location?.coordinates[1];
 
       if (!isNaN(lat!) && !isNaN(lng!)) {
         marker.setLatLng([lat, lng]);
@@ -278,12 +241,7 @@ function LocationForm({
     if (tabContent) {
       const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
-          if (
-            mutation.type === "attributes" &&
-            mutation.attributeName === "data-state" &&
-            (mutation.target as HTMLElement).getAttribute("data-state") ===
-              "active"
-          ) {
+          if (mutation.type === "attributes" && mutation.attributeName === "data-state" && (mutation.target as HTMLElement).getAttribute("data-state") === "active") {
             resizeMapOnTabActive();
           }
         });
@@ -311,9 +269,7 @@ function LocationForm({
         },
         (error) => {
           console.error("Error getting location:", error);
-          alert(
-            "Gagal mendapatkan lokasi. Pastikan GPS aktif dan izinkan akses lokasi."
-          );
+          alert("Gagal mendapatkan lokasi. Pastikan GPS aktif dan izinkan akses lokasi.");
         }
       );
     } else {
@@ -337,35 +293,18 @@ function LocationForm({
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <h4 className="font-semibold">Peta Interaktif</h4>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={getCurrentLocation}
-                  className="flex items-center gap-2"
-                >
+                <Button type="button" variant="outline" size="sm" onClick={getCurrentLocation} className="flex items-center gap-2">
                   <Search className="w-4 h-4" />
                   Lokasi Saya
                 </Button>
               </div>
 
               <div className="relative">
-                <div
-                  ref={mapRef}
-                  className="w-full h-[400px] rounded-lg border border-gray-200 bg-gray-100"
-                  style={{ minHeight: "400px" }}
-                />
-                {isLoadingAddress && (
-                  <div className="absolute top-2 right-2 bg-white px-3 py-2 rounded-lg shadow-lg text-sm">
-                    Mengambil alamat...
-                  </div>
-                )}
+                <div ref={mapRef} className="w-full h-[400px] rounded-lg border border-gray-200 bg-gray-100" style={{ minHeight: "400px" }} />
+                {isLoadingAddress && <div className="absolute top-2 right-2 bg-white px-3 py-2 rounded-lg shadow-lg text-sm">Mengambil alamat...</div>}
               </div>
 
-              <p className="text-sm text-gray-600">
-                Klik pada peta atau seret marker untuk mengatur lokasi. Alamat
-                akan diisi otomatis.
-              </p>
+              <p className="text-sm text-gray-600">Klik pada peta atau seret marker untuk mengatur lokasi. Alamat akan diisi otomatis.</p>
             </div>
 
             {/* Form Section */}
@@ -426,32 +365,14 @@ function LocationForm({
                       autoCapitalize="off"
                       spellCheck={false}
                     />
-                    {error["address.street"] && (
-                      <span className="text-red-500 text-xs">
-                        {error["address.street"]}
-                      </span>
-                    )}
+                    {error["address.street"] && <span className="text-red-500 text-xs">{error["address.street"]}</span>}
                   </div>
 
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <div className="space-y-2">
                       <Label htmlFor="village">Kelurahan</Label>
-                      <Input
-                        id="village"
-                        placeholder="Kelurahan"
-                        name="village"
-                        value={formData.address?.village || ""}
-                        onChange={handleAddressChange}
-                        autoComplete="new-password"
-                        autoCorrect="off"
-                        autoCapitalize="off"
-                        spellCheck={false}
-                      />
-                      {error["address.village"] && (
-                        <span className="text-red-500 text-xs">
-                          {error["address.village"]}
-                        </span>
-                      )}
+                      <Input id="village" placeholder="Kelurahan" name="village" value={formData.address?.village || ""} onChange={handleAddressChange} autoComplete="new-password" autoCorrect="off" autoCapitalize="off" spellCheck={false} />
+                      {error["address.village"] && <span className="text-red-500 text-xs">{error["address.village"]}</span>}
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="district">Kecamatan</Label>
@@ -466,33 +387,15 @@ function LocationForm({
                         autoCapitalize="off"
                         spellCheck={false}
                       />
-                      {error["address.district"] && (
-                        <span className="text-red-500 text-xs">
-                          {error["address.district"]}
-                        </span>
-                      )}
+                      {error["address.district"] && <span className="text-red-500 text-xs">{error["address.district"]}</span>}
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <div className="space-y-2">
                       <Label htmlFor="city">Kota</Label>
-                      <Input
-                        id="city"
-                        placeholder="Kota"
-                        name="city"
-                        value={formData.address?.city || ""}
-                        onChange={handleAddressChange}
-                        autoComplete="new-password"
-                        autoCorrect="off"
-                        autoCapitalize="off"
-                        spellCheck={false}
-                      />
-                      {error["address.city"] && (
-                        <span className="text-red-500 text-xs">
-                          {error["address.city"]}
-                        </span>
-                      )}
+                      <Input id="city" placeholder="Kota" name="city" value={formData.address?.city || ""} onChange={handleAddressChange} autoComplete="new-password" autoCorrect="off" autoCapitalize="off" spellCheck={false} />
+                      {error["address.city"] && <span className="text-red-500 text-xs">{error["address.city"]}</span>}
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="province">Provinsi</Label>
@@ -507,11 +410,7 @@ function LocationForm({
                         autoCapitalize="off"
                         spellCheck={false}
                       />
-                      {error["address.province"] && (
-                        <span className="text-red-500 text-xs">
-                          {error["address.province"]}
-                        </span>
-                      )}
+                      {error["address.province"] && <span className="text-red-500 text-xs">{error["address.province"]}</span>}
                     </div>
                   </div>
 
@@ -528,11 +427,7 @@ function LocationForm({
                       autoCapitalize="off"
                       spellCheck={false}
                     />
-                    {error["address.postal_code"] && (
-                      <span className="text-red-500 text-xs">
-                        {error["address.postal_code"]}
-                      </span>
-                    )}
+                    {error["address.postal_code"] && <span className="text-red-500 text-xs">{error["address.postal_code"]}</span>}
                   </div>
                 </div>
               </div>

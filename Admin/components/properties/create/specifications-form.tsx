@@ -2,7 +2,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsTrigger } from "@/components/ui/tabs";
+import { TabsContent,  } from "@/components/ui/tabs";
 import { Property } from "@/types/properties";
 
 type SpecificationsFormProps = {
