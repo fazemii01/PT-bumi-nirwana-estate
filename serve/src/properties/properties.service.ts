@@ -128,7 +128,7 @@ export class PropertiesService {
           });
           await this.propertyImageRepository.save(images);
         } else {
-          const images = property_images.map((file, index) => {
+          const images = property_images.map((file) => {
             return this.propertyImageRepository.create({
               image_url: file.filename,
               property: saveProperty,
@@ -183,15 +183,35 @@ export class PropertiesService {
     return property;
   }
 
-  async update(id: string, updatePropertyDto: UpdatePropertyDto) {
-    console.log(updatePropertyDto);
-
+  async update(
+    id: string,
+    updatePropertyDto: UpdatePropertyDto,
+    property_images: Express.Multer.File[],
+    property_floor_plans: Express.Multer.File[],
+  ) {
     try {
       const property = await this.propertyRepository.findOne({
         where: { id },
         relations: ['developer', 'agent', 'images', 'floor_plans'],
       });
       if (!property) throw new NotFoundException(`Property not found`);
+
+      if (property_images && property_images.length > 0) {
+        for (const image of property.images) {
+          this.deleteFileFromUploads('property_images', image.image_url);
+        }
+        await this.propertyImageRepository.remove(property.images);
+      }
+
+      if (property_floor_plans && property_floor_plans.length > 0) {
+        for (const floorPlan of property.floor_plans) {
+          this.deleteFileFromUploads(
+            'property_floor_plans',
+            floorPlan.file_url,
+          );
+        }
+        await this.propertyFloorPlanRepository.remove(property.floor_plans);
+      }
 
       Object.assign(property, updatePropertyDto);
 
@@ -224,7 +244,6 @@ export class PropertiesService {
             Array.isArray(parsedLocation.coordinates)
           ) {
             property.location = parsedLocation;
-            console.log(property.location);
           } else {
             throw new Error('Invalid GeoJSON object');
           }
@@ -257,12 +276,59 @@ export class PropertiesService {
         property.developer = developer;
       }
 
+      if (
+        property_images &&
+        property_images.length > 0 &&
+        updatePropertyDto.images
+      ) {
+        const newImages = property_images.map((file, index) => {
+          const metadata = updatePropertyDto.images?.[index] ?? {};
+          return this.propertyImageRepository.create({
+            caption: metadata.caption || '',
+            image_url: file.filename,
+            property: property,
+          });
+        });
+        await this.propertyImageRepository.save(newImages);
+        property.images = newImages;
+      } else {
+        const newImages = property_images.map((file) => {
+          return this.propertyImageRepository.create({
+            image_url: file.filename,
+            property: property,
+          });
+        });
+        await this.propertyImageRepository.save(newImages);
+        property.images = newImages;
+      }
+
+      if (
+        property_floor_plans &&
+        property_floor_plans.length > 0 &&
+        updatePropertyDto.floor_plans
+      ) {
+        const newFloorPlans = property_floor_plans.map((file, index) => {
+          console.log(` floor plan ${index + 1}: ${file.filename}`);
+          const metadata = updatePropertyDto.floor_plans?.[index];
+          return this.propertyFloorPlanRepository.create({
+            name: metadata?.name || `Floor Plan ${index + 1}`,
+            file_url: file.filename,
+            sort_order: metadata?.sort_order || index,
+            property: property,
+          });
+        });
+        await this.propertyFloorPlanRepository.save(newFloorPlans);
+        property.floor_plans = newFloorPlans;
+      }
       return await this.propertyRepository.save(property);
     } catch (error) {
-      throw new InternalServerErrorException('Internal server error', {
-        cause: new Error(),
-        description: `${error}`,
-      });
+      if (
+        error instanceof NotFoundException ||
+        error instanceof BadRequestException ||
+        error instanceof ConflictException
+      ) {
+        throw error;
+      }
     }
   }
 
@@ -288,68 +354,6 @@ export class PropertiesService {
 
     await this.propertyRepository.remove(property);
     return { message: 'Delete successful' };
-  }
-
-  async updatePropertyImages(
-    id: string,
-    updateDto: UpdatePropertyImagesDto,
-    image_url: Express.Multer.File,
-  ): Promise<PropertyImage> {
-    const propertyImage = await this.propertyImageRepository.findOneBy({ id });
-    if (!propertyImage) throw new NotFoundException('Property image not found');
-
-    if (image_url) {
-      this.deleteFileFromUploads('property_images', propertyImage.image_url);
-      propertyImage.image_url = image_url?.filename;
-    }
-
-    Object.assign(propertyImage, updateDto);
-    return await this.propertyImageRepository.save(propertyImage);
-  }
-
-  async removeImageProperty(id: string) {
-    const propertyImage = await this.propertyImageRepository.findOneBy({ id });
-    if (!propertyImage) throw new NotFoundException('Property image not found');
-
-    this.deleteFileFromUploads('property_images', propertyImage.image_url);
-    await this.propertyImageRepository.remove(propertyImage);
-  }
-
-  async updatePropertyFloorPlan(
-    id: string,
-    updateDto: UpdatePropertyFloorPlansDto,
-    file_url: Express.Multer.File,
-  ): Promise<PropertyFloorPlan> {
-    const propertyFloorPlan = await this.propertyFloorPlanRepository.findOneBy({
-      id,
-    });
-    if (!propertyFloorPlan)
-      throw new NotFoundException('Property floor plan not found');
-
-    if (file_url) {
-      this.deleteFileFromUploads(
-        'property_floor_plans',
-        propertyFloorPlan.file_url,
-      );
-      propertyFloorPlan.file_url = file_url?.filename;
-    }
-
-    Object.assign(propertyFloorPlan, updateDto);
-    return await this.propertyFloorPlanRepository.save(propertyFloorPlan);
-  }
-
-  async removePropertyFloorPlan(id: string) {
-    const propertyFloorPlan = await this.propertyFloorPlanRepository.findOneBy({
-      id,
-    });
-    if (!propertyFloorPlan)
-      throw new NotFoundException('Property floor plan not found');
-
-    this.deleteFileFromUploads(
-      'property_floor_plans',
-      propertyFloorPlan.file_url,
-    );
-    await this.propertyFloorPlanRepository.remove(propertyFloorPlan);
   }
 
   private async deleteFileFromUploads(subFolder: string, filename: string) {

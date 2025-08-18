@@ -67,52 +67,23 @@ export class PropertiesController {
 
   @Patch(':id')
   @Roles('ADMIN')
+  @UseMultipleFileUploadInterceptor('property')
   async update(
     @Param('id') id: string,
     @Body() updatePropertyDto: UpdatePropertyDto,
+    @UploadedFiles()
+    files: {
+      property_images?: Express.Multer.File[];
+      property_floor_plans?: Express.Multer.File[];
+    },
   ) {
-    return this.propertiesService.update(id, updatePropertyDto);
-  }
-
-  @Patch('property-image/:id')
-  @Roles('ADMIN')
-  @UseFileUploadInterceptor('image_url', 'property/property_images')
-  async updatePropertyImage(
-    @Param('id') id: string,
-    @Body() updatePropertyImageDto: UpdatePropertyImagesDto,
-    @UploadedFile() image_url: Express.Multer.File,
-  ) {
-    return this.propertiesService.updatePropertyImages(
+    const property_images = files.property_images || [];
+    const property_floor_plans = files.property_floor_plans || [];
+    return this.propertiesService.update(
       id,
-      updatePropertyImageDto,
-      image_url,
-    );
-  }
-
-  @Delete('property-image/:id')
-  @Roles('ADMIN')
-  async removePropertyImage(@Param('id') id: string) {
-    return this.propertiesService.removeImageProperty(id);
-  }
-
-  @Delete('property-floor-plan/:id')
-  @Roles('ADMIN')
-  async removePropertyFloorPlan(@Param('id') id: string) {
-    return this.propertiesService.removePropertyFloorPlan(id);
-  }
-
-  @Patch('property-floor-plan/:id')
-  @Roles('ADMIN')
-  @UseFileUploadInterceptor('file_url', 'property/property_floor_plans')
-  async updateFloorPlan(
-    @Param('id') id: string,
-    @Body() UpdatePropertyFloorPlansDto: UpdatePropertyFloorPlansDto,
-    @UploadedFile() file_url: Express.Multer.File,
-  ) {
-    return this.propertiesService.updatePropertyFloorPlan(
-      id,
-      UpdatePropertyFloorPlansDto,
-      file_url,
+      updatePropertyDto,
+      property_images,
+      property_floor_plans,
     );
   }
 
