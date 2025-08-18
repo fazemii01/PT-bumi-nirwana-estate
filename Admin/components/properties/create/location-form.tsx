@@ -196,7 +196,6 @@ function LocationForm({
   const fetchAddress = async (lat: number, lng: number) => {
     setIsLoadingAddress(true);
     try {
-      console.log("Fetching address for coordinates:", lat, lng);
       const response = await fetch(
         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`
       );

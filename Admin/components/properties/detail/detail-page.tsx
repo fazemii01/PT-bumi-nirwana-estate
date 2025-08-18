@@ -108,7 +108,7 @@ const PropertyDetailView = ({ property }: { property: Property }) => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Images & Details */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Image Gallery */}
+          {/* Image Pro Gallery  */}
           <Card>
             <CardContent className="p-0">
               <div className="relative">
