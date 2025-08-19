@@ -7,7 +7,6 @@ import {
   Param,
   Delete,
   UploadedFiles,
-  UploadedFile,
 } from '@nestjs/common';
 import { PropertiesService } from './properties.service';
 import { CreatePropertyDto } from './dto/create-property.dto';
@@ -16,9 +15,6 @@ import { UseMultipleFileUploadInterceptor } from '@/file/multi-upload.intercepto
 import { Roles } from '@/auths/role.decorator';
 import { Property } from '@/properties/entities/property.entity';
 import { Public } from '@/auths/public.decorator';
-import { UpdatePropertyImagesDto } from '@/properties/dto/update-property-images.dto';
-import { UseFileUploadInterceptor } from '@/file/upload.interceptor';
-import { UpdatePropertyFloorPlansDto } from '@/properties/dto/update-property-floor-plans.dto';
 
 @Controller('properties')
 export class PropertiesController {

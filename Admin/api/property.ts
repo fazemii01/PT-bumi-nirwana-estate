@@ -2,6 +2,7 @@
 import api from "@/service/api";
 import { Property } from "@/types/properties";
 import { AxiosError } from "axios";
+import { revalidatePath } from "next/cache";
 
 export async function getProperty(): Promise<Property[]> {
   const response = await api({
@@ -11,11 +12,7 @@ export async function getProperty(): Promise<Property[]> {
   return response.data;
 }
 
-export async function getPropertyById({
-  id,
-}: {
-  id: string;
-}): Promise<Property | null> {
+export async function getPropertyById({ id }: { id: string }): Promise<Property | null> {
   const res = await api({
     url: `properties/${id}`,
     method: "GET",
@@ -59,10 +56,7 @@ export async function addProperty({ property }: { property: Property }) {
       property.images.forEach((image, index) => {
         data.append(`images[${index}][caption]`, image.caption);
         if (image.sort_order !== undefined) {
-          data.append(
-            `images[${index}][sort_order]`,
-            image.sort_order.toString()
-          );
+          data.append(`images[${index}][sort_order]`, image.sort_order.toString());
         }
       });
     }
@@ -70,10 +64,7 @@ export async function addProperty({ property }: { property: Property }) {
       property.floor_plans.forEach((plan, index) => {
         data.append(`floor_plans[${index}][name]`, plan.name);
         if (plan.sort_order !== undefined) {
-          data.append(
-            `floor_plans[${index}][sort_order]`,
-            plan.sort_order.toString()
-          );
+          data.append(`floor_plans[${index}][sort_order]`, plan.sort_order.toString());
         }
       });
     }
@@ -87,22 +78,13 @@ export async function addProperty({ property }: { property: Property }) {
     return response.status === 201 || response.status === 200;
   } catch (error) {
     if (error instanceof AxiosError) {
-      throw new Error(
-        error.response?.data?.message ||
-          "Create new data failed due to network error."
-      );
+      throw new Error(error.response?.data?.message || "Create new data failed due to network error.");
     }
     throw new Error("An unexpected error occurred during agents.");
   }
 }
 
-export async function updateProperty({
-  data,
-  originalData,
-}: {
-  data: Property;
-  originalData: Property;
-}) {
+export async function updateProperty({ data, originalData }: { data: Property; originalData: Property }) {
   const formData = new FormData();
 
   if (data.developerId !== originalData.developerId) {
@@ -136,23 +118,13 @@ export async function updateProperty({
   if (data.detail_description !== originalData.detail_description) {
     formData.append("detail_description", data.detail_description);
   }
-  if (
-    data.location &&
-    JSON.stringify(data.location) !== JSON.stringify(originalData.location)
-  ) {
+  if (data.location && JSON.stringify(data.location) !== JSON.stringify(originalData.location)) {
     formData.append("location", JSON.stringify(data.location));
   }
-  if (
-    data.address &&
-    JSON.stringify(data.address) !== JSON.stringify(originalData.address)
-  ) {
+  if (data.address && JSON.stringify(data.address) !== JSON.stringify(originalData.address)) {
     formData.append("address", JSON.stringify(data.address));
   }
-  if (
-    data.specifications &&
-    JSON.stringify(data.specifications) !==
-      JSON.stringify(originalData.specifications)
-  ) {
+  if (data.specifications && JSON.stringify(data.specifications) !== JSON.stringify(originalData.specifications)) {
     formData.append("specifications", JSON.stringify(data.specifications));
   }
 
@@ -176,10 +148,7 @@ export async function deleteProperty(id: string) {
     revalidatePath("/properties");
   } catch (error) {
     if (error instanceof AxiosError) {
-      throw new Error(
-        error.response?.data?.message ||
-          "Delete property failed due to network error."
-      );
+      throw new Error(error.response?.data?.message || "Delete property failed due to network error.");
     }
     throw new Error("An unexpected error occurred during property deletion.");
   }

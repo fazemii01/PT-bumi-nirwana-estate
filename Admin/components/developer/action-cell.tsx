@@ -2,31 +2,25 @@
 import { Developer } from "@/types/developer";
 import { useState } from "react";
 import { showToastError, showToastSuccess } from "../toast";
-import { deleteDeveloper } from "@/api/developer";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
 import { IconEdit, IconTrash } from "@tabler/icons-react";
 import ConfirmMessage from "@/components/confirm-message";
 import EditDeveloper from "@/components/developer/edit-developer";
+import { deleteDeveloper } from "@/actions/developer";
 
 const ActionDeveloperCell = ({ developer }: { developer: Developer }) => {
   const [open, setOpen] = useState(false);
   const [edit, setEdit] = useState(false);
   const handleDelete = async (id: string) => {
-    try {
-      await deleteDeveloper({ id });
+    const res = await deleteDeveloper({ id });
+    if (!res.success) {
+      showToastError(res.message || "failed delete developer");
       setOpen(false);
-      showToastSuccess("Delete developer successful");
-    } catch (error) {
-      showToastError(`${error}`);
     }
+    setOpen(false);
+    showToastSuccess(res.message || "Delete developer successful");
   };
   return (
     <>
@@ -39,28 +33,17 @@ const ActionDeveloperCell = ({ developer }: { developer: Developer }) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem
-            className="cursor-pointer"
-            onClick={() => setEdit(true)}
-          >
+          <DropdownMenuItem className="cursor-pointer" onClick={() => setEdit(true)}>
             <IconEdit />
             Edit
           </DropdownMenuItem>
-          <DropdownMenuItem
-            className="cursor-pointer"
-            onClick={() => setOpen(true)}
-          >
+          <DropdownMenuItem className="cursor-pointer" onClick={() => setOpen(true)}>
             <IconTrash />
             Delete
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <ConfirmMessage
-        open={open}
-        setOpen={setOpen}
-        data={developer.id}
-        onConfirm={handleDelete}
-      />
+      <ConfirmMessage open={open} setOpen={setOpen} data={developer.id} onConfirm={handleDelete} />
       <EditDeveloper edit={edit} setEdit={setEdit} developer={developer} />
     </>
   );
