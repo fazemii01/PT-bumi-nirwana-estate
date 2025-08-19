@@ -1,39 +1,18 @@
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  IconUpload,
-  IconUser,
-  IconMail,
-  IconPhone,
-  IconImageInPicture,
-} from "@tabler/icons-react";
+import { IconUpload, IconUser, IconMail, IconPhone, IconImageInPicture } from "@tabler/icons-react";
 import { useEffect, useRef, useState, useTransition } from "react";
-import { addAgent, updateAgent } from "@/api/agent"; // asumsi endpoint kamu pakai ini
+import { updateAgent } from "@/api/agent";
 import { Agent } from "@/types/agent";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { showToastError, showToastSuccess } from "../toast";
 import { AgentZod } from "@/lib/zod";
 import { ZodError } from "zod";
+import { submitUpdateAgent } from "@/actions/agent";
 
-const EditAgent = ({
-  edit,
-  setEdit,
-  agent,
-}: {
-  edit: boolean;
-  setEdit: (value: boolean) => void;
-  agent: Agent;
-}) => {
+const EditAgent = ({ edit, setEdit, agent }: { edit: boolean; setEdit: (value: boolean) => void; agent: Agent }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [dragActive, setDragActive] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -51,9 +30,7 @@ const EditAgent = ({
 
   useEffect(() => {
     if (agent?.avatar_url) {
-      setPreviewUrl(
-        `${process.env.NEXT_PUBLIC_API_URL}/uploads/agent/${agent.avatar_url}`
-      );
+      setPreviewUrl(`${process.env.NEXT_PUBLIC_API_URL}/uploads/agent/${agent.avatar_url}`);
     } else {
       setPreviewUrl(null);
     }
@@ -130,14 +107,14 @@ const EditAgent = ({
     setErrors({});
 
     startTransition(async () => {
-      try {
-        await updateAgent({ data: form, originalData: agent });
-        // setSelectedFile(null);
-        // setPreviewUrl(null);
+      const res = await submitUpdateAgent({ data: form, originalData: agent });
+
+      if (res.success) {
+        showToastSuccess(res.message);
         setEdit(false);
-        showToastSuccess("Update agent successful");
-      } catch (err) {
-        showToastError(`${err}`);
+      } else {
+        showToastError(res.message);
+        setEdit(true);
       }
     });
   };
@@ -153,9 +130,7 @@ const EditAgent = ({
               </div>
               Update Agent
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-600">
-              Fill in the information below to update agent profile.
-            </AlertDialogDescription>
+            <AlertDialogDescription className="text-gray-600">Fill in the information below to update agent profile.</AlertDialogDescription>
           </AlertDialogHeader>
 
           <div className="space-y-5">
@@ -165,16 +140,8 @@ const EditAgent = ({
                 <IconUser className="size-4 text-gray-500" />
                 Full Name
               </Label>
-              <Input
-                id="full_name"
-                name="full_name"
-                value={form.full_name}
-                onChange={handleChange}
-                placeholder="Enter full name"
-              />
-              {errors.full_name && (
-                <p className="text-sm text-red-500">{errors.full_name}</p>
-              )}
+              <Input id="full_name" name="full_name" value={form.full_name} onChange={handleChange} placeholder="Enter full name" />
+              {errors.full_name && <p className="text-sm text-red-500">{errors.full_name}</p>}
             </div>
 
             {/* Email */}
@@ -183,16 +150,8 @@ const EditAgent = ({
                 <IconMail className="size-4 text-gray-500" />
                 Email
               </Label>
-              <Input
-                id="email"
-                name="email"
-                value={form.email}
-                onChange={handleChange}
-                placeholder="agent@example.com"
-              />
-              {errors.email && (
-                <p className="text-sm text-red-500">{errors.email}</p>
-              )}
+              <Input id="email" name="email" value={form.email} onChange={handleChange} placeholder="agent@example.com" />
+              {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
             </div>
 
             {/* Phone */}
@@ -201,16 +160,8 @@ const EditAgent = ({
                 <IconPhone className="size-4 text-gray-500" />
                 Phone Number
               </Label>
-              <Input
-                id="phone_number"
-                name="phone_number"
-                value={form.phone_number}
-                onChange={handleChange}
-                placeholder="+62 812 3456 7890"
-              />
-              {errors.phone_number && (
-                <p className="text-sm text-red-500">{errors.phone_number}</p>
-              )}
+              <Input id="phone_number" name="phone_number" value={form.phone_number} onChange={handleChange} placeholder="+62 812 3456 7890" />
+              {errors.phone_number && <p className="text-sm text-red-500">{errors.phone_number}</p>}
             </div>
 
             {/* Avatar */}
@@ -222,30 +173,18 @@ const EditAgent = ({
 
               <div
                 className={`relative border-2 border-dashed rounded-lg transition-all duration-200 ${
-                  dragActive
-                    ? "border-blue-500 bg-blue-50"
-                    : selectedFile
-                    ? "border-green-400 bg-green-50"
-                    : "border-gray-300 bg-gray-50 hover:border-gray-400"
+                  dragActive ? "border-blue-500 bg-blue-50" : selectedFile ? "border-green-400 bg-green-50" : "border-gray-300 bg-gray-50 hover:border-gray-400"
                 }`}
                 onDragEnter={handleDrag}
                 onDragLeave={handleDrag}
                 onDragOver={handleDrag}
                 onDrop={handleDrop}
               >
-                <label
-                  htmlFor="input-file"
-                  className="flex flex-col items-center justify-center py-8 cursor-pointer"
-                >
+                <label htmlFor="input-file" className="flex flex-col items-center justify-center py-8 cursor-pointer">
                   {selectedFile && previewUrl ? (
                     <>
                       <div className="relative w-32 h-32 verflow-hidden mb-3">
-                        <Image
-                          src={previewUrl}
-                          alt="Preview"
-                          fill
-                          className="object-cover"
-                        />
+                        <Image src={previewUrl} alt="Preview" fill className="object-cover" />
                         <button
                           type="button"
                           onClick={(e) => {
@@ -259,27 +198,16 @@ const EditAgent = ({
                       </div>
 
                       <div className="text-center space-y-3">
-                        <p className="text-sm font-medium text-green-700 truncate max-w-48">
-                          {selectedFile.name}
-                        </p>
-                        <p className="text-xs text-green-600">
-                          {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
-                        </p>
+                        <p className="text-sm font-medium text-green-700 truncate max-w-48">{selectedFile.name}</p>
+                        <p className="text-xs text-green-600">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
                       </div>
 
-                      <p className="text-xs text-gray-500">
-                        Click to change image
-                      </p>
+                      <p className="text-xs text-gray-500">Click to change image</p>
                     </>
                   ) : previewUrl ? (
                     <>
                       <div className="relative w-32 h-32 overflow-hidden mb-3">
-                        <Image
-                          fill
-                          src={previewUrl}
-                          alt="Preview"
-                          className=" object-cover "
-                        />
+                        <Image fill src={previewUrl} alt="Preview" className=" object-cover " />
                         <button
                           type="button"
                           onClick={(e) => {
@@ -292,76 +220,37 @@ const EditAgent = ({
                         </button>
                       </div>
                       <div className="text-center">
-                        <p className="text-sm font-medium text-green-700 truncate max-w-48">
-                          {agent.avatar_url}
-                        </p>
+                        <p className="text-sm font-medium text-green-700 truncate max-w-48">{agent.avatar_url}</p>
                       </div>
-                      <p className="text-xs text-gray-500">
-                        Click to change image
-                      </p>
+                      <p className="text-xs text-gray-500">Click to change image</p>
                     </>
                   ) : (
                     <div className="text-center space-y-2">
-                      <div
-                        className={`p-3 rounded-full w-fit mx-auto transition-colors ${
-                          dragActive ? "bg-blue-100" : "bg-gray-200"
-                        }`}
-                      >
-                        <IconUpload
-                          className={`size-6 ${
-                            dragActive ? "text-blue-600" : "text-gray-500"
-                          }`}
-                        />
+                      <div className={`p-3 rounded-full w-fit mx-auto transition-colors ${dragActive ? "bg-blue-100" : "bg-gray-200"}`}>
+                        <IconUpload className={`size-6 ${dragActive ? "text-blue-600" : "text-gray-500"}`} />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-gray-700">
-                          {dragActive
-                            ? "Drop your image here"
-                            : "Upload profile image"}
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1">
-                          Drag & drop or click to browse
-                        </p>
+                        <p className="text-sm font-medium text-gray-700">{dragActive ? "Drop your image here" : "Upload profile image"}</p>
+                        <p className="text-xs text-gray-500 mt-1">Drag & drop or click to browse</p>
                       </div>
-                      <p className="text-xs text-gray-400">
-                        PNG, JPG, GIF up to 4MB
-                      </p>
+                      <p className="text-xs text-gray-400">PNG, JPG, GIF up to 4MB</p>
                     </div>
                   )}
                 </label>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  id="input-file"
-                  name="file_avatar"
-                  className="hidden"
-                  accept="image/*"
-                  onChange={handleFileSelect}
-                />
+                <input ref={fileInputRef} type="file" id="input-file" name="file_avatar" className="hidden" accept="image/*" onChange={handleFileSelect} />
               </div>
-              {errors.avatar && (
-                <p className="text-sm text-red-500">{errors.avatar}</p>
-              )}
+              {errors.avatar && <p className="text-sm text-red-500">{errors.avatar}</p>}
             </div>
           </div>
 
           <AlertDialogFooter className="pt-6 border-t border-gray-200 gap-3">
-            <AlertDialogCancel
-              disabled={pending}
-              onClick={handleCancel}
-              className="flex-1 cursor-pointer"
-            >
+            <AlertDialogCancel disabled={pending} onClick={handleCancel} className="flex-1 cursor-pointer">
               Cancel
             </AlertDialogCancel>
             {/* <AlertDialogAction onClick={handleSubmit} disabled={pending} className="flex-1 bg-yellow-600 hover:bg-yellow-700 cursor-pointer">
               {pending ? "Submitting..." : "Create Agent"}
             </AlertDialogAction> */}
-            <Button
-              type="button"
-              onClick={handleSubmit}
-              disabled={pending}
-              className="flex-1 bg-yellow-600 hover:bg-yellow-700 cursor-pointer"
-            >
+            <Button type="button" onClick={handleSubmit} disabled={pending} className="flex-1 bg-yellow-600 hover:bg-yellow-700 cursor-pointer">
               {pending ? "Submitting..." : "Update Agent"}
             </Button>
           </AlertDialogFooter>
