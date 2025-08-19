@@ -31,7 +31,7 @@ async function main() {
 
   const embeddings = new OllamaEmbeddings({
     baseUrl: 'http://localhost:4600',
-    model: 'all-minilm:l6-v2',
+    model: 'nomic-embed-text',
   });
 
 
@@ -44,7 +44,7 @@ async function main() {
 
 
   const textSplitter = new RecursiveCharacterTextSplitter({
-    chunkSize: 256,
+    chunkSize: 512,
     chunkOverlap: 50,
   });
   const splits = await textSplitter.splitDocuments(docs);
