@@ -81,7 +81,7 @@ export const SpecificationsZod = object({
 export const ImagePropertyZod = object({
   id: string().optional(),
   image_url: string().url().optional(),
-  caption: string(),
+  caption: string().optional(),
   sort_order: number().int().optional(),
   file: object({}).optional(),
   preview: string().optional(),
@@ -89,7 +89,7 @@ export const ImagePropertyZod = object({
 
 export const FloorPlanZod = object({
   id: string().optional(),
-  name: string().min(1, "Nama denah wajib diisi"),
+  name: string().optional(),
   file_url: string().url().optional(),
   sort_order: number().int().optional(),
   file: object({}).optional(),

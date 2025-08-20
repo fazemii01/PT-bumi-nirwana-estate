@@ -72,13 +72,13 @@ export class PropertiesController {
     @Param('id') id: string,
     @Body() updatePropertyDto: UpdatePropertyDto,
     @UploadedFiles()
-    files: {
+    files?: {
       property_images?: Express.Multer.File[];
       property_floor_plans?: Express.Multer.File[];
     },
   ) {
-    const property_images = files.property_images || [];
-    const property_floor_plans = files.property_floor_plans || [];
+    const property_images = files?.property_images || [];
+    const property_floor_plans = files?.property_floor_plans || [];
     return this.propertiesService.update(
       id,
       updatePropertyDto,
