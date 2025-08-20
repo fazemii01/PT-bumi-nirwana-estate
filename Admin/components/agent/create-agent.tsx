@@ -1,35 +1,15 @@
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  IconUpload,
-  IconUser,
-  IconMail,
-  IconPhone,
-  IconImageInPicture,
-} from "@tabler/icons-react";
+import { IconUpload, IconUser, IconMail, IconPhone, IconImageInPicture } from "@tabler/icons-react";
 import { useEffect, useRef, useState, useTransition } from "react";
-import { addAgent } from "@/api/agent"; // asumsi endpoint kamu pakai ini
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { showToastError, showToastSuccess } from "../toast";
 import { Agent } from "@/types/agent";
+import { submitCreateAgent } from "@/actions/agent";
 
-const CreateAgent = ({
-  open,
-  setOpen,
-}: {
-  open: boolean;
-  setOpen: (value: boolean) => void;
-}) => {
+const CreateAgent = ({ open, setOpen }: { open: boolean; setOpen: (value: boolean) => void }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [dragActive, setDragActive] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -62,8 +42,7 @@ const CreateAgent = ({
     const newErrors: Record<string, string> = {};
     if (!form.full_name.trim()) newErrors.full_name = "Full name is required";
     if (!form.email.trim()) newErrors.email = "Email is required";
-    if (!form.phone_number.trim())
-      newErrors.phone_number = "Phone number is required";
+    if (!form.phone_number.trim()) newErrors.phone_number = "Phone number is required";
     return newErrors;
   };
 
@@ -133,22 +112,22 @@ const CreateAgent = ({
     if (Object.keys(validationErrors).length > 0) return;
 
     startTransition(async () => {
-      try {
-        await addAgent({ data: form });
-        setForm({
-          id: "",
-          full_name: "",
-          email: "",
-          phone_number: "",
-          avatar_url: "",
-        });
-        setSelectedFile(null);
-        setPreviewUrl(null);
-        setOpen(false);
-        showToastSuccess("Create agent successfull");
-      } catch (err) {
-        showToastError(`${err}`);
+      const res = await submitCreateAgent({ data: form });
+      if (!res.success) {
+        showToastError(res.message || "Failed to create agent. Please try again.");
+        return;
       }
+      setForm({
+        id: "",
+        full_name: "",
+        email: "",
+        phone_number: "",
+        avatar_url: "",
+      });
+      setSelectedFile(null);
+      setPreviewUrl(null);
+      setOpen(false);
+      showToastSuccess(res.message || "Agent created successfully!");
     });
   };
 
@@ -163,9 +142,7 @@ const CreateAgent = ({
               </div>
               Create New Agent
             </AlertDialogTitle>
-            <AlertDialogDescription>
-              Fill in the information below to create a new agent profile.
-            </AlertDialogDescription>
+            <AlertDialogDescription>Fill in the information below to create a new agent profile.</AlertDialogDescription>
           </AlertDialogHeader>
 
           <div className="space-y-5">
@@ -175,16 +152,8 @@ const CreateAgent = ({
                 <IconUser className="size-4" />
                 Full Name
               </Label>
-              <Input
-                id="full_name"
-                name="full_name"
-                value={form.full_name}
-                onChange={handleChange}
-                placeholder="Enter full name"
-              />
-              {errors.full_name && (
-                <p className="text-sm text-red-500">{errors.full_name}</p>
-              )}
+              <Input id="full_name" name="full_name" value={form.full_name} onChange={handleChange} placeholder="Enter full name" />
+              {errors.full_name && <p className="text-sm text-red-500">{errors.full_name}</p>}
             </div>
 
             {/* Email */}
@@ -193,16 +162,8 @@ const CreateAgent = ({
                 <IconMail className="size-4" />
                 Email
               </Label>
-              <Input
-                id="email"
-                name="email"
-                value={form.email}
-                onChange={handleChange}
-                placeholder="agent@example.com"
-              />
-              {errors.email && (
-                <p className="text-sm text-red-500">{errors.email}</p>
-              )}
+              <Input id="email" name="email" value={form.email} onChange={handleChange} placeholder="agent@example.com" />
+              {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
             </div>
 
             {/* Phone */}
@@ -211,16 +172,8 @@ const CreateAgent = ({
                 <IconPhone className="size-4" />
                 Phone Number
               </Label>
-              <Input
-                id="phone_number"
-                name="phone_number"
-                value={form.phone_number}
-                onChange={handleChange}
-                placeholder="+62 812 3456 7890"
-              />
-              {errors.phone_number && (
-                <p className="text-sm text-red-500">{errors.phone_number}</p>
-              )}
+              <Input id="phone_number" name="phone_number" value={form.phone_number} onChange={handleChange} placeholder="+62 812 3456 7890" />
+              {errors.phone_number && <p className="text-sm text-red-500">{errors.phone_number}</p>}
             </div>
 
             {/* Avatar */}
@@ -243,10 +196,7 @@ const CreateAgent = ({
                 onDragOver={handleDrag}
                 onDrop={handleDrop}
               >
-                <label
-                  htmlFor="input-file"
-                  className="flex flex-col items-center justify-center py-8 cursor-pointer"
-                >
+                <label htmlFor="input-file" className="flex flex-col items-center justify-center py-8 cursor-pointer">
                   {selectedFile && previewUrl ? (
                     <>
                       <div className="relative w-32 h-32  overflow-hidden mb-3">
@@ -269,80 +219,39 @@ const CreateAgent = ({
                         </button>
                       </div>
                       <div className="text-center space-y-3">
-                        <p className="text-sm font-medium text-green-700 truncate max-w-48">
-                          {selectedFile.name}
-                        </p>
-                        <p className="text-xs text-green-600">
-                          {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
-                        </p>
+                        <p className="text-sm font-medium text-green-700 truncate max-w-48">{selectedFile.name}</p>
+                        <p className="text-xs text-green-600">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
                       </div>
 
-                      <p className="text-xs text-gray-500">
-                        Click to change image
-                      </p>
+                      <p className="text-xs text-gray-500">Click to change image</p>
                     </>
                   ) : (
                     <div className="text-center space-y-2">
-                      <div
-                        className={`p-3 rounded-full w-fit mx-auto transition-colors ${
-                          dragActive ? "bg-blue-100" : "bg-gray-200"
-                        }`}
-                      >
-                        <IconUpload
-                          className={`size-6 ${
-                            dragActive ? "text-blue-600" : "text-gray-500"
-                          }`}
-                        />
+                      <div className={`p-3 rounded-full w-fit mx-auto transition-colors ${dragActive ? "bg-blue-100" : "bg-gray-200"}`}>
+                        <IconUpload className={`size-6 ${dragActive ? "text-blue-600" : "text-gray-500"}`} />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-gray-700">
-                          {dragActive
-                            ? "Drop your image here"
-                            : "Upload profile image"}
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1">
-                          Drag & drop or click to browse
-                        </p>
+                        <p className="text-sm font-medium text-gray-700">{dragActive ? "Drop your image here" : "Upload profile image"}</p>
+                        <p className="text-xs text-gray-500 mt-1">Drag & drop or click to browse</p>
                       </div>
-                      <p className="text-xs text-gray-400">
-                        PNG, JPG, GIF up to 4MB
-                      </p>
+                      <p className="text-xs text-gray-400">PNG, JPG, GIF up to 4MB</p>
                     </div>
                   )}
                 </label>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  id="input-file"
-                  name="file_avatar"
-                  className="hidden"
-                  accept="image/*"
-                  onChange={handleFileSelect}
-                />
+                <input ref={fileInputRef} type="file" id="input-file" name="file_avatar" className="hidden" accept="image/*" onChange={handleFileSelect} />
               </div>
-              {errors.avatar && (
-                <p className="text-sm text-red-500">{errors.avatar}</p>
-              )}
+              {errors.avatar && <p className="text-sm text-red-500">{errors.avatar}</p>}
             </div>
           </div>
 
           <AlertDialogFooter className="pt-6 border-t border-gray-200 gap-3">
-            <AlertDialogCancel
-              disabled={pending}
-              onClick={handleCancel}
-              className="flex-1 cursor-pointer"
-            >
+            <AlertDialogCancel disabled={pending} onClick={handleCancel} className="flex-1 cursor-pointer">
               Cancel
             </AlertDialogCancel>
             {/* <AlertDialogAction onClick={handleSubmit} disabled={pending} className="flex-1 bg-yellow-600 hover:bg-yellow-700 cursor-pointer">
               {pending ? "Submitting..." : "Create Agent"}
             </AlertDialogAction> */}
-            <Button
-              type="button"
-              onClick={handleSubmit}
-              disabled={pending}
-              className="flex-1 cursor-pointer"
-            >
+            <Button type="button" onClick={handleSubmit} disabled={pending} className="flex-1 cursor-pointer">
               {pending ? "Submitting..." : "Create Agent"}
             </Button>
           </AlertDialogFooter>

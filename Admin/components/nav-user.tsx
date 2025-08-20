@@ -71,14 +71,10 @@ export function NavUser({ user }: { user: User }) {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <form action={logout}>
-              <DropdownMenuItem>
-                <IconLogout />
-                <button type="submit" className="cursor-pointer">
-                  Log out
-                </button>
-              </DropdownMenuItem>
-            </form>
+            <DropdownMenuItem className="cursor-pointer" onClick={logout}>
+              <IconLogout />
+              Log out
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>

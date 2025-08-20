@@ -1,0 +1,154 @@
+[DOCUMENT_START]
+id: pro_001
+nama_proyek: The Margojoyo Residence
+lokasi: {
+  desa: Klampokarum,
+  kecamatan: Tekung,
+  kabupaten: Lumajang,
+  provinsi: Jawa Timur,
+  koordinat_maps_url: (placeholder),
+  deskripsi_lokasi: "Lokasi Nol Jalan Raya Kolektor Primer Lumajang - Kunir. 5 Menit dari Alun-Alun Lumajang."
+}
+developer: {
+  nama_utama: PT Bumi Nirwana Estate,
+  nama_legal_proyek: PT. Margojoyo Anugrah Persada,
+  kontak: "081999998000",
+  alamat_kantor: "Jalan Achmad Yani No. 172 Lumajang"
+}
+tipe_properti: [
+  {
+    tipe_id: "SUBSIDI_30_72",
+    nama_tipe: "Rumah Subsidi",
+    luas_bangunan: 30,
+    luas_tanah: 72,
+    harga_jual: 166000000,
+    harga_kelebihan_tanah_per_m2: 1500000,
+    uang_tanda_jadi: 1000000,
+    dp: 1660000,
+    simulasi_angsuran_kpr: [
+      {tenor_tahun: 10, angsuran_per_bulan: 1700000},
+      {tenor_tahun: 15, angsuran_per_bulan: 1299000},
+      {tenor_tahun: 20, angsuran_per_bulan: 1070000}
+    ],
+    spesifikasi: {
+      kamar_tidur: 2,
+      kamar_mandi: 1,
+      carport: "1 Mobil",
+      dapur: "Ada",
+      taman: "Ada",
+      listrik: "900 Watt",
+      sumber_air: "Sumur Bor"
+    },
+    promo_aktif: ["Free AJB/BBN", "Free BPHTB"]
+  },
+  {
+    tipe_id: "RUKO_80_60",
+    nama_tipe: "Ruko (Rumah Toko)",
+    luas_bangunan: 80,
+    luas_tanah: 60,
+    jumlah_lantai: 2,
+    harga_jual: 250000000,
+    uang_tanda_jadi: 5000000,
+    dp: 50000000,
+    simulasi_angsuran_kpr: [
+      {tenor_tahun: 10, angsuran_per_bulan: 2532433},
+      {tenor_tahun: 15, angsuran_per_bulan: 2022344},
+      {tenor_tahun: 20, angsuran_per_bulan: 1798166}
+    ],
+    spesifikasi: (placeholder),
+    promo_aktif: []
+  }
+]
+fasilitas_umum: ["Musholla", "Lahan Ipal (Instalasi Pengolahan Air Limbah)", "Jalan Paving ROW 6-7 Meter"]
+ketersediaan_unit: "Beberapa unit di blok B dan blok C sudah terjual (ditandai X di denah). Silakan hubungi marketing untuk info unit tersedia terbaru."
+syarat_kpr: ["Fotocopy KTP, KK, NPWP", "Foto Suami Istri 3x4", "Surat Nikah/Cerai/Ket. Belum Menikah", "Surat Keterangan Kerja/Instansi", "Slip Gaji & Rekening Koran 3 Bulan Terakhir", "SK Terakhir bagi PNS atau SIUP/TDP bagi Wiraswasta", "Fotocopy SKU bagi Wiraswasta"]
+catatan_tambahan: "Uang Tanda Jadi (UTJ) tidak dapat kembali. Harga belum termasuk biaya administrasi dan biaya realisasi KPR. Harga dapat berubah sewaktu-waktu."
+[DOCUMENT_END]
+
+[DOCUMENT_START]
+id: pro_002
+nama_proyek: Bumi Nirwana Sumberejo
+nama_alternatif: Avenue Park Sumberejo
+lokasi: {
+  desa: Sumberejo,
+  kecamatan: Sukodono,
+  kabupaten: Lumajang,
+  provinsi: Jawa Timur,
+  koordinat_maps_url: (placeholder),
+  deskripsi_lokasi: "Lokasi strategis di Sukodono, dekat dengan pusat kota Lumajang."
+}
+developer: {
+  nama_utama: PT Bumi Nirwana Estate,
+  nama_legal_proyek: PT. Margojoyo Anugrah Persada,
+  kontak: (placeholder),
+  alamat_kantor: (placeholder)
+}
+tipe_properti: [
+  {
+    tipe_id: "SUBSIDI_30_60",
+    nama_tipe: "Rumah Tipe 30/60",
+    luas_bangunan: 30,
+    luas_tanah: 60,
+    harga_jual: 166000000,
+    uang_tanda_jadi: (placeholder, احتمالا 1 Juta),
+    dp: 0,
+    simulasi_angsuran_kpr: [{deskripsi: "Angsuran ringan 1 jutaan per bulan"}],
+    spesifikasi: {
+      kamar_tidur: 2,
+      kamar_mandi: 1,
+      carport: "1 Mobil",
+      ruang_serbaguna: "Ada",
+      jumlah_lantai: 1
+    },
+    promo_aktif: ["Tanpa DP (0%)", "Free Semua Biaya", "Promo khusus untuk gaji UMR"]
+  }
+]
+fasilitas_umum: ["Musholla", "Jalan ROW 6-7 Meter"]
+ketersediaan_unit: "Beberapa unit di blok A, B, dan C sudah terjual (ditandai X di denah). Silakan hubungi marketing untuk info unit tersedia terbaru."
+syarat_kpr: (placeholder, asumsikan sama dengan pro_001)
+catatan_tambahan: "Kesempatan emas untuk milenial memiliki rumah sendiri."
+[DOCUMENT_END]
+
+[DOCUMENT_START]
+id: pro_003
+nama_proyek: The Royal Avenue
+lokasi: {
+  desa: Ditotrunana,
+  kecamatan: Lumajang,
+  kabupaten: Lumajang,
+  provinsi: Jawa Timur,
+  alamat_lengkap: "Jl. Demokrasi, Ditotrunana",
+  deskripsi_lokasi: "Lokasi premium di pusat kota Lumajang."
+}
+developer: {
+  nama_utama: PT Bumi Nirwana Estate,
+  kontak: (placeholder),
+  alamat_kantor: (placeholder)
+}
+tipe_properti: [
+  {
+    tipe_id: "PREMIUM_2LT",
+    nama_tipe: "Rumah Premium 2 Lantai",
+    luas_bangunan: (placeholder),
+    luas_tanah: (placeholder),
+    harga_jual: 300000000,
+    uang_tanda_jadi: (placeholder),
+    dp: (placeholder),
+    simulasi_angsuran_kpr: (placeholder),
+    spesifikasi: {
+      kamar_tidur: 2,
+      kamar_mandi: 2,
+      garasi: "1 Mobil",
+      dapur: 1,
+      living_room: 3,
+      kolam_renang: 1,
+      jumlah_lantai: 2
+    },
+    promo_aktif: ["Free Semua Biaya"]
+  }
+]
+fasilitas_umum: (placeholder)
+ketersediaan_unit: "Unit terbatas, hubungi marketing untuk informasi."
+syarat_kpr: (placeholder, asumsikan sama dengan pro_001)
+catatan_tambahan: "Hunian dengan desain modern dan elegan dilengkapi fasilitas yang lengkap."
+[DOCUMENT_END]

@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateAgentDto } from './dto/create-agent.dto';
 import { UpdateAgentDto } from './dto/update-agent.dto';
 import { Agent } from '@/agents/entities/agent.entity';
@@ -18,6 +23,13 @@ export class AgentsService {
     createAgentDto: CreateAgentDto,
     avatar_url: Express.Multer.File,
   ): Promise<Agent> {
+    const existing = await this.agentRepository.findOneBy({
+      email: createAgentDto.email,
+    });
+    if (existing) {
+      throw new ConflictException('Email already exists');
+    }
+
     const agent = new Agent();
     agent.full_name = createAgentDto.full_name;
     agent.email = createAgentDto.email;
@@ -46,11 +58,20 @@ export class AgentsService {
     updateAgentDto: UpdateAgentDto,
     avatar_url: Express.Multer.File,
   ) {
-    try {
-      const agent = await this.agentRepository.findOneBy({ id });
+    const agent = await this.agentRepository.findOneBy({ id });
     if (!agent) {
       throw new NotFoundException('Agent not found');
     }
+
+    if (updateAgentDto.email && updateAgentDto.email !== agent.email) {
+      const existing = await this.agentRepository.findOneBy({
+        email: updateAgentDto.email,
+      });
+      if (existing) {
+        throw new ConflictException('Email already exists');
+      }
+    }
+
     if (avatar_url) {
       if (agent.avatar_url !== null) {
         const filePath = path.join(
@@ -63,7 +84,7 @@ export class AgentsService {
         try {
           fs.unlinkSync(filePath);
         } catch (fs) {
-          throw new Error(fs);
+          console.error('Failed to delete old avatar:', fs.message);
         }
         agent.avatar_url = avatar_url?.filename;
       } else {
@@ -73,11 +94,6 @@ export class AgentsService {
 
     Object.assign(agent, updateAgentDto);
     return await this.agentRepository.save(agent);
-    } catch (error) {
-      console.log(error);
-      
-    }
-    
   }
 
   async remove(id: string) {

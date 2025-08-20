@@ -2,7 +2,7 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import { Ollama, OllamaEmbeddings } from '@langchain/ollama';
 import { Document } from '@langchain/core/documents';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
-import { createWorker } from 'tesseract.js';
+// import { createWorker } from 'tesseract.js';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { PromptTemplate } from '@langchain/core/prompts';
 import { ChatOllama } from '@langchain/ollama';
@@ -24,7 +24,7 @@ export class ChatService implements OnModuleInit {
   async onModuleInit() {
     this.embeddings = new OllamaEmbeddings({
       baseUrl: 'http://localhost:4600',
-      model: 'all-minilm:l6-v2',
+      model: 'nomic-embed-text',
     });
 
     this.visionModel = new ChatOllama({
@@ -50,7 +50,8 @@ export class ChatService implements OnModuleInit {
 
     const retriever = this.vectorStore.asRetriever();
 
-    const template = `Answer the question based only on the following context:
+    const today = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    const template = `Hari ini ${today}. Jawaban hanya dalam lingkup konteks yang sudah di sediakan
 {context}
 
 Question: {question}`;
