@@ -19,7 +19,7 @@ async function main() {
     console.log('--- Starting data loading process ---');
     const embeddings = new ollama_1.OllamaEmbeddings({
         baseUrl: 'http://localhost:4600',
-        model: 'all-minilm:l6-v2',
+        model: 'nomic-embed-text',
     });
     const docs = await loadDocuments(DATA_SOURCE);
     if (docs.length === 0) {
@@ -28,7 +28,7 @@ async function main() {
     }
     console.log(`Loaded ${docs.length} document(s).`);
     const textSplitter = new text_splitter_1.RecursiveCharacterTextSplitter({
-        chunkSize: 256,
+        chunkSize: 512,
         chunkOverlap: 50,
     });
     const splits = await textSplitter.splitDocuments(docs);

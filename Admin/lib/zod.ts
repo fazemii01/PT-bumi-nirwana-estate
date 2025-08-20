@@ -56,6 +56,8 @@ export const AddressZod = object({
 export const SpecificationsZod = object({
   bedrooms: number().int().min(0).optional(),
   bathrooms: number().int().min(0).optional(),
+  family_room: number().int().min(0).optional(), // disesuaikan dgn tipe & form
+  kitchen: number().int().min(0).optional(),
   landSize: number().min(0).optional(),
   buildingSize: number().min(0).optional(),
   garage: number().int().min(0).optional(),
@@ -79,7 +81,7 @@ export const SpecificationsZod = object({
 export const ImagePropertyZod = object({
   id: string().optional(),
   image_url: string().url().optional(),
-  caption: string(),
+  caption: string().optional(),
   sort_order: number().int().optional(),
   file: object({}).optional(),
   preview: string().optional(),
@@ -87,7 +89,7 @@ export const ImagePropertyZod = object({
 
 export const FloorPlanZod = object({
   id: string().optional(),
-  name: string().min(1, "Nama denah wajib diisi"),
+  name: string().optional(),
   file_url: string().url().optional(),
   sort_order: number().int().optional(),
   file: object({}).optional(),

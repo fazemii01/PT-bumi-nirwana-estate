@@ -21,7 +21,7 @@ let ChatService = class ChatService {
     async onModuleInit() {
         this.embeddings = new ollama_1.OllamaEmbeddings({
             baseUrl: 'http://localhost:4600',
-            model: 'all-minilm:l6-v2',
+            model: 'nomic-embed-text',
         });
         this.visionModel = new ollama_2.ChatOllama({
             baseUrl: 'http://localhost:4600',
@@ -43,7 +43,8 @@ let ChatService = class ChatService {
             model: 'gemma:2b',
         });
         const retriever = this.vectorStore.asRetriever();
-        const template = `Answer the question based only on the following context:
+        const today = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        const template = `Hari ini ${today}. Jawaban hanya dalam lingkup konteks yang sudah di sediakan
 {context}
 
 Question: {question}`;

@@ -96,41 +96,39 @@ export async function addProperty({ property }: { property: Property }): Promise
 
 export async function updateProperty({ data, originalData }: { data: Property; originalData: Property }): Promise<ApiResponse<Property>> {
   try {
+    const newImageFiles = (data.property_images as File[] | undefined)?.filter(Boolean) ?? [];
+    const newFloorFiles = (data.property_floor_plans as File[] | undefined)?.filter(Boolean) ?? [];
+    const hasNewImages = newImageFiles.length > 0;
+    const hasNewFloor = newFloorFiles.length > 0;
+    const hasNewFiles = hasNewImages || hasNewFloor;
+
+    // // FE simpan [lat,lng] → BE minta GeoJSON [lng,lat]
+    const toGeoJson = (loc?: Property["location"]) => {
+      if (!loc?.coordinates) return undefined;
+      const [lng, lat] = loc.coordinates as [number, number];
+      return { type: "Point", coordinates: [lng, lat] as [number, number] };
+    };
     const formData = new FormData();
 
-    if (data.developerId !== originalData.developerId) {
-      formData.append("developerId", data.developerId);
-    }
-    if (data.agentId !== originalData.agentId) {
-      formData.append("agentId", data.agentId);
-    }
-    if (data.name !== originalData.name) {
-      formData.append("name", data.name);
-    }
-    if (data.status !== originalData.status) {
-      formData.append("status", data.status);
-    }
-    if (data.price !== originalData.price) {
-      formData.append("price", data.price);
-    }
+    // hanya append field yang berubah (opsional, boleh kirim semua juga)
+    if (data.developerId !== originalData.developerId && data.developerId) formData.append("developerId", data.developerId);
+    if (data.agentId !== originalData.agentId && data.agentId) formData.append("agentId", data.agentId);
+    if (data.name !== originalData.name) formData.append("name", data.name);
+    if (data.status !== originalData.status) formData.append("status", String(data.status));
+    if (data.price !== originalData.price) formData.append("price", String(data.price));
+    if (data.price_unit !== originalData.price_unit) formData.append("price_unit", String(data.price_unit));
+    if (data.luas !== originalData.luas) formData.append("luas", String(data.luas));
+    if (data.jenis !== originalData.jenis) formData.append("jenis", String(data.jenis));
+    if (data.description !== originalData.description) formData.append("description", data.description ?? "");
+    if (data.detail_description !== originalData.detail_description) formData.append("detail_description", data.detail_description ?? "");
 
-    if (data.price_unit !== originalData.price_unit) {
-      formData.append("price_unit", data.price_unit);
-    }
-    if (data.luas !== originalData.luas) {
-      formData.append("luas", data.luas);
-    }
-    if (data.jenis !== originalData.jenis) {
-      formData.append("jenis", data.jenis);
-    }
-    if (data.description !== originalData.description) {
-      formData.append("description", data.description);
-    }
-    if (data.detail_description !== originalData.detail_description) {
-      formData.append("detail_description", data.detail_description);
-    }
-    if (data.location && JSON.stringify(data.location) !== JSON.stringify(originalData.location)) {
-      formData.append("location", JSON.stringify(data.location));
+    // location/address/specifications
+    {
+      const geo = toGeoJson(data.location);
+      const geoOriginal = toGeoJson(originalData.location);
+      if (JSON.stringify(geo) !== JSON.stringify(geoOriginal) && geo) {
+        formData.append("location", JSON.stringify(geo));
+      }
     }
     if (data.address && JSON.stringify(data.address) !== JSON.stringify(originalData.address)) {
       formData.append("address", JSON.stringify(data.address));
@@ -139,8 +137,23 @@ export async function updateProperty({ data, originalData }: { data: Property; o
       formData.append("specifications", JSON.stringify(data.specifications));
     }
 
-    for (const pair of formData.entries()) {
-      console.log(pair[0], pair[1]);
+    // FILES (gunakan hanya new*Files)
+    if (hasNewImages) {
+      newImageFiles.forEach((file) => formData.append("property_images", file));
+      // Meta sejajar index untuk images (hanya saat ada image files)
+      (data.images ?? []).forEach((img, idx) => {
+        if (img?.caption != null) formData.append(`images[${idx}][caption]`, String(img.caption ?? ""));
+        if (img?.sort_order != null) formData.append(`images[${idx}][sort_order]`, String(img.sort_order));
+      });
+    }
+
+    if (hasNewFloor) {
+      newFloorFiles.forEach((file) => formData.append("property_floor_plans", file));
+      // Meta sejajar index untuk floor plans (hanya saat ada floor files)
+      (data.floor_plans ?? []).forEach((fp, idx) => {
+        formData.append(`floor_plans[${idx}][name]`, fp?.name ?? `Floor Plan ${idx + 1}`);
+        if (fp?.sort_order != null) formData.append(`floor_plans[${idx}][sort_order]`, String(fp.sort_order));
+      });
     }
     const res = await api({
       url: `/properties/${data.id}`,

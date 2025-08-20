@@ -1,0 +1,66 @@
+[file_start: training_data_perumahan_lumajang.txt]
+
+# KATEGORI: INFORMASI UMUM PERUSAHAAN
+[category] Perusahaan
+[question] Apa nama perusahaan Anda?
+[answer] Kami adalah pengembang properti dari PT. Bumi Nirwana Estate dan PT. Margojoyo Anugrah Persada. Kami fokus menyediakan hunian berkualitas di Lumajang, mulai dari rumah subsidi yang terjangkau hingga rumah komersil yang mewah.
+[question] Apa visi perusahaan Anda?
+[answer] Visi kami adalah membantu masyarakat, terutama generasi milenial dan keluarga baru, untuk dapat memiliki rumah impian mereka sendiri dengan menyediakan hunian yang berkualitas, nyaman, strategis, dan terjangkau.
+[question] Di mana saja lokasi proyek perumahan Anda?
+[answer] Proyek kami tersebar di lokasi-lokasi strategis di Lumajang, antara lain di Klampokarum (Kec. Tekung), Sumberejo (Kec. Sukodono), dan di pusat kota di Ditotrunana (Kec. Lumajang).
+
+# KATEGORI: THE MARGOJOYO RESIDENCE (KLAMPOKARUM)
+[category] The Margojoyo Residence
+[question] Di mana lokasi The Margojoyo Residence?
+[answer] The Margojoyo Residence berlokasi di Desa Klampokarum, Kecamatan Tekung, Kabupaten Lumajang. Lokasinya sangat strategis, berada di Nol Jalan dan hanya 5 menit dari Alun-alun Lumajang.
+[question] Berapa harga rumah di The Margojoyo Residence?
+[answer] Harga untuk tipe rumah subsidi (Tipe 30/72) di The Margojoyo Residence adalah Rp 166.000.000. Kami juga menyediakan unit Ruko (Rumah Toko) 2 lantai seharga Rp 250.000.000.
+[question] Berapa angsuran per bulan untuk The Margojoyo Residence?
+[answer] Angsuran untuk rumah subsidi sangat ringan, mulai dari Rp 1.070.000 per bulan untuk tenor 20 tahun. Untuk tenor 15 tahun angsurannya Rp 1.299.000, dan untuk 10 tahun angsurannya Rp 1.700.000.
+[question] Apa saja fasilitas di The Margojoyo Residence?
+[answer] Setiap unit rumah dilengkapi dengan 2 Kamar Tidur, 1 Kamar Mandi, Carport, Taman, dan Dapur. Lingkungan perumahan juga sudah menggunakan jalan paving yang rapi.
+[question] Apa saja promo yang tersedia untuk The Margojoyo Residence?
+[answer] Promo utamanya adalah Anda cukup membayar Uang Tanda Jadi (UTJ) atau booking fee sebesar 1 Juta Rupiah saja. Kami juga memberikan promo gratis biaya AJB/BBN senilai Rp 4.900.000 dan gratis BPHTB senilai Rp 4.300.000.
+[question] Berapa DP atau uang muka untuk The Margojoyo Residence?
+[answer] Untuk tipe subsidi, DP-nya sangat ringan, hanya 1% dari harga jual, yaitu Rp 1.660.000.
+
+# KATEGORI: BUMI NIRWANA SUMBEREJO
+[category] Bumi Nirwana Sumberejo
+[question] Di mana lokasi Perumahan Bumi Nirwana Sumberejo?
+[answer] Bumi Nirwana Sumberejo berlokasi di Desa Sumberejo, Kecamatan Sukodono, Kabupaten Lumajang. Lokasinya strategis dan dekat dengan pusat kota.
+[question] Berapa harga dan angsuran di Bumi Nirwana Sumberejo?
+[answer] Harganya sama dengan rumah subsidi kami yang lain, yaitu Rp 166 Juta. Angsuran per bulannya juga sangat ringan, mulai dari 1 jutaan per bulan.
+[question] Apakah ada promo khusus untuk Bumi Nirwana Sumberejo?
+[answer] Ya, ada promo yang sangat menarik! Yaitu promo TANPA DP atau DP 0%. Anda juga akan mendapatkan promo FREE BIAYA-BIAYA lainnya.
+[question] Siapa target pasar dari perumahan ini?
+[answer] Perumahan ini adalah kesempatan emas bagi Anda yang gajinya masih UMR atau para milenial yang ingin punya rumah sendiri tanpa terbebani DP yang besar.
+[question] Apa saja spesifikasi rumah di Bumi Nirwana Sumberejo?
+[answer] Spesifikasinya adalah Tipe 30/60, 1 lantai, dengan 2 Kamar Tidur, 1 Kamar Mandi, dan Carport untuk mobil.
+
+# KATEGORI: THE ROYAL AVENUE
+[category] The Royal Avenue
+[question] Apa itu The Royal Avenue?
+[answer] The Royal Avenue adalah perumahan komersil premium kami yang menawarkan hunian mewah 2 lantai dengan desain modern dan elegan di pusat kota Lumajang.
+[question] Di mana lokasi The Royal Avenue?
+[answer] Lokasinya sangat premium, yaitu di Jalan Demokrasi, Kelurahan Ditotrunana, Kecamatan Lumajang, Kabupaten Lumajang.
+[question] Berapa harga rumah di The Royal Avenue?
+[answer] Harga satu unit di The Royal Avenue adalah Rp 300 Juta.
+[question] Promo apa yang ditawarkan The Royal Avenue?
+[answer] Kami menawarkan promo sangat spesial yaitu "Free Semua Biaya". Anda tidak perlu khawatir dengan biaya-biaya lain di luar harga rumah.
+[question] Apa saja fasilitas super lengkap di The Royal Avenue?
+[answer] Setiap unit memiliki 2 Kamar Tidur, 2 Kamar Mandi, 1 Garasi Mobil, 1 Dapur, 3 Ruang Keluarga (Living Room), dan yang paling istimewa adalah 1 Kolam Renang pribadi.
+
+# KATEGORI: PROSES DAN PERSYARATAN UMUM
+[category] Proses & Syarat
+[question] Apa itu UTJ? Berapa besarnya?
+[answer] UTJ adalah Uang Tanda Jadi atau booking fee untuk mengamankan unit pilihan Anda. Besarnya bervariasi, untuk rumah subsidi sekitar Rp 750.000 hingga Rp 1.000.000. UTJ tidak dapat dikembalikan jika terjadi pembatalan sepihak dari konsumen.
+[question] Apakah DP bisa kembali jika pengajuan KPR ditolak?
+[answer] Ya, berdasarkan ketentuan kami, jika pengajuan KPR Anda ditolak karena tidak lolos BI Checking, maka DP (Down Payment) dapat dikembalikan.
+[question] Apa saja yang sudah termasuk dalam harga rumah?
+[answer] Harga rumah sudah termasuk IMB/PBG, instalasi listrik 900 Watt (untuk subsidi), dan sumur pasak (sumber air).
+[question] Apa saja persyaratan untuk mengajukan KPR?
+[answer] Persyaratan umum untuk KPR antara lain: Fotokopi KTP, KK, NPWP, Pas Foto, Surat Nikah (jika sudah menikah), Slip Gaji 3 bulan terakhir, dan Surat Keterangan Kerja. Untuk wiraswasta, persyaratannya sedikit berbeda.
+[question] Bank apa saja yang bekerjasama?
+[answer] Kami bekerjasama dengan bank-bank terpercaya seperti Bank Mandiri dan Bank BTN untuk proses KPR Anda.
+
+[file_end]
