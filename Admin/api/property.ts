@@ -1,26 +1,36 @@
 "use server";
 import api from "@/service/api";
+import { ApiResponse } from "@/types/api-response";
 import { Property } from "@/types/properties";
 import { AxiosError } from "axios";
-import { revalidatePath } from "next/cache";
 
-export async function getProperty(): Promise<Property[]> {
-  const response = await api({
-    url: "/properties",
-    method: "GET",
-  });
-  return response.data;
+export async function getProperty(): Promise<ApiResponse<Property[]>> {
+  try {
+    const response = await api({
+      url: "/properties",
+      method: "GET",
+    });
+    return ApiResponse.success(response.data);
+  } catch (error) {
+    if (error instanceof AxiosError) return ApiResponse.failure<Property[]>(error?.response?.data.message || "Failed fetch data property");
+  }
+  return ApiResponse.failure<Property[]>("An unexpected error occurred during property");
 }
 
-export async function getPropertyById({ id }: { id: string }): Promise<Property | null> {
-  const res = await api({
-    url: `properties/${id}`,
-    method: "GET",
-  });
-  return res.data;
+export async function getPropertyById({ id }: { id: string }): Promise<ApiResponse<Property | null>> {
+  try {
+    const res = await api({
+      url: `properties/${id}`,
+      method: "GET",
+    });
+    return ApiResponse.success<Property | null>(res.data);
+  } catch (error) {
+    if (error instanceof AxiosError) return ApiResponse.failure<Property | null>(error?.response?.data.message || "Faile fetch data property by id");
+  }
+  return ApiResponse.failure<Property | null>("An unexpected error occured during property");
 }
 
-export async function addProperty({ property }: { property: Property }) {
+export async function addProperty({ property }: { property: Property }): Promise<ApiResponse<Property>> {
   try {
     const data = new FormData();
     data.append("developerId", property.developerId);
@@ -75,81 +85,86 @@ export async function addProperty({ property }: { property: Property }) {
       data: data,
     });
 
-    return response.status === 201 || response.status === 200;
+    return ApiResponse.success(response.data);
   } catch (error) {
     if (error instanceof AxiosError) {
-      throw new Error(error.response?.data?.message || "Create new data failed due to network error.");
+      return ApiResponse.failure<Property>(error.response?.data?.message || "Create new data failed due to network error.");
     }
-    throw new Error("An unexpected error occurred during agents.");
+    return ApiResponse.failure<Property>("An unexpected error occurred during property");
   }
 }
 
-export async function updateProperty({ data, originalData }: { data: Property; originalData: Property }) {
-  const formData = new FormData();
-
-  if (data.developerId !== originalData.developerId) {
-    formData.append("developerId", data.developerId);
-  }
-  if (data.agentId !== originalData.agentId) {
-    formData.append("agentId", data.agentId);
-  }
-  if (data.name !== originalData.name) {
-    formData.append("name", data.name);
-  }
-  if (data.status !== originalData.status) {
-    formData.append("status", data.status);
-  }
-  if (data.price !== originalData.price) {
-    formData.append("price", data.price);
-  }
-
-  if (data.price_unit !== originalData.price_unit) {
-    formData.append("price_unit", data.price_unit);
-  }
-  if (data.luas !== originalData.luas) {
-    formData.append("luas", data.luas);
-  }
-  if (data.jenis !== originalData.jenis) {
-    formData.append("jenis", data.jenis);
-  }
-  if (data.description !== originalData.description) {
-    formData.append("description", data.description);
-  }
-  if (data.detail_description !== originalData.detail_description) {
-    formData.append("detail_description", data.detail_description);
-  }
-  if (data.location && JSON.stringify(data.location) !== JSON.stringify(originalData.location)) {
-    formData.append("location", JSON.stringify(data.location));
-  }
-  if (data.address && JSON.stringify(data.address) !== JSON.stringify(originalData.address)) {
-    formData.append("address", JSON.stringify(data.address));
-  }
-  if (data.specifications && JSON.stringify(data.specifications) !== JSON.stringify(originalData.specifications)) {
-    formData.append("specifications", JSON.stringify(data.specifications));
-  }
-
-  for (const pair of formData.entries()) {
-    console.log(pair[0], pair[1]);
-  }
-  await api({
-    url: `/properties/${data.id}`,
-    method: "PATCH",
-    data: formData,
-  });
-  return true;
-}
-
-export async function deleteProperty(id: string) {
+export async function updateProperty({ data, originalData }: { data: Property; originalData: Property }): Promise<ApiResponse<Property>> {
   try {
-    await api({
+    const formData = new FormData();
+
+    if (data.developerId !== originalData.developerId) {
+      formData.append("developerId", data.developerId);
+    }
+    if (data.agentId !== originalData.agentId) {
+      formData.append("agentId", data.agentId);
+    }
+    if (data.name !== originalData.name) {
+      formData.append("name", data.name);
+    }
+    if (data.status !== originalData.status) {
+      formData.append("status", data.status);
+    }
+    if (data.price !== originalData.price) {
+      formData.append("price", data.price);
+    }
+
+    if (data.price_unit !== originalData.price_unit) {
+      formData.append("price_unit", data.price_unit);
+    }
+    if (data.luas !== originalData.luas) {
+      formData.append("luas", data.luas);
+    }
+    if (data.jenis !== originalData.jenis) {
+      formData.append("jenis", data.jenis);
+    }
+    if (data.description !== originalData.description) {
+      formData.append("description", data.description);
+    }
+    if (data.detail_description !== originalData.detail_description) {
+      formData.append("detail_description", data.detail_description);
+    }
+    if (data.location && JSON.stringify(data.location) !== JSON.stringify(originalData.location)) {
+      formData.append("location", JSON.stringify(data.location));
+    }
+    if (data.address && JSON.stringify(data.address) !== JSON.stringify(originalData.address)) {
+      formData.append("address", JSON.stringify(data.address));
+    }
+    if (data.specifications && JSON.stringify(data.specifications) !== JSON.stringify(originalData.specifications)) {
+      formData.append("specifications", JSON.stringify(data.specifications));
+    }
+
+    for (const pair of formData.entries()) {
+      console.log(pair[0], pair[1]);
+    }
+    const res = await api({
+      url: `/properties/${data.id}`,
+      method: "PATCH",
+      data: formData,
+    });
+    return ApiResponse.success<Property>(res.data);
+  } catch (error) {
+    if (error instanceof AxiosError) return ApiResponse.failure<Property>(error.response?.data.message || "Create new data failed due to network error");
+  }
+  return ApiResponse.failure<Property>("An unexpected error occurred during property deletion.");
+}
+
+export async function deletePropertyById(id: string): Promise<ApiResponse<Property | null>> {
+  try {
+    const res = await api({
       url: `/properties/${id}`,
       method: "DELETE",
     });
-    revalidatePath("/properties");
+    return ApiResponse.success<Property | null>(res.data);
   } catch (error) {
     if (error instanceof AxiosError) {
-      throw new Error(error.response?.data?.message || "Delete property failed due to network error.");
+      return ApiResponse.failure<Property | null>(error.response?.data?.message || "Delete property failed due to network error.");
     }
-    throw new Error("An unexpected error occurred during property deletion.");
+    return ApiResponse.failure<Property | null>("An unexpected error occurred during property deletion.");
   }
 }
