@@ -3,11 +3,13 @@ import { CreatePropertyImageDto } from '@/properties/dto/create-property-image.d
 import {
   PriceUnit,
   PropertyStatus,
+  PropertyType,
 } from '@/properties/entities/property.entity';
 import { Transform, Type } from 'class-transformer';
 import {
   IsArray,
   IsEnum,
+  IsNumber,
   IsObject,
   IsOptional,
   IsString,
@@ -27,24 +29,28 @@ export class CreatePropertyDto {
   @IsString()
   name: string;
 
+  @IsEnum(PropertyType)
+  type: PropertyType;
+
   @IsEnum(PropertyStatus)
   status: PropertyStatus;
 
-  price: string;
+  @IsNumber()
+  price: number;
 
   @IsEnum(PriceUnit)
   price_unit: PriceUnit;
 
-  @IsString()
-  luas: string;
-  
-  @IsString()
-  jenis: string;
+  @IsNumber()
+  land_size: number;
+
+  @IsNumber()
+  building_size: number;
 
   @IsOptional()
   @IsString()
   description: string;
-  
+
   @IsOptional()
   @IsString()
   detail_description: string;

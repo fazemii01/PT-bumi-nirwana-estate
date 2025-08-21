@@ -1,5 +1,6 @@
 import { Agent } from '@/agents/entities/agent.entity';
 import { Developer } from '@/developers/entities/developer.entity';
+import { LoanSimulation } from '@/loan_simulations/entities/loan_simulation.entity';
 import { PropertyFloorPlan } from '@/properties/entities/property-floor-plan.entity';
 import { PropertyImage } from '@/properties/entities/property-image.entity';
 
@@ -27,6 +28,13 @@ export enum PriceUnit {
   PER_SQM = 'PER_SQM',
 }
 
+export enum PropertyType {
+  HOUSE = 'HOUSE',
+  APARTMENT = 'APARTMENT',
+  RUKO = 'RUKO',
+  KAVLING = 'KAVLING',
+}
+
 @Entity('properties')
 export class Property {
   @PrimaryGeneratedColumn('uuid')
@@ -35,7 +43,7 @@ export class Property {
   @ManyToOne(() => Developer, (developer) => developer.property, {
     nullable: true,
     onDelete: 'SET NULL',
-    onUpdate:'CASCADE'
+    onUpdate: 'CASCADE',
   })
   @JoinColumn({ name: 'developerId' })
   developer: Developer;
@@ -43,7 +51,7 @@ export class Property {
   @ManyToOne(() => Agent, (agent) => agent.property, {
     nullable: true,
     onDelete: 'SET NULL',
-    onUpdate:'CASCADE'
+    onUpdate: 'CASCADE',
   })
   @JoinColumn({ name: 'agentId' })
   agent: Agent;
@@ -61,8 +69,8 @@ export class Property {
   })
   status: PropertyStatus;
 
-  @Column({ type: 'varchar', nullable: false })
-  price: string;
+  @Column({ type: 'decimal', precision: 15, scale: 2, nullable: false })
+  price: number;
 
   @Column({
     type: 'enum',
@@ -71,14 +79,18 @@ export class Property {
   })
   price_unit: PriceUnit;
 
-  @Column({ type: 'varchar', length: 20, nullable: false })
-  luas: string;
+  @Column({ type: 'enum', enum: PropertyType, default: PropertyType.HOUSE })
+  type: PropertyType;
 
-  @Column({ type: 'varchar', length: 20, nullable: true })
-  jenis: string;
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+  land_size: number;
+
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+  building_size: number;
 
   @Column({ type: 'text', nullable: true })
   description: string;
+
   @Column({ type: 'text', nullable: true })
   detail_description: string;
 
@@ -110,6 +122,16 @@ export class Property {
     onDelete: 'CASCADE',
   })
   floor_plans: PropertyFloorPlan[];
+
+  @OneToMany(
+    () => LoanSimulation,
+    (loanSimulation) => loanSimulation.property,
+    {
+      cascade: true,
+      onDelete: 'CASCADE',
+    },
+  )
+  loan_simulations: LoanSimulation[];
 
   @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

@@ -5,7 +5,7 @@ export type PropertyImage = {
   id: string;
   caption?: string;
   sort_order?: number;
-  url: string;
+  url?: string;
   propertyId: string;
 };
 
@@ -13,7 +13,7 @@ export type PropertyFloorPlan = {
   id: string;
   name: string;
   sort_order?: number;
-  url: string;
+  url?: string;
   propertyId: string;
 };
 
@@ -30,6 +30,7 @@ export type Property = {
   jenis: string;
   description: string;
   detail_description: string;
+  // Note: FE pakai [lat, lng], API expects [lng, lat] (GeoJSON)
   location?: {
     type: "Point";
     coordinates: [number, number];

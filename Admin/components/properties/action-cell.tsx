@@ -1,33 +1,25 @@
 "use client";
 import React, { useState } from "react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
 import { IconInfoCircle, IconPencil, IconTrash } from "@tabler/icons-react";
 import ConfirmMessage from "@/components/confirm-message";
 import { showToastError, showToastSuccess } from "../toast";
 import { Property } from "@/types/properties";
-import { deleteProperty } from "@/api/property";
 import Link from "next/link";
+import { deleteProperty } from "@/actions/property";
 
 const ActionPropertyCell = ({ property }: { property: Property }) => {
   const [open, setOpen] = useState(false);
   const handleDelete = async (id: string) => {
-    try {
-      await deleteProperty(id);
-
+    const res = await deleteProperty({ id: id });
+    if (!res.success) {
+      showToastError(res.message || "failed delete data");
       setOpen(false);
-      showToastSuccess("Delete property successfull");
-    } catch (error) {
-      showToastError(`${error}`);
     }
+    setOpen(false);
+    showToastSuccess("Delete property successfull");
   };
 
   return (
@@ -57,21 +49,13 @@ const ActionPropertyCell = ({ property }: { property: Property }) => {
               <span>Edit</span>
             </DropdownMenuItem>
           </Link>
-          <DropdownMenuItem
-            className="cursor-pointer"
-            onClick={() => setOpen(true)}
-          >
+          <DropdownMenuItem className="cursor-pointer" onClick={() => setOpen(true)}>
             <IconTrash />
             Delete
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <ConfirmMessage
-        open={open}
-        setOpen={setOpen}
-        data={property.id}
-        onConfirm={handleDelete}
-      />
+      <ConfirmMessage open={open} setOpen={setOpen} data={property.id} onConfirm={handleDelete} />
     </>
   );
 };
