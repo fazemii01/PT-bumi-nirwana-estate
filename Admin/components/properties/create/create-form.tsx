@@ -208,10 +208,13 @@ const PropertyCreateForm = ({ agents, developers }: { agents: Agent[]; developer
 
       if (!res.success) {
         showToastError(res.message || "Failed new data property");
-        router.push("/properties");
-        router.refresh();
       }
-      showToastSuccess(res.message || "Property created successfully!");
+
+      router.push("/properties");
+      setTimeout(() => {
+        showToastSuccess(res.message || "Property created successfully!");
+        router.refresh();
+      }, 1000);
     });
   };
 
