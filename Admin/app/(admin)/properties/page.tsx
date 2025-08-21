@@ -1,5 +1,4 @@
 import { getAll } from "@/actions/property";
-import { getProperty } from "@/api/property";
 import { columns } from "@/components/properties/colomns";
 import { TableCustom } from "@/components/table-custom";
 import { Button } from "@/components/ui/button";

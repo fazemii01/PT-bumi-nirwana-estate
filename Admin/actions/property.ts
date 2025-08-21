@@ -2,7 +2,6 @@
 
 import { addProperty, deletePropertyById, getProperty, getPropertyById, updateProperty } from "@/api/property";
 import { Property } from "@/types/properties";
-import { revalidatePath } from "next/cache";
 
 export async function getAll() {
   try {
@@ -48,7 +47,6 @@ export async function submitUpdateProperty({ data, originalData }: { data: Prope
     const res = await updateProperty({ data, originalData });
 
     if (res.success) {
-      revalidatePath("/properties");
       return { success: true, message: "Property berhasil diupdate!" };
     } else {
       return { success: false, message: res.error || "Gagal update property" };
@@ -62,7 +60,6 @@ export async function deleteProperty({ id }: { id: string }) {
   try {
     const res = await deletePropertyById(id);
     if (res.success) {
-      revalidatePath("/properties");
       return { success: true, message: "Property berhasil dihapus!" };
     } else {
       return { success: false, message: res.error || "Gagal menghapus property." };

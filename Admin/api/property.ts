@@ -11,6 +11,7 @@ export async function getProperty(): Promise<ApiResponse<Property[]>> {
       url: "/properties",
       method: "GET",
     });
+
     return ApiResponse.success(response.data);
   } catch (error) {
     if (error instanceof AxiosError)
@@ -109,7 +110,6 @@ export async function addProperty({
       method: "POST",
       data: data,
     });
-
     revalidatePath("/properties");
     return ApiResponse.success(response.data);
   } catch (error) {
@@ -226,6 +226,7 @@ export async function updateProperty({
       method: "PATCH",
       data: formData,
     });
+    revalidatePath("/properties");
     return ApiResponse.success<Property>(res.data);
   } catch (error) {
     if (error instanceof AxiosError)
@@ -247,6 +248,7 @@ export async function deletePropertyById(
       url: `/properties/${id}`,
       method: "DELETE",
     });
+    revalidatePath("/properties");
     return ApiResponse.success<Property | null>(res.data);
   } catch (error) {
     if (error instanceof AxiosError) {

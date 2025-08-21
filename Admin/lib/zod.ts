@@ -15,6 +15,21 @@ const emptyToUndef = z
   .transform((v) => (v?.trim() === "" ? undefined : v))
   .optional();
 
+export const AgentZod = object({
+  full_name: string().min(1, "Name is required"),
+  email: string()
+    .min(1, "Email is required")
+    .email("please enter a valid email"),
+  phone_number: string().min(10, "Phone number invalid"),
+});
+
+export const DeveloperSchema = object({
+  name: string().min(1, "Name is required"),
+  website_url: string()
+    .min(1, "Website URL is required")
+    .url("Please enter a valid URL"),
+});
+
 // Lokasi [lng, lat]
 const LocationZod = z.object({
   type: z.literal("Point"),
@@ -30,20 +45,6 @@ const LocationZod = z.object({
     ),
 });
 
-export const AgentZod = object({
-  full_name: string().min(1, "Name is required"),
-  email: string()
-    .min(1, "Email is required")
-    .email("please enter a valid email"),
-  phone_number: string().min(10, "Phone number invalid"),
-});
-
-export const DeveloperSchema = object({
-  name: string().min(1, "Name is required"),
-  website_url: string()
-    .min(1, "Website URL is required")
-    .url("Please enter a valid URL"),
-});
 export const AddressZod = object({
   street: string().optional(),
   village: string().optional(),
@@ -89,7 +90,7 @@ export const ImagePropertyZod = object({
 
 export const FloorPlanZod = object({
   id: string().optional(),
-  name: string().min(1, "Nama denah wajib diisi"),
+  name: string().min(1, "Nama wajib diisi"),
   file_url: string().url().optional(),
   sort_order: number().int().optional(),
   file: object({}).optional(),
@@ -104,7 +105,7 @@ export const PropertyZod = object({
   status: nativeEnum(PropertyStatus),
   price: string().min(1, "Harga wajib diisi"),
   price_unit: nativeEnum(PriceUnit),
-  luas: string().optional(),
+  luas: string().min(1, "Luas wajib diisi"),
   jenis: string().optional(),
   description: string().optional(),
   detail_description: string().optional(),

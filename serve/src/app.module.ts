@@ -17,6 +17,8 @@ import { RoleGuard } from '@/auths/auths.guard';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { FeedbackModule } from './feedbackform/feedback.module';
 import { join } from 'path';
+import { BanksModule } from './banks/banks.module';
+import { LoanSimulationsModule } from './loan_simulations/loan_simulations.module';
 
 @Module({
   imports: [
@@ -49,6 +51,8 @@ import { join } from 'path';
     DevelopersModule,
     SearchModule,
     UserFavoritesModule,
+    BanksModule,
+    LoanSimulationsModule,
   ],
 
   controllers: [AppController],
