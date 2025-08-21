@@ -59,10 +59,11 @@ export class PropertiesService {
       const property = new Property();
       property.name = createPropertyDto.name;
       property.slug = slug;
+      property.type = createPropertyDto.type;
       property.status = createPropertyDto.status;
       property.price = createPropertyDto.price;
-      property.luas = createPropertyDto.luas;
-      property.jenis = createPropertyDto.jenis;
+      property.land_size = createPropertyDto.land_size;
+      property.building_size = createPropertyDto.building_size;
       property.price_unit = createPropertyDto.price_unit;
       property.description = createPropertyDto.description;
       property.detail_description = createPropertyDto.description;

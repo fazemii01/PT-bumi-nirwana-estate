@@ -3,6 +3,7 @@ import api from "@/service/api";
 import { ApiResponse } from "@/types/api-response";
 import { Property } from "@/types/properties";
 import { AxiosError } from "axios";
+import { revalidatePath } from "next/cache";
 
 export async function getProperty(): Promise<ApiResponse<Property[]>> {
   try {
@@ -10,6 +11,7 @@ export async function getProperty(): Promise<ApiResponse<Property[]>> {
       url: "/properties",
       method: "GET",
     });
+
     return ApiResponse.success(response.data);
   } catch (error) {
     if (error instanceof AxiosError) return ApiResponse.failure<Property[]>(error?.response?.data.message || "Failed fetch data property");
@@ -84,7 +86,7 @@ export async function addProperty({ property }: { property: Property }): Promise
       method: "POST",
       data: data,
     });
-
+    revalidatePath("/properties");
     return ApiResponse.success(response.data);
   } catch (error) {
     if (error instanceof AxiosError) {
@@ -160,6 +162,7 @@ export async function updateProperty({ data, originalData }: { data: Property; o
       method: "PATCH",
       data: formData,
     });
+    revalidatePath("/properties");
     return ApiResponse.success<Property>(res.data);
   } catch (error) {
     if (error instanceof AxiosError) return ApiResponse.failure<Property>(error.response?.data.message || "Create new data failed due to network error");
@@ -173,6 +176,7 @@ export async function deletePropertyById(id: string): Promise<ApiResponse<Proper
       url: `/properties/${id}`,
       method: "DELETE",
     });
+    revalidatePath("/properties");
     return ApiResponse.success<Property | null>(res.data);
   } catch (error) {
     if (error instanceof AxiosError) {

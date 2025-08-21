@@ -1,13 +1,4 @@
-import {
-  object,
-  string,
-  number,
-  array,
-  nativeEnum,
-  literal,
-  tuple,
-  z,
-} from "zod";
+import { object, string, number, array, nativeEnum, literal, tuple, z } from "zod";
 import { PropertyStatus, PriceUnit } from "../types/properties";
 
 const emptyToUndef = z
@@ -15,35 +6,23 @@ const emptyToUndef = z
   .transform((v) => (v?.trim() === "" ? undefined : v))
   .optional();
 
-// Lokasi [lng, lat]
-const LocationZod = z.object({
-  type: z.literal("Point"),
-  coordinates: z
-    .tuple([z.number(), z.number()])
-    .refine(
-      ([lng, lat]) =>
-        typeof lng === "number" &&
-        typeof lat === "number" &&
-        !isNaN(lng) &&
-        !isNaN(lat),
-      { message: "Koordinat lokasi wajib diisi" }
-    ),
-});
-
 export const AgentZod = object({
   full_name: string().min(1, "Name is required"),
-  email: string()
-    .min(1, "Email is required")
-    .email("please enter a valid email"),
+  email: string().min(1, "Email is required").email("please enter a valid email"),
   phone_number: string().min(10, "Phone number invalid"),
 });
 
 export const DeveloperSchema = object({
   name: string().min(1, "Name is required"),
-  website_url: string()
-    .min(1, "Website URL is required")
-    .url("Please enter a valid URL"),
+  website_url: string().min(1, "Website URL is required").url("Please enter a valid URL"),
 });
+
+// Lokasi [lng, lat]
+const LocationZod = z.object({
+  type: z.literal("Point"),
+  coordinates: z.tuple([z.number(), z.number()]).refine(([lng, lat]) => typeof lng === "number" && typeof lat === "number" && !isNaN(lng) && !isNaN(lat), { message: "Koordinat lokasi wajib diisi" }),
+});
+
 export const AddressZod = object({
   street: string().optional(),
   village: string().optional(),
@@ -89,7 +68,7 @@ export const ImagePropertyZod = object({
 
 export const FloorPlanZod = object({
   id: string().optional(),
-  name: string().optional(),
+  name: string().min(1, "Nama wajib diisi"),
   file_url: string().url().optional(),
   sort_order: number().int().optional(),
   file: object({}).optional(),
@@ -104,32 +83,19 @@ export const PropertyZod = object({
   status: nativeEnum(PropertyStatus),
   price: string().min(1, "Harga wajib diisi"),
   price_unit: nativeEnum(PriceUnit),
-  luas: string().optional(),
+  luas: string().min(1, "Luas wajib diisi"),
   jenis: string().optional(),
   description: string().optional(),
   detail_description: string().optional(),
   location: object({
     type: literal("Point"),
-    coordinates: tuple([number(), number()]).refine(
-      ([lng, lat]) =>
-        typeof lng === "number" &&
-        typeof lat === "number" &&
-        !isNaN(lng) &&
-        !isNaN(lat),
-      { message: "Koordinat lokasi wajib diisi" }
-    ),
+    coordinates: tuple([number(), number()]).refine(([lng, lat]) => typeof lng === "number" && typeof lat === "number" && !isNaN(lng) && !isNaN(lat), { message: "Koordinat lokasi wajib diisi" }),
   }),
   address: AddressZod.optional(),
   specifications: SpecificationsZod.optional(),
 
-  property_images: array(object({})).min(
-    1,
-    "Minimal 1 gambar property wajib diupload"
-  ),
-  property_floor_plans: array(object({})).min(
-    1,
-    "Minimal 1 gambar denah wajib diupload"
-  ),
+  property_images: array(object({})).min(1, "Minimal 1 gambar property wajib diupload"),
+  property_floor_plans: array(object({})).min(1, "Minimal 1 gambar denah wajib diupload"),
 
   images: array(ImagePropertyZod).optional(),
   floor_plans: array(FloorPlanZod),

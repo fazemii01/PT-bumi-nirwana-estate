@@ -9,6 +9,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import { Role } from './role.entity';
+import { LoanSimulation } from '@/loan_simulations/entities/loan_simulation.entity';
 
 @Entity('users')
 export class User {
@@ -18,7 +19,7 @@ export class User {
   @Column({ type: 'varchar', length: 255, unique: true, nullable: false })
   email: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: false })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   phone_number: string;
 
   @Column({ type: 'varchar', length: 255, nullable: false })
@@ -32,6 +33,9 @@ export class User {
 
   @OneToMany(() => UserFavorite, (favorite) => favorite.user)
   favorites: UserFavorite[];
+
+  @OneToMany(() => LoanSimulation, (loanSimulation) => loanSimulation.user)
+  loan_simulations: LoanSimulation[];
 
   @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
