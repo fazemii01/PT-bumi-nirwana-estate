@@ -11,7 +11,7 @@ describe('ChatService', () => {
 
     service = module.get<ChatService>(ChatService);
   });
-
+  
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
