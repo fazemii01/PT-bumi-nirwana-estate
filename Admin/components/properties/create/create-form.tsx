@@ -13,11 +13,13 @@ import BasicInfoForm from "@/components/properties/create/basic-info-form";
 import LocationForm from "@/components/properties/create/location-form";
 import MediaForm from "@/components/properties/create/media-form";
 import SpecificationsForm from "@/components/properties/create/specifications-form";
-import { getDataAgent } from "@/actions/agent";
-import { getDataDeveloper } from "@/actions/developer";
+
 import { submitCreateProperty } from "@/actions/property";
 
-const PropertyCreateForm = () => {
+import { useRouter } from "next/navigation";
+
+const PropertyCreateForm = ({ agents, developers }: { agents: Agent[]; developers: Developer[] }) => {
+  const router = useRouter();
   const [formData, setFormData] = useState<Property>({
     id: "",
     developerId: "",
@@ -43,19 +45,9 @@ const PropertyCreateForm = () => {
     floor_plans: [],
   });
 
-  const [agents, setAgents] = useState<Agent[]>([]);
-  const [developers, setDevelopers] = useState<Developer[]>([]);
   const [activeTab, setActiveTab] = useState("basic");
   const [error, setError] = useState<{ [key: string]: string }>({});
   const [pending, startTransition] = useTransition();
-  useEffect(() => {
-    async function fetchData() {
-      const [agentsData, developersData] = await Promise.all([getDataAgent(), getDataDeveloper()]);
-      setAgents(agentsData.data || []);
-      setDevelopers(developersData.data || []);
-    }
-    fetchData();
-  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -203,6 +195,7 @@ const PropertyCreateForm = () => {
         tab = "specs";
       }
       setActiveTab(tab);
+
       setError({
         [path.join(".")]: firstError.message,
       });
@@ -216,31 +209,12 @@ const PropertyCreateForm = () => {
       if (!res.success) {
         showToastError(res.message || "Failed new data property");
       }
-      showToastSuccess(res.message || "Property created successfully!");
-      setFormData({
-        id: "",
-        developerId: "",
-        agentId: "",
-        name: "",
-        status: PropertyStatus.AVAILABLE,
-        type: PropertyType.HOUSE,
-        price: 0,
-        price_unit: PriceUnit.TOTAL,
-        land_size: 0,
-        building_size: 0,
-        description: "",
-        detail_description: "",
-        location: {
-          type: "Point",
-          coordinates: [0, 0],
-        },
-        address: {},
-        specifications: {},
-        property_images: [],
-        property_floor_plans: [],
-        images: [],
-        floor_plans: [],
-      });
+
+      router.push("/properties");
+      setTimeout(() => {
+        showToastSuccess(res.message || "Property created successfully!");
+        router.refresh();
+      }, 1000);
     });
   };
 

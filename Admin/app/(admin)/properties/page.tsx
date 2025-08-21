@@ -1,12 +1,12 @@
-import { getAll } from "@/actions/property";
-import { columns } from "@/components/properties/colomns";
+import { getProperties } from "@/api/property";
+import { columns } from "@/components/properties/columns";
 import { TableCustom } from "@/components/table-custom";
 import { Button } from "@/components/ui/button";
 import { IconPlus } from "@tabler/icons-react";
 import Link from "next/link";
 
 const Properties = async () => {
-  const data = await getAll();
+  const data = await getProperties();
   return (
     <div className="px-4 py-4">
       <div className=" flex justify-end mb-4">

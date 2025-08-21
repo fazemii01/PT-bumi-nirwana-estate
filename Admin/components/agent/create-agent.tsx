@@ -8,8 +8,10 @@ import Image from "next/image";
 import { showToastError, showToastSuccess } from "../toast";
 import { Agent } from "@/types/agent";
 import { submitCreateAgent } from "@/actions/agent";
+import { useRouter } from "next/navigation";
 
 const CreateAgent = ({ open, setOpen }: { open: boolean; setOpen: (value: boolean) => void }) => {
+  const router = useRouter();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [dragActive, setDragActive] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -128,6 +130,7 @@ const CreateAgent = ({ open, setOpen }: { open: boolean; setOpen: (value: boolea
       setPreviewUrl(null);
       setOpen(false);
       showToastSuccess(res.message || "Agent created successfully!");
+      router.refresh();
     });
   };
 

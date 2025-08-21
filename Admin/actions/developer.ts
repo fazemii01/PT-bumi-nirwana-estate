@@ -1,21 +1,7 @@
 "use server";
 
 import { addDeveloper, deleteDeveloperById, getDeveloper, updateDeveloper } from "@/api/developer";
-import { Agent } from "@/types/agent";
 import { Developer } from "@/types/developer";
-
-export async function getDataDeveloper() {
-  try {
-    const res = await getDeveloper();
-    if (res.success) {
-      return { success: true, data: res.data };
-    } else {
-      return { success: false, message: res.error || "Gagal mengambil data developer." };
-    }
-  } catch (error) {
-    return { success: false, message: "Terjadi error pada server." };
-  }
-}
 
 export async function submitCreateDeveloper({ data }: { data: Developer }) {
   try {

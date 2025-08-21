@@ -11,8 +11,10 @@ import { showToastError, showToastSuccess } from "../toast";
 import { AgentZod } from "@/lib/zod";
 import { ZodError } from "zod";
 import { submitUpdateAgent } from "@/actions/agent";
+import { useRouter } from "next/navigation";
 
 const EditAgent = ({ edit, setEdit, agent }: { edit: boolean; setEdit: (value: boolean) => void; agent: Agent }) => {
+  const router = useRouter();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [dragActive, setDragActive] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -110,8 +112,9 @@ const EditAgent = ({ edit, setEdit, agent }: { edit: boolean; setEdit: (value: b
       const res = await submitUpdateAgent({ data: form, originalData: agent });
 
       if (res.success) {
-        showToastSuccess(res.message);
         setEdit(false);
+        showToastSuccess(res.message);
+        router.refresh();
       } else {
         showToastError(res.message);
         setEdit(true);
@@ -120,7 +123,7 @@ const EditAgent = ({ edit, setEdit, agent }: { edit: boolean; setEdit: (value: b
   };
 
   return (
-    <AlertDialog open={edit} onOpenChange={setEdit}>
+    <AlertDialog open={edit} onOpenChange={setEdit} key={agent.id}>
       <AlertDialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
           <AlertDialogHeader className="space-y-3">

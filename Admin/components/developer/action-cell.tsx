@@ -9,18 +9,24 @@ import { IconEdit, IconTrash } from "@tabler/icons-react";
 import ConfirmMessage from "@/components/confirm-message";
 import EditDeveloper from "@/components/developer/edit-developer";
 import { deleteDeveloper } from "@/actions/developer";
+import { useRouter } from "next/navigation";
 
 const ActionDeveloperCell = ({ developer }: { developer: Developer }) => {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [edit, setEdit] = useState(false);
   const handleDelete = async (id: string) => {
+    setIsLoading(true);
     const res = await deleteDeveloper({ id });
     if (!res.success) {
       showToastError(res.message || "failed delete developer");
       setOpen(false);
     }
+    setIsLoading(false);
     setOpen(false);
     showToastSuccess(res.message || "Delete developer successful");
+    router.refresh();
   };
   return (
     <>
@@ -43,7 +49,7 @@ const ActionDeveloperCell = ({ developer }: { developer: Developer }) => {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <ConfirmMessage open={open} setOpen={setOpen} data={developer.id} onConfirm={handleDelete} />
+      <ConfirmMessage open={open} setOpen={setOpen} data={developer.id} onConfirm={handleDelete} isLoading={isLoading} />
       <EditDeveloper edit={edit} setEdit={setEdit} developer={developer} />
     </>
   );
