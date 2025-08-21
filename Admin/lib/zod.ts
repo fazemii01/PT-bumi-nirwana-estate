@@ -80,16 +80,16 @@ export const SpecificationsZod = object({
 
 export const ImagePropertyZod = object({
   id: string().optional(),
-  image_url: string().url().optional(),
+  image_url: string().url(),
   caption: string().optional(),
   sort_order: number().int().optional(),
-  file: object({}).optional(),
+  file: object({}),
   preview: string().optional(),
 });
 
 export const FloorPlanZod = object({
   id: string().optional(),
-  name: string().optional(),
+  name: string().min(1, "Nama denah wajib diisi"),
   file_url: string().url().optional(),
   sort_order: number().int().optional(),
   file: object({}).optional(),

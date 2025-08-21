@@ -34,7 +34,6 @@ export async function submitCreateProperty({ property }: { property: Property })
   try {
     const res = await addProperty({ property });
     if (res.success) {
-      revalidatePath("/properties");
       return { success: true, message: "Property berhasil ditambahkan!" };
     } else {
       return { success: false, message: res.error || "Gagal menambahkan property." };
