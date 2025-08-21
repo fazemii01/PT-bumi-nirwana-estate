@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Agent } from "@/types/agent";
 import { Developer } from "@/types/developer";
-import { PriceUnit, Property, PropertyStatus } from "@/types/properties";
+import { PriceUnit, Property, PropertyStatus, PropertyType } from "@/types/properties";
 
 import { Camera, Info, MapPin, Settings } from "lucide-react";
 import { PropertyZod } from "@/lib/zod";
@@ -23,11 +23,12 @@ const PropertyCreateForm = () => {
     developerId: "",
     agentId: "",
     name: "",
+    type: PropertyType.HOUSE,
     status: PropertyStatus.AVAILABLE,
-    price: "",
+    price: 0,
     price_unit: PriceUnit.TOTAL,
-    luas: "",
-    jenis: "",
+    land_size: 0,
+    building_size: 0,
     description: "",
     detail_description: "",
     location: {
@@ -222,10 +223,11 @@ const PropertyCreateForm = () => {
         agentId: "",
         name: "",
         status: PropertyStatus.AVAILABLE,
-        price: "",
+        type: PropertyType.HOUSE,
+        price: 0,
         price_unit: PriceUnit.TOTAL,
-        luas: "",
-        jenis: "",
+        land_size: 0,
+        building_size: 0,
         description: "",
         detail_description: "",
         location: {

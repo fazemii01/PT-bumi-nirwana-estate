@@ -1,5 +1,5 @@
 import { object, string, number, array, nativeEnum, literal, tuple, z } from "zod";
-import { PropertyStatus, PriceUnit } from "../types/properties";
+import { PropertyStatus, PriceUnit, PropertyType } from "../types/properties";
 
 const emptyToUndef = z
   .string()
@@ -80,11 +80,12 @@ export const PropertyZod = object({
   developerId: string().min(1, "Developer wajib diisi"),
   agentId: string().min(1, "Agent wajib diisi"),
   name: string().min(1, "Nama properti wajib diisi"),
+  type: nativeEnum(PropertyType),
   status: nativeEnum(PropertyStatus),
-  price: string().min(1, "Harga wajib diisi"),
+  price: z.coerce.number().min(0, "Harga wajib diisi"),
   price_unit: nativeEnum(PriceUnit),
-  luas: string().min(1, "Luas wajib diisi"),
-  jenis: string().optional(),
+  land_size: z.coerce.number().min(0, "Luas tanah wajib diisi"),
+  building_size: z.coerce.number().min(0, "Luas bangunan wajib diisi"),
   description: string().optional(),
   detail_description: string().optional(),
   location: object({

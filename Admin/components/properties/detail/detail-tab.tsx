@@ -19,8 +19,10 @@ const DetailTab = ({ property }: { property: Property }) => {
   } else {
     addressObj = property.address;
   }
-  const formatAddress = (address: Address) => {
-    return `${addressObj!.street}, ${addressObj!.village}, ${addressObj!.district}, ${addressObj!.city}, ${addressObj!.province} ${addressObj!.postal_code}`;
+  const formatAddress = () => {
+    return [addressObj?.street, addressObj?.village, addressObj?.district, addressObj?.city, addressObj?.province, addressObj?.postal_code]
+      .filter((part) => part && part.trim() !== "") // buang yang kosong/null/undefined
+      .join(", "); // gabungkan dengan koma
   };
 
   let specObj: Specifications | undefined;
@@ -55,7 +57,7 @@ const DetailTab = ({ property }: { property: Property }) => {
               <h3 className="text-lg font-semibold mb-3">Alamat Lengkap</h3>
               <div className="flex items-start gap-2">
                 <MapPin className="w-5 h-5 text-gray-500 mt-0.5 flex-shrink-0" />
-                <p className="text-gray-700">{formatAddress(property?.address!)}</p>
+                <p className="text-gray-700">{formatAddress()}</p>
               </div>
             </div>
           </TabsContent>

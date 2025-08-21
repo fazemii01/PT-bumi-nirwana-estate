@@ -35,15 +35,18 @@ export class CreatePropertyDto {
   @IsEnum(PropertyStatus)
   status: PropertyStatus;
 
+  @Transform(({ value }) => Number(value))
   @IsNumber()
   price: number;
 
   @IsEnum(PriceUnit)
   price_unit: PriceUnit;
 
+  @Transform(({ value }) => Number(value))
   @IsNumber()
   land_size: number;
 
+  @Transform(({ value }) => Number(value))
   @IsNumber()
   building_size: number;
 
