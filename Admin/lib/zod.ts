@@ -110,27 +110,15 @@ export const UpdatePropertyZod = z.object({
   status: z.nativeEnum(PropertyStatus),
   price: z.string().min(1, "Harga wajib diisi"),
   price_unit: z.nativeEnum(PriceUnit),
-
-  // ini optional di edit
   luas: emptyToUndef,
   jenis: emptyToUndef,
   description: emptyToUndef,
   detail_description: emptyToUndef,
-
-  // kalau kamu ingin lokasi TIDAK wajib di edit:
-  // - opsi A: optional penuh
-  // location: LocationZod.optional(),
-  // - opsi B: tetap wajib (kalau BE mengharuskan selalu ada):
   location: LocationZod,
-
   address: AddressZod.optional(),
   specifications: SpecificationsZod.optional(),
-
-  // EDIT TIDAK MENYENTUH MEDIA → jadikan optional TANPA min()
   property_images: z.array(z.object({})).optional(),
   property_floor_plans: z.array(z.object({})).optional(),
-
-  // kamu edit media di halaman detail terpisah → optional
   images: z.array(ImagePropertyZod).optional(),
   floor_plans: z.array(FloorPlanZod).optional(),
 });

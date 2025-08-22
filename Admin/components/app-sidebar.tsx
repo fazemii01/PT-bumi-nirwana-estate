@@ -1,34 +1,12 @@
 "use client";
 
 import * as React from "react";
-import {
-  IconBuildingSkyscraper,
-  IconCamera,
-  IconChartBar,
-  IconDashboard,
-  IconFileAi,
-  IconFileDescription,
-  IconHelp,
-  IconListDetails,
-  IconReport,
-  IconSearch,
-  IconSettings,
-  IconUser,
-  IconUsers,
-} from "@tabler/icons-react";
+import { IconBuildingSkyscraper, IconCamera, IconCashBanknote, IconChartBar, IconDashboard, IconFileAi, IconFileDescription, IconHelp, IconListDetails, IconReport, IconSearch, IconSettings, IconUser, IconUsers } from "@tabler/icons-react";
 
 import { NavMain } from "@/components/nav-main";
 import { NavSecondary } from "@/components/nav-secondary";
 import { NavUser } from "@/components/nav-user";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@/components/ui/sidebar";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import Image from "next/image";
 import { User } from "@/types/user";
 
@@ -54,11 +32,11 @@ const data = {
       url: "/developer",
       icon: IconBuildingSkyscraper,
     },
-    // {
-    //   title: "Team",
-    //   url: "#",
-    //   icon: IconUsers,
-    // },
+    {
+      title: "Bank",
+      url: "/bank",
+      icon: IconCashBanknote,
+    },
   ],
   navClouds: [
     {
@@ -137,18 +115,9 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5"
-            >
+            <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:!p-1.5">
               <a href="#">
-                <Image
-                  src="/logo_bar.svg"
-                  width={32}
-                  height={32}
-                  alt="logo"
-                  className="flex items-center justify-center object-cover"
-                />
+                <Image src="/logo_bar.svg" width={32} height={32} alt="logo" className="flex items-center justify-center object-cover" />
                 <span className="text-base font-semibold">Bumi Nirwana</span>
               </a>
             </SidebarMenuButton>
