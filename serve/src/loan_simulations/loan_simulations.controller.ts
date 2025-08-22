@@ -1,12 +1,24 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { LoanSimulationsService } from './loan_simulations.service';
 import { CreateLoanSimulationDto } from './dto/create-loan_simulation.dto';
 import { UpdateLoanSimulationDto } from './dto/update-loan_simulation.dto';
+import { Roles } from '@/auths/role.decorator';
 
 @Controller('loan-simulations')
 export class LoanSimulationsController {
-  constructor(private readonly loanSimulationsService: LoanSimulationsService) {}
+  constructor(
+    private readonly loanSimulationsService: LoanSimulationsService,
+  ) {}
 
+  @Roles('ADMIN', 'USER')
   @Post()
   create(@Body() createLoanSimulationDto: CreateLoanSimulationDto) {
     return this.loanSimulationsService.create(createLoanSimulationDto);
@@ -23,7 +35,10 @@ export class LoanSimulationsController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateLoanSimulationDto: UpdateLoanSimulationDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateLoanSimulationDto: UpdateLoanSimulationDto,
+  ) {
     return this.loanSimulationsService.update(+id, updateLoanSimulationDto);
   }
 
