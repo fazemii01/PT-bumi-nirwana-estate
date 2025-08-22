@@ -72,7 +72,7 @@ const PropertyDetailView = ({ property }: { property: Property }) => {
               {addressObj?.city}, {addressObj?.province}
             </span>
           </div>
-          <div className="text-2xl md:text-3xl font-bold text-green-600">{formatPrice(property.price, property.price_unit)}</div>
+          <div className="text-2xl md:text-3xl font-bold text-green-600">{formatPrice(property.price.toString(), property.price_unit)}</div>
         </div>
       </div>
 

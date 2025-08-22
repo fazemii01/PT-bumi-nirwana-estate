@@ -4,7 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Agent } from "@/types/agent";
 import { Developer } from "@/types/developer";
-import { PriceUnit, Property, PropertyStatus } from "@/types/properties";
+import {
+  PriceUnit,
+  Property,
+  PropertyStatus,
+  PropertyType,
+} from "@/types/properties";
 
 import { Camera, Info, MapPin, Settings } from "lucide-react";
 import { PropertyZod } from "@/lib/zod";
@@ -23,11 +28,12 @@ const PropertyCreateForm = () => {
     developerId: "",
     agentId: "",
     name: "",
+    type: PropertyType.HOUSE,
     status: PropertyStatus.AVAILABLE,
-    price: "",
+    price: 0,
     price_unit: PriceUnit.TOTAL,
-    luas: "",
-    jenis: "",
+    land_size: 0,
+    building_size: 0,
     description: "",
     detail_description: "",
     location: {
@@ -49,7 +55,10 @@ const PropertyCreateForm = () => {
   const [pending, startTransition] = useTransition();
   useEffect(() => {
     async function fetchData() {
-      const [agentsData, developersData] = await Promise.all([getDataAgent(), getDataDeveloper()]);
+      const [agentsData, developersData] = await Promise.all([
+        getDataAgent(),
+        getDataDeveloper(),
+      ]);
       setAgents(agentsData.data || []);
       setDevelopers(developersData.data || []);
     }
@@ -79,7 +88,11 @@ const PropertyCreateForm = () => {
     }));
   };
 
-  const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement> | { target: { name: string; value: string } }) => {
+  const handleLocationChange = (
+    e:
+      | React.ChangeEvent<HTMLInputElement>
+      | { target: { name: string; value: string } }
+  ) => {
     const { name, value } = e.target;
     const numValue = parseFloat(value) || 0;
     console.log(numValue);
@@ -89,12 +102,19 @@ const PropertyCreateForm = () => {
       location: {
         ...prev.location,
         type: "Point",
-        coordinates: name === "lng" ? [numValue, prev.location!.coordinates[1]] : [prev.location!.coordinates[0], numValue],
+        coordinates:
+          name === "lng"
+            ? [numValue, prev.location!.coordinates[1]]
+            : [prev.location!.coordinates[0], numValue],
       },
     }));
   };
 
-  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement> | { target: { name: string; value: string } }) => {
+  const handleAddressChange = (
+    e:
+      | React.ChangeEvent<HTMLInputElement>
+      | { target: { name: string; value: string } }
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -105,7 +125,9 @@ const PropertyCreateForm = () => {
     }));
   };
 
-  const handleSpecificationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSpecificationChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -116,7 +138,9 @@ const PropertyCreateForm = () => {
     }));
   };
 
-  const handleTextAreaSpecificationChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleTextAreaSpecificationChange = (
+    e: React.ChangeEvent<HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -150,14 +174,18 @@ const PropertyCreateForm = () => {
   const removeImage = (index: number) => {
     setFormData((prev) => {
       const updatedImages = prev.images.filter((_, i) => i !== index);
-      const updatedFiles = (prev.property_images || []).filter((_, i) => i !== index);
+      const updatedFiles = (prev.property_images || []).filter(
+        (_, i) => i !== index
+      );
       return { ...prev, images: updatedImages, property_images: updatedFiles };
     });
   };
 
   // Tambah floor plan
   const handleSingleFloorPlanUpload = (file: File) => {
-    const preview = file.type.startsWith("image/") ? URL.createObjectURL(file) : undefined;
+    const preview = file.type.startsWith("image/")
+      ? URL.createObjectURL(file)
+      : undefined;
     setFormData((prev) => ({
       ...prev,
       floor_plans: [...prev.floor_plans, { file, preview, name: "" }],
@@ -178,7 +206,9 @@ const PropertyCreateForm = () => {
   const removeFloorPlan = (index: number) => {
     setFormData((prev) => {
       const updatedPlans = prev.floor_plans.filter((_, i) => i !== index);
-      const updatedFiles = (prev.property_floor_plans || []).filter((_, i) => i !== index);
+      const updatedFiles = (prev.property_floor_plans || []).filter(
+        (_, i) => i !== index
+      );
       return {
         ...prev,
         floor_plans: updatedPlans,
@@ -189,6 +219,8 @@ const PropertyCreateForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("handleSubmit terpanggil 🚀");
+    console.log("Data form:", formData);
     const result = PropertyZod.safeParse(formData);
     if (!result.success) {
       const firstError = result.error.errors[0];
@@ -222,10 +254,11 @@ const PropertyCreateForm = () => {
         agentId: "",
         name: "",
         status: PropertyStatus.AVAILABLE,
-        price: "",
+        type: PropertyType.HOUSE,
+        price: 0,
         price_unit: PriceUnit.TOTAL,
-        luas: "",
-        jenis: "",
+        land_size: 0,
+        building_size: 0,
         description: "",
         detail_description: "",
         location: {
@@ -250,31 +283,62 @@ const PropertyCreateForm = () => {
 
       <form onSubmit={handleSubmit}>
         <div>
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="space-y-6"
+          >
             <TabsList className="grid grid-cols-4 w-full h-auto">
-              <TabsTrigger value="basic" className="flex items-center justify-center py-2 cursor-pointer">
+              <TabsTrigger
+                value="basic"
+                className="flex items-center justify-center py-2 cursor-pointer"
+              >
                 <Info className="w-4 h-4 sm:hidden" />
                 <span className="hidden sm:inline">Info Dasar</span>
               </TabsTrigger>
-              <TabsTrigger value="location" className="flex items-center justify-center py-2 cursor-pointer">
+              <TabsTrigger
+                value="location"
+                className="flex items-center justify-center py-2 cursor-pointer"
+              >
                 <MapPin className="w-4 h-4 sm:hidden" />
                 <span className="hidden sm:inline">Lokasi</span>
               </TabsTrigger>
-              <TabsTrigger value="media" className="flex items-center justify-center py-2 cursor-pointer">
+              <TabsTrigger
+                value="media"
+                className="flex items-center justify-center py-2 cursor-pointer"
+              >
                 <Camera className="w-4 h-4 sm:hidden" />
                 <span className="hidden sm:inline">Media</span>
               </TabsTrigger>
-              <TabsTrigger value="specs" className="flex items-center justify-center py-2 cursor-pointer">
+              <TabsTrigger
+                value="specs"
+                className="flex items-center justify-center py-2 cursor-pointer"
+              >
                 <Settings className="w-4 h-4 sm:hidden" />
                 <span className="hidden sm:inline">Spesifikasi</span>
               </TabsTrigger>
             </TabsList>
 
             {/* Basic Information Tab */}
-            <BasicInfoForm formData={formData} handleSelectChange={handleSelectChange} handleInputChange={handleInputChange} handleTextAreaChange={handleTextAreaChange} developers={developers} agents={agents} error={error} />
+            <BasicInfoForm
+              formData={formData}
+              handleSelectChange={handleSelectChange}
+              handleInputChange={handleInputChange}
+              handleTextAreaChange={handleTextAreaChange}
+              developers={developers}
+              agents={agents}
+              error={error}
+            />
 
             {/* Location Tab */}
-            {activeTab === "location" && <LocationForm formData={formData} handleAddressChange={handleAddressChange} handleLocationChange={handleLocationChange} error={error} />}
+            {activeTab === "location" && (
+              <LocationForm
+                formData={formData}
+                handleAddressChange={handleAddressChange}
+                handleLocationChange={handleLocationChange}
+                error={error}
+              />
+            )}
 
             {/* Media Tab */}
             {activeTab === "media" && (
@@ -291,11 +355,23 @@ const PropertyCreateForm = () => {
             )}
 
             {/* Specifications Tab */}
-            {activeTab === "specs" && <SpecificationsForm formData={formData} handleSpecificationChange={handleSpecificationChange} handleTextAreaSpecificationChange={handleTextAreaSpecificationChange} error={error} />}
+            {activeTab === "specs" && (
+              <SpecificationsForm
+                formData={formData}
+                handleSpecificationChange={handleSpecificationChange}
+                handleTextAreaSpecificationChange={
+                  handleTextAreaSpecificationChange
+                }
+                error={error}
+              />
+            )}
           </Tabs>
 
           <div className="flex justify-end gap-4 pt-6 border-t">
-            <Button type="submit" className="bg-blue-600 hover:bg-blue-700 cursor-pointer">
+            <Button
+              type="submit"
+              className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
+            >
               {pending ? "Loading..." : "Publish Property"}
             </Button>
           </div>
