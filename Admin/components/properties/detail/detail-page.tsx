@@ -3,8 +3,7 @@
 import { Badge } from "@/components/ui/badge";
 import { MapPin } from "lucide-react";
 
-import { Address, PriceUnit, Property, Specifications } from "@/types/properties";
-import { getImageUrl } from "@/service/imageUrl";
+import { Address, PriceUnit, Property } from "@/types/properties";
 import ImageGallery from "@/components/properties/detail/image-gallery";
 import DetailTab from "@/components/properties/detail/detail-tab";
 import PropertySummary from "@/components/properties/detail/property-summary";
@@ -69,7 +68,7 @@ const PropertyDetailView = ({ property }: { property: Property }) => {
           <div className="flex items-center gap-2 text-gray-600">
             <MapPin className="w-4 h-4" />
             <span className="text-sm">
-              {addressObj?.city}, {addressObj?.province}
+              {addressObj?.city ?? "Lumajang"}, {addressObj?.province ?? "Jawa Timur"}
             </span>
           </div>
           <div className="text-2xl md:text-3xl font-bold text-green-600">{formatPrice(property.price.toString(), property.price_unit)}</div>

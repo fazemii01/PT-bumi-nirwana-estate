@@ -1,16 +1,28 @@
 "use server";
 
-import { addDeveloper, deleteDeveloperById, getDeveloper, updateDeveloper } from "@/api/developer";
-import { Agent } from "@/types/agent";
+import {
+  addDeveloper,
+  deleteDeveloperById,
+  getDeveloper,
+  updateDeveloper,
+} from "@/api/developer";
 import { Developer } from "@/types/developer";
 
-export async function getDataDeveloper() {
+export async function getDataDeveloper(): Promise<{
+  success: boolean;
+  data?: Developer[];
+  message?: string;
+}> {
   try {
     const res = await getDeveloper();
+
     if (res.success) {
       return { success: true, data: res.data };
     } else {
-      return { success: false, message: res.error || "Gagal mengambil data developer." };
+      return {
+        success: false,
+        message: res.error || "Gagal mengambil data Develper.",
+      };
     }
   } catch (error) {
     return { success: false, message: "Terjadi error pada server." };
@@ -23,14 +35,23 @@ export async function submitCreateDeveloper({ data }: { data: Developer }) {
     if (res.success) {
       return { success: true, message: "Developer berhasil ditambahkan!" };
     } else {
-      return { success: false, message: res.error || "Gagal menambahkan developer." };
+      return {
+        success: false,
+        message: res.error || "Gagal menambahkan developer.",
+      };
     }
   } catch (error) {
     return { success: false, message: "Terjadi error pada server." };
   }
 }
 
-export async function submitUpdateDeveloper({ data, originalData }: { data: Developer; originalData: Developer }) {
+export async function submitUpdateDeveloper({
+  data,
+  originalData,
+}: {
+  data: Developer;
+  originalData: Developer;
+}) {
   try {
     const res = await updateDeveloper({ data, originalData });
 
@@ -50,7 +71,10 @@ export async function deleteDeveloper({ id }: { id: string }) {
     if (res.success) {
       return { success: true, message: "Developer berhasil dihapus!" };
     } else {
-      return { success: false, message: res.error || "Gagal menghapus developer." };
+      return {
+        success: false,
+        message: res.error || "Gagal menghapus developer.",
+      };
     }
   } catch (error) {
     return { success: false, message: "Terjadi error pada server." };

@@ -24,6 +24,7 @@ import { DeveloperSchema } from "@/lib/zod";
 import { set, ZodError } from "zod";
 import { Developer } from "@/types/developer";
 import { submitUpdateDeveloper } from "@/actions/developer";
+import { useRouter } from "next/navigation";
 
 const EditDeveloper = ({
   edit,
@@ -34,6 +35,7 @@ const EditDeveloper = ({
   setEdit: (value: boolean) => void;
   developer: Developer;
 }) => {
+  const router = useRouter();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [dragActive, setDragActive] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -139,11 +141,12 @@ const EditDeveloper = ({
       }
       setEdit(false);
       showToastSuccess(res.message || "Update developer successful");
+      router.refresh();
     });
   };
 
   return (
-    <AlertDialog open={edit} onOpenChange={setEdit}>
+    <AlertDialog open={edit} onOpenChange={setEdit} key={developer.id}>
       <AlertDialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
           <AlertDialogHeader className="space-y-3">

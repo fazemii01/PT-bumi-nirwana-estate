@@ -17,13 +17,12 @@ import {
   IconBuildingSkyscraper,
   IconBrandChrome,
 } from "@tabler/icons-react";
-import { startTransition, useEffect, useState, useTransition } from "react";
-import { addDeveloper } from "@/api/developer";
+import { useEffect, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Developer } from "@/types/developer";
 import { showToastError, showToastSuccess } from "../toast";
 import { submitCreateDeveloper } from "@/actions/developer";
-import { set } from "zod";
+import { useRouter } from "next/navigation";
 
 const CreateDeveloper = ({
   open,
@@ -32,6 +31,7 @@ const CreateDeveloper = ({
   open: boolean;
   setOpen: (value: boolean) => void;
 }) => {
+  const router = useRouter();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [dragActive, setDragActive] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -137,6 +137,7 @@ const CreateDeveloper = ({
       setPreviewUrl(null);
       setOpen(false);
       showToastSuccess(res.message || "Create developer successful");
+      router.refresh();
     });
   };
   return (

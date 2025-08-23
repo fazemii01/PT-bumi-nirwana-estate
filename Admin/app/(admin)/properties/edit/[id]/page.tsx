@@ -1,12 +1,16 @@
 // app/properties/edit/[id]/page.tsx
 import { getById } from "@/actions/property";
-import { updateProperty } from "@/api/property";
+
 import PropertyEditForm from "@/components/properties/edit/edit-form";
 import { Property } from "@/types/properties";
-import { revalidatePath } from "next/cache";
+
 import { notFound } from "next/navigation";
 
-export default async function EditPropertyPage({ params }: { params: { id: string } }) {
+export default async function EditPropertyPage({
+  params,
+}: {
+  params: { id: string };
+}) {
   const { id } = params;
 
   const propertyData = await getById({ id });

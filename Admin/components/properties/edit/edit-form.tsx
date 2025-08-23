@@ -2,8 +2,6 @@
 import React, { useEffect, useMemo, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getAgent } from "@/api/agent";
-import { getDeveloper } from "@/api/developer";
 import { Agent } from "@/types/agent";
 import { Developer } from "@/types/developer";
 import { Property } from "@/types/properties";
@@ -17,6 +15,7 @@ import EditMediaForm from "@/components/properties/edit/edit-media";
 import { getDataAgent } from "@/actions/agent";
 import { getDataDeveloper } from "@/actions/developer";
 import { submitUpdateProperty } from "@/actions/property";
+import { useRouter } from "next/navigation";
 
 type UpdateSubmitHandler = (props: {
   id: string;
@@ -61,6 +60,7 @@ function safeParseInitial(initialData: Property): Property {
 }
 
 const PropertyEditForm = ({ initialData }: { initialData: Property }) => {
+  const router = useRouter();
   const safeParsed = useMemo(
     () => safeParseInitial(initialData),
     [initialData]
@@ -261,6 +261,7 @@ const PropertyEditForm = ({ initialData }: { initialData: Property }) => {
           res.message || "Failed to update property. Please try again."
         );
       }
+      router.push("/properties");
       showToastSuccess("Property updated successfully!");
       setOriginalData(dataForSubmit);
       setNewImageFiles([]);

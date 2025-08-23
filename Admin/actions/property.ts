@@ -1,20 +1,7 @@
 "use server";
 
-import { addProperty, deletePropertyById, getProperty, getPropertyById, updateProperty } from "@/api/property";
+import { addProperty, deletePropertyById, getPropertyById, updateProperty } from "@/api/property";
 import { Property } from "@/types/properties";
-
-export async function getAll() {
-  try {
-    const res = await getProperty();
-    if (res.success) {
-      return { success: true, data: res.data };
-    } else {
-      return { success: false, message: res.error || "Gagal mengambil data property." };
-    }
-  } catch (error) {
-    return { success: false, message: "Terjadi error pada server." };
-  }
-}
 
 export async function getById({ id }: { id: string }) {
   try {
