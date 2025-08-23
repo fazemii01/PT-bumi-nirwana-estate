@@ -65,6 +65,19 @@ export class BanksService {
   async remove(id: string) {
     const bank = await this.bankRepository.findOneBy({ id });
     if (!bank) throw new NotFoundException('Bank tidak ditemukan');
+    const filePath = path.join(
+      __dirname,
+      '..',
+      '..',
+      'uploads/banks',
+      bank.logo,
+    );
+    try {
+      fs.unlinkSync(filePath);
+    } catch (fs) {
+      console.error('Failed to delete old logo:', fs.message);
+    }
+
     await this.bankRepository.delete({ id });
     return { message: 'Bank berhasil dihapus' };
   }
