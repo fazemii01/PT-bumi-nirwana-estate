@@ -1,8 +1,7 @@
 "use server";
 
-import { addAgent, deleteAgentById, getAgent, updateAgent } from "@/api/agent";
+import { addAgent, deleteAgentById, updateAgent } from "@/api/agent";
 import { Agent } from "@/types/agent";
-import { revalidatePath } from "next/cache";
 
 export async function getDataAgent(): Promise<{
   success: boolean;

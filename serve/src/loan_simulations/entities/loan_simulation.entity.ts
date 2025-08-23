@@ -47,7 +47,7 @@ export class LoanSimulation {
   @Column({ type: 'decimal', precision: 15, scale: 2, nullable: false })
   loan_amount: number;
 
-  @Column({ type: 'decimal', precision: 15, scale: 2, nullable: false })
+  @Column({ type: 'decimal', precision: 15, scale: 2, nullable: true })
   down_payment: number;
 
   @Column({ type: 'integer', nullable: false })
@@ -61,6 +61,15 @@ export class LoanSimulation {
 
   @Column({ type: 'enum', enum: LoanStatus, default: LoanStatus.SIMULATED })
   status: LoanStatus;
+
+  @Column('jsonb', { nullable: true })
+  breakdown: {
+    month: number;
+    principal: number;
+    interest: number;
+    installment: number;
+    remainingBalance: number;
+  }[];
 
   @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
