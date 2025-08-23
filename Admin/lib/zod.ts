@@ -122,3 +122,37 @@ export const UpdatePropertyZod = z.object({
   images: z.array(ImagePropertyZod).optional(),
   floor_plans: z.array(FloorPlanZod).optional(),
 });
+
+export const BankZod = z.object({
+  interest_rate: z.coerce
+    .number({
+      required_error: "Bunga tahunan wajib diisi",
+      invalid_type_error: "Bunga tahunan harus berupa angka",
+    })
+    .refine((val) => val >= 0, { message: "Minimum nilai bunga adalah 0" }),
+
+  max_tenure: z.coerce
+    .number({
+      required_error: "Maks tenor wajib diisi",
+      invalid_type_error: "Maks tenor harus berupa angka",
+    })
+    .refine((val) => val >= 1, { message: "Minimum tenor adalah 1 tahun" }),
+
+  file: z.instanceof(File, { message: "Logo wajib diisi" }),
+});
+
+export const BankZodEdit = z.object({
+  interest_rate: z.coerce
+    .number({
+      required_error: "Bunga tahunan wajib diisi",
+      invalid_type_error: "Bunga tahunan harus berupa angka",
+    })
+    .refine((val) => val >= 0, { message: "Minimum nilai bunga adalah 0" }),
+
+  max_tenure: z.coerce
+    .number({
+      required_error: "Maks tenor wajib diisi",
+      invalid_type_error: "Maks tenor harus berupa angka",
+    })
+    .refine((val) => val >= 1, { message: "Minimum tenor adalah 1 tahun" }),
+});

@@ -8,33 +8,36 @@ import Image from "next/image";
 import { showToastError, showToastSuccess } from "../toast";
 import { useRouter } from "next/navigation";
 import { Bank } from "@/types/bank";
-import { submitCreateBank } from "@/actions/bank";
-import { BankZod } from "@/lib/zod";
+import { submitUpdateBank } from "@/actions/bank";
+import { BankZodEdit } from "@/lib/zod";
+import { getImageUrl } from "@/service/imageUrl";
 
-const CreateBank = ({ open, setOpen }: { open: boolean; setOpen: (value: boolean) => void }) => {
+const EditBank = ({ open, setOpen, bank }: { open: boolean; setOpen: (value: boolean) => void; bank: Bank }) => {
   const router = useRouter();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [dragActive, setDragActive] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const imgUrl = (path: string) => getImageUrl(path);
   const [form, setForm] = useState<Bank>({
-    id: "",
-    name: "",
-    interest_rate: "",
-    max_tenure: "",
-    logo: "",
+    id: bank.id,
+    name: bank.name,
+    interest_rate: bank.interest_rate,
+    max_tenure: bank.max_tenure,
+    logo: bank.logo,
     file: undefined,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [pending, startTransition] = useTransition();
 
   useEffect(() => {
-    return () => {
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-      }
-    };
-  }, [previewUrl]);
+    if (bank.logo) {
+      setPreviewUrl(imgUrl(`/banks/${bank.logo}`));
+    } else {
+      setPreviewUrl(null);
+    }
+  }, [bank]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -76,16 +79,6 @@ const CreateBank = ({ open, setOpen }: { open: boolean; setOpen: (value: boolean
   };
 
   const handleCancel = () => {
-    setForm({
-      id: "",
-      name: "",
-      interest_rate: "",
-      max_tenure: "",
-      logo: "",
-      file: undefined,
-    });
-    setSelectedFile(null);
-    setPreviewUrl(null);
     setOpen(false);
   };
 
@@ -102,9 +95,8 @@ const CreateBank = ({ open, setOpen }: { open: boolean; setOpen: (value: boolean
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const validation = BankZod.safeParse(form);
+  const handleSubmit = () => {
+    const validation = BankZodEdit.safeParse(form);
     if (!validation.success) {
       const fieldErrors: Record<string, string> = {};
       validation.error.errors.forEach((err) => {
@@ -116,25 +108,16 @@ const CreateBank = ({ open, setOpen }: { open: boolean; setOpen: (value: boolean
       return;
     }
 
-    setErrors({});
-
     startTransition(async () => {
-      const res = await submitCreateBank({ bank: form });
+      const res = await submitUpdateBank({ bank: form, originalData: bank });
       if (!res.success) {
-        showToastError(res.message || "Failed to create bank. Please try again.");
+        showToastError(res.message || "Failed to update bank. Please try again.");
         return;
       }
-      setForm({
-        id: "",
-        name: "",
-        interest_rate: "",
-        max_tenure: "",
-        logo: "",
-      });
       setSelectedFile(null);
       setPreviewUrl(null);
       setOpen(false);
-      showToastSuccess(res.message || "Bank created successfully!");
+      showToastSuccess(res.message || "Bank updated successfully!");
       router.refresh();
     });
   };
@@ -148,9 +131,9 @@ const CreateBank = ({ open, setOpen }: { open: boolean; setOpen: (value: boolean
               <div className="p-2 rounded-full">
                 <IconBuilding className="size-5" />
               </div>
-              Create New Bank
+              Update Bank
             </AlertDialogTitle>
-            <AlertDialogDescription>Fill in the information below to create a new bank.</AlertDialogDescription>
+            <AlertDialogDescription>Fill in the information below to update the bank.</AlertDialogDescription>
           </AlertDialogHeader>
 
           <div className="space-y-5">
@@ -170,7 +153,7 @@ const CreateBank = ({ open, setOpen }: { open: boolean; setOpen: (value: boolean
                 <IconPercentage className="size-4" />
                 Bunga Tahunan
               </Label>
-              <Input id="interest_rate" name="interest_rate" type="number" value={form.interest_rate} onChange={handleChange} placeholder="Masukkan bunga tahunan" />
+              <Input id="interest_rate" name="interest_rate" type="number" value={form.interest_rate ? Math.floor(Number(form.interest_rate)) : ""} onChange={handleChange} placeholder="Masukkan bunga tahunan" />
               {errors.interest_rate && <p className="text-sm text-red-500">{errors.interest_rate}</p>}
             </div>
 
@@ -207,30 +190,45 @@ const CreateBank = ({ open, setOpen }: { open: boolean; setOpen: (value: boolean
                 <label htmlFor="input-file" className="flex flex-col items-center justify-center py-8 cursor-pointer">
                   {selectedFile && previewUrl ? (
                     <>
-                      <div className="relative w-32 h-32  overflow-hidden mb-3">
-                        <Image
-                          src={previewUrl}
-                          alt="Preview"
-                          fill // ganti width & height jadi fill
-                          sizes="128px" // optional, biar Next tahu perkiraan ukuran
-                          className="object-cover"
-                        />
+                      <div className="relative w-32 h-32 verflow-hidden mb-3">
+                        <Image src={previewUrl} alt="Preview" fill className="object-cover" />
                         <button
                           type="button"
                           onClick={(e) => {
                             e.preventDefault();
                             removeFile();
                           }}
-                          className="flex  items-center justify-center bg-red-500 size-6 rounded-full absolute right-0 top-0 text-white hover:bg-red-600 cursor-pointer"
+                          className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs transition-colors"
                         >
-                          x
+                          ×
                         </button>
                       </div>
+
                       <div className="text-center space-y-3">
                         <p className="text-sm font-medium text-green-700 truncate max-w-48">{selectedFile.name}</p>
                         <p className="text-xs text-green-600">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
                       </div>
 
+                      <p className="text-xs text-gray-500">Click to change image</p>
+                    </>
+                  ) : previewUrl ? (
+                    <>
+                      <div className="relative w-32 h-32 overflow-hidden mb-3">
+                        <Image fill src={previewUrl} alt="Preview" className=" object-cover " />
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            removeFile();
+                          }}
+                          className="absolute -right-0 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs transition-colors"
+                        >
+                          ×
+                        </button>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-sm font-medium text-green-700 truncate max-w-48">{bank.logo}</p>
+                      </div>
                       <p className="text-xs text-gray-500">Click to change image</p>
                     </>
                   ) : (
@@ -256,11 +254,9 @@ const CreateBank = ({ open, setOpen }: { open: boolean; setOpen: (value: boolean
             <AlertDialogCancel disabled={pending} onClick={handleCancel} className="flex-1 cursor-pointer">
               Cancel
             </AlertDialogCancel>
-            {/* <AlertDialogAction onClick={handleSubmit} disabled={pending} className="flex-1 bg-yellow-600 hover:bg-yellow-700 cursor-pointer">
-              {pending ? "Submitting..." : "Create Agent"}
-            </AlertDialogAction> */}
+
             <Button type="button" onClick={handleSubmit} disabled={pending} className="flex-1 cursor-pointer">
-              {pending ? "Submitting..." : "Create Bank"}
+              {pending ? "Updating..." : "Update Bank"}
             </Button>
           </AlertDialogFooter>
         </form>
@@ -269,4 +265,4 @@ const CreateBank = ({ open, setOpen }: { open: boolean; setOpen: (value: boolean
   );
 };
 
-export default CreateBank;
+export default EditBank;
