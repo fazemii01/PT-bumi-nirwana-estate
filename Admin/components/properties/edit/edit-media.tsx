@@ -55,11 +55,6 @@ export default function EditMediaForm({
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewSrc, setPreviewSrc] = useState<string | null>(null);
   const imgUrl = (path: string) => getImageUrl(path);
-  // const rurl = (p?: string) => {
-  //   if (!p) return "";
-  //   return resolveUrl ? resolveUrl(p) : p;
-  // };
-
   const openPreview = (src?: string) => {
     if (!src) return;
     setPreviewSrc(src);
