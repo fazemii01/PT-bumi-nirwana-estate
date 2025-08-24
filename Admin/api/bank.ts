@@ -20,3 +20,24 @@ export async function addBank({ bank }: { bank: Bank }) {
     body: formData,
   });
 }
+
+export async function updateBank({ bank, originalData }: { bank: Bank; originalData: Bank }) {
+  const formData = new FormData();
+
+  if (originalData.name !== bank.name) formData.append("name", bank.name);
+  if (originalData.max_tenure !== bank.max_tenure) formData.append("max_tenure", bank.max_tenure.toString());
+  if (originalData.interest_rate !== bank.interest_rate) formData.append("interest_rate", bank.interest_rate.toString());
+
+  if (bank.file) formData.append("logo", bank.file);
+
+  return await apiFetch<ApiResponse<Bank>>(`/banks/${bank.id}`, {
+    method: "PATCH",
+    body: formData,
+  });
+}
+
+export async function deleteBank({ id }: { id: string }) {
+  return await apiFetch<ApiResponse<Bank>>(`/banks/${id}`, {
+    method: "DELETE",
+  });
+}

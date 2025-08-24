@@ -13,3 +13,9 @@ export const formatCurrency = (amount: number) => {
   });
   return formatter.format(amount);
 };
+
+export const formatDecimal = (val: number) => {
+  return new Intl.NumberFormat("id-ID", {
+    maximumFractionDigits: 0,
+  }).format(val);
+};

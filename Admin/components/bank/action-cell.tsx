@@ -6,9 +6,10 @@ import { MoreHorizontal } from "lucide-react";
 import { IconEdit, IconTrash } from "@tabler/icons-react";
 import ConfirmMessage from "@/components/confirm-message";
 import { showToastError, showToastSuccess } from "../toast";
-import { deleteAgent } from "@/actions/agent";
 import { useRouter } from "next/navigation";
 import { Bank } from "@/types/bank";
+import EditBank from "@/components/bank/edit-bank";
+import { submitDeleteBank } from "@/actions/bank";
 
 const ActionBankCell = ({ bank }: { bank: Bank }) => {
   const router = useRouter();
@@ -17,14 +18,14 @@ const ActionBankCell = ({ bank }: { bank: Bank }) => {
   const [isLoading, setIsLoading] = useState(false);
   const handleDelete = async (id: string) => {
     setIsLoading(true);
-    const res = await deleteAgent({ id });
+    const res = await submitDeleteBank({ id });
     if (!res.success) {
-      showToastError(res.message || "Gagal menghapus agent.");
+      showToastError(res.message || "Gagal menghapus bank.");
       setOpen(false);
     }
     setIsLoading(false);
     setOpen(false);
-    showToastSuccess("Delete agent successfull");
+    showToastSuccess("Delete bank successfull");
     router.refresh();
   };
   return (
@@ -48,8 +49,8 @@ const ActionBankCell = ({ bank }: { bank: Bank }) => {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      {/* <ConfirmMessage open={open} setOpen={setOpen} data={agent.id} onConfirm={handleDelete} isLoading={isLoading} />
-      <EditAgent edit={edit} setEdit={setEdit} agent={agent} /> */}
+      <ConfirmMessage open={open} setOpen={setOpen} data={bank.id} onConfirm={handleDelete} isLoading={isLoading} />
+      <EditBank open={edit} setOpen={setEdit} bank={bank} />
     </>
   );
 };

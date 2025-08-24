@@ -1,7 +1,23 @@
 "use client";
 
 import * as React from "react";
-import { IconBuildingSkyscraper, IconCamera, IconCashBanknote, IconChartBar, IconDashboard, IconFileAi, IconFileDescription, IconHelp, IconListDetails, IconReport, IconSearch, IconSettings, IconUser, IconUsers } from "@tabler/icons-react";
+import {
+  IconBuilding,
+  IconBuildingSkyscraper,
+  IconCamera,
+  IconCashBanknote,
+  IconChartBar,
+  IconDashboard,
+  IconFileAi,
+  IconFileDescription,
+  IconHelp,
+  IconListDetails,
+  IconReport,
+  IconSearch,
+  IconSettings,
+  IconUser,
+  IconUsers,
+} from "@tabler/icons-react";
 
 import { NavMain } from "@/components/nav-main";
 import { NavSecondary } from "@/components/nav-secondary";
@@ -35,7 +51,7 @@ const data = {
     {
       title: "Bank",
       url: "/bank",
-      icon: IconCashBanknote,
+      icon: IconBuilding,
     },
   ],
   navClouds: [

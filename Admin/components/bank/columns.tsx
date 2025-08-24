@@ -3,6 +3,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
 import { Bank } from "@/types/bank";
 import ActionBankCell from "@/components/bank/action-cell";
+import { formatDecimal } from "@/lib/utils";
 
 export const columns: ColumnDef<Bank>[] = [
   {
@@ -17,10 +18,18 @@ export const columns: ColumnDef<Bank>[] = [
   {
     accessorKey: "interest_rate",
     header: "Bunga Tahunan",
+    cell: ({ row }) => {
+      const bunga = row.original.interest_rate;
+      return `${formatDecimal(parseInt(bunga))} %`;
+    },
   },
   {
     accessorKey: "max_tenure",
     header: "Maks Tenor",
+    cell: ({ row }) => {
+      const tenure = row.original.max_tenure;
+      return `${tenure} tahun`;
+    },
   },
   {
     accessorKey: "logo",
