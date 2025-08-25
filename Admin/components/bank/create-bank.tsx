@@ -1,40 +1,40 @@
 import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { IconUpload, IconImageInPicture, IconBuildingSkyscraper, IconBrandChrome } from "@tabler/icons-react";
+import { IconUpload, IconUser, IconMail, IconPhone, IconImageInPicture, IconCashBanknote, IconBuilding, IconPercentage, IconCalendarTime } from "@tabler/icons-react";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { showToastError, showToastSuccess } from "../toast";
-import { DeveloperSchema } from "@/lib/zod";
-import { set, ZodError } from "zod";
-import { Developer } from "@/types/developer";
-import { submitUpdateDeveloper } from "@/actions/developer";
 import { useRouter } from "next/navigation";
+import { Bank } from "@/types/bank";
+import { submitCreateBank } from "@/actions/bank";
+import { BankZod } from "@/lib/zod";
 
-const EditDeveloper = ({ edit, setEdit, developer }: { edit: boolean; setEdit: (value: boolean) => void; developer: Developer }) => {
+const CreateBank = ({ open, setOpen }: { open: boolean; setOpen: (value: boolean) => void }) => {
   const router = useRouter();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [dragActive, setDragActive] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [form, setForm] = useState<Developer>({
-    id: developer.id ?? "",
-    name: developer.name ?? "",
-    website_url: developer.website_url ?? "",
-    logo_url: developer.logo_url ?? "",
-    file_logo: undefined,
+  const [form, setForm] = useState<Bank>({
+    id: "",
+    name: "",
+    interest_rate: "",
+    max_tenure: "",
+    logo: "",
+    file: undefined,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [pending, startTransition] = useTransition();
 
   useEffect(() => {
-    if (developer?.logo_url) {
-      setPreviewUrl(`${process.env.NEXT_PUBLIC_API_URL}/uploads/developer/${developer.logo_url}`);
-    } else {
-      setPreviewUrl(null);
-    }
-  }, [developer]);
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -44,12 +44,13 @@ const EditDeveloper = ({ edit, setEdit, developer }: { edit: boolean; setEdit: (
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file && file.type.startsWith("image/")) {
+      const url = URL.createObjectURL(file);
       setSelectedFile(file);
-      setPreviewUrl(URL.createObjectURL(file));
+      setPreviewUrl(url);
       setForm((prev) => ({
         ...prev,
-        file_logo: file,
-        logo_url: file.name,
+        file: file,
+        logo: file.name,
       }));
     }
   };
@@ -75,7 +76,17 @@ const EditDeveloper = ({ edit, setEdit, developer }: { edit: boolean; setEdit: (
   };
 
   const handleCancel = () => {
-    setEdit(false);
+    setForm({
+      id: "",
+      name: "",
+      interest_rate: "",
+      max_tenure: "",
+      logo: "",
+      file: undefined,
+    });
+    setSelectedFile(null);
+    setPreviewUrl(null);
+    setOpen(false);
   };
 
   const removeFile = () => {
@@ -83,85 +94,105 @@ const EditDeveloper = ({ edit, setEdit, developer }: { edit: boolean; setEdit: (
     setPreviewUrl(null);
     setForm((prev) => ({
       ...prev,
-      file_logo: undefined,
-      logo_url: "",
+      file: undefined,
+      logo: "",
     }));
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
   };
 
-  const handleSubmit = () => {
-    const result = DeveloperSchema.safeParse(form);
-
-    if (!result.success) {
-      const zodErrors: Record<string, string> = {};
-      (result.error as ZodError).errors.forEach((err) => {
-        if (err.path.length > 0) {
-          zodErrors[err.path[0]] = err.message;
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const validation = BankZod.safeParse(form);
+    if (!validation.success) {
+      const fieldErrors: Record<string, string> = {};
+      validation.error.errors.forEach((err) => {
+        if (err.path[0]) {
+          fieldErrors[err.path[0] as string] = err.message;
         }
       });
-      setErrors(zodErrors);
+      setErrors(fieldErrors);
       return;
     }
+
     setErrors({});
 
     startTransition(async () => {
-      const res = await submitUpdateDeveloper({ data: form, originalData: developer });
+      const res = await submitCreateBank({ bank: form });
       if (!res.success) {
-        showToastError(res.message || "Update developer failed");
-        setEdit(true);
+        showToastError(res.message || "Failed to create bank. Please try again.");
+        return;
       }
-      setEdit(false);
-      showToastSuccess(res.message || "Update developer successful");
+      setForm({
+        id: "",
+        name: "",
+        interest_rate: "",
+        max_tenure: "",
+        logo: "",
+      });
+      setSelectedFile(null);
+      setPreviewUrl(null);
+      setOpen(false);
+      showToastSuccess(res.message || "Bank created successfully!");
       router.refresh();
     });
   };
 
   return (
-    <AlertDialog open={edit} onOpenChange={setEdit} key={developer.id}>
+    <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
           <AlertDialogHeader className="space-y-3">
             <AlertDialogTitle className="text-2xl font-semibold flex items-center gap-2">
               <div className="p-2 rounded-full">
-                <IconBuildingSkyscraper className="size-5" />
+                <IconBuilding className="size-5" />
               </div>
-              Update Developer
+              Create New Bank
             </AlertDialogTitle>
-            <AlertDialogDescription>Fill in the information below to update agent profile.</AlertDialogDescription>
+            <AlertDialogDescription>Fill in the information below to create a new bank.</AlertDialogDescription>
           </AlertDialogHeader>
 
           <div className="space-y-5">
             {/* Name */}
             <div className="space-y-1.5">
               <Label htmlFor="name" className="flex items-center gap-2">
-                <IconBuildingSkyscraper />
-                Developer Name
+                <IconBuilding className="size-4" />
+                Name
               </Label>
-              <Input id="name" name="name" value={form.name} onChange={handleChange} placeholder="Enter developer name" />
+              <Input id="name" name="name" value={form.name} onChange={handleChange} placeholder="Enter name bank" />
               {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
             </div>
 
-            {/* Email */}
+            {/* Interest Rate */}
             <div className="space-y-1.5">
-              <Label htmlFor="website_url" className="flex items-center gap-2">
-                <IconBrandChrome />
-                Website URL
+              <Label htmlFor="interest_rate" className="flex items-center gap-2">
+                <IconPercentage className="size-4" />
+                Bunga Tahunan
               </Label>
-              <Input id="website_url" name="website_url" value={form.website_url} onChange={handleChange} placeholder="agent@example.com" />
-              {errors.website_url && <p className="text-sm text-red-500">{errors.website_url}</p>}
+              <Input id="interest_rate" name="interest_rate" type="number" value={form.interest_rate} onChange={handleChange} placeholder="Masukkan bunga tahunan" />
+              {errors.interest_rate && <p className="text-sm text-red-500">{errors.interest_rate}</p>}
+            </div>
+
+            {/* Max Tenure */}
+            <div className="space-y-1.5">
+              <Label htmlFor="max_tenure" className="flex items-center gap-2">
+                <IconCalendarTime className="size-4" />
+                Max Tenure
+              </Label>
+              <Input id="max_tenure" name="max_tenure" type="number" value={form.max_tenure} onChange={handleChange} placeholder="Masukkan max tenure" />
+              {errors.max_tenure && <p className="text-sm text-red-500">{errors.max_tenure}</p>}
             </div>
 
             {/* Logo */}
             <div className="space-y-2">
               <Label className="text-sm font-medium flex items-center gap-2">
-                <IconImageInPicture />
-                Developer Logo
+                <IconImageInPicture className="size-4" />
+                Logo
               </Label>
 
               <div
-                className={`relative border-2 border-dashed rounded-lg transition-all duration-200 ${
+                className={`relative border-2 border-dashed rounded-lg transition-all duration-200 backdrop-blur-sm ${
                   dragActive
                     ? "border-blue-400/60 bg-blue-500/20 dark:border-blue-300/60 dark:bg-blue-400/20"
                     : selectedFile
@@ -176,45 +207,30 @@ const EditDeveloper = ({ edit, setEdit, developer }: { edit: boolean; setEdit: (
                 <label htmlFor="input-file" className="flex flex-col items-center justify-center py-8 cursor-pointer">
                   {selectedFile && previewUrl ? (
                     <>
-                      <div className="relative w-32 h-32 verflow-hidden mb-3">
-                        <Image src={previewUrl} alt="Preview" fill className="object-cover" />
+                      <div className="relative w-32 h-32  overflow-hidden mb-3">
+                        <Image
+                          src={previewUrl}
+                          alt="Preview"
+                          fill // ganti width & height jadi fill
+                          sizes="128px" // optional, biar Next tahu perkiraan ukuran
+                          className="object-cover"
+                        />
                         <button
                           type="button"
                           onClick={(e) => {
                             e.preventDefault();
                             removeFile();
                           }}
-                          className="absolute -top-2 -right-2 bg-red-500/80 hover:bg-red-600/90 dark:bg-red-400/80 dark:hover:bg-red-500/90 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs transition-colors backdrop-blur-sm"
+                          className="flex  items-center justify-center bg-red-500 size-6 rounded-full absolute right-0 top-0 text-white hover:bg-red-600 cursor-pointer"
                         >
-                          ×
+                          x
                         </button>
                       </div>
-
                       <div className="text-center space-y-3">
-                        <p className="text-sm font-medium text-foreground/90 dark:text-white/90 truncate max-w-48">{selectedFile.name}</p>
-                        <p className="text-xs text-muted-foreground/70 dark:text-white/70">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                        <p className="text-sm font-medium text-green-700 truncate max-w-48">{selectedFile.name}</p>
+                        <p className="text-xs text-green-600">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
                       </div>
 
-                      <p className="text-xs text-muted-foreground/60 dark:text-white/60">Click to change image</p>
-                    </>
-                  ) : previewUrl ? (
-                    <>
-                      <div className="relative w-32 h-32 overflow-hidden mb-3">
-                        <Image fill src={previewUrl} alt="Preview" className=" object-cover " />
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            removeFile();
-                          }}
-                          className="absolute -right-0 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs transition-colors"
-                        >
-                          ×
-                        </button>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-sm font-medium text-green-700 truncate max-w-48">{developer.logo_url}</p>
-                      </div>
                       <p className="text-xs text-gray-500">Click to change image</p>
                     </>
                   ) : (
@@ -230,9 +246,9 @@ const EditDeveloper = ({ edit, setEdit, developer }: { edit: boolean; setEdit: (
                     </div>
                   )}
                 </label>
-                <input ref={fileInputRef} type="file" id="input-file" name="file_avatar" className="hidden" accept="image/*" onChange={handleFileSelect} />
+                <input ref={fileInputRef} type="file" id="input-file" name="file" className="hidden" accept="image/*" onChange={handleFileSelect} />
               </div>
-              {errors.logo && <p className="text-sm text-red-500">{errors.logo}</p>}
+              {errors.file && <p className="text-sm text-red-500">{errors.file}</p>}
             </div>
           </div>
 
@@ -244,7 +260,7 @@ const EditDeveloper = ({ edit, setEdit, developer }: { edit: boolean; setEdit: (
               {pending ? "Submitting..." : "Create Agent"}
             </AlertDialogAction> */}
             <Button type="button" onClick={handleSubmit} disabled={pending} className="flex-1 cursor-pointer">
-              {pending ? "Submitting..." : "Update Agent"}
+              {pending ? "Submitting..." : "Create Bank"}
             </Button>
           </AlertDialogFooter>
         </form>
@@ -253,4 +269,4 @@ const EditDeveloper = ({ edit, setEdit, developer }: { edit: boolean; setEdit: (
   );
 };
 
-export default EditDeveloper;
+export default CreateBank;

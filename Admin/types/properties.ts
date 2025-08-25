@@ -23,14 +23,14 @@ export type Property = {
   agentId: string;
   name: string;
   slug?: string;
+  type: PropertyType;
   status: PropertyStatus;
-  price: string;
+  price: number;
   price_unit: PriceUnit;
-  luas: string;
-  jenis: string;
+  land_size: number;
+  building_size: number;
   description: string;
   detail_description: string;
-  // Note: FE pakai [lat, lng], API expects [lng, lat] (GeoJSON)
   location?: {
     type: "Point";
     coordinates: [number, number];
@@ -114,4 +114,11 @@ export enum PriceUnit {
   TOTAL = "TOTAL",
   PER_MONTH = "PER_MONTH",
   PER_SQM = "PER_SQM",
+}
+
+export enum PropertyType {
+  HOUSE = "HOUSE",
+  APARTMENT = "APARTMENT",
+  RUKO = "RUKO",
+  KAVLING = "KAVLING",
 }

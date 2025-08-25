@@ -54,7 +54,7 @@ export class Property {
     onUpdate: 'CASCADE',
   })
   @JoinColumn({ name: 'agentId' })
-  agent: Agent;
+  agent: Agent; 
 
   @Column({ type: 'varchar', length: 255, nullable: false })
   name: string;

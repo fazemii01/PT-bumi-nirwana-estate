@@ -1,5 +1,5 @@
 import { object, string, number, array, nativeEnum, literal, tuple, z } from "zod";
-import { PropertyStatus, PriceUnit } from "../types/properties";
+import { PropertyStatus, PriceUnit, PropertyType } from "../types/properties";
 
 const emptyToUndef = z
   .string()
@@ -80,11 +80,12 @@ export const PropertyZod = object({
   developerId: string().min(1, "Developer wajib diisi"),
   agentId: string().min(1, "Agent wajib diisi"),
   name: string().min(1, "Nama properti wajib diisi"),
+  type: nativeEnum(PropertyType),
   status: nativeEnum(PropertyStatus),
-  price: string().min(1, "Harga wajib diisi"),
+  price: z.coerce.number().min(0, "Harga wajib diisi"),
   price_unit: nativeEnum(PriceUnit),
-  luas: string().min(1, "Luas wajib diisi"),
-  jenis: string().optional(),
+  land_size: z.coerce.number().min(0, "Luas tanah wajib diisi"),
+  building_size: z.coerce.number().min(0, "Luas bangunan wajib diisi"),
   description: string().optional(),
   detail_description: string().optional(),
   location: object({
@@ -109,27 +110,49 @@ export const UpdatePropertyZod = z.object({
   status: z.nativeEnum(PropertyStatus),
   price: z.string().min(1, "Harga wajib diisi"),
   price_unit: z.nativeEnum(PriceUnit),
-
-  // ini optional di edit
   luas: emptyToUndef,
   jenis: emptyToUndef,
   description: emptyToUndef,
   detail_description: emptyToUndef,
-
-  // kalau kamu ingin lokasi TIDAK wajib di edit:
-  // - opsi A: optional penuh
-  // location: LocationZod.optional(),
-  // - opsi B: tetap wajib (kalau BE mengharuskan selalu ada):
   location: LocationZod,
-
   address: AddressZod.optional(),
   specifications: SpecificationsZod.optional(),
-
-  // EDIT TIDAK MENYENTUH MEDIA → jadikan optional TANPA min()
   property_images: z.array(z.object({})).optional(),
   property_floor_plans: z.array(z.object({})).optional(),
-
-  // kamu edit media di halaman detail terpisah → optional
   images: z.array(ImagePropertyZod).optional(),
   floor_plans: z.array(FloorPlanZod).optional(),
+});
+
+export const BankZod = z.object({
+  interest_rate: z.coerce
+    .number({
+      required_error: "Bunga tahunan wajib diisi",
+      invalid_type_error: "Bunga tahunan harus berupa angka",
+    })
+    .refine((val) => val >= 0, { message: "Minimum nilai bunga adalah 0" }),
+
+  max_tenure: z.coerce
+    .number({
+      required_error: "Maks tenor wajib diisi",
+      invalid_type_error: "Maks tenor harus berupa angka",
+    })
+    .refine((val) => val >= 1, { message: "Minimum tenor adalah 1 tahun" }),
+
+  file: z.instanceof(File, { message: "Logo wajib diisi" }),
+});
+
+export const BankZodEdit = z.object({
+  interest_rate: z.coerce
+    .number({
+      required_error: "Bunga tahunan wajib diisi",
+      invalid_type_error: "Bunga tahunan harus berupa angka",
+    })
+    .refine((val) => val >= 0, { message: "Minimum nilai bunga adalah 0" }),
+
+  max_tenure: z.coerce
+    .number({
+      required_error: "Maks tenor wajib diisi",
+      invalid_type_error: "Maks tenor harus berupa angka",
+    })
+    .refine((val) => val >= 1, { message: "Minimum tenor adalah 1 tahun" }),
 });

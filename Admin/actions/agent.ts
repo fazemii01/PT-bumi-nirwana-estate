@@ -1,20 +1,7 @@
 "use server";
 
-import { addAgent, deleteAgentById, getAgent, updateAgent } from "@/api/agent";
+import { addAgent, deleteAgentById, updateAgent } from "@/api/agent";
 import { Agent } from "@/types/agent";
-
-export async function getDataAgent() {
-  try {
-    const res = await getAgent();
-    if (res.success) {
-      return { success: true, data: res.data };
-    } else {
-      return { success: false, message: res.error || "Gagal mengambil data agent." };
-    }
-  } catch (error) {
-    return { success: false, message: "Terjadi error pada server." };
-  }
-}
 
 export async function submitCreateAgent({ data }: { data: Agent }) {
   try {

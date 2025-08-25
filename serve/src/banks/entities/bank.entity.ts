@@ -22,6 +22,9 @@ export class Bank {
   @Column({ type: 'integer', nullable: false })
   max_tenure: number;
 
+  @Column({ type: 'varchar', length: 255, nullable: false })
+  logo: string;
+
   @OneToMany(() => LoanSimulation, (loanSimulation) => loanSimulation.bank)
   loan_simulations: LoanSimulation[];
 

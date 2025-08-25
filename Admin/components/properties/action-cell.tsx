@@ -9,17 +9,24 @@ import { showToastError, showToastSuccess } from "../toast";
 import { Property } from "@/types/properties";
 import Link from "next/link";
 import { deleteProperty } from "@/actions/property";
+import { useRouter } from "next/navigation";
 
 const ActionPropertyCell = ({ property }: { property: Property }) => {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const handleDelete = async (id: string) => {
+    setIsLoading(true);
     const res = await deleteProperty({ id: id });
     if (!res.success) {
+      setIsLoading(false);
       showToastError(res.message || "failed delete data");
       setOpen(false);
     }
+    setIsLoading(false);
     setOpen(false);
     showToastSuccess("Delete property successfull");
+    router.refresh();
   };
 
   return (
@@ -55,7 +62,7 @@ const ActionPropertyCell = ({ property }: { property: Property }) => {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <ConfirmMessage open={open} setOpen={setOpen} data={property.id} onConfirm={handleDelete} />
+      <ConfirmMessage open={open} setOpen={setOpen} data={property.id} onConfirm={handleDelete} isLoading={isLoading} />
     </>
   );
 };

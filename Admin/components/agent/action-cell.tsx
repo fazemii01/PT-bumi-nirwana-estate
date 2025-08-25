@@ -9,18 +9,24 @@ import ConfirmMessage from "@/components/confirm-message";
 import { showToastError, showToastSuccess } from "../toast";
 import EditAgent from "./edit-agent";
 import { deleteAgent } from "@/actions/agent";
+import { useRouter } from "next/navigation";
 
 const ActionAgentCell = ({ agent }: { agent: Agent }) => {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [edit, setEdit] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const handleDelete = async (id: string) => {
+    setIsLoading(true);
     const res = await deleteAgent({ id });
     if (!res.success) {
       showToastError(res.message || "Gagal menghapus agent.");
       setOpen(false);
     }
+    setIsLoading(false);
     setOpen(false);
     showToastSuccess("Delete agent successfull");
+    router.refresh();
   };
   return (
     <>
@@ -43,7 +49,7 @@ const ActionAgentCell = ({ agent }: { agent: Agent }) => {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <ConfirmMessage open={open} setOpen={setOpen} data={agent.id} onConfirm={handleDelete} />
+      <ConfirmMessage open={open} setOpen={setOpen} data={agent.id} onConfirm={handleDelete} isLoading={isLoading} />
       <EditAgent edit={edit} setEdit={setEdit} agent={agent} />
     </>
   );
