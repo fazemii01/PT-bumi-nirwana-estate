@@ -14,7 +14,7 @@ void main() async {
 
   bool isTokenExpired = token == null || JwtDecoder.isExpired(token);
 
-  runApp(MyApp(initialRoute: Routes.STARTED));
+  runApp(MyApp(initialRoute: isTokenExpired ? Routes.LAYOUT : Routes.LAYOUT));
 }
 
 class MyApp extends StatelessWidget {

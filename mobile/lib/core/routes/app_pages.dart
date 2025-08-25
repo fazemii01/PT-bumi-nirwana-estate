@@ -1,11 +1,11 @@
-import '../../presentation/pages/start/get_started.dart';
 import 'package:get/get.dart';
+import 'package:mobile_nirwana/views/layout.dart';
 
 class AppPages {
   static final pages = [
     GetPage(
-        name: '/started',
-        page: () => GetStartedScreen(),
+        name: '/layout',
+        page: () => Layout(),
         transition: Transition.leftToRight),
   ];
 }
