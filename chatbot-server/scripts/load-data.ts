@@ -31,7 +31,7 @@ async function main() {
 
   const embeddings = new OllamaEmbeddings({
     baseUrl: 'http://localhost:4600',
-    model: 'nomic-embed-text-v1.5.f16.gguf',
+    model: 'nomic-embed-text',
   });
 
 
