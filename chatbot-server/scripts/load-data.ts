@@ -2,7 +2,7 @@ import { OllamaEmbeddings } from '@langchain/ollama';
 import { Document } from '@langchain/core/documents';
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { FaissStore } from '@langchain/community/vectorstores/faiss';
-
+import { MarkdownTextSplitter } from 'langchain/text_splitter';
 
 const DATA_SOURCE = 'path/to/your/data.txt';
 
@@ -31,7 +31,7 @@ async function main() {
 
   const embeddings = new OllamaEmbeddings({
     baseUrl: 'http://localhost:4600',
-    model: 'nomic-embed-text',
+    model: 'nomic-embed-text-v1.5.f16.gguf',
   });
 
 
@@ -49,7 +49,7 @@ async function main() {
   });
   const splits = await textSplitter.splitDocuments(docs);
   console.log(`Split documents into ${splits.length} chunks.`);
-
+  
 
   const vectorStore = await FaissStore.fromDocuments(splits, embeddings);
   await vectorStore.save('faiss-index');

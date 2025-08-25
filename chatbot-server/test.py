@@ -1,6 +1,8 @@
 import os
 import pandas as pd
 import numpy as np
+import socketio
+import time
 from langchain_community.vectorstores.faiss import FAISS
 from langchain_ollama import OllamaEmbeddings, OllamaLLM
 from langchain.prompts import PromptTemplate
@@ -11,7 +13,7 @@ from langchain_community.document_loaders import TextLoader
 FAISS_INDEX_PATH = "faiss-index-py" 
 DATA_SOURCE = "training_data_asknirwan.txt"
 EMBEDDING_MODEL = "nomic-embed-text"
-GENERATION_MODEL = "gemma:2b"
+GENERATION_MODEL = "qwen2:1.5b"
 BASE_URL = "http://localhost:4600"
 test_data = {
     "question": [

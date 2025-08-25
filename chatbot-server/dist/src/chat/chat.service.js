@@ -10,14 +10,15 @@ exports.ChatService = void 0;
 const common_1 = require("@nestjs/common");
 const documents_1 = require("@langchain/core/documents");
 const text_splitter_1 = require("langchain/text_splitter");
+const output_parsers_1 = require("@langchain/core/output_parsers");
 const prompts_1 = require("@langchain/core/prompts");
 const ollama_1 = require("@langchain/ollama");
 const messages_1 = require("@langchain/core/messages");
+const runnables_1 = require("@langchain/core/runnables");
 const faiss_1 = require("@langchain/community/vectorstores/faiss");
 const combine_documents_1 = require("langchain/chains/combine_documents");
 const history_aware_retriever_1 = require("langchain/chains/history_aware_retriever");
 const retrieval_1 = require("langchain/chains/retrieval");
-const multi_query_1 = require("langchain/retrievers/multi_query");
 let ChatService = class ChatService {
     constructor() {
         this.chatHistory = [];
@@ -25,11 +26,11 @@ let ChatService = class ChatService {
     async onModuleInit() {
         this.embeddings = new ollama_1.OllamaEmbeddings({
             baseUrl: 'http://localhost:4600',
-            model: 'nomic-embed-text',
+            model: 'nomic-embed-text-v1.5.f16',
         });
         this.visionModel = new ollama_1.ChatOllama({
             baseUrl: 'http://localhost:4600',
-            model: 'moondream',
+            model: 'llava-phi-3-mini-mmproj-f16',
         });
         try {
             console.log('Attempting to load Faiss index from disk...');
@@ -44,31 +45,23 @@ let ChatService = class ChatService {
     async initializeConversationalChain() {
         const ollama = new ollama_1.ChatOllama({
             baseUrl: 'http://localhost:4600',
-            model: 'qwen2:1.5b',
+            model: 'Phi-3-mini-4k-instruct-q4',
         });
-        const multiQueryRetriever = multi_query_1.MultiQueryRetriever.fromLLM({
-            llm: ollama,
-            retriever: this.vectorStore.asRetriever(),
-            verbose: true,
-        });
-        const historyAwarePrompt = prompts_1.ChatPromptTemplate.fromMessages([
-            new prompts_1.MessagesPlaceholder('chat_history'),
-            ['user', '{input}'],
-            [
-                'user',
-                'Given the above conversation, generate a search query to look up in order to get information relevant to the conversation. Mengingat percakapan di atas, buatlah kueri pencarian untuk mencari informasi yang relevan dengan percakapan tersebut',
-            ],
-        ]);
-        const historyAwareRetrieverChain = await (0, history_aware_retriever_1.createHistoryAwareRetriever)({
-            llm: ollama,
-            retriever: multiQueryRetriever,
-            rephrasePrompt: historyAwarePrompt,
-        });
-        const baseRetriever = this.vectorStore.asRetriever(4);
+        const greetingPrompt = prompts_1.ChatPromptTemplate.fromTemplate(`You are a helpful assistant named AskNirwana. You can handle basic greetings. Respond in Indonesian. Keep your response brief, friendly, and invite the user to ask about properties.
+      User's input: {input}`);
+        this.greetingChain = greetingPrompt.pipe(ollama).pipe(new output_parsers_1.StringOutputParser());
+        const retriever = this.vectorStore.asRetriever({ k: 2 });
         const historyAwareAnswerPrompt = prompts_1.ChatPromptTemplate.fromMessages([
             [
                 'system',
-                "You are AskNirwana, a helpful and friendly assistant. Answer the user's questions based on the context provided. You can synthesize information from different parts of the context to form a complete answer. If the answer is not explicitly stated, you can make a logical inference based on the information you have, but mention that it is an inference. Be conversational and proactive.\n\n{context}. Anda adalah AskNirwana, asisten yang ramah dan membantu. Jawab pertanyaan pengguna berdasarkan konteks yang diberikan. Anda dapat merangkum informasi dari berbagai bagian konteks untuk membentuk jawaban yang lengkap. Jika jawabannya tidak dinyatakan secara eksplisit, Anda dapat membuat kesimpulan logis berdasarkan informasi yang Anda miliki, tetapi sebutkan bahwa itu adalah kesimpulan. Bersikaplah komunikatif dan proaktif.\n\n{context}",
+                `You are a helpful assistant named AskNirwana.
+ - Answer the user's question STRICTLY based on the provided "Context" below.
+ - Each project is described in its own section. DO NOT mix details between different projects.
+ - Be concise, direct, humble and answer in Indonesian.
+ - If the answer is not found in the context, you MUST reply with the exact phrase: "Informasi tidak ditemukan dalam konteks." and give the possible solution 
+
+   Context:
+   {context}`,
             ],
             new prompts_1.MessagesPlaceholder('chat_history'),
             ['user', '{input}'],
@@ -77,10 +70,49 @@ let ChatService = class ChatService {
             llm: ollama,
             prompt: historyAwareAnswerPrompt,
         });
+        this.directChain = await (0, retrieval_1.createRetrievalChain)({
+            retriever: retriever,
+            combineDocsChain: historyAwareCombineDocsChain,
+        });
+        const historyAwarePrompt = prompts_1.ChatPromptTemplate.fromMessages([
+            new prompts_1.MessagesPlaceholder('chat_history'),
+            ['user', '{input}'],
+            [
+                'user',
+                'Given the above conversation, generate a search query to look up in order to get information relevant to the conversation...',
+            ],
+        ]);
+        const historyAwareRetrieverChain = await (0, history_aware_retriever_1.createHistoryAwareRetriever)({
+            llm: ollama,
+            retriever: retriever,
+            rephrasePrompt: historyAwarePrompt,
+        });
         this.conversationalChain = await (0, retrieval_1.createRetrievalChain)({
             retriever: historyAwareRetrieverChain,
             combineDocsChain: historyAwareCombineDocsChain,
         });
+        this.masterChain = new runnables_1.RunnableBranch({
+            branches: [
+                [
+                    new runnables_1.RunnableLambda({
+                        func: (input) => this.isGreeting(input.input),
+                    }),
+                    this.greetingChain,
+                ],
+                [
+                    new runnables_1.RunnableLambda({
+                        func: (input) => input.chat_history.length === 0,
+                    }),
+                    this.directChain,
+                ],
+            ],
+            default: this.conversationalChain,
+        });
+    }
+    isGreeting(message) {
+        const greetings = ['halo', 'hi', 'hello', 'apa kabar', 'pagi', 'siang', 'sore', 'malam'];
+        const lowerCaseMessage = message.toLowerCase().trim();
+        return greetings.some(greeting => lowerCaseMessage.startsWith(greeting));
     }
     formatDocs(docs) {
         return docs.map((doc) => doc.pageContent).join('\n\n');
@@ -89,18 +121,28 @@ let ChatService = class ChatService {
         if (!this.vectorStore) {
             return 'I am sorry, but I have no knowledge base to answer your question. Please upload a file first.';
         }
-        if (!this.conversationalChain) {
-            this.initializeConversationalChain();
+        if (!this.masterChain) {
+            await this.initializeConversationalChain();
         }
-        console.log('Invoking conversational chain with question...');
-        const result = await this.conversationalChain.invoke({
+        console.log('Invoking master chain with question...');
+        const result = await this.masterChain.invoke({
             chat_history: this.chatHistory,
             input: message,
         });
+        let answer;
+        if (typeof result === 'string') {
+            answer = result;
+        }
+        else if (result && typeof result.answer === 'string') {
+            answer = result.answer;
+        }
+        else {
+            answer = "Maaf, terjadi kesalahan dalam memproses jawaban.";
+        }
         this.chatHistory.push(new messages_1.HumanMessage(message));
-        this.chatHistory.push(new messages_1.AIMessage(result.answer));
-        console.log('AI Answer:', result.answer);
-        return result.answer;
+        this.chatHistory.push(new messages_1.AIMessage(answer));
+        console.log('AI Answer:', answer);
+        return answer;
     }
     clearHistory() {
         this.chatHistory = [];
@@ -137,11 +179,12 @@ let ChatService = class ChatService {
             pageContent = file.buffer.toString();
         }
         const doc = new documents_1.Document({ pageContent });
-        const textSplitter = new text_splitter_1.RecursiveCharacterTextSplitter({
-            chunkSize: 512,
-            chunkOverlap: 50,
+        const splitter = new text_splitter_1.RecursiveCharacterTextSplitter({
+            chunkSize: 1024,
+            chunkOverlap: 100,
+            separators: ['\n\n## ', '\n## ', '\n\n# ', '\n# ', '\n\n', '\n', ' ', ''],
         });
-        const splits = await textSplitter.splitDocuments([doc]);
+        const splits = await splitter.createDocuments([pageContent]);
         console.log(`Split document into ${splits.length} chunks.`);
         const batchSize = 32;
         for (let i = 0; i < splits.length; i += batchSize) {
