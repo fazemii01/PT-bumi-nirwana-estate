@@ -19,7 +19,7 @@ async function main() {
     console.log('--- Starting data loading process ---');
     const embeddings = new ollama_1.OllamaEmbeddings({
         baseUrl: 'http://localhost:4600',
-        model: 'nomic-embed-text',
+        model: 'nomic-embed-text-v1.5.f16.gguf',
     });
     const docs = await loadDocuments(DATA_SOURCE);
     if (docs.length === 0) {
