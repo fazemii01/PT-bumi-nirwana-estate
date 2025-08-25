@@ -8,6 +8,20 @@ export async function getBanks(): Promise<ApiResponse<Bank[]>> {
   });
 }
 
+export async function getBankPaged(
+  page = 1,
+  limit = 10
+): Promise<{ data: Bank[]; total: number }> {
+  const res = await getBanks();
+  const all = res.data ?? [];
+  const total = all.length;
+  const start = (page - 1) * limit;
+  return {
+    data: all.slice(start, start + limit),
+    total,
+  };
+}
+
 export async function addBank({ bank }: { bank: Bank }) {
   const formData = new FormData();
   formData.append("name", bank.name);
@@ -21,12 +35,20 @@ export async function addBank({ bank }: { bank: Bank }) {
   });
 }
 
-export async function updateBank({ bank, originalData }: { bank: Bank; originalData: Bank }) {
+export async function updateBank({
+  bank,
+  originalData,
+}: {
+  bank: Bank;
+  originalData: Bank;
+}) {
   const formData = new FormData();
 
   if (originalData.name !== bank.name) formData.append("name", bank.name);
-  if (originalData.max_tenure !== bank.max_tenure) formData.append("max_tenure", bank.max_tenure.toString());
-  if (originalData.interest_rate !== bank.interest_rate) formData.append("interest_rate", bank.interest_rate.toString());
+  if (originalData.max_tenure !== bank.max_tenure)
+    formData.append("max_tenure", bank.max_tenure.toString());
+  if (originalData.interest_rate !== bank.interest_rate)
+    formData.append("interest_rate", bank.interest_rate.toString());
 
   if (bank.file) formData.append("logo", bank.file);
 

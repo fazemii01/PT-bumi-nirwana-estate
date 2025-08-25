@@ -8,27 +8,6 @@ import {
 } from "@/api/developer";
 import { Developer } from "@/types/developer";
 
-export async function getDataDeveloper(): Promise<{
-  success: boolean;
-  data?: Developer[];
-  message?: string;
-}> {
-  try {
-    const res = await getDeveloper();
-
-    if (res.success) {
-      return { success: true, data: res.data };
-    } else {
-      return {
-        success: false,
-        message: res.error || "Gagal mengambil data Develper.",
-      };
-    }
-  } catch (error) {
-    return { success: false, message: "Terjadi error pada server." };
-  }
-}
-
 export async function submitCreateDeveloper({ data }: { data: Developer }) {
   try {
     const res = await addDeveloper({ data });

@@ -12,10 +12,10 @@ import BasicInfoForm from "@/components/properties/create/basic-info-form";
 import LocationForm from "@/components/properties/create/location-form";
 import SpecificationsForm from "@/components/properties/create/specifications-form";
 import EditMediaForm from "@/components/properties/edit/edit-media";
-import { getDataAgent } from "@/actions/agent";
-import { getDataDeveloper } from "@/actions/developer";
 import { submitUpdateProperty } from "@/actions/property";
 import { useRouter } from "next/navigation";
+import { getAgent } from "@/api/agent";
+import { getDeveloper } from "@/api/developer";
 
 type UpdateSubmitHandler = (props: {
   id: string;
@@ -59,7 +59,15 @@ function safeParseInitial(initialData: Property): Property {
   return parsed;
 }
 
-const PropertyEditForm = ({ initialData }: { initialData: Property }) => {
+const PropertyEditForm = ({
+  initialData,
+  agents,
+  developers,
+}: {
+  initialData: Property;
+  agents: Agent[];
+  developers: Developer[];
+}) => {
   const router = useRouter();
   const safeParsed = useMemo(
     () => safeParseInitial(initialData),
@@ -69,8 +77,6 @@ const PropertyEditForm = ({ initialData }: { initialData: Property }) => {
   const [formData, setFormData] = useState<Property>(safeParsed);
   const [originalData, setOriginalData] = useState<Property>(safeParsed);
 
-  const [agents, setAgents] = useState<Agent[]>([]);
-  const [developers, setDevelopers] = useState<Developer[]>([]);
   const [activeTab, setActiveTab] = useState("basic");
   const [error, setError] = useState<{ [key: string]: string }>({});
   const [pending, startTransition] = useTransition();
@@ -114,21 +120,6 @@ const PropertyEditForm = ({ initialData }: { initialData: Property }) => {
       })) ?? []
     );
   }, [safeParsed]);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const [agentsData, developersData] = await Promise.all([
-          getDataAgent(),
-          getDataDeveloper(),
-        ]);
-        setAgents(agentsData.data || []);
-        setDevelopers(developersData.data || []);
-      } catch {
-        /* optional toast/log */
-      }
-    })();
-  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
@@ -316,7 +307,7 @@ const PropertyEditForm = ({ initialData }: { initialData: Property }) => {
             {/* Basic */}
             <BasicInfoForm
               formData={formData}
-              handleSelectChange={handleSelectChange as any}
+              handleSelectChange={handleSelectChange}
               handleInputChange={handleInputChange}
               handleTextAreaChange={handleTextAreaChange}
               developers={developers}

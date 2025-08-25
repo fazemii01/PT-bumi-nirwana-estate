@@ -1,129 +1,58 @@
 "use client";
 
-import * as React from "react";
+import Image from "next/image";
 import {
-  IconBuilding,
-  IconBuildingSkyscraper,
-  IconCamera,
-  IconCashBanknote,
-  IconChartBar,
-  IconDashboard,
-  IconFileAi,
-  IconFileDescription,
-  IconHelp,
-  IconListDetails,
-  IconReport,
-  IconSearch,
-  IconSettings,
-  IconUser,
-  IconUsers,
-} from "@tabler/icons-react";
-
+  Sidebar,
+  SidebarHeader,
+  SidebarContent,
+  SidebarFooter,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+} from "@/components/ui/sidebar";
 import { NavMain } from "@/components/nav-main";
 import { NavSecondary } from "@/components/nav-secondary";
 import { NavUser } from "@/components/nav-user";
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
-import Image from "next/image";
+
+import {
+  IconDashboard,
+  IconListDetails,
+  IconUser,
+  IconBuildingSkyscraper,
+  IconCashBanknote,
+  IconBuilding,
+  IconSettings,
+  IconHelp,
+  IconSearch,
+} from "@tabler/icons-react";
 import { User } from "@/types/user";
 
-const data = {
+const navData = {
   navMain: [
+    { title: "Dashboard", url: "/dashboard", icon: IconDashboard },
     {
-      title: "Dashboard",
-      url: "/dashboard",
-      icon: IconDashboard,
-    },
-    {
-      title: "Properties",
-      url: "/properties",
+      title: "Master Data",
       icon: IconListDetails,
-    },
-    {
-      title: "Agent",
-      url: "/agent",
-      icon: IconUser,
-    },
-    {
-      title: "Developer",
-      url: "/developer",
-      icon: IconBuildingSkyscraper,
-    },
-    {
-      title: "Bank",
-      url: "/bank",
-      icon: IconBuilding,
-    },
-  ],
-  navClouds: [
-    {
-      title: "Capture",
-      icon: IconCamera,
-      isActive: true,
-      url: "#",
       items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
+        { title: "Properties", url: "/properties", icon: IconListDetails },
+        { title: "Agent", url: "/agent", icon: IconUser },
+        { title: "Developer", url: "/developer", icon: IconBuildingSkyscraper },
       ],
     },
     {
-      title: "Proposal",
-      icon: IconFileDescription,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Prompts",
-      icon: IconFileAi,
-      url: "#",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "#",
-        },
-        {
-          title: "Archived",
-          url: "#",
-        },
-      ],
+      title: "Master KPR",
+      icon: IconCashBanknote,
+      items: [{ title: "Bank", url: "/bank", icon: IconBuilding }],
     },
   ],
   navSecondary: [
-    {
-      title: "Settings",
-      url: "#",
-      icon: IconSettings,
-    },
-    {
-      title: "Get Help",
-      url: "#",
-      icon: IconHelp,
-    },
-    {
-      title: "Search",
-      url: "#",
-      icon: IconSearch,
-    },
+    { title: "Settings", url: "#", icon: IconSettings },
+    { title: "Get Help", url: "#", icon: IconHelp },
+    { title: "Search", url: "#", icon: IconSearch },
   ],
 };
 
-type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
-  user: User;
-};
+type AppSidebarProps = React.ComponentProps<typeof Sidebar> & { user: User };
 
 export function AppSidebar({ user, ...props }: AppSidebarProps) {
   return (
@@ -131,20 +60,30 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:!p-1.5">
-              <a href="#">
-                <Image src="/logo_bar.svg" width={32} height={32} alt="logo" className="flex items-center justify-center object-cover" />
-                <span className="text-base font-semibold">Bumi Nirwana</span>
+            <SidebarMenuButton
+              asChild
+              className="data-[slot=sidebar-menu-button]:!p-1.5"
+            >
+              <a
+                href="/dashboard"
+                aria-label="Go to Dashboard"
+                className="flex items-center gap-2"
+              >
+                <Image src="/logo_bar.svg" width={28} height={28} alt="Logo" />
+                <span className="text-sm font-semibold leading-none">
+                  Bumi Nirwana
+                </span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
+
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        {/* <NavDocuments items={data.documents} /> */}
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <NavMain items={navData.navMain} />
+        <NavSecondary items={navData.navSecondary} className="mt-auto" />
       </SidebarContent>
+
       <SidebarFooter>
         <NavUser user={user} />
       </SidebarFooter>

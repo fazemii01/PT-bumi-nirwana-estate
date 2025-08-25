@@ -1,5 +1,7 @@
 // app/properties/edit/[id]/page.tsx
 import { getById } from "@/actions/property";
+import { getAgent } from "@/api/agent";
+import { getDeveloper } from "@/api/developer";
 
 import PropertyEditForm from "@/components/properties/edit/edit-form";
 import { Property } from "@/types/properties";
@@ -11,9 +13,13 @@ export default async function EditPropertyPage({
 }: {
   params: { id: string };
 }) {
-  const { id } = params;
+  const { id } = await params;
 
-  const propertyData = await getById({ id });
+  const [propertyData, agents, developers] = await Promise.all([
+    getById({ id }),
+    getAgent(),
+    getDeveloper(),
+  ]);
 
   if (!propertyData.success) {
     notFound();
@@ -21,7 +27,11 @@ export default async function EditPropertyPage({
 
   return (
     <div className="p-6">
-      <PropertyEditForm initialData={propertyData.data!} />
+      <PropertyEditForm
+        initialData={propertyData.data!}
+        agents={agents.data || []}
+        developers={developers.data || []}
+      />
     </div>
   );
 }

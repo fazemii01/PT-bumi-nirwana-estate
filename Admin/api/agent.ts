@@ -10,6 +10,20 @@ export async function getAgent(): Promise<ApiResponse<Agent[]>> {
   });
 }
 
+export async function getAgentPaged(
+  page = 1,
+  limit = 10
+): Promise<{ data: Agent[]; total: number }> {
+  const res = await getAgent();
+  const all = res.data ?? [];
+  const total = all.length;
+  const start = (page - 1) * limit;
+  return {
+    data: all.slice(start, start + limit),
+    total,
+  };
+}
+
 export async function addAgent({
   data,
 }: {

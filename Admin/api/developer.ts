@@ -9,6 +9,20 @@ export async function getDeveloper(): Promise<ApiResponse<Developer[]>> {
   });
 }
 
+export async function getDeveloperPaged(
+  page = 1,
+  limit = 10
+): Promise<{ data: Developer[]; total: number }> {
+  const res = await getDeveloper(); // { data: Developer[] }
+  const all = res.data ?? [];
+  const total = all.length;
+  const start = (page - 1) * limit;
+  return {
+    data: all.slice(start, start + limit),
+    total,
+  };
+}
+
 export async function addDeveloper({
   data,
 }: {

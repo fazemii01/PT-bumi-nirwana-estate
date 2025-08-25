@@ -19,6 +19,20 @@ export async function getPropertyById({
   });
 }
 
+export async function getPropertyPaged(
+  page = 1,
+  limit = 10
+): Promise<{ data: Property[]; total: number }> {
+  const res = await getProperties();
+  const all = res.data ?? [];
+  const total = all.length;
+  const start = (page - 1) * limit;
+  return {
+    data: all.slice(start, start + limit),
+    total,
+  };
+}
+
 export async function addProperty({
   property,
 }: {
