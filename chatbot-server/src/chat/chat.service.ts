@@ -16,7 +16,7 @@ import {
   Runnable,
   RunnableSequence,
   RunnableBranch,
-  RunnableLambda
+  RunnableLambda,
 } from '@langchain/core/runnables';
 import { FaissStore } from '@langchain/community/vectorstores/faiss';
 import { createStuffDocumentsChain } from 'langchain/chains/combine_documents';
@@ -35,18 +35,17 @@ export class ChatService implements OnModuleInit {
   private visionModel: ChatOllama;
   private chatHistory: BaseMessage[] = [];
   private llamaVision: LlamaCpp;
-  private llamaEmbeddings: LlamaCppEmbeddings
-
+  private llamaEmbeddings: LlamaCppEmbeddings;
 
   async onModuleInit() {
     this.embeddings = new OllamaEmbeddings({
       baseUrl: 'http://localhost:4600',
-      model: 'nomic-embed-text-v1.5.f16',
+      model: 'nomic-embed-text',
     });
 
     this.visionModel = new ChatOllama({
       baseUrl: 'http://localhost:4600',
-      model: 'llava-phi-3-mini-mmproj-f16',
+      model: 'moondream',
     });
     // this.llamaEmbeddings = new LlamaCppEmbeddings({
     //   modelPath: 'E:/vllm/model/nomic-embed-text-v1.5.f16.gguf',
@@ -72,26 +71,113 @@ export class ChatService implements OnModuleInit {
   private async initializeConversationalChain(): Promise<void> {
     const ollama = new ChatOllama({
       baseUrl: 'http://localhost:4600',
-      model: 'Phi-3-mini-4k-instruct-q4',
+      model: 'qwen2:1.5b',
     });
     const greetingPrompt = ChatPromptTemplate.fromTemplate(
-      `You are a helpful assistant named AskNirwana. You can handle basic greetings. Respond in Indonesian. Keep your response brief, friendly, and invite the user to ask about properties.
-      User's input: {input}`
+      `You are a helpful assistant named AskNirwana. You can handle basic greetings.
+   Your only task is to greet the user and invite them to ask a question about properties.
+   Your response MUST be: "Halo! Ada yang bisa saya bantu terkait properti?"
+   User's input: {input}`,
     );
-    this.greetingChain = greetingPrompt.pipe(ollama).pipe(new StringOutputParser());
+
+    // greeting filter
+    const greetingFilter = new RunnableLambda<
+      { input: string },
+      { specialGreeting: boolean; text: string }
+    >({
+      func: async ({ input }) => {
+        const greetings = [
+          'halo',
+          'helo',
+          'hallo',
+          'hi',
+          'hai',
+          'hello',
+          'apa kabar',
+          'pagi',
+          'siang',
+          'sore',
+          'malam',
+          'selamat pagi',
+          'selamat siang',
+          'selamat sore',
+          'selamat malam',
+        ];
+
+        let normalized = input.toLowerCase().trim();
+
+        if (greetings.includes(normalized)) {
+          return {
+            specialGreeting: true,
+            text: 'Halo! Ada yang bisa saya bantu terkait properti?',
+          };
+        }
+
+        for (let g of greetings) {
+          if (normalized.startsWith(g)) {
+            normalized = normalized.replace(g, '').trim();
+            break;
+          }
+        }
+
+        return { specialGreeting: false, text: normalized };
+      },
+    });
+
+    this.greetingChain = greetingFilter
+      .pipe(
+        new RunnableLambda({
+          func: async (input: { specialGreeting: boolean; text: string }) => {
+            if (input.specialGreeting) {
+              return 'Halo! Ada yang bisa saya bantu terkait properti?';
+            }
+
+            return null;
+          },
+        }),
+      )
+      .pipe(new StringOutputParser());
+    // this.greetingChain = greetingPrompt.pipe(ollama).pipe(new StringOutputParser());
     const retriever = this.vectorStore.asRetriever({ k: 2 });
 
+    //     const historyAwareAnswerPrompt = ChatPromptTemplate.fromMessages([
+    //       [
+    //         'system',
+    //         `You are a helpful assistant named AskNirwana.
+    //  - Answer the user's question STRICTLY based on the provided "Context" below.
+    //  - Each project is described in its own section. DO NOT mix details between different projects.
+    //  - Be concise, direct, humble and answer in Indonesian.
+    //  - If the information is not available in the context, politely inform the user that you couldn't find the specific detail and suggest they ask the question in another way or ask about a different topic. For example, say: "Maaf, saya tidak dapat menemukan informasi tersebut. Mungkin Anda bisa mencoba bertanya dengan cara lain?"
+
+    //    Context:
+    //    {context}`,
+    //       ],
+    //       new MessagesPlaceholder('chat_history'),
+    //       ['user', '{input}'],
+    //     ]);
     const historyAwareAnswerPrompt = ChatPromptTemplate.fromMessages([
       [
         'system',
-        `You are a helpful assistant named AskNirwana.
- - Answer the user's question STRICTLY based on the provided "Context" below.
- - Each project is described in its own section. DO NOT mix details between different projects.
- - Be concise, direct, humble and answer in Indonesian.
- - If the answer is not found in the context, you MUST reply with the exact phrase: "Informasi tidak ditemukan dalam konteks." and give the possible solution 
+        `You are AskNirwana, a friendly and helpful assistant for property questions.
+- Always answer in a warm and conversational tone, and you MUST answer in Indonesian.
+- Use the provided "Context" as your main source of truth.
 
-   Context:
-   {context}`,
+Here is an example of a good response:
+User Question: Kalau saya gajinya UMR, bisa nggak ambil KPR?
+Good Answer: Tentu bisa! Untuk Anda yang memiliki gaji UMR, kami merekomendasikan Perumahan Bumi Nirwana Sumberejo yang memiliki promo Tanpa DP. Ini bisa menjadi solusi yang bagus untuk Anda. Jika ada pertanyaan lebih lanjut tentang KPR, jangan ragu bertanya ya.
+User Question: Apa ada perumahan dengan cicilan murah?
+Good Answer: Tentu, saat ini perumahan dengan cicilan murah adalah Bumi Nirwana Sumberejo dengan Angsuran hanya 1 Juta per bulan!!, dengan promo tanpa DP, apakah anda tertarik?
+User Question: Apa ada perumahan murah?
+Good Answer: Tentu, Saat ini perumahan dengan harga paling murah adalah Bumi Nirwana Sumberejo dengan harga hanya Rp 166.000.000 dengan Tipe rumah yang ditawarkan adalah 30/60, Apakah anda tertarik? 
+
+- If the context only contains partial information, give the part you found and add a gentle suggestion like:
+  "Untuk detail lebih lengkap, mungkin Anda bisa menanyakan hal lain atau menghubungi sales kami."
+- If there is no information at all in the context, say politely:
+  "Maaf, saya belum menemukan info yang sesuai. Boleh coba jelaskan lagi apa yang dicari?"
+- Keep answers concise and easy to read.
+  
+Context:
+{context}`,
       ],
       new MessagesPlaceholder('chat_history'),
       ['user', '{input}'],
@@ -133,13 +219,16 @@ export class ChatService implements OnModuleInit {
       branches: [
         [
           new RunnableLambda({
-            func: (input: { input: string; chat_history: BaseMessage[] }) => this.isGreeting(input.input),
+            // func: (input: { input: string; chat_history: BaseMessage[] }) =>
+            //   this.isGreeting(input.input),
+            func: (input) => this.isGreeting(input.input),
           }),
           this.greetingChain,
         ],
         [
           new RunnableLambda({
-            func: (input: { input: string; chat_history: BaseMessage[] }) => input.chat_history.length === 0,
+            func: (input: { input: string; chat_history: BaseMessage[] }) =>
+              input.chat_history.length === 0,
           }),
           this.directChain,
         ],
@@ -206,7 +295,7 @@ export class ChatService implements OnModuleInit {
   //   //   historyAwareRetrieverChain,
   //   // );
   //   const conversationalRetriever = new RunnableBranch(
-  //     (inputs) => inputs.chat_history.length === 0,      
+  //     (inputs) => inputs.chat_history.length === 0,
   //     RunnableSequence.from([(inputs) => inputs.input]).pipe(retriever),
   //     historyAwareRetrieverChain,
   //   );
@@ -221,9 +310,25 @@ export class ChatService implements OnModuleInit {
   //   // });
   // }
   private isGreeting(message: string): boolean {
-    const greetings = ['halo', 'hi', 'hello', 'apa kabar', 'pagi', 'siang', 'sore', 'malam'];
-    const lowerCaseMessage = message.toLowerCase().trim();
-    return greetings.some(greeting => lowerCaseMessage.startsWith(greeting));
+    const greetings = [
+      'halo',
+      'helo',
+      'hallo',
+      'hi',
+      'hai',
+      'hello',
+      'apa kabar',
+      'pagi',
+      'siang',
+      'sore',
+      'malam',
+      'selamat pagi',
+      'selamat siang',
+      'selamat sore',
+      'selamat malam',
+    ];
+    const lower = message.toLowerCase().trim();
+    return greetings.includes(lower);
   }
   private formatDocs(docs: Document[]): string {
     return docs.map((doc) => doc.pageContent).join('\n\n');
@@ -256,35 +361,34 @@ export class ChatService implements OnModuleInit {
   //   return answer;
   // }
   async ask(message: string): Promise<string> {
-  if (!this.vectorStore) {
-    return 'I am sorry, but I have no knowledge base to answer your question. Please upload a file first.';
+    if (!this.vectorStore) {
+      return 'I am sorry, but I have no knowledge base to answer your question. Please upload a file first.';
+    }
+    if (!this.masterChain) {
+      await this.initializeConversationalChain();
+    }
+
+    console.log('Invoking master chain with question...');
+    const result = await this.masterChain.invoke({
+      chat_history: this.chatHistory,
+      input: message,
+    });
+
+    let answer: string;
+    if (typeof result === 'string') {
+      answer = result;
+    } else if (result?.answer) {
+      answer = result.answer;
+    } else {
+      answer = 'Maaf, terjadi kesalahan dalam memproses jawaban.';
+    }
+
+    this.chatHistory.push(new HumanMessage(message));
+    this.chatHistory.push(new AIMessage(answer));
+
+    console.log('Final AI Answer:', answer);
+    return answer;
   }
-  if (!this.masterChain) {
-    await this.initializeConversationalChain();
-  }
-
-  console.log('Invoking master chain with question...');
-  const result = await this.masterChain.invoke({
-    chat_history: this.chatHistory,
-    input: message,
-  });
-
-  
-  let answer: string;
-  if (typeof result === 'string') {
-    answer = result;
-  } else if (result && typeof result.answer === 'string') {
-    answer = result.answer;
-  } else {
-    answer = "Maaf, terjadi kesalahan dalam memproses jawaban.";
-  }
-
-  this.chatHistory.push(new HumanMessage(message));
-  this.chatHistory.push(new AIMessage(answer));
-
-  console.log('AI Answer:', answer);
-  return answer;
-}
 
   clearHistory(): void {
     this.chatHistory = [];
