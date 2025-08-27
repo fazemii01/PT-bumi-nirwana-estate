@@ -5,20 +5,23 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ChatService = void 0;
 const common_1 = require("@nestjs/common");
 const documents_1 = require("@langchain/core/documents");
 const text_splitter_1 = require("langchain/text_splitter");
-const output_parsers_1 = require("@langchain/core/output_parsers");
 const prompts_1 = require("@langchain/core/prompts");
 const ollama_1 = require("@langchain/ollama");
 const messages_1 = require("@langchain/core/messages");
 const runnables_1 = require("@langchain/core/runnables");
-const faiss_1 = require("@langchain/community/vectorstores/faiss");
+const weaviate_1 = require("@langchain/weaviate");
+const weaviate_client_1 = __importDefault(require("weaviate-client"));
 const combine_documents_1 = require("langchain/chains/combine_documents");
 const history_aware_retriever_1 = require("langchain/chains/history_aware_retriever");
-const retrieval_1 = require("langchain/chains/retrieval");
+const multi_query_1 = require("langchain/retrievers/multi_query");
 let ChatService = class ChatService {
     constructor() {
         this.chatHistory = [];
@@ -32,140 +35,121 @@ let ChatService = class ChatService {
             baseUrl: 'http://localhost:4600',
             model: 'moondream',
         });
+        this.weaviateClient = await weaviate_client_1.default.connectToLocal({
+            host: 'localhost',
+            port: 4900,
+            grpcPort: 50051,
+        });
+        console.log('Weaviate client in onModuleInit:', this.weaviateClient ? 'initialized' : 'undefined');
+        const meta = await this.weaviateClient.getMeta();
+        console.log('Weaviate meta:', meta);
+        const indexName = 'Chatbot';
+        this.vectorStore = new weaviate_1.WeaviateStore(this.embeddings, {
+            client: this.weaviateClient,
+            indexName,
+        });
+        this.initializeMasterChain();
+    }
+    async rerankDocuments(originalQuery, documents) {
+        if (documents.length === 0)
+            return [];
+        console.log(`Reranking ${documents.length} documents for query: "${originalQuery}"`);
+        const RERANKER_API_URL = 'http://localhost:8082/rerank';
         try {
-            console.log('Attempting to load Faiss index from disk...');
-            this.vectorStore = await faiss_1.FaissStore.load('faiss-index', this.embeddings);
-            this.initializeConversationalChain();
-            console.log('Faiss index loaded successfully and chain initialized.');
+            const response = await fetch(RERANKER_API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    query: originalQuery,
+                    documents: documents.map((doc) => doc.pageContent),
+                }),
+            });
+            if (!response.ok) {
+                throw new Error(`Reranker API failed with status ${response.status}`);
+            }
+            const rerankedResults = (await response.json());
+            const sortedDocuments = rerankedResults
+                .sort((a, b) => b.relevance_score - a.relevance_score)
+                .map((result) => documents[result.index]);
+            console.log('Reranking complete.');
+            return sortedDocuments.slice(0, 4);
         }
-        catch (e) {
-            console.log('No existing Faiss index found. A new one will be created upon file upload.');
+        catch (error) {
+            console.error('Reranker call failed, falling back to original documents:', error);
+            return documents.slice(0, 4);
         }
     }
-    async initializeConversationalChain() {
-        const ollama = new ollama_1.ChatOllama({
+    async initializeMasterChain() {
+        const llm = new ollama_1.ChatOllama({
             baseUrl: 'http://localhost:4600',
             model: 'qwen2:1.5b',
         });
-        const greetingPrompt = prompts_1.ChatPromptTemplate.fromTemplate(`You are a helpful assistant named AskNirwana. You can handle basic greetings.
-   Your only task is to greet the user and invite them to ask a question about properties.
-   Your response MUST be: "Halo! Ada yang bisa saya bantu terkait properti?"
-   User's input: {input}`);
-        const greetingFilter = new runnables_1.RunnableLambda({
-            func: async ({ input }) => {
-                const greetings = [
-                    'halo',
-                    'helo',
-                    'hallo',
-                    'hi',
-                    'hai',
-                    'hello',
-                    'apa kabar',
-                    'pagi',
-                    'siang',
-                    'sore',
-                    'malam',
-                    'selamat pagi',
-                    'selamat siang',
-                    'selamat sore',
-                    'selamat malam',
-                ];
-                let normalized = input.toLowerCase().trim();
-                if (greetings.includes(normalized)) {
-                    return {
-                        specialGreeting: true,
-                        text: 'Halo! Ada yang bisa saya bantu terkait properti?',
-                    };
-                }
-                for (let g of greetings) {
-                    if (normalized.startsWith(g)) {
-                        normalized = normalized.replace(g, '').trim();
-                        break;
-                    }
-                }
-                return { specialGreeting: false, text: normalized };
-            },
-        });
-        this.greetingChain = greetingFilter
-            .pipe(new runnables_1.RunnableLambda({
-            func: async (input) => {
-                if (input.specialGreeting) {
-                    return 'Halo! Ada yang bisa saya bantu terkait properti?';
-                }
-                return null;
-            },
-        }))
-            .pipe(new output_parsers_1.StringOutputParser());
-        const retriever = this.vectorStore.asRetriever({ k: 2 });
-        const historyAwareAnswerPrompt = prompts_1.ChatPromptTemplate.fromMessages([
-            [
-                'system',
-                `You are AskNirwana, a friendly and helpful assistant for property questions.
-- Always answer in a warm and conversational tone, and you MUST answer in Indonesian.
-- Use the provided "Context" as your main source of truth.
-
-Here is an example of a good response:
-User Question: Kalau saya gajinya UMR, bisa nggak ambil KPR?
-Good Answer: Tentu bisa! Untuk Anda yang memiliki gaji UMR, kami merekomendasikan Perumahan Bumi Nirwana Sumberejo yang memiliki promo Tanpa DP. Ini bisa menjadi solusi yang bagus untuk Anda. Jika ada pertanyaan lebih lanjut tentang KPR, jangan ragu bertanya ya.
-User Question: Apa ada perumahan dengan cicilan murah?
-Good Answer: Tentu, saat ini perumahan dengan cicilan murah adalah Bumi Nirwana Sumberejo dengan Angsuran hanya 1 Juta per bulan!!, dengan promo tanpa DP, apakah anda tertarik?
-User Question: Apa ada perumahan murah?
-Good Answer: Tentu, Saat ini perumahan dengan harga paling murah adalah Bumi Nirwana Sumberejo dengan harga hanya Rp 166.000.000 dengan Tipe rumah yang ditawarkan adalah 30/60, Apakah anda tertarik? 
-
-- If the context only contains partial information, give the part you found and add a gentle suggestion like:
-  "Untuk detail lebih lengkap, mungkin Anda bisa menanyakan hal lain atau menghubungi sales kami."
-- If there is no information at all in the context, say politely:
-  "Maaf, saya belum menemukan info yang sesuai. Boleh coba jelaskan lagi apa yang dicari?"
-- Keep answers concise and easy to read.
-  
-Context:
-{context}`,
-            ],
-            new prompts_1.MessagesPlaceholder('chat_history'),
-            ['user', '{input}'],
-        ]);
-        const historyAwareCombineDocsChain = await (0, combine_documents_1.createStuffDocumentsChain)({
-            llm: ollama,
-            prompt: historyAwareAnswerPrompt,
-        });
-        this.directChain = await (0, retrieval_1.createRetrievalChain)({
-            retriever: retriever,
-            combineDocsChain: historyAwareCombineDocsChain,
+        const baseRetriever = this.vectorStore.asRetriever({ k: 15 });
+        const multiQueryRetriever = multi_query_1.MultiQueryRetriever.fromLLM({
+            llm,
+            retriever: baseRetriever,
+            verbose: true,
         });
         const historyAwarePrompt = prompts_1.ChatPromptTemplate.fromMessages([
             new prompts_1.MessagesPlaceholder('chat_history'),
             ['user', '{input}'],
             [
                 'user',
-                'Given the above conversation, generate a search query to look up in order to get information relevant to the conversation...',
+                'Given the above conversation, generate a search query to look up in order to get information relevant to the conversation.',
             ],
         ]);
         const historyAwareRetrieverChain = await (0, history_aware_retriever_1.createHistoryAwareRetriever)({
-            llm: ollama,
-            retriever: retriever,
+            llm,
+            retriever: multiQueryRetriever,
             rephrasePrompt: historyAwarePrompt,
         });
-        this.conversationalChain = await (0, retrieval_1.createRetrievalChain)({
-            retriever: historyAwareRetrieverChain,
-            combineDocsChain: historyAwareCombineDocsChain,
+        const retrieverChain = runnables_1.RunnableSequence.from([
+            historyAwareRetrieverChain,
+            (docs) => docs.context,
+        ]).withConfig({ runName: 'DocumentRetrieverChain' });
+        const synthesisPrompt = prompts_1.ChatPromptTemplate.fromMessages([
+            [
+                'system',
+                `You are AskNirwana, a helpful property assistant. Your task is to provide a single, clear answer in Indonesian based on the provided contexts.
+- The contexts are ranked by relevance. Give priority to the information in the first context if there are contradictions.
+- Combine the information from the different contexts into one smooth, conversational answer.
+- Do NOT mention that you are looking at multiple contexts. Just provide the final answer.
+- If the contexts do not contain the answer, say "Maaf, saya tidak dapat menemukan informasi yang Anda cari."
+
+---
+CONTEXTS:
+{context}
+---`,
+            ],
+            new prompts_1.MessagesPlaceholder('chat_history'),
+            ['user', '{input}'],
+        ]);
+        const combineDocsChain = await (0, combine_documents_1.createStuffDocumentsChain)({
+            llm,
+            prompt: synthesisPrompt,
         });
+        const ragChain = runnables_1.RunnableSequence.from([
+            runnables_1.RunnablePassthrough.assign({}),
+            runnables_1.RunnableLambda.from(async (input) => {
+                const rerankedDocs = await this.rerankDocuments(input.input, input.context);
+                return { ...input, context: rerankedDocs };
+            }).withConfig({ runName: 'RerankDocuments' }),
+            combineDocsChain,
+        ]).withConfig({ runName: 'FinalRagChain' });
+        const greetingChain = new runnables_1.RunnableLambda({
+            func: () => 'Halo! Ada yang bisa saya bantu terkait properti?',
+        }).withConfig({ runName: 'GreetingChain' });
         this.masterChain = new runnables_1.RunnableBranch({
             branches: [
                 [
                     new runnables_1.RunnableLambda({
                         func: (input) => this.isGreeting(input.input),
                     }),
-                    this.greetingChain,
-                ],
-                [
-                    new runnables_1.RunnableLambda({
-                        func: (input) => input.chat_history.length === 0,
-                    }),
-                    this.directChain,
+                    greetingChain,
                 ],
             ],
-            default: this.conversationalChain,
-        });
+            default: ragChain,
+        }).withConfig({ runName: 'MasterChain' });
     }
     isGreeting(message) {
         const greetings = [
@@ -188,31 +172,19 @@ Context:
         const lower = message.toLowerCase().trim();
         return greetings.includes(lower);
     }
-    formatDocs(docs) {
-        return docs.map((doc) => doc.pageContent).join('\n\n');
-    }
     async ask(message) {
         if (!this.vectorStore) {
-            return 'I am sorry, but I have no knowledge base to answer your question. Please upload a file first.';
+            return 'I am sorry, but I have no knowledge base to answer your question.';
         }
         if (!this.masterChain) {
-            await this.initializeConversationalChain();
+            await this.initializeMasterChain();
         }
         console.log('Invoking master chain with question...');
         const result = await this.masterChain.invoke({
             chat_history: this.chatHistory,
             input: message,
         });
-        let answer;
-        if (typeof result === 'string') {
-            answer = result;
-        }
-        else if (result?.answer) {
-            answer = result.answer;
-        }
-        else {
-            answer = 'Maaf, terjadi kesalahan dalam memproses jawaban.';
-        }
+        const answer = result.answer ?? result;
         this.chatHistory.push(new messages_1.HumanMessage(message));
         this.chatHistory.push(new messages_1.AIMessage(answer));
         console.log('Final AI Answer:', answer);
@@ -252,29 +224,35 @@ Context:
             console.log('Text file detected.');
             pageContent = file.buffer.toString();
         }
-        const doc = new documents_1.Document({ pageContent });
+        const doc = new documents_1.Document({
+            pageContent,
+            metadata: { source: 'uploaded_file' },
+        });
         const splitter = new text_splitter_1.RecursiveCharacterTextSplitter({
-            chunkSize: 1024,
-            chunkOverlap: 100,
+            chunkSize: 512,
+            chunkOverlap: 50,
             separators: ['\n\n## ', '\n## ', '\n\n# ', '\n# ', '\n\n', '\n', ' ', ''],
         });
-        const splits = await splitter.createDocuments([pageContent]);
+        const splits = await splitter.splitDocuments([doc]);
         console.log(`Split document into ${splits.length} chunks.`);
+        if (splits.length === 0) {
+            console.warn('No splits were created — check if pageContent is empty!');
+            return;
+        }
+        console.log('Example chunk:', splits[0].pageContent.slice(0, 200));
         const batchSize = 32;
         for (let i = 0; i < splits.length; i += batchSize) {
             const batch = splits.slice(i, i + batchSize);
+            if (!batch.length) {
+                console.warn(`Skipping empty batch at index ${i}`);
+                continue;
+            }
             console.log(`Processing batch ${i / batchSize + 1}...`);
-            if (!this.vectorStore) {
-                this.vectorStore = await faiss_1.FaissStore.fromDocuments(batch, this.embeddings);
-            }
-            else {
-                await this.vectorStore.addDocuments(batch);
-            }
+            await this.vectorStore.addDocuments(batch);
         }
-        await this.vectorStore.save('faiss-index');
-        this.initializeConversationalChain();
+        this.initializeMasterChain();
         this.clearHistory();
-        console.log('File processed and Faiss index saved.');
+        console.log(' File processed and Weaviate index updated.');
     }
 };
 exports.ChatService = ChatService;
