@@ -10,11 +10,17 @@ from langchain.schema.runnable import RunnablePassthrough
 from langchain.schema.output_parser import StrOutputParser
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import TextLoader
-FAISS_INDEX_PATH = "faiss-index-py" 
-DATA_SOURCE = "training_data_asknirwan.txt"
-EMBEDDING_MODEL = "nomic-embed-text"
-GENERATION_MODEL = "qwen2:1.5b"
-BASE_URL = "http://localhost:4600"
+from threading import Event
+
+# FAISS_INDEX_PATH = "faiss-index-py" 
+# DATA_SOURCE = "training_data_asknirwan.txt"
+# EMBEDDING_MODEL = "nomic-embed-text"
+# GENERATION_MODEL = "qwen2:1.5b"
+SOCKETIO_URL = 'http://localhost:4500' 
+CHAT_EVENT_EMIT = 'message'   
+CHAT_EVENT_RECEIVE = 'reply' 
+CHAT_CLEAR_HISTORY = 'clear history'
+# BASE_URL = "http://localhost:4600"
 test_data = {
     "question": [
         "Berapa DP untuk rumah subsidi di Margojoyo Residence?",
@@ -62,106 +68,130 @@ test_data = {
     ]
 }
 eval_df = pd.DataFrame(test_data)
-def create_index_if_not_exists():
-    if os.path.exists(FAISS_INDEX_PATH):
-        print(f"Folder '{FAISS_INDEX_PATH}' already exists.")
-        return
-    print(f"Folder '{FAISS_INDEX_PATH}' not found. Creating a new index...")
-    
-    loader = TextLoader(DATA_SOURCE, encoding='utf-8')
-    documents = loader.load()
-    
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=512, chunk_overlap=50)
-    docs = text_splitter.split_documents(documents)
-    
-    print(f"Document split into {len(docs)} chunks.")
-    
-    embeddings = OllamaEmbeddings(model=EMBEDDING_MODEL, base_url=BASE_URL)
-    
-    print("Creating embeddings and saving the index... (This may take a moment)")
-    db = FAISS.from_documents(docs, embeddings)
-    db.save_local(FAISS_INDEX_PATH)
-    print("New index successfully created and saved.")
-def format_docs(docs):
-    return "\n\n".join(doc.page_content for doc in docs)
-def evaluate_rag(eval_df: pd.DataFrame, rag_chain, retriever):
+sio = socketio.Client()
+response_data = None
+response_event = Event()
+
+@sio.event
+def connect():
+    print("Socket.IO client connected successfully!")
+
+@sio.event
+def connect_error(data):
+    print(f"Connection failed: {data}")
+
+@sio.event
+def disconnect():
+    print("Socket.IO client disconnected.")
+
+@sio.on(CHAT_EVENT_RECEIVE)
+def on_message(data):
+    global response_data
+    print(f"Received answer from server: {data}")
+    response_data = data
+    response_event.set()
+
+def evaluate_live_chatbot(eval_df: pd.DataFrame):
     results = []
-    total_retrieval_hits = 0
-    print("\n--- Starting evaluation process ---")
+    total_hits = 0
+    print("\n--- Starting evaluation process with live chatbot ---")
+
+    try:
+        sio.connect(SOCKETIO_URL, transports=['websocket'])
+    except socketio.exceptions.ConnectionError as e:
+        print(f"FATAL: Could not connect to server. Aborting test. Error: {e}")
+        return pd.DataFrame(), 0
+
     for index, row in eval_df.iterrows():
+        response_event.clear()
+        global response_data
+        response_data = None
+        
+        if not sio.connected:
+            print("Client disconnected, reconnecting...")
+            try:
+                sio.connect(SOCKETIO_URL, transports=['websocket'])
+            except socketio.exceptions.ConnectionError:
+                results.append({"generated_answer": "RECONNECT_FAILED", "question": row["question"], "ground_truth_answer": row["ground_truth_answer"], "result_hit": "❌ No"})
+                continue
+        sio.emit(CHAT_CLEAR_HISTORY)
+        time.sleep(0.5)
+
         question = row['question']
         ground_truth = row['ground_truth_answer']
-        retrieved_docs = retriever.invoke(question)
-        retrieved_context = format_docs(retrieved_docs)
-        generated_answer = rag_chain.invoke(question)
-        retrieval_hit = any(word in retrieved_context.lower() for word in ground_truth.lower().split()[:5])
-        if retrieval_hit:
-            total_retrieval_hits += 1
-            
+        print(f"\nSending question #{index+1}: {question}")
+        sio.emit(CHAT_EVENT_EMIT, question)
+        
+        event_was_set = response_event.wait(timeout=80)
+        
+        if not event_was_set:
+            generated_answer = "TIMEOUT_ERROR"
+        else:
+            generated_answer = response_data
+        
+        # FIX: Added the hit calculation and result_hit key back
+        hit = False
+        lower_generated = generated_answer.lower()
+        lower_ground_truth = ground_truth.lower()
+        if "tidak ditemukan" in lower_ground_truth or "tidak menemukan" in lower_ground_truth:
+            if "tidak ditemukan" in lower_generated or "tidak menemukan" in lower_generated:
+                hit = True
+        else:
+            key_words = [word for word in lower_ground_truth.split() if len(word) > 2][:4]
+            if len(key_words) > 0 and all(word in lower_generated for word in key_words):
+                hit = True
+        
+        if hit:
+            total_hits += 1
+
         results.append({
             "question": question,
-            "retrieved_context": retrieved_context,
             "generated_answer": generated_answer,
             "ground_truth_answer": ground_truth,
-            "retrieval_hit": "✅ Yes" if retrieval_hit else "❌ No"
+            "result_hit": "✅ Yes" if hit else "❌ No" # The missing key
         })
         print(f"Evaluation finished for question #{index+1}")
+
+    sio.disconnect()
     results_df = pd.DataFrame(results)
-    
-    return results_df, total_retrieval_hits
+    return results_df, total_hits
+
 def print_classification_style_report(total_hits, total_questions):
     tp = total_hits
     fn = total_questions - total_hits
     
-    precision = 1.0 if tp > 0 else 0.0
+    precision = 1.0 
     recall = tp / total_questions if total_questions > 0 else 0.0
     f1_score = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0.0
     accuracy = recall
-    print("\n--- Retrieval Affinity Report (Classification Style) ---")
+
+    print("\n--- Live Answer Affinity Report (Classification Style) ---")
     print(f"Classification report with Accuracy: {accuracy:.2f}")
     print(f"Total Data : {total_questions}\n")
     print(f"{'':<20}{'Precision':<12}{'Recall':<12}{'F1-score':<12}{'Support':<12}")
     print("-" * 70)
-    print(f"{'Correct Retrieval':<20}{precision:<12.2f}{recall:<12.2f}{f1_score:<12.2f}{total_questions:<12}")
+    print(f"{'Correct Answer':<20}{precision:<12.2f}{recall:<12.2f}{f1_score:<12.2f}{total_questions:<12}")
     print("\n")
     print(f"{'Accuracy':<20}{'':<12}{'':<12}{accuracy:<12.2f}{total_questions:<12}")
     print(f"{'Macro avg':<20}{precision:<12.2f}{recall:<12.2f}{f1_score:<12.2f}{total_questions:<12}")
     print(f"{'Weighted avg':<20}{precision:<12.2f}{recall:<12.2f}{f1_score:<12.2f}{total_questions:<12}")
     print("-" * 70)
-    print("Note: These metrics measure the 'Retrieval' capability (finding the correct context).")
-create_index_if_not_exists()
-print("\n--- Initializing RAG components ---")
-embeddings = OllamaEmbeddings(model=EMBEDDING_MODEL, base_url=BASE_URL)
-try:
-    vector_store = FAISS.load_local(FAISS_INDEX_PATH, embeddings, allow_dangerous_deserialization=True)
-    retriever = vector_store.as_retriever(search_kwargs={"k": 3})
-    print(f"Faiss index '{FAISS_INDEX_PATH}' loaded successfully.")
-except Exception as e:
-    print(f"Failed to load Faiss index: {e}")
-    exit()
-llm = OllamaLLM(model=GENERATION_MODEL, base_url=BASE_URL)
-template = """Answer the following question ONLY based on the provided context. If the information is not in the context, say "Informasi tidak ditemukan dalam konteks".
-Context:
-{context}
-Question:
-{question}
-Answer:
-"""
-prompt = PromptTemplate.from_template(template)
-rag_chain = (
-    {"context": retriever | format_docs, "question": RunnablePassthrough()}
-    | prompt
-    | llm
-    | StrOutputParser()
-)
-evaluation_results_df, total_retrieval_hits = evaluate_rag(eval_df, rag_chain, retriever)
+    print("Note: These metrics measure if the final answer contains the correct information.")
+
+# --- Main Execution ---
+print("--- Initializing Chatbot Live Evaluation Client ---")
+evaluation_results_df, total_hits = evaluate_live_chatbot(eval_df)
 total_questions = len(eval_df)
+print_classification_style_report(total_hits, total_questions)
+
+print("\n--- Detailed Evaluation per Question ---")
 for index, row in evaluation_results_df.iterrows():
     print(f"\n===== Question {index+1} =====")
     print(f"Question: {row['question']}")
     print(f"Ground Truth Answer: {row['ground_truth_answer']}")
-    print(f"Generated Answer: {row['generated_answer']}")
-    print(f"Context Found (Retrieval Hit): {row['retrieval_hit']}")
-    print("--------------------")
-print_classification_style_report(total_retrieval_hits, total_questions)
-print("\n--- Detailed Evaluation per Question ---")
+    print(f"Live Generated Answer: {row['generated_answer']}")
+    print(f"Answer Contains Key Info (Result Hit): {row['result_hit']}")
+    print("-----------------------------------")
+
+evaluation_results_df.to_csv("live_chatbot_evaluation_results.csv", index=False)
+print("\nEvaluation complete. Results saved to 'live_chatbot_evaluation_results.csv'")

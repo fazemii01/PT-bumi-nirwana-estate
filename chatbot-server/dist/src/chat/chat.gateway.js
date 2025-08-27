@@ -24,6 +24,14 @@ let ChatGateway = class ChatGateway {
         const response = await this.chatService.ask(message);
         client.emit('reply', response);
     }
+    handleClearHistory() {
+        this.chatService.clearHistory();
+        console.log(`Chat history cleared via event.`);
+    }
+    handleDisconnect(client) {
+        this.chatService.clearHistory();
+        console.log(`Client disconnected: ${client.id}, history cleared.`);
+    }
 };
 exports.ChatGateway = ChatGateway;
 __decorate([
@@ -38,6 +46,12 @@ __decorate([
     __metadata("design:paramtypes", [String, socket_io_1.Socket]),
     __metadata("design:returntype", Promise)
 ], ChatGateway.prototype, "handleMessage", null);
+__decorate([
+    (0, websockets_1.SubscribeMessage)('clear history'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], ChatGateway.prototype, "handleClearHistory", null);
 exports.ChatGateway = ChatGateway = __decorate([
     (0, websockets_1.WebSocketGateway)({
         cors: {
