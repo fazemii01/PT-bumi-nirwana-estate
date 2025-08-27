@@ -1,34 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:mobile_nirwana/views/news/news_page.dart';
-import 'package:mobile_nirwana/views/profile/profile_page.dart';
-import 'package:mobile_nirwana/views/properties/properties_page.dart';
-
-String _getPropertyImage(String type) {
-  switch (type.toLowerCase()) {
-    case 'apartment':
-      return 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&h=300&fit=crop&crop=center';
-    case 'house':
-      return 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=400&h=300&fit=crop&crop=center';
-    case 'villa':
-      return 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=400&h=300&fit=crop&crop=center';
-    default:
-      return 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=400&h=300&fit=crop&crop=center';
-  }
-}
-
-IconData _getPropertyIcon(String type) {
-  switch (type.toLowerCase()) {
-    case 'apartment':
-      return Icons.apartment;
-    case 'house':
-      return Icons.home;
-    case 'villa':
-      return Icons.villa;
-    default:
-      return Icons.home;
-  }
-}
+import 'package:get/get.dart';
+import 'package:get/utils.dart';
+import 'package:mobile_nirwana/core/utils/api.dart';
+import 'package:mobile_nirwana/data/models/property/property.dart';
+import 'package:mobile_nirwana/helper/address.dart';
+import 'package:mobile_nirwana/helper/price.dart';
+import 'package:mobile_nirwana/helper/specifications.dart';
+import 'package:mobile_nirwana/views/properties/properties_controller.dart';
+import 'package:mobile_nirwana/widget/sceleton_home_property.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -36,13 +16,34 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _selectedPropertyType = 0;
-  final List<Map<String, dynamic>> _propertyTypes = [
-    {'icon': Icons.home, 'label': 'House'},
-    {'icon': Icons.villa, 'label': 'Villa'},
-    {'icon': Icons.apartment, 'label': 'Apartment'},
-    {'icon': Icons.house, 'label': 'Bungalow'},
+  final PropertiesController _propertyController =
+      Get.put(PropertiesController());
+
+  int _selectedService = 0;
+
+  final List<Map<String, dynamic>> _services = [
+    {
+      'icon': Icons.calculate_outlined,
+      'label': 'Simulasi KPR',
+    },
+    {
+      'icon': Icons.verified_user_outlined,
+      'label': 'Cek Eligibilitas',
+    },
+    {
+      'icon': Icons.account_balance_outlined,
+      'label': 'Perbandingan Bank',
+    },
+    {
+      'icon': Icons.support_agent_outlined,
+      'label': 'Konsultasi',
+    },
+    {
+      'icon': Icons.menu_book_outlined,
+      'label': 'Edukasi Properti',
+    },
   ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -208,8 +209,8 @@ class _HomePageState extends State<HomePage> {
             padding: EdgeInsets.all(20),
             child: Column(
               children: [
-                // Property Types
-                _buildPropertyTypesSection(),
+                // Menu
+                _buildMenuSection(),
                 SizedBox(height: 32),
 
                 // Recommended Properties
@@ -326,12 +327,12 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildPropertyTypesSection() {
+  Widget _buildMenuSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Tipe Properti',
+          'Layanan Kami',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -341,11 +342,11 @@ class _HomePageState extends State<HomePage> {
         SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: List.generate(_propertyTypes.length, (index) {
-            return _buildPropertyType(
-              _propertyTypes[index]['icon'],
-              _propertyTypes[index]['label'],
-              index == _selectedPropertyType,
+          children: List.generate(_services.length, (index) {
+            return _buildMenuCard(
+              _services[index]['icon'],
+              _services[index]['label'],
+              index == _selectedService,
               index,
             );
           }),
@@ -354,45 +355,34 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildPropertyType(
+  Widget _buildMenuCard(
       IconData icon, String label, bool isSelected, int index) {
     return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedPropertyType = index;
-        });
-      },
-      child: AnimatedContainer(
-        duration: Duration(milliseconds: 200),
-        padding: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-        decoration: BoxDecoration(
-          color: isSelected ? Color(0xFFDBB837) : Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: isSelected
-                  ? Color(0xFFDBB837).withOpacity(0.3)
-                  : Colors.grey.withOpacity(0.1),
-              spreadRadius: 0,
-              blurRadius: isSelected ? 12 : 8,
-              offset: Offset(0, isSelected ? 4 : 2),
-            ),
-          ],
-        ),
+        onTap: () {
+          setState(() {
+            _selectedService = index;
+          });
+        },
         child: Column(
           children: [
             Container(
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: isSelected
-                    ? Colors.white.withOpacity(0.2)
-                    : Colors.grey[50],
-                borderRadius: BorderRadius.circular(12),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.1),
+                    spreadRadius: 0,
+                    blurRadius: 10,
+                    offset: Offset(0, 4),
+                  ),
+                ],
               ),
               child: Icon(
                 icon,
-                color: isSelected ? Colors.white : Color(0xFFDBB837),
+                color: Color(0xFFDBB837),
                 size: 24,
               ),
             ),
@@ -400,15 +390,13 @@ class _HomePageState extends State<HomePage> {
             Text(
               label,
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 8,
                 fontWeight: FontWeight.w600,
-                color: isSelected ? Colors.white : Colors.black87,
+                color: Colors.black87,
               ),
             ),
           ],
-        ),
-      ),
-    );
+        ));
   }
 
   Widget _buildRecommendedSection() {
@@ -444,46 +432,39 @@ class _HomePageState extends State<HomePage> {
         ),
         SizedBox(height: 16),
         Container(
-          height: 280,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            physics: BouncingScrollPhysics(),
-            itemCount: 3,
-            separatorBuilder: (context, index) => SizedBox(width: 16),
-            itemBuilder: (context, index) {
-              final properties = [
-                {
-                  'type': 'Apartment',
-                  'title': 'Woodland Apartments',
-                  'location': 'Jakarta Selatan',
-                  'price': 'Rp 15.000.000',
-                  'rating': 4.5,
-                },
-                {
-                  'type': 'House',
-                  'title': 'Oakleaf Cottage',
-                  'location': 'Tangerang',
-                  'price': 'Rp 9.500.000',
-                  'rating': 4.3,
-                },
-                {
-                  'type': 'Villa',
-                  'title': 'Luxury Villa',
-                  'location': 'Bogor',
-                  'price': 'Rp 22.000.000',
-                  'rating': 4.7,
-                },
-              ];
+            height: 280,
+            child: Obx(() {
+              if (_propertyController.isLoading.value) {
+                // tampilkan 3 skeleton
+                return ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: 3,
+                  itemBuilder: (context, index) {
+                    return const SceletonHomeProperty();
+                  },
+                );
+              }
 
-              return _buildPropertyCard(properties[index]);
-            },
-          ),
-        ),
+              if (_propertyController.errorMessage.isNotEmpty) {
+                return Center(
+                    child: Text(_propertyController.errorMessage.value));
+              }
+              return ListView.separated(
+                scrollDirection: Axis.horizontal,
+                physics: BouncingScrollPhysics(),
+                itemCount: _propertyController.properties.length,
+                separatorBuilder: (context, index) => SizedBox(width: 16),
+                itemBuilder: (context, index) {
+                  final properties = _propertyController.properties[index];
+                  return _buildPropertyCard(properties);
+                },
+              );
+            })),
       ],
     );
   }
 
-  Widget _buildPropertyCard(Map<String, dynamic> property) {
+  Widget _buildPropertyCard(Property property) {
     return Container(
       width: 200,
       decoration: BoxDecoration(
@@ -511,7 +492,8 @@ class _HomePageState extends State<HomePage> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
                   child: Image.network(
-                    _getPropertyImage(property['type']),
+                    Imgurl.get(
+                        'property/property_images/${_getPropertyImage(property)}'),
                     width: double.infinity,
                     height: 140,
                     fit: BoxFit.cover,
@@ -526,7 +508,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                         child: Center(
                           child: Icon(
-                            _getPropertyIcon(property['type']),
+                            _getPropertyIcon(property.type),
                             size: 40,
                             color: Colors.grey[400],
                           ),
@@ -562,7 +544,7 @@ class _HomePageState extends State<HomePage> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    property['type'],
+                    property.type,
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
@@ -580,7 +562,7 @@ class _HomePageState extends State<HomePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    property['title'],
+                    property.name,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -600,7 +582,7 @@ class _HomePageState extends State<HomePage> {
                       SizedBox(width: 4),
                       Expanded(
                         child: Text(
-                          property['location'],
+                          AreaHelper.formatSingleLine(property.address),
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey[600],
@@ -613,11 +595,18 @@ class _HomePageState extends State<HomePage> {
                   ),
                   Spacer(),
                   Row(
+                    children: [
+                      ...SpecificationHelper.buildMainSpecs(
+                          property.specifications!)
+                    ],
+                  ),
+                  Spacer(),
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
                         child: Text(
-                          '${property['price']}/bulan',
+                          '${formatPrice(property.price)}/${property.price_unit}',
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -636,7 +625,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                           SizedBox(width: 4),
                           Text(
-                            property['rating'].toString(),
+                            '5',
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -721,7 +710,7 @@ class _HomePageState extends State<HomePage> {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child: Image.network(
-                _getPropertyImage('villa'),
+                'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=400&h=300&fit=crop&crop=center',
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
@@ -851,7 +840,7 @@ class _HomePageState extends State<HomePage> {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child: Image.network(
-                _getPropertyImage('house'),
+                'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=400&h=300&fit=crop&crop=center',
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
@@ -954,4 +943,24 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+}
+
+IconData _getPropertyIcon(String type) {
+  switch (type.toLowerCase()) {
+    case 'apartment':
+      return Icons.apartment;
+    case 'house':
+      return Icons.home;
+    case 'villa':
+      return Icons.villa;
+    default:
+      return Icons.home;
+  }
+}
+
+String _getPropertyImage(Property property) {
+  if (property.images.isNotEmpty && property.images[0].image_url != null) {
+    return property.images[0].image_url!;
+  }
+  return "";
 }
