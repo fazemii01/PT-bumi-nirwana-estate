@@ -20,7 +20,9 @@ import weaviate, { WeaviateClient } from 'weaviate-client';
 import { createStuffDocumentsChain } from 'langchain/chains/combine_documents';
 import { createHistoryAwareRetriever } from 'langchain/chains/history_aware_retriever';
 import { MultiQueryRetriever } from 'langchain/retrievers/multi_query';
+import { encode } from 'gpt-tokenizer';
 
+type ScoredDoc = { doc: Document; score: number };
 
 @Injectable()
 export class ChatService implements OnModuleInit {
@@ -64,48 +66,111 @@ export class ChatService implements OnModuleInit {
     this.initializeMasterChain();
   }
 
+  
   private async rerankDocuments(
     originalQuery: string,
-    documents: Document[],
-  ): Promise<Document[]> {
-    if (documents.length === 0) return [];
-    console.log(
-      `Reranking ${documents.length} documents for query: "${originalQuery}"`,
-    );
-    const RERANKER_API_URL = 'http://localhost:8082/rerank';
+    documents?: Document[],
+  ): Promise<ScoredDoc[]> {
+    if (!documents || documents.length === 0) return [];
+
+    const payload = {
+      query: originalQuery,
+      documents: documents.map((d) => d.pageContent),
+    };
 
     try {
-      const response = await fetch(RERANKER_API_URL, {
+      const response = await fetch('http://localhost:8082/rerank', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          query: originalQuery,
-          documents: documents.map((doc) => doc.pageContent),
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
         throw new Error(`Reranker API failed with status ${response.status}`);
       }
 
-      const rerankedResults = (await response.json()) as {
-        index: number;
-        relevance_score: number;
-      }[];
+      const data = await response.json();
+      const results = data.results as { index: number; relevance_score: number }[];
 
-      const sortedDocuments = rerankedResults
-        .sort((a, b) => b.relevance_score - a.relevance_score)
-        .map((result) => documents[result.index]);
-
-      console.log('Reranking complete.');
-      return sortedDocuments.slice(0, 4);
-    } catch (error) {
-      console.error(
-        'Reranker call failed, falling back to original documents:',
-        error,
-      );
-      return documents.slice(0, 4);
+      return results.map((r) => ({
+        doc: documents[r.index],
+        score: r.relevance_score,
+      })) as ScoredDoc[];
+    } catch (err) {
+      console.error('Reranker call failed:', err);
+     
+      return documents.map((d) => ({ doc: d, score: 0 }));
     }
+  }
+
+  private async rerankInChunks(
+    query: string,
+    documents: Document[],
+    chunkSize = 64,
+  ): Promise<ScoredDoc[]> {
+    const all: ScoredDoc[] = [];
+    for (let i = 0; i < documents.length; i += chunkSize) {
+      const chunk = documents.slice(i, i + chunkSize);
+      const scored = await this.rerankDocuments(query, chunk);
+      all.push(...scored);
+    }
+    return all;
+  }
+
+  private async rerankByTokenBudget(
+    query: string,
+    documents: Document[],
+    maxTokens = 128, 
+    maxDocTokens = 200, 
+  ): Promise<Document[]> {
+    const results: ScoredDoc[] = [];
+    let batch: Document[] = [];
+    let batchTokens = 0;
+
+
+    const safeDocs = documents.map((d) => this.truncateDoc(d, maxDocTokens));
+
+    for (const doc of safeDocs) {
+      const docTokens = encode(doc.pageContent).length;
+
+      if (batchTokens + docTokens > maxTokens && batch.length > 0) {
+        const scored = await this.rerankDocuments(query, batch);
+        scored.forEach((r) => results.push(r));
+        batch = [doc];
+        batchTokens = docTokens;
+      } else {
+        batch.push(doc);
+        batchTokens += docTokens;
+      }
+    }
+
+    if (batch.length > 0) {
+      const scored = await this.rerankDocuments(query, batch);
+      scored.forEach((r) => results.push(r));
+    }
+
+   
+    return results.sort((a, b) => b.score - a.score).map((r) => r.doc);
+  }
+
+  /**
+   * Truncate a document to ~maxTokens worth of content.
+   * We estimate chars ≈ 4 * tokens to avoid token->text decoding.
+   */
+  private truncateDoc(doc: Document, maxTokens: number): Document {
+    const tokenCount = encode(doc.pageContent).length;
+    if (tokenCount <= maxTokens) return doc;
+
+    const approxChars = Math.max(
+      1,
+      Math.min(doc.pageContent.length, Math.floor(maxTokens * 4)),
+    );
+    const truncated = doc.pageContent.slice(0, approxChars);
+
+    return new Document({
+      pageContent: truncated,
+      metadata: doc.metadata,
+    });
   }
 
   private async initializeMasterChain(): Promise<void> {
@@ -114,7 +179,7 @@ export class ChatService implements OnModuleInit {
       model: 'qwen2:1.5b',
     });
 
-    const baseRetriever = this.vectorStore.asRetriever({ k: 15 });
+    const baseRetriever = this.vectorStore.asRetriever({ k: 5 });
 
     const multiQueryRetriever = MultiQueryRetriever.fromLLM({
       llm,
@@ -136,9 +201,10 @@ export class ChatService implements OnModuleInit {
       retriever: multiQueryRetriever,
       rephrasePrompt: historyAwarePrompt,
     });
+
     const retrieverChain = RunnableSequence.from([
       historyAwareRetrieverChain,
-      (docs) => docs.context,
+      (docs) => docs,
     ]).withConfig({ runName: 'DocumentRetrieverChain' });
 
     const synthesisPrompt = ChatPromptTemplate.fromMessages([
@@ -164,10 +230,9 @@ CONTEXTS:
       prompt: synthesisPrompt,
     });
 
-
     const ragChain = RunnableSequence.from([
       RunnablePassthrough.assign({
-
+        context: retrieverChain,
       }),
       RunnableLambda.from(
         async (input: {
@@ -175,32 +240,34 @@ CONTEXTS:
           context: Document[];
           chat_history: BaseMessage[];
         }) => {
-  
-          const rerankedDocs = await this.rerankDocuments(
+          const rerankedDocs = await this.rerankByTokenBudget(
             input.input,
             input.context,
+            256,
           );
           return { ...input, context: rerankedDocs };
         },
       ).withConfig({ runName: 'RerankDocuments' }),
       combineDocsChain,
+      new StringOutputParser(),
     ]).withConfig({ runName: 'FinalRagChain' });
 
     const greetingChain = new RunnableLambda({
-      func: () => 'Halo! Ada yang bisa saya bantu terkait properti?',
+      func: (_input) => 'Halo! Ada yang bisa saya bantu terkait properti?',
     }).withConfig({ runName: 'GreetingChain' });
 
     this.masterChain = new RunnableBranch({
-     branches: [
-       [
-         new RunnableLambda({
-           func: (input: { input: string; chat_history: BaseMessage[] }) => this.isGreeting(input.input),
-         }),
-         greetingChain,
-       ],
-     ],
-     default: ragChain,
-   }).withConfig({ runName: 'MasterChain' });
+      branches: [
+        [
+          new RunnableLambda({
+            func: (input: { input: string; chat_history: BaseMessage[] }) =>
+              this.isGreeting(input.input),
+          }),
+          greetingChain,
+        ],
+      ],
+      default: ragChain,
+    }).withConfig({ runName: 'MasterChain' });
   }
 
   private isGreeting(message: string): boolean {
@@ -239,13 +306,13 @@ CONTEXTS:
       input: message,
     });
 
-    const answer = result.answer ?? result;
+    const answer = (result as any).answer ?? result;
 
     this.chatHistory.push(new HumanMessage(message));
-    this.chatHistory.push(new AIMessage(answer));
+    this.chatHistory.push(new AIMessage(answer as string));
 
     console.log('Final AI Answer:', answer);
-    return answer;
+    return answer as string;
   }
 
   clearHistory(): void {
