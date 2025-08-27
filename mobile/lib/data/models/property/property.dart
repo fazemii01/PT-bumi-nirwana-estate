@@ -1,14 +1,12 @@
-import 'dart:convert';
-
 import 'package:mobile_nirwana/data/models/agent.dart';
 import 'package:mobile_nirwana/data/models/developer.dart';
-import 'package:mobile_nirwana/data/models/location.dart';
+import 'package:mobile_nirwana/data/models/property/address.dart';
+import 'package:mobile_nirwana/data/models/property/location.dart';
+import 'package:mobile_nirwana/data/models/property/property_floor_plan.dart';
+import 'package:mobile_nirwana/data/models/property/property_images.dart';
+import 'package:mobile_nirwana/data/models/property/specification.dart';
 
 enum PropertyStatus { PRE_LAUNCH, AVAILABLE, SOLD_OUT, RESERVED }
-
-enum PriceUnit { TOTAL, PER_MONTH, PER_SQM }
-
-enum PropertyType { HOUSE, APARTMENT, RUKO, KAVLING }
 
 class Property {
   final String id;
@@ -18,16 +16,16 @@ class Property {
   final String slug;
   final PropertyStatus status;
   final double price;
-  final PriceUnit priceUnit;
-  final PropertyType type;
+  final String price_unit;
+  final String type;
   final double? landSize;
   final double? buildingSize;
   final String? description;
   final String? detailDescription;
-  final Location location;
-  final Map<String, dynamic>? address;
-  final Map<String, dynamic>? specifications;
-  final List<PropertyImage> images;
+  final Location? location;
+  final Address? address;
+  final Specifications? specifications;
+  final List<PropertyImages> images;
   final List<PropertyFloorPlan> floorPlans;
   // final List<LoanSimulation> loanSimulations;
   final DateTime createdAt;
@@ -41,13 +39,13 @@ class Property {
     required this.slug,
     required this.status,
     required this.price,
-    required this.priceUnit,
+    required this.price_unit,
     required this.type,
     this.landSize,
     this.buildingSize,
     this.description,
     this.detailDescription,
-    required this.location,
+    this.location,
     this.address,
     this.specifications,
     this.images = const [],
@@ -71,10 +69,8 @@ class Property {
       price: json['price'] != null
           ? double.tryParse(json['price'].toString()) ?? 0.0
           : 0.0,
-      priceUnit: PriceUnit.values.firstWhere(
-          (e) => e.toString().split('.').last == json['price_unit']),
-      type: PropertyType.values
-          .firstWhere((e) => e.toString().split('.').last == json['type']),
+      price_unit: json['price_unit'],
+      type: json['type'],
       landSize: json['land_size'] != null
           ? double.tryParse(json['land_size'].toString())
           : null,
@@ -84,22 +80,10 @@ class Property {
       description: json['description'],
       detailDescription: json['detail_description'],
       location: Location.fromJson(json['location']),
-      address: json['address'] != null
-          ? (json['address'] is String
-              ? Map<String, dynamic>.from(
-                  jsonDecode(json['address']),
-                )
-              : json['address'])
-          : null,
-      specifications: json['specifications'] != null
-          ? (json['specifications'] is String
-              ? Map<String, dynamic>.from(
-                  jsonDecode(json['specifications']),
-                )
-              : json['specifications'])
-          : null,
+      address: Address.fromJson(json['address']),
+      specifications: Specifications.fromJson(json['specifications']),
       images: (json['images'] as List<dynamic>?)
-              ?.map((e) => PropertyImage.fromJson(e))
+              ?.map((e) => PropertyImages.fromJson(e))
               .toList() ??
           [],
       floorPlans: (json['floor_plans'] as List<dynamic>?)
@@ -120,15 +104,15 @@ class Property {
       'slug': slug,
       'status': status.toString().split('.').last,
       'price': price,
-      'price_unit': priceUnit.toString().split('.').last,
-      'type': type.toString().split('.').last,
+      'price_unit': price_unit,
+      'type': type,
       'land_size': landSize,
       'building_size': buildingSize,
       'description': description,
       'detail_description': detailDescription,
-      'location': location.toJson(),
-      'address': address,
-      'specifications': specifications,
+      'location': location?.toJson(),
+      'address': address?.toJson(),
+      'specifications': specifications?.toJson(),
       'images': images.map((e) => e.toJson()).toList(),
       'floor_plans': floorPlans.map((e) => e.toJson()).toList(),
       // 'loan_simulations': loanSimulations.map((e) => e.toJson()).toList(),
@@ -136,37 +120,4 @@ class Property {
       'updated_at': updatedAt.toIso8601String(),
     };
   }
-}
-
-class PropertyImage {
-  final String id;
-  final String? caption;
-  final String? image_url;
-
-  PropertyImage({required this.id, this.caption, this.image_url});
-
-  factory PropertyImage.fromJson(Map<String, dynamic> json) {
-    return PropertyImage(
-        id: json['id'], caption: json['caption'], image_url: json['image_url']);
-  }
-
-  Map<String, dynamic> toJson() =>
-      {'id': id, 'caption': caption, 'image_url': image_url};
-}
-
-class PropertyFloorPlan {
-  final String id;
-  final String name;
-  final String file_url;
-
-  PropertyFloorPlan(
-      {required this.id, required this.name, required this.file_url});
-
-  factory PropertyFloorPlan.fromJson(Map<String, dynamic> json) {
-    return PropertyFloorPlan(
-        id: json['id'], name: json['name'], file_url: json['file_url']);
-  }
-
-  Map<String, dynamic> toJson() =>
-      {'id': id, 'name': name, 'file_url': file_url};
 }
