@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:get/utils.dart';
+import 'package:mobile_nirwana/core/routes/app_routes.dart';
 import 'package:mobile_nirwana/core/utils/api.dart';
 import 'package:mobile_nirwana/data/models/property/property.dart';
 import 'package:mobile_nirwana/helper/address.dart';
 import 'package:mobile_nirwana/helper/price.dart';
 import 'package:mobile_nirwana/helper/specifications.dart';
+import 'package:mobile_nirwana/views/layout_controller.dart';
 import 'package:mobile_nirwana/views/properties/properties_controller.dart';
 import 'package:mobile_nirwana/widget/sceleton_home_property.dart';
 
@@ -19,28 +20,39 @@ class _HomePageState extends State<HomePage> {
   final PropertiesController _propertyController =
       Get.put(PropertiesController());
 
-  int _selectedService = 0;
+  final LayoutController _layoutController = Get.put(LayoutController());
+
+  @override
+  void initState() {
+    super.initState();
+    _layoutController.loadUserStatus();
+  }
 
   final List<Map<String, dynamic>> _services = [
     {
       'icon': Icons.calculate_outlined,
       'label': 'Simulasi KPR',
+      'routes': Routes.SIMULATION_KPR,
     },
     {
       'icon': Icons.verified_user_outlined,
       'label': 'Cek Eligibilitas',
+      'routes': Routes.LOGIN,
     },
     {
       'icon': Icons.account_balance_outlined,
       'label': 'Perbandingan Bank',
+      'routes': Routes.LOGIN,
     },
     {
       'icon': Icons.support_agent_outlined,
       'label': 'Konsultasi',
+      'routes': Routes.LOGIN,
     },
     {
       'icon': Icons.menu_book_outlined,
       'label': 'Edukasi Properti',
+      'routes': Routes.LOGIN,
     },
   ];
 
@@ -343,25 +355,22 @@ class _HomePageState extends State<HomePage> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: List.generate(_services.length, (index) {
-            return _buildMenuCard(
-              _services[index]['icon'],
-              _services[index]['label'],
-              index == _selectedService,
-              index,
-            );
+            return _buildMenuCard(_services[index]['icon'],
+                _services[index]['label'], _services[index]['routes']);
           }),
         ),
       ],
     );
   }
 
-  Widget _buildMenuCard(
-      IconData icon, String label, bool isSelected, int index) {
+  Widget _buildMenuCard(IconData icon, String label, String route) {
     return GestureDetector(
         onTap: () {
-          setState(() {
-            _selectedService = index;
-          });
+          _layoutController.isLoggedIn.value
+              ? setState(() {
+                  Get.toNamed(route);
+                })
+              : Get.toNamed(Routes.LOGIN);
         },
         child: Column(
           children: [

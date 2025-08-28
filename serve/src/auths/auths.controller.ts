@@ -4,6 +4,8 @@ import { Public } from '@/auths/public.decorator';
 import { AuthDto } from '@/auths/dto/auth.dto';
 import { CreateUserDto } from '@/users/dto/create-user.dto';
 import { Response } from 'express';
+import { User } from '@/users/entities/user.entity';
+import { GoogleLoginDto } from '@/auths/dto/google-login.dto';
 
 @Controller('auths')
 export class AuthsController {
@@ -34,5 +36,11 @@ export class AuthsController {
   @Post('signup')
   signUp(@Body() createUser: CreateUserDto) {
     return this.authsService.signUp(createUser);
+  }
+
+  @Public()
+  @Post('google-login')
+  async googleLogin(@Body() googleLoginDto: GoogleLoginDto) {
+    return this.authsService.verifyGoogleToken(googleLoginDto);
   }
 }

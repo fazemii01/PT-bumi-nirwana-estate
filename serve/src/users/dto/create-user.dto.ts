@@ -1,3 +1,4 @@
+import { Role } from '@/users/entities/role.entity';
 import {
   IsEmail,
   IsNotEmpty,
@@ -21,7 +22,4 @@ export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
   phone_number: string;
-
-  @IsOptional()
-  role: string;
 }

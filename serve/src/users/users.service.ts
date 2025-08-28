@@ -19,19 +19,20 @@ export class UsersService {
   ) {}
   async create(createUserDto: CreateUserDto) {
     try {
-      const salt = await bcrypt.genSalt();
-      const password_hash = await bcrypt.hash(
-        createUserDto.password_hash,
-        salt,
-      );
       const user = new User();
+      if (createUserDto.password_hash && createUserDto.password_hash != '') {
+        const salt = await bcrypt.genSalt();
+        const password_hash = await bcrypt.hash(
+          createUserDto.password_hash,
+          salt,
+        );
+        user.password_hash = password_hash;
+      }
+      if (createUserDto.phone_number && createUserDto.phone_number != '') {
+        user.phone_number = createUserDto.phone_number;
+      }
       user.full_name = createUserDto.full_name;
       user.email = createUserDto.email;
-      user.password_hash = password_hash;
-      user.phone_number = createUserDto.phone_number;
-      if (createUserDto.role) {
-        user.role = Role.ADMIN;
-      }
       return this.usersRepositoty.save(user);
     } catch (error) {
       throw new InternalServerErrorException('Internal server error', {
@@ -53,7 +54,7 @@ export class UsersService {
     return user;
   }
 
-  async findOneByEmail(email: string) {
+  async findOneByEmail(email: string): Promise<User | null> {
     const user = await this.usersRepositoty.findOneBy({
       email,
     });
