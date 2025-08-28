@@ -307,4 +307,4 @@ exports.ChatService = ChatService;
 exports.ChatService = ChatService = __decorate([
     (0, common_1.Injectable)()
 ], ChatService);
-//# sourceMappingURL=chat.service.js.map
+//# sourceMappingURL=chat.service%20copy.js.map

@@ -1,0 +1,194 @@
+// chat.service.ts
+import { Injectable, Inject, Logger } from '@nestjs/common';
+import { ChatOllama } from '@langchain/community/chat_models/ollama';
+import { OllamaEmbeddings } from '@langchain/community/embeddings/ollama';
+import { WeaviateClient } from 'weaviate-client';
+import { RunnableSequence, RunnableBranch, RunnablePassthrough } from '@langchain/core/runnables';
+import { MultiQueryRetriever } from 'langchain/retrievers/multi_query';
+import { createHistoryAwareRetriever } from 'langchain/chains/history_aware_retriever';
+import { MessagesPlaceholder } from '@langchain/core/prompts';
+import { Document } from '@langchain/core/documents';
+import { StringOutputParser } from '@langchain/core/output_parsers';
+import { BufferMemory, ChatMessageHistory } from 'langchain/memory';
+import { HumanMessage, AIMessage } from '@langchain/core/messages';
+import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
+import { WeaviateStore } from '@langchain/community/vectorstores/weaviate';
+import * as pdfParse from 'pdf-parse';
+import * as mammoth from 'mammoth';
+
+// local RerankClient provider from AppModule
+class RerankClient {
+  constructor(private baseUrl: string) {}
+  async rerank(query: string, documents: string[]) {
+    const res = await fetch(`${this.baseUrl}/rerank`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query, documents }),
+    });
+    if (!res.ok) throw new Error(`Rerank error: ${res.statusText}`);
+    return res.json();
+  }
+}
+
+@Injectable()
+export class ChatService {
+  private readonly logger = new Logger(ChatService.name);
+  private memory: BufferMemory;
+  private retriever: any;
+  private masterChain: any;
+
+  constructor(
+    @Inject('WEAVIATE_CLIENT') private readonly weaviateClient: WeaviateClient,
+    @Inject('EMBEDDINGS_MODEL') private readonly embeddings: OllamaEmbeddings,
+    @Inject('SYNTHESIS_MODEL') private readonly synthesisModel: ChatOllama,
+    @Inject('VISION_MODEL') private readonly visionModel: ChatOllama,
+    @Inject('RERANK_CLIENT') private readonly rerankClient: RerankClient,
+  ) {
+    this.memory = new BufferMemory({
+      memoryKey: 'chat_history',
+      inputKey: 'input',
+      outputKey: 'output',
+      returnMessages: true,
+      chatHistory: new ChatMessageHistory(),
+    });
+
+    this.initRetriever();
+    this.initMasterChain();
+  }
+
+  /** 🟢 Setup retrievers (MultiQuery + History aware) */
+  private initRetriever() {
+    const vectorStore = new WeaviateStore(this.embeddings, {
+      client: this.weaviateClient,
+      indexName: 'Documents',
+    });
+
+    const baseRetriever = vectorStore.asRetriever();
+
+    // MultiQuery retriever
+    const multiQueryRetriever = MultiQueryRetriever.fromLLM({
+      llm: this.synthesisModel,
+      retriever: baseRetriever,
+    });
+
+    // History aware retriever
+    this.retriever = createHistoryAwareRetriever({
+      llm: this.synthesisModel,
+      retriever: multiQueryRetriever,
+      rephrasePrompt: new MessagesPlaceholder('chat_history'),
+    });
+  }
+
+  /** 🟢 Initialize Master Chain (Hybrid → rerank → synthesis → fallback) */
+  private initMasterChain() {
+    const synthesisChain = RunnableSequence.from([
+      {
+        input: (input: any) => input.input,
+        context: (input: any) => input.context,
+        chat_history: (input: any) => input.chat_history,
+      },
+      this.synthesisModel,
+      new StringOutputParser(),
+    ]);
+
+    // rerank step with fallback
+    const rerankStep = async (input: { input: string; docs: Document[] }) => {
+      try {
+        const results = await this.rerankClient.rerank(
+          input.input,
+          input.docs.map((d) => d.pageContent),
+        );
+
+        const reranked = results.slice(0, 5).map((r: any, i: number) => ({
+          ...input.docs[i],
+          score: r.score,
+        }));
+
+        return { ...input, context: reranked.map((d) => d.pageContent).join('\n\n') };
+      } catch (err) {
+        this.logger.warn('⚠️ Rerank failed, falling back to raw docs');
+        return { ...input, context: input.docs.map((d) => d.pageContent).join('\n\n') };
+      }
+    };
+
+    // master chain with fallback branches
+    this.masterChain = RunnableBranch.from([
+      [
+        (input: any) => input.input.toLowerCase().includes('hello'),
+        RunnablePassthrough.assign({ context: async () => '👋 Hi! How can I help?' }).pipe(
+          synthesisChain,
+        ),
+      ],
+      [
+        () => true,
+        RunnableSequence.from([
+          RunnablePassthrough.assign({
+            docs: async (input: any) => this.retriever.invoke(input.input),
+          }),
+          rerankStep,
+          synthesisChain,
+        ]),
+      ],
+    ]);
+  }
+
+  /** 🟢 Main chat entrypoint */
+  async ask(query: string): Promise<string> {
+    const chatHistory = await this.memory.loadMemoryVariables({});
+    const result = await this.masterChain.invoke({
+      input: query,
+      chat_history: chatHistory.chat_history,
+    });
+
+    await this.memory.saveContext({ input: query }, { output: result });
+    return result;
+  }
+
+  /** 🟢 Clear chat memory */
+  async clearHistory() {
+    await this.memory.clear();
+  }
+
+  /** 🟢 Process file (pdf/docx/txt) and store in Weaviate */
+  async processFile(file: Express.Multer.File): Promise<string> {
+    let text = '';
+    if (file.mimetype === 'application/pdf') {
+      const data = await pdfParse(file.buffer);
+      text = data.text;
+    } else if (
+      file.mimetype ===
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ) {
+      const { value } = await mammoth.extractRawText({ buffer: file.buffer });
+      text = value;
+    } else if (file.mimetype === 'text/plain') {
+      text = file.buffer.toString('utf8');
+    } else {
+      throw new Error('Unsupported file type');
+    }
+
+    const splitter = new RecursiveCharacterTextSplitter({ chunkSize: 1000, chunkOverlap: 100 });
+    const docs = await splitter.splitDocuments([new Document({ pageContent: text })]);
+
+    const store = new WeaviateStore(this.embeddings, {
+      client: this.weaviateClient,
+      indexName: 'Documents',
+    });
+
+    await store.addDocuments(docs);
+    return '✅ File ingested successfully';
+  }
+
+  /** 🟢 Process image with vision model */
+  async processImage(file: Express.Multer.File): Promise<string> {
+    const base64 = file.buffer.toString('base64');
+    const result = await this.visionModel.invoke([
+      { role: 'system', content: 'You are an OCR and captioning model.' },
+      {
+        role: 'user',
+        content: [{ type: 'image_url', image_url: `data:image/png;base64,${base64}` }],
+      },
+    ]);
+    return JSON.stringify(result, null, 2);
+  }
+}

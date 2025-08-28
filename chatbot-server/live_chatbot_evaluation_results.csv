@@ -1,125 +1,59 @@
 question,generated_answer,ground_truth_answer,result_hit
-Berapa DP untuk rumah subsidi di Margojoyo Residence?,"Untuk rumah subsidi di The Margojoyo Residence, Anda membutuhkan uang muka (DP) yang berarti sekitar Rp 1.660.000 atau 1% dari harga jual rumah subsidi Anda. Itu adalah langkah pertama untuk mengambil kredit. Setelah itu, anda perlu membayar biaya tambahan seperti手续费 (UTJ), booking fee, yang disebutkan seharga Rp 1.000.000.",DP untuk tipe subsidi di The Margojoyo Residence adalah Rp 1.660.000.,❌ No
-Perumahan apa yang punya kolam renang?,"Maaf, saya belum menemukan informasi tentang perumahan dengan kolam renang. Bumi Nirwana Sumberejo memiliki fasilitas kolam renang di area outdoor, namun tidak ada data lebih lanjut dalam konteks ini. Harap berikan detail atau pertanyaan yang lebih spesifik agar saya dapat memberikan informasi yang lebih akurat.",The Royal Avenue adalah perumahan yang memiliki kolam renang pribadi.,❌ No
-Sebutkan 3 syarat untuk mengajukan KPR.,"Syarat-syarat yang biasanya harus dipenuhi dalam proses mengajukan Permohonan Pinjaman Rumah (KPR) antara lain:
+Berapa DP untuk rumah subsidi di Margojoyo Residence?,"Untuk Rumah Subsidi Tipe 30/72 di Margojoyo Residence, Anda perlu membayar Uang Muka (DP) sebesar 1% dari harga. Dalam hal ini, nilai DP adalah sekitar Rp 1.660.000 untuk Tipe 30/72.",DP untuk tipe subsidi di The Margojoyo Residence adalah Rp 1.660.000.,❌ No
+Perumahan apa yang punya kolam renang?,Perumahan yang memiliki kolam renang adalah Perumahan Royal Avenue.,The Royal Avenue adalah perumahan yang memiliki kolam renang pribadi.,❌ No
+Sebutkan 3 syarat untuk mengajukan KPR.,"3 syarat untuk mengajukan KPR adalah:
+1. Informasi Proses dan Persyaratan KPR
+2. Membeli Rumah Sebagai Investasi
+3. Tingkat Keberhasilan dalam Investasi Property","Tiga syarat KPR adalah Fotocopy KTP/KK/NPWP, Surat Nikah, dan Slip Gaji 3 bulan terakhir.",❌ No
+Listrik untuk rumah subsidi berapa watt?,"Tentu saja, namun informasi tentang spesifikasi listrik untuk rumah subsidi di Bumi Nirwana Sumberejo tidak tersedia dalam konteks yang Anda berikan. Mohon maaf karena saya tidak dapat menemukan informasi yang Anda cari.",Listrik untuk rumah subsidi adalah 900 Watt.,✅ Yes
+Promo apa yang ada di Bumi Nirwana Sumberejo?,"Bumi Nirwana Sumberejo menawarkan beberapa promo termasuk Tanpa DP, gratis semua biaya, dan angsuran ringan mulai dari 1 jutaan per bulan. Anda juga dapat mengetahui bahwa ini adalah masa promosi yang paling menarik karena tanpa DP serta gratis semua biaya.",Promo di Bumi Nirwana Sumberejo adalah Tanpa DP (0%) dan Free Semua Biaya.,✅ Yes
+"Saya seorang PNS, dokumen apa saja yang perlu saya siapkan untuk KPR?","Untuk mengajukan KPR, Anda perlu persyaratan Dokumen umum sebagai berikut:
 
-1. Identitas pengaju: Anda perlu memfasilitasi dokumen identitas seperti KTP, KK, dan NPWP. 
-2. Lihat status pernikahan (jika memiliki): Surat Nikah (jika sudah menikah).
-3. Dokumen pekerjaan (dalam kasusWiraswasta): Surat Keterangan Kerja. 
-4. Status pernikahan: Anda perlu membawa bukti yang relevan seperti surat nikah jika berkahwin.
-5. Data keuangan: Anda akan diperlukan dokumen penghasilan seperti slip gaji 3 bulan terakhir, serta catatan pendek tentang status pemasaran pekerjaan (tambahan untuk Wiraswasta).
+1. Identitas: Fotokopi KTP, KK, NPWP, Pas Foto (3 buah)
+2. Surat Nikah atau Peribadi yang berlaku saat ini
+3. Slip Gaji 3 Bulan Terakhir
+4. Surat Keterangan Kerja (diperlukan untuk menunjukkan Anda adalah Anggota Pegawai Sekerat (PNS))
+5. Informasi tentang penghasilan, keuangan, dan pendapatan sebelumnya
+6. Laporan perawat atau dokter terpercaya
+7. Catatan pendidikan yang relevan
 
-Ingatlah bahwa persyaratan ini mungkin berubah atau bergantung pada jenis kredit dan layanan yang Anda perlukan. Jika Anda memiliki pertanyaan lebih lanjut, mintalah informasi langsung dari tim kreditor atau pihak berwenang perumahan.","Tiga syarat KPR adalah Fotocopy KTP/KK/NPWP, Surat Nikah, dan Slip Gaji 3 bulan terakhir.",❌ No
-Listrik untuk rumah subsidi berapa watt?,"Untuk informasi yang terkait lebih detail tentang listrik dalam Rumah Subsidi (RUMSUB) di Bumi Nirwana Sumberejo, mohon dicari informasi langsung dari Sales atau Perusahaan yang bertanggung jawab. Namun, biasanya rumah subsidi umumnya mendapatkan listrik dari sumur bor sebagai sumber daya listrik. Informasi tentang kapasitas listriknya juga bisa ditemukan melalui pemberitahuan atau informasi langsung dari perusahaan tersebut.",Listrik untuk rumah subsidi adalah 900 Watt.,✅ Yes
-Promo apa yang ada di Bumi Nirwana Sumberejo?,PROMO utama yang ada di perumahan Bumi Nirwana Sumberejo adalah Tanpa DP (DP 0%). Ini berarti Anda tidak perlu menabung terlebih dahulu sebelum mengambil kredit.,Promo di Bumi Nirwana Sumberejo adalah Tanpa DP (0%) dan Free Semua Biaya.,✅ Yes
-"Saya seorang PNS, dokumen apa saja yang perlu saya siapkan untuk KPR?","Untuk melakukan KPR sebagai PNS, Anda perlu mempersiapkan beberapa dokumen sebagai berikut:
+Berikut adalah informasi tambahan dari proses dan persyaratan KPR:
 
-1. Identitas Dokumen:
-   - Fotokopi KTP (Kartu Tanda Penduduk)
-   - Kartu Tangan Kerja (BPJS atau BPBD)
+1. Uang Tanda Jadi (UTJ): Ada beberapa jenis utj tersebut, seperti booking fee untuk rumah subsidi.
+2. Pembayaran Uang Muka (DP): Anda bisa mendapatkan pembayaran ini jika permohonan KPR ditolak oleh bank karena masalah BI Checking.
 
-2. Data Sosial Keahlian (NIK) dan Jumlah Anggota Keluarga
-   - Informasi tentang status pernikahan Anda
-   - Informasi jumlah anggota dalam keluarga Anda
+Harap perhatikan bahwa informasi di atas adalah standar dan mungkin berbeda-beda dengan persyaratan yang berlaku pada bank atau bank lainnya. Pastikan untuk menghubungi pihak tersebut untuk mendapatkan informasi terkini.","Sebagai PNS, Anda perlu menyiapkan syarat umum KPR ditambah SK Terakhir.",❌ No
+"Jika saya ambil tenor KPR 15 tahun di Margojoyo, berapa cicilannya?",Cicilan Anda dalam kondisi ini akan menjadi: Rp 1.299.000 per bulan untuk 15 tahun.,Angsuran untuk tenor 15 tahun di The Margojoyo Residence adalah Rp 1.299.000 per bulan.,❌ No
+Perumahan mana yang paling dekat dengan Alun-alun Lumajang?,Rumah subsidi yang paling dekat dengan Alun-alun Lumajang adalah The Royal Avenue.,"The Margojoyo Residence adalah yang paling dekat, hanya 5 menit dari Alun-alun Lumajang.",❌ No
+"Saya mau investasi ruko, ada pilihan apa dan berapa harganya?","Maaf, saya tidak dapat menemukan informasi yang Anda cari. Saya memerlukan konteks lebih lanjut untuk membantu Anda.",Ada pilihan Ruko 2 lantai di The Margojoyo Residence seharga Rp 250.000.000.,❌ No
+Bandingkan promo antara The Margojoyo Residence dan Bumi Nirwana Sumberejo.,"Maaf, saya tidak dapat menemukan informasi yang Anda cari untuk mencari pengimbangan promo dari The Margojoyo Residence vs Bumi Nirwana Sumberejo.","Promo di Margojoyo adalah DP ringan 1% dan Free AJB/BPHTB, sedangkan di Sumberejo ada promo Tanpa DP 0%.",❌ No
+Berapa luas tanah untuk The Royal Avenue?,"Luas tanah untuk proyek perumahan komersil premium The Royal Avenue dijelaskan pada konteks pertama sebagai ""2 lantai"". Namun, tidak ada informasi yang lebih detail tentang luas tanah.",Informasi mengenai luas tanah The Royal Avenue tidak ditemukan dalam konteks.,❌ No
+Apakah ada fasilitas kolam renang umum di Margojoyo Residence?,"Maaf, saya tidak dapat menemukan informasi yang Anda cari. Saya sarankan untuk berkonsultasi langsung dengan pihak properti atau agen untuk mendapatkan informasi lebih pasti. Terima kasih.",Informasi mengenai kolam renang umum di Margojoyo Residence tidak ditemukan.,❌ No
+Berapa angsuran untuk The Royal Avenue?,"Maaf, saya tidak dapat menemukan informasi tentang biaya penggajakan atau angsuran yang berlaku untuk The Royal Avenue. Bisa Anda cari di sumber lain atau hubungi pihak konstruksi untuk mendapatkan data tersebut.",Informasi mengenai simulasi angsuran The Royal Avenue tidak ditemukan.,❌ No
+Apakah ada tipe rumah dengan 3 kamar tidur?,"Ya, ada beberapa jenis rumah di situasi pelanggan. Perumahan Bumi Nirwana Sumberejo memiliki promo tanpa DP yang bisa menjadi pilihan baik untuk keluarga yang mencari tempat berpindah-pindahkan. Selain itu, The Royal Avenue juga memberikan fasilitas mewah yang bisa menjadi pilihan terbaik jika ingin meningkatkan kualitas hidup keluarga.",Informasi mengenai tipe rumah dengan 3 kamar tidur tidak ditemukan dalam konteks.,❌ No
+"Saya baru menikah dan budget terbatas, baiknya saya pilih yang mana?","Untuk Anda yang baru menikah dan memiliki kebutuhan belanjaan yang terbatas, ada beberapa perumahan yang bisa dipertimbangkan. Pertama, Anda dapat mempertimbangkan perumahan dengan harga sewa yang lebih rendah seperti Bumi Nirwana Sumberejo karena ini adalah pilihan yang tepat untuk menetapkan kebutuhan hidup sehari-hari dalam anggaran terbatas. Kedua, jika Anda memiliki kemampuan finansial tambahan dan ingin meraih kenyamanan di perumahan dengan fasilitas mewah seperti Royal Avenue, ini adalah opsi yang baik. Jadi, pertimbangkan juga budget Anda untuk memastikan bahwa pilihan tersebut sesuai dengan tujuan dan kebutuhan Anda.","Untuk keluarga baru dengan budget terbatas, rumah subsidi di Bumi Nirwana Sumberejo bisa jadi pilihan tepat karena ada promo Tanpa DP.",❌ No
+Kenapa saya harus memilih The Royal Avenue dibandingkan perumahan lain?,"The Royal Avenue memiliki banyak kelebihan dan fitur yang bisa membuatnya menjadi pilihan yang bagus. Berikut adalah beberapa alasan mengapa Anda mungkin akan memilih Royal Avenue:
 
-3. Dokumen Pendukung:
-   * Kartu Kesehatan (SPKD)
-   * Jenis Kendaraan Milik Pribadi yang sesuai dengan UMKM yang ditentukan oleh BPR.
-   * Surat Keterangan Gaji (Salinan atau dokumen digital)
-   * Nilai Pokok Rumah (NPKR) yang harus dihasilkan oleh Bank Indonesia
-   * Aturan perumahan yang berlaku saat ini (Termasuk Peraturan BPR dan Peraturan Bank)
+1. Lokasi: Jantung kota Lumajang, di sebelah jalan Demokrasi, menunjukkan bahwa proyek ini memiliki akses mudah ke berbagai tempat penting seperti pusat perbelanjaan, sekolah, dan fasilitas publik lainnya.
 
-Anda juga diperbolehkan untuk mengambil KPR sejumlah tunjangan lain seperti:
-1. Tunjangan Pekerjaan: Seluruh golongan pekerja dianggap sebagai orang tua, termasuk PNS
-2. Tunjangan Penyewaan Rumah: Tunjangan ini berlaku bagi semua orang yang memiliki hak sewa rumah atau rumah khusus.
-3. Tunjangan Tidak Mengambil DP (TNTD) untuk memastikan kebutuhan finansial Anda terpenuhi saat mengajukan permohonan KPR.
+2. Desain: Desain yang modern dan elegan memastikan bahwa Royal Avenue cocok untuk penghabitan mewah. Desain rumah di Royal Avenue adalah hal yang terkenal dengan detail desain yang baik.
 
-Pastikan untuk mengetahui dan mengikuti peraturan yang berlaku dari Bank Perumahan Rakyat sebelum melakukan prosesnya. Selamat mencoba!","Sebagai PNS, Anda perlu menyiapkan syarat umum KPR ditambah SK Terakhir.",✅ Yes
-"Jika saya ambil tenor KPR 15 tahun di Margojoyo, berapa cicilannya?","Untuk mengetahui angsuran bulanan pada Kredit Perumahan Ruko (KPR) Margojoyo dengan Tenor 15 tahun, Anda perlu menghubungi tim marketing kami atau melakukan simulasi via online banking. Namun, informasi ini mungkin berbeda tergantung dari promo dan layanan yang ada. Selalu dicatat bahwa prosedur untuk memperoleh pinjaman KPR memiliki persyaratan tertentu. Kami menawarkan dukungan dalam mempersiapkan formulirnya serta menawarkan sejumlah pilihan pinjaman berbeda. Silakan hubungi kami untuk mendapatkan informasi lebih lanjut.",Angsuran untuk tenor 15 tahun di The Margojoyo Residence adalah Rp 1.299.000 per bulan.,✅ Yes
-Perumahan mana yang paling dekat dengan Alun-alun Lumajang?,"Jika Anda menunjukkan kemampuan ekonomi rendah dan memiliki gaji UMR atau membutuhkan bantuan untuk menabung, perumahan ""Bumi Nirwana Sumberejo"" mungkin menjadi opsi yang baik. Perumahan ini berlokasi di Alun-alun Lumajang. Anda bisa menghubungi kami di kontak kami.","The Margojoyo Residence adalah yang paling dekat, hanya 5 menit dari Alun-alun Lumajang.",❌ No
-"Saya mau investasi ruko, ada pilihan apa dan berapa harganya?","Selamat pagi! Untuk pertanyaan Anda tentang investasi rumah, saya menyarankan untuk mempertimbangkan beberapa opsi. 
+3. Harga:harga per unit Royal Avenue sangat murah, yaitu Rp 300.000.000 atau harganya bisa menjadi pilihan yang lebih baik dibandingkan perumahan lainnya dalam pasar Anda.
 
-1. Perumahan Bumi Nirwana Sumberejo: Ini adalah perumahan yang kami rekomendasikan karena memiliki promo tanpa DP dan angsuran yang ringan.
+4. Fasilitas dan Spesifikasi: Royal Avenue memastikan bahwa fasilitas di setiap unit rumahnya lengkap, termasuk 2 kamar tidur, 2 kamar mandi, garasi untuk 1 mobil, dapar, ruang keluarga (living room), dan kolam renang pribadi. 
 
-2. The Royal Avenue: Selain fasilitasnya mewah, rumah di sini juga bisa menjadi pilihan untuk Anda yang ingin meningkatkan kualitas hidup keluarga mereka.
+5. Tersedia promo gratis semua biaya, ini juga menawarkan nilai tambah yang lebih besar bagi pembeli.
+  
+Dengan demikian, Royal Avenue mungkin akan menjadi pilihan yang baik untuk Anda terutama jika Anda mencari suatu tempat perumahan komersil premium di jantung kota Lumajang.",The Royal Avenue menawarkan kemewahan dan lokasi premium di pusat kota dengan fasilitas lengkap termasuk kolam renang pribadi.,✅ Yes
+"Saya khawatir proses KPR ribet, bisa bantu jelaskan?","Maaf, saya tidak dapat menemukan informasi yang Anda cari. Namun, jika Anda memerlukan informasi lebih lanjut tentang proses pembelian dan penyediaan keuntungan properti di Bumi Nirwana Sumberejo atau The Royal Avenue, silakan berikan detailnya agar saya bisa memberikan informasi yang paling akurat.","Proses KPR tidak serumit yang dibayangkan. Anda hanya perlu menyiapkan dokumen seperti KTP, KK, dan slip gaji, tim kami akan membantu prosesnya.",❌ No
+"Kalau saya mau lihat-lihat lokasinya langsung, bagaimana caranya?","Maaf, saya tidak dapat menemukan informasi yang Anda cari. Namun, jika Anda ingin memperoleh lebih banyak detail mengenai proyek perumahan komersil premium The Royal Avenue di Lumajang, kami bisa memberikan informasi terkait.",Anda bisa menghubungi tim marketing kami di nomor 081999998000 untuk mengatur jadwal survey lokasi.,❌ No
+Apa keuntungan utama punya rumah di Bumi Nirwana Estate?,"PT Bumi Nirwana Estate menawarkan berbagai keuntungan bagi mereka yang membeli rumah di dalam perumahan ini. Keuntungannya terdiri atas:
 
-Harap berhati-hati dalam mempertimbangkan investasi properti, dan jangan lupa untuk melakukan pertimbangan terlebih dahulu. Anda mungkin perlu mengecek detail tambahan seperti biaya operasional, biaya pemeliharaan, dan tingkat inflasi sebelum membuat keputusan. Bumi Nirwana Sumberejo memiliki promo tanpa DP yang bisa menjadi alasan untuk pertimbangan investasi. Selamat mencari!",Ada pilihan Ruko 2 lantai di The Margojoyo Residence seharga Rp 250.000.000.,❌ No
-Bandingkan promo antara The Margojoyo Residence dan Bumi Nirwana Sumberejo.,"Tentu, saya bisa membantu Anda dalam hal ini.
+1. Lokasi Strategis: Rumah di Bumi Nirwana Estate berada dekat dari pusat kota Lumajang, mengingatkan Anda dengan kenyamanan dan akses mudah ke pasar belanja, fasilitas publik, dan tempat pendidikan.
+2. Kualitas Rumah: Properti ini dikelola oleh PT Bumi Nirwana Estate dan selalu memastikan bahwa setiap rumahnya memiliki desain yang indah, fitur tertentu seperti ruang kelas dan carport, serta harga yang terjangkau.
+3. Anjang Rumah: Menawarkan tipe rumah dua lantai atau satu lantai dengan berbagai pilihan luas perluasan di interior atau eksterior.
+4. Konsep Strategis: Membuat perumahan ini menjadi pilihan unik bagi generasi milenial dan masyarakat dengan gaji umur yang ingin memiliki rumah pertama.
+5. Paket Tertentu: Ada paket lainnya seperti tanpa DP (DP 0%) dan gratis semua biaya, yang membuat pembelian lebih mudah dan menyenangkan.
 
-**Promo di The Margojoyo Residence:**
-* Rumah Subsidi Tipe 30/72 (Harga Rp 166.000.000)
-* Angsuran Ringan Mulai dari 1 Jutaan Per Bulan
-* Tanpa DP (DP 0%)
-* Gratis Semua Biaya
-
-**Promo di Bumi Nirwana Sumberejo:**
-* Rumah Subsidi Tipe 30/60 (Harga Rp 166.000.000)
-* Angsuran Ringan Mulai dari 1 Jutaan Per Bulan
-* Tanpa DP (DP 0%)
-* Gratis Semua Biaya
-
-**Spesifikasi Rumah:**
-- Tipe Rumah: Tersedia dalam 3 Varians yaitu, Tipe A 30/60 dan 40/72
-- Luas Tanah: Mulai dari 50 Kib (1.266 meter persegi)
-- Lokasi Strategis: dekat pusat kota dan berjarak hanya beberapa kilometer dari alun-alun Lumajang
-
-**Pilihan Antara Perumahan:** 
-Tentu saja, pilih perumahan mana yang paling cocok untuk Anda tergantung pada kebutuhan dan budget. Pastikan juga untuk menghubungi pusat sales atau pihak mana pun yang bisa membantu menjawab pertanyaan tambahan Anda. Selamat berinvestasi!","Promo di Margojoyo adalah DP ringan 1% dan Free AJB/BPHTB, sedangkan di Sumberejo ada promo Tanpa DP 0%.",❌ No
-Berapa luas tanah untuk The Royal Avenue?,"Luas tanah untuk The Royal Avenue sekitar 4,20 ha. Ini berarti bahwa area perumahan tersebut mencakup lebih dari 176,57 hektare.",Informasi mengenai luas tanah The Royal Avenue tidak ditemukan dalam konteks.,❌ No
-Apakah ada fasilitas kolam renang umum di Margojoyo Residence?,"Untuk informasi lebih lanjut tentang fasilitas kolam renang umum, saya sarankan Anda bertanya langsung kepada pihak sales atau marketing perumahan tersebut. Namun secara umum, banyak properti yang menawarkan fasilitas seperti kolam renang. Pastinya pada Margojoyo Residence juga ada kolam renang untuk memenuhi kebutuhan penghuni.
-
-Mohon maaf atas informasi yang tidak lengkap, dan terima kasih sudah bertanya!",Informasi mengenai kolam renang umum di Margojoyo Residence tidak ditemukan.,❌ No
-Berapa angsuran untuk The Royal Avenue?,"Angsuran untuk proyek perumahan komersil premium The Royal Avenue Anda dapat ditentukan berdasarkan ukuran unit dan jumlah lantai yang dipilih. Angsuran rata-rata biasanya diawali dengan biaya down payment sebesar 10% dari nilai jual, atau bisa lebih tinggi tergantung pada persyaratan pembiayaan.
-Untuk informasi paling akurat dan detail, mungkin Anda perlu menghubungi tim marketing kami untuk mendapatkan catatan harga yang lebih detail. Namun biasanya, biaya per unit The Royal Avenue dapat mencapai Rp 300,000,000. 
-
-Saya menyarankan untuk bertanya langsung ke tim marketing kami atau hubungi mitra pemasaran kami yang ada di rumah Anda. Kami senang membantu menjawab pertanyaan Anda dan membantu Anda memutuskan mana proyek perumahan terbaik untuk keluarga Anda.
-Selamat mencari dan terima kasih atas pertimbangan Anda!",Informasi mengenai simulasi angsuran The Royal Avenue tidak ditemukan.,❌ No
-Apakah ada tipe rumah dengan 3 kamar tidur?,"Tentu saja! Untuk mencari informasi lebih lanjut tentang rumah dengan 3 kamar tidur di The Margojoyo Residence, silakan hubungi tim sales kami. Kami akan membantu Anda dalam memastikan bahwa tipe rumah yang dicari juga memiliki promo atau paket lainnya yang menarik bagi Anda.",Informasi mengenai tipe rumah dengan 3 kamar tidur tidak ditemukan dalam konteks.,❌ No
-"Saya baru menikah dan budget terbatas, baiknya saya pilih yang mana?","Tentu saja Anda bisa merasa frustrasi saat sedang mencari perumahan. Tetapi, ada beberapa hal yang harus Anda pertimbangkan sebelum membuat pilihan:
-
-1. Lokasi: Ini adalah faktor utama untuk menavigasi dan menghindari kemacetan di jalan raya. Jika Anda tinggal dekat dengan stesen kereta atau pusat perbelanjaan, ini bisa sangat berguna. 
-
-2. Biaya Rumah: Pertimbangkan juga tingkat rentabilitas ke dalam biaya rumah tersebut untuk memastikan investasi Anda memberikan nilai pada masa mendatang.
-
-3. Kualitas Rumah: Perlu diingat bahwa harga yang lebih murah tidak selalu merujuk pada kualitas rumahnya. Penting untuk memeriksa dengan detail dan mengambil masa untuk mencari informasi tentang setiap penawaran rumah tersebut.
-
-4. Fasilitas: Jika Anda tinggal dekat dengan sekolah atau pusat belajar, ini bisa menjadi faktor penting dalam menentukan pilihan rumah. 
-
-5. Keamanan dan Lingkungan: Pastikan bahwa lokasi rumahnya tepat di depan bangunan yang aman.
-
-6. Lokasi Kemudahan: Ini juga penting untuk mengingat, jangan terlalu fokus pada harga dan lakukan perencanaan dengan hati-hati.
-
-Ingatlah untuk selalu mencari saran profesional sebelum membuat keputusan. Dengan melakukan ini, Anda bisa menemukan rumah yang tepat tanpa harus merasakan stres atau frustrasi. Selamat mencari!","Untuk keluarga baru dengan budget terbatas, rumah subsidi di Bumi Nirwana Sumberejo bisa jadi pilihan tepat karena ada promo Tanpa DP.",❌ No
-Kenapa saya harus memilih The Royal Avenue dibandingkan perumahan lain?,"Jawabannya adalah karena perumahan ini menawarkan harga yang lebih murah dan fasilitas yang lebih lengkap. Anda juga bisa mendapatkan diskon gratis sepanjang masa untuk biaya sewa atau pembelian rumah di The Royal Avenue. Selain itu, kondisi lingkungan juga sangat baik di sini.
-
-Dengan begitu, perumahan ini pasti menjadi pilihan terbaik untuk memulai hidup baru atau memperbarui hunian Anda dengan fasilitas yang mewah dan tenang. Jika ada pertanyaan lain atau informasi tambahan yang ingin Anda ketahui lebih lanjut, jangan ragu untuk bertanya!",The Royal Avenue menawarkan kemewahan dan lokasi premium di pusat kota dengan fasilitas lengkap termasuk kolam renang pribadi.,✅ Yes
-"Saya khawatir proses KPR ribet, bisa bantu jelaskan?","Maaf Anda merasa sepihak dalam proses ini. Perumahan Kami, Bumi Nirwana Sumberejo memiliki prosedur mudah dan langkah singkat. Selain itu, kami juga memberikan promo tanpa DP untuk menawarkan kemudahan bagi Anda. Jika ada informasi lebih lanjut atau pertanyaan lainnya, jangan ragu untuk bertanya.","Proses KPR tidak serumit yang dibayangkan. Anda hanya perlu menyiapkan dokumen seperti KTP, KK, dan slip gaji, tim kami akan membantu prosesnya.",❌ No
-"Kalau saya mau lihat-lihat lokasinya langsung, bagaimana caranya?","Untuk melihat perumahan The Margojoyo Residence secara langsung dan mendapatkan informasi lebih lanjut tentang properti yang tersedia, Anda dapat menghubungi tim marketing kami di alamat berikut:
-
-Alamat: 
-Desa Klampokarum,
-Tekung,
-Lumajang
-Kepada pemberi layanan kami atau sales kami. Harap dicatat bahwa tim marketing kami adalah bagian dari PT Margojoyo Anugrah Persada, yang merupakan pengembang dan pelaksana proyek tersebut.",Anda bisa menghubungi tim marketing kami di nomor 081999998000 untuk mengatur jadwal survey lokasi.,❌ No
-Apa keuntungan utama punya rumah di Bumi Nirwana Estate?,TIMEOUT_ERROR,Keuntungan utamanya adalah mendapatkan hunian berkualitas di lokasi strategis dengan harga terjangkau dan berbagai promo menarik.,❌ No
-"Jika UTJ saya hangus, apakah DP juga hangus?","Berikut adalah beberapa keuntungannya:
-
-1. Lokasi Strategis: Menjelmaikan sejak pusat kota, perumahan ini jelas bisa menawarkan kemudahan akses yang tinggi.
-
-2. Kualitas Rumah: Selain lokasinya yang strategis, Anda juga mendapatkan berbagai jenis rumah dengan pilihan spesifik seperti 30/60 atau 45/75, semua dibangun dengan kualitas tertinggi.
-
-3. Angsuran Ringan: Dengan promo tanpa DP, biaya angsuran bisa menjadi lebih ringan dibandingkan jika perlu menabung dalam jangka waktu yang lama.
-
-4. Biaya Sewa Berkurang: Anda juga mendapatkan subsidi untuk rumahnya dan ini tentu akan berpengaruh terhadap biaya sewanya.
-
-5. Kondisi Bangunan dan Fasilitas: Bangunan di Bumi Nirwana Estate dilengkapi dengan fasilitas yang cemerlang seperti taman, kolam renang, parkir, hingga peralatan kesehatan.
-
-6. Investasi Menurunharga: Dengan demikian, investasi rumah di sini dapat menunjukkan pendekatan tinggi dalam pertumbuhan harta.
-
-7. Keamanan dan Kehidupan Malam: Tidak hanya berkelanjutan dengan kualitas bangunan, perumahan ini juga memberikan kemudahan untuk kehidupan sehari-hari, mulai dari tempat bermain anak-anak hingga area tempat berbaring malam.
-
-8. Konsep Lingkungan Hijau: Perumahan di Bumi Nirwana Estate menawarkan lingkungan yang sangat hijau dan ideal untuk orang yang menghargai kualitas hidup dan kebersihan lingkungan.
-
-9. Kemudian, juga penting untuk dipertimbangkan adalah dukungan administrasi dan layanan pelanggan yang mendalam dari tim tim pemasaran dan customer service yang profesional.
-
-Dengan demikian, perumahan ini menawarkan berbagai manfaat yang dapat mempersiapkan investasi Anda dengan cara yang optimal.","Uang Tanda Jadi (UTJ) tidak dapat kembali, namun jika KPR ditolak karena BI Checking, DP bisa dikembalikan.",❌ No
+Jadi, keuntungan utamanya adalah lokasi strategis dan kualitas properti yang tinggi. Selain itu, pelanggan juga mendapat manfaat dari banyaknya promo menarik yang diberikan oleh PT Bumi Nirwana Estate.",Keuntungan utamanya adalah mendapatkan hunian berkualitas di lokasi strategis dengan harga terjangkau dan berbagai promo menarik.,❌ No
+"Jika UTJ saya hangus, apakah DP juga hangus?","Maaf, saya tidak dapat menemukan informasi yang Anda cari tentang hal ini. Tapi secara umum, jika utj (Unit Terdapat) Anda hangus, maka mungkin biaya deposit (DP) juga hangus. Namun, Anda perlu menghubungi perusahaan properti atau pekerjaan Anda untuk mendapatkan informasi yang lebih akurat dan pasti.","Uang Tanda Jadi (UTJ) tidak dapat kembali, namun jika KPR ditolak karena BI Checking, DP bisa dikembalikan.",❌ No
