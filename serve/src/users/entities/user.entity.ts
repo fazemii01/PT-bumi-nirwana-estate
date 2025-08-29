@@ -22,8 +22,11 @@ export class User {
   @Column({ type: 'varchar', length: 255, nullable: true })
   phone_number: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: false })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   password_hash: string;
+
+  @Column({ type: 'varchar', length: 255, nullable: true, unique: true })
+  google_id: string;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   full_name: string;
