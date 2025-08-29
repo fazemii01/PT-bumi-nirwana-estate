@@ -2,34 +2,55 @@ import 'dart:convert';
 
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:mobile_nirwana/core/routes/app_routes.dart';
 import 'package:mobile_nirwana/core/utils/api.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile_nirwana/data/models/auth-response.dart';
 
 class AuthService extends Api {
-  Future<String?> loginWithGoogle(String idToken) async {
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    clientId:
+        "490608507191-gra7sqkb3cr0m72r2cfvk56r9qmmhi19.apps.googleusercontent.com",
+    scopes: ['email'],
+  );
+
+  Future<String?> loginWithGoogle() async {
     try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/auths/google-login'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({"idToken": idToken}),
-      );
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final data = jsonDecode(response.body);
-        final authResponse = AuthResponse.fromJson(data);
-
-        final box = GetStorage();
-        box.write('access_token', authResponse.accessToken);
-        box.write('full_name', authResponse.user.full_name);
-        box.write('email', authResponse.user.email);
-        box.write('user_id', authResponse.user.id);
-
-        return null;
-      } else {
-        return jsonDecode(response.body)['message'] ?? 'Login failed';
+      if (googleUser == null) {
+        return 'Login dibatalkan';
       }
+
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      final idToken = googleAuth.idToken;
+
+      if (idToken != null) {
+        final response = await http.post(
+          Uri.parse('$baseUrl/auths/google-login'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({"idToken": idToken}),
+        );
+
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          final data = jsonDecode(response.body);
+          final authResponse = AuthResponse.fromJson(data);
+
+          final box = GetStorage();
+          box.write('access_token', authResponse.accessToken);
+          box.write('full_name', authResponse.user.full_name);
+          box.write('email', authResponse.user.email);
+          box.write('user_id', authResponse.user.id);
+
+          return null;
+        } else {
+          return jsonDecode(response.body)['message'] ?? 'Login failed';
+        }
+      }
+      return "Terjadi kesalahan. silahkan coba lagi.";
     } catch (e) {
       print("[ERROR] Terjadi kesalahan saat login $e");
       return "Gagal terhubung ke server";
@@ -85,6 +106,7 @@ class AuthService extends Api {
   }
 
   Future<void> logout() async {
+    await _googleSignIn.signOut();
     final box = GetStorage();
     box.erase();
     Get.offAllNamed(Routes.LAYOUT);

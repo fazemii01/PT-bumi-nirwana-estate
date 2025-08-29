@@ -7,8 +7,8 @@ import 'package:mobile_nirwana/data/models/property/property.dart';
 import 'package:mobile_nirwana/helper/address.dart';
 import 'package:mobile_nirwana/helper/price.dart';
 import 'package:mobile_nirwana/helper/specifications.dart';
+import 'package:mobile_nirwana/views/home/home_controller.dart';
 import 'package:mobile_nirwana/views/layout_controller.dart';
-import 'package:mobile_nirwana/views/properties/properties_controller.dart';
 import 'package:mobile_nirwana/widget/sceleton_home_property.dart';
 
 class HomePage extends StatefulWidget {
@@ -17,8 +17,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final PropertiesController _propertyController =
-      Get.put(PropertiesController());
+  final HomeController _homeController = Get.put(HomeController());
 
   final LayoutController _layoutController = Get.put(LayoutController());
 
@@ -209,33 +208,41 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildHomeContent() {
-    return SingleChildScrollView(
-      physics: BouncingScrollPhysics(),
-      child: Column(
-        children: [
-          // Header Section
-          _buildHeaderSection(),
+    return RefreshIndicator(
+      onRefresh: () async {
+        await _homeController.refreshProperties();
+        // Tambahkan refresh untuk data lainnya jika diperlukan
+      },
+      color: Color(0xFFDBB837),
+      backgroundColor: Colors.white,
+      child: SingleChildScrollView(
+        physics: BouncingScrollPhysics(),
+        child: Column(
+          children: [
+            // Header Section
+            _buildHeaderSection(),
 
-          // Main Content
-          Padding(
-            padding: EdgeInsets.all(20),
-            child: Column(
-              children: [
-                // Menu
-                _buildMenuSection(),
-                SizedBox(height: 32),
+            // Main Content
+            Padding(
+              padding: EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  // Menu
+                  _buildMenuSection(),
+                  SizedBox(height: 32),
 
-                // Recommended Properties
-                _buildRecommendedSection(),
-                SizedBox(height: 32),
+                  // Recommended Properties
+                  _buildRecommendedSection(),
+                  SizedBox(height: 32),
 
-                // Nearby Properties
-                _buildNearbySection(),
-                SizedBox(height: 20),
-              ],
+                  // Nearby Properties
+                  _buildNearbySection(),
+                  SizedBox(height: 20),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -441,34 +448,210 @@ class _HomePageState extends State<HomePage> {
         ),
         SizedBox(height: 16),
         Container(
-            height: 280,
-            child: Obx(() {
-              if (_propertyController.isLoading.value) {
-                // tampilkan 3 skeleton
-                return ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: 3,
-                  itemBuilder: (context, index) {
-                    return const SceletonHomeProperty();
-                  },
-                );
-              }
-
-              if (_propertyController.errorMessage.isNotEmpty) {
-                return Center(
-                    child: Text(_propertyController.errorMessage.value));
-              }
-              return ListView.separated(
+          height: 280,
+          child: Obx(() {
+            if (_homeController.isLoading.value) {
+              // tampilkan 3 skeleton
+              return ListView.builder(
                 scrollDirection: Axis.horizontal,
-                physics: BouncingScrollPhysics(),
-                itemCount: _propertyController.properties.length,
-                separatorBuilder: (context, index) => SizedBox(width: 16),
+                itemCount: 3,
                 itemBuilder: (context, index) {
-                  final properties = _propertyController.properties[index];
-                  return _buildPropertyCard(properties);
+                  return const SceletonHomeProperty();
                 },
               );
-            })),
+            }
+
+            if (_homeController.errorMessage.isNotEmpty) {
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: Colors.red[50],
+                          borderRadius: BorderRadius.circular(40),
+                          border: Border.all(
+                            color: Colors.red[100]!,
+                            width: 2,
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.wifi_off_rounded,
+                          size: 30,
+                          color: Colors.red[400],
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Text(
+                        'Something went wrong',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey[800],
+                          letterSpacing: -0.3,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        constraints: BoxConstraints(maxWidth: 280),
+                        child: Text(
+                          _homeController.errorMessage.value,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                            height: 1.4,
+                          ),
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      ElevatedButton(
+                        onPressed: () => _homeController.loadProperty(),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xFFDBB837),
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 28,
+                            vertical: 14,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.refresh_rounded,
+                              size: 18,
+                              color: Colors.white,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Try Again',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
+
+            if (_homeController.properties.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[50],
+                        borderRadius: BorderRadius.circular(40),
+                        border: Border.all(
+                          color: Colors.grey[200]!,
+                          width: 2,
+                        ),
+                      ),
+                      child: Icon(
+                        Icons.home_work_outlined,
+                        size: 40,
+                        color: Colors.grey[400],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      'No properties available',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey[700],
+                        letterSpacing: -0.3,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Check back later for new listings',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[500],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.1),
+                            blurRadius: 8,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: ElevatedButton(
+                        onPressed: () => _homeController.refreshProperties(),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.grey[700],
+                          elevation: 0,
+                          side: BorderSide(color: Colors.grey[300]!),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 12,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.refresh_rounded, size: 18),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Refresh',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            // Success state - clean horizontal ListView
+            return ListView.separated(
+              scrollDirection: Axis.horizontal,
+              physics: BouncingScrollPhysics(),
+              itemCount: _homeController.properties.length,
+              separatorBuilder: (context, index) => SizedBox(width: 16),
+              itemBuilder: (context, index) {
+                final properties = _homeController.properties[index];
+                return _buildPropertyCard(properties);
+              },
+            );
+          }),
+        ),
       ],
     );
   }

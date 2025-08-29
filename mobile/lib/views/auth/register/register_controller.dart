@@ -7,12 +7,6 @@ import 'package:mobile_nirwana/data/service/auth_service.dart';
 class RegisterController extends GetxController {
   final AuthService _authService = AuthService();
 
-  final GoogleSignIn _googleSignIn = GoogleSignIn(
-    clientId:
-        "490608507191-gra7sqkb3cr0m72r2cfvk56r9qmmhi19.apps.googleusercontent.com",
-    scopes: ['email'],
-  );
-
   final formKey = GlobalKey<FormState>();
   final fullNameController = TextEditingController();
   final emailController = TextEditingController();
@@ -42,36 +36,23 @@ class RegisterController extends GetxController {
   Future<void> handleGoogleRegister() async {
     try {
       isLoading.value = true;
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-
-      if (googleUser == null) {
+      final message = await _authService.loginWithGoogle();
+      if (message == null) {
         isLoading.value = false;
-        Get.snackbar('Error', 'Login dibatalkan',
+        Get.snackbar("Success", "Register successfully",
+            backgroundColor: Colors.green, colorText: Colors.white);
+        Get.offAllNamed(Routes.LAYOUT);
+      } else {
+        isLoading.value = false;
+        Get.snackbar('Error', '$message',
             backgroundColor: Colors.red, colorText: Colors.white);
-        return;
-      }
-
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
-
-      final idToken = googleAuth.idToken;
-
-      if (idToken != null) {
-        final errorMessage = await _authService.loginWithGoogle(idToken);
-
-        if (errorMessage == null) {
-          isLoading.value = false;
-          Get.snackbar("Success", "Register successfully",
-              backgroundColor: Colors.green, colorText: Colors.white);
-          Get.offAllNamed(Routes.LAYOUT);
-        } else {
-          Get.snackbar('Error', '$errorMessage',
-              backgroundColor: Colors.red, colorText: Colors.white);
-          return;
-        }
+        print("Error register dengan Google: $message");
       }
     } catch (error) {
-      print("Error login dengan Google: $error");
+      isLoading.value = false;
+      Get.snackbar('Error', '$error',
+          backgroundColor: Colors.red, colorText: Colors.white);
+      print("terjadi kesalahan: $error");
     }
   }
 
