@@ -16,6 +16,8 @@ exports.ChatController = void 0;
 const common_1 = require("@nestjs/common");
 const platform_express_1 = require("@nestjs/platform-express");
 const chat_service_1 = require("./chat.service");
+class AskDto {
+}
 let ChatController = class ChatController {
     constructor(chatService) {
         this.chatService = chatService;
@@ -23,8 +25,8 @@ let ChatController = class ChatController {
     async uploadFile(file) {
         return this.chatService.processFile(file);
     }
-    async ask(message) {
-        return this.chatService.ask(message);
+    async ask(askDto) {
+        return this.chatService.ask(askDto.message, askDto.sessionId);
     }
 };
 exports.ChatController = ChatController;
@@ -37,10 +39,10 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ChatController.prototype, "uploadFile", null);
 __decorate([
-    (0, common_1.Post)(),
-    __param(0, (0, common_1.Body)('message')),
+    (0, common_1.Post)('ask'),
+    __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [AskDto]),
     __metadata("design:returntype", Promise)
 ], ChatController.prototype, "ask", null);
 exports.ChatController = ChatController = __decorate([

@@ -4,7 +4,7 @@ import {
   WebSocketServer,
   MessageBody,
   ConnectedSocket,
-  OnGatewayDisconnect, 
+  OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { ChatService } from './chat.service';
@@ -14,7 +14,7 @@ import { ChatService } from './chat.service';
     origin: '*',
   },
 })
-export class ChatGateway implements OnGatewayDisconnect { 
+export class ChatGateway implements OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
@@ -26,20 +26,21 @@ export class ChatGateway implements OnGatewayDisconnect {
     @MessageBody() message: string,
     @ConnectedSocket() client: Socket,
   ): Promise<void> {
-    const response = await this.chatService.ask(message);
-    client.emit('reply', response);
+    const sessionId = client.id;
+    const response = await this.chatService.ask(message, sessionId);
+    client.emit('response', response);
   }
 
   // This function ONLY handles the 'clear history' event
   @SubscribeMessage('clear history')
-  handleClearHistory(): void {
-    this.chatService.clearHistory();
-    console.log(`Chat history cleared via event.`);
+  handleClearHistory(@ConnectedSocket() client: Socket): void {
+    this.chatService.clearHistory(client.id);
+    console.log(`Chat history for client ${client.id} cleared via event.`);
   }
-
   // This function handles the disconnect event
   handleDisconnect(client: Socket) {
-    this.chatService.clearHistory();
+
+    this.chatService.clearHistory(client.id);
     console.log(`Client disconnected: ${client.id}, history cleared.`);
   }
 }

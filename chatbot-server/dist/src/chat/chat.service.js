@@ -5,6 +5,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -24,9 +27,11 @@ const combine_documents_1 = require("langchain/chains/combine_documents");
 const history_aware_retriever_1 = require("langchain/chains/history_aware_retriever");
 const multi_query_1 = require("langchain/retrievers/multi_query");
 const gpt_tokenizer_1 = require("gpt-tokenizer");
+const axios_1 = require("@nestjs/axios");
 let ChatService = class ChatService {
-    constructor() {
-        this.chatHistory = [];
+    constructor(httpService) {
+        this.httpService = httpService;
+        this.chatHistories = new Map();
     }
     async onModuleInit() {
         this.embeddings = new ollama_1.OllamaEmbeddings({
@@ -220,27 +225,38 @@ CONTEXTS:
         const lower = message.toLowerCase().trim();
         return greetings.includes(lower);
     }
-    async ask(message) {
+    async ask(message, sessionId) {
         if (!this.vectorStore) {
             return 'I am sorry, but I have no knowledge base to answer your question.';
         }
         if (!this.masterChain) {
             await this.initializeMasterChain();
         }
-        console.log('Invoking master chain with question...');
+        console.log(`Invoking master chain for session ${sessionId}...`);
+        const userHistory = this.chatHistories.get(sessionId) || [];
         const result = await this.masterChain.invoke({
-            chat_history: this.chatHistory,
+            chat_history: userHistory,
             input: message,
         });
         const answer = result.answer ?? result;
-        this.chatHistory.push(new messages_1.HumanMessage(message));
-        this.chatHistory.push(new messages_1.AIMessage(answer));
+        userHistory.push(new messages_1.HumanMessage(message));
+        userHistory.push(new messages_1.AIMessage(answer));
+        this.chatHistories.set(sessionId, userHistory);
         console.log('Final AI Answer:', answer);
         return answer;
     }
-    clearHistory() {
-        this.chatHistory = [];
-        console.log('Chat history cleared.');
+    clearHistory(sessionId) {
+        if (this.chatHistories.has(sessionId)) {
+            this.chatHistories.delete(sessionId);
+            console.log(`Chat history for session ${sessionId} cleared.`);
+        }
+        else {
+            console.log(`No chat history found for session ${sessionId}.`);
+        }
+    }
+    clearAllHistories() {
+        this.chatHistories.clear();
+        console.log('All chat histories cleared because a new file was processed.');
     }
     async processFile(file) {
         console.log(`Processing file: ${file.originalname} (${file.mimetype})`);
@@ -299,12 +315,13 @@ CONTEXTS:
             await this.vectorStore.addDocuments(batch);
         }
         this.initializeMasterChain();
-        this.clearHistory();
+        this.clearAllHistories();
         console.log(' File processed and Weaviate index updated.');
     }
 };
 exports.ChatService = ChatService;
 exports.ChatService = ChatService = __decorate([
-    (0, common_1.Injectable)()
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [axios_1.HttpService])
 ], ChatService);
 //# sourceMappingURL=chat.service.js.map
