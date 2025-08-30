@@ -3,6 +3,8 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
 
+let server: any;
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.use(cookieParser());
@@ -10,8 +12,25 @@ async function bootstrap() {
     origin: ['http://localhost:3001', 'http://localhost:3002'],
     credentials: true,
   });
-
   app.useGlobalPipes(new ValidationPipe());
-  await app.listen(process.env.PORT ?? 5000, '0.0.0.0');
+
+  await app.init(); 
+  const expressApp = app.getHttpAdapter().getInstance();
+  return expressApp;
 }
-bootstrap();
+
+
+if (!process.env.VERCEL) {
+  bootstrap().then(app => {
+    app.listen(process.env.PORT ?? 5000, () => {
+    });
+  });
+}
+
+
+export default async function handler(req: any, res: any) {
+  if (!server) {
+    server = await bootstrap();
+  }
+  return server(req, res);
+}
