@@ -1,6 +1,6 @@
 {
   "version": 2,
   "routes": [
-    { "src": "/(.*)", "dest": "serve/api/main.ts" }
+    { "src": "/(.*)", "dest": "serve/api/index.ts" }
   ]
 }
