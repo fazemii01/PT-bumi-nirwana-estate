@@ -2,14 +2,17 @@
   "version": 2,
   "builds": [
     {
-      "src": "src/main.ts",
-      "use": "@vercel/node"
+      "src": "api/index.ts",
+      "use": "@vercel/node",
+      "config": {
+        "compiler": "nest"
+      }
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/(.*)",
-      "dest": "src/main.ts"
+      "source": "/api/(.*)",
+      "destination": "/api/index.ts"
     }
   ]
 }

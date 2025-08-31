@@ -12,19 +12,22 @@ export function transformPropertyToCatalogData(property: any): ICatalogData {
 
   return {
     id: property.id,
-    contractType: property.status || '',        
-    propertyType: property.name || '',          
-    realEstateType: property.jenis || '',       
+    contractType: property.status || '',
+    propertyType: property.name || '',
+    realEstateType: property.jenis || '',
     city: parsedAddress?.city || '',
     price: property.price || '',
-    visibility: true,                           
+    visibility: true,
     table: parsedTable,
     description: property.description || '',
     location: property.location || {},
     address: parsedAddress,
-    station: {},                                
+    station: {},
     images: property.images || [],
-    luas : property.luas || ''
-                
+    luas: property.luas || '',
+    jenis: property.jenis_trans || {}, 
+    detail_description: property.detail_description || '',
+    floor_plans: property.floor_plans || [],
+    status: property.current_status || 'available', 
   };
 }

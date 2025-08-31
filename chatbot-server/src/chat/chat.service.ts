@@ -21,6 +21,8 @@ import { createStuffDocumentsChain } from 'langchain/chains/combine_documents';
 import { createHistoryAwareRetriever } from 'langchain/chains/history_aware_retriever';
 import { MultiQueryRetriever } from 'langchain/retrievers/multi_query';
 import { encode } from 'gpt-tokenizer';
+import { HttpService } from '@nestjs/axios';
+
 
 type ScoredDoc = { doc: Document; score: number };
 
@@ -31,8 +33,9 @@ export class ChatService implements OnModuleInit {
   private vectorStore: WeaviateStore;
   private embeddings: OllamaEmbeddings;
   private visionModel: ChatOllama;
-  private chatHistory: BaseMessage[] = [];
-
+  // private chatHistory: BaseMessage[] = [];
+  private chatHistories: Map<string, BaseMessage[]> = new Map();
+  constructor(private readonly httpService: HttpService) {}
   async onModuleInit() {
     this.embeddings = new OllamaEmbeddings({
       baseUrl: 'http://localhost:4600',
@@ -66,7 +69,6 @@ export class ChatService implements OnModuleInit {
     this.initializeMasterChain();
   }
 
-  
   private async rerankDocuments(
     originalQuery: string,
     documents?: Document[],
@@ -90,7 +92,10 @@ export class ChatService implements OnModuleInit {
       }
 
       const data = await response.json();
-      const results = data.results as { index: number; relevance_score: number }[];
+      const results = data.results as {
+        index: number;
+        relevance_score: number;
+      }[];
 
       return results.map((r) => ({
         doc: documents[r.index],
@@ -98,7 +103,7 @@ export class ChatService implements OnModuleInit {
       })) as ScoredDoc[];
     } catch (err) {
       console.error('Reranker call failed:', err);
-     
+
       return documents.map((d) => ({ doc: d, score: 0 }));
     }
   }
@@ -120,13 +125,12 @@ export class ChatService implements OnModuleInit {
   private async rerankByTokenBudget(
     query: string,
     documents: Document[],
-    maxTokens = 128, 
-    maxDocTokens = 200, 
+    maxTokens = 128,
+    maxDocTokens = 200,
   ): Promise<Document[]> {
     const results: ScoredDoc[] = [];
     let batch: Document[] = [];
     let batchTokens = 0;
-
 
     const safeDocs = documents.map((d) => this.truncateDoc(d, maxDocTokens));
 
@@ -149,7 +153,6 @@ export class ChatService implements OnModuleInit {
       scored.forEach((r) => results.push(r));
     }
 
-   
     return results.sort((a, b) => b.score - a.score).map((r) => r.doc);
   }
 
@@ -292,34 +295,70 @@ CONTEXTS:
     return greetings.includes(lower);
   }
 
-  async ask(message: string): Promise<string> {
+  // async ask(message: string): Promise<string> {
+  //   if (!this.vectorStore) {
+  //     return 'I am sorry, but I have no knowledge base to answer your question.';
+  //   }
+  //   if (!this.masterChain) {
+  //     await this.initializeMasterChain();
+  //   }
+  //   console.log('Invoking master chain with question...');
+
+  //   const result = await this.masterChain.invoke({
+  //     chat_history: this.chatHistory,
+  //     input: message,
+  //   });
+
+  //   const answer = (result as any).answer ?? result;
+
+  //   this.chatHistory.push(new HumanMessage(message));
+  //   this.chatHistory.push(new AIMessage(answer as string));
+
+  //   console.log('Final AI Answer:', answer);
+  //   return answer as string;
+  // }
+
+   async ask(message: string, sessionId: string): Promise<string> {
     if (!this.vectorStore) {
       return 'I am sorry, but I have no knowledge base to answer your question.';
     }
     if (!this.masterChain) {
       await this.initializeMasterChain();
     }
-    console.log('Invoking master chain with question...');
+    console.log(`Invoking master chain for session ${sessionId}...`);
+    const userHistory = this.chatHistories.get(sessionId) || [];
 
     const result = await this.masterChain.invoke({
-      chat_history: this.chatHistory,
+      chat_history: userHistory, 
       input: message,
     });
 
     const answer = (result as any).answer ?? result;
-
-    this.chatHistory.push(new HumanMessage(message));
-    this.chatHistory.push(new AIMessage(answer as string));
+    userHistory.push(new HumanMessage(message));
+    userHistory.push(new AIMessage(answer as string));
+    this.chatHistories.set(sessionId, userHistory);
 
     console.log('Final AI Answer:', answer);
     return answer as string;
   }
 
-  clearHistory(): void {
-    this.chatHistory = [];
-    console.log('Chat history cleared.');
-  }
+  // clearHistory(): void {
+  //   this.chatHistory = [];
+  //   console.log('Chat history cleared.');
+  // }
 
+  clearHistory(sessionId: string): void {
+    if (this.chatHistories.has(sessionId)) {
+      this.chatHistories.delete(sessionId);
+      console.log(`Chat history for session ${sessionId} cleared.`);
+    } else {
+      console.log(`No chat history found for session ${sessionId}.`);
+    }
+  }
+  clearAllHistories(): void {
+    this.chatHistories.clear();
+    console.log('All chat histories cleared because a new file was processed.');
+  }
   async processFile(file: Express.Multer.File): Promise<void> {
     console.log(`Processing file: ${file.originalname} (${file.mimetype})`);
     if (!file || !file.buffer) {
@@ -390,7 +429,7 @@ CONTEXTS:
     }
 
     this.initializeMasterChain();
-    this.clearHistory();
+    this.clearAllHistories();
     console.log(' File processed and Weaviate index updated.');
   }
 }

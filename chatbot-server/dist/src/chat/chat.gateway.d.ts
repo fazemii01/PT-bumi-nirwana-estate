@@ -6,6 +6,6 @@ export declare class ChatGateway implements OnGatewayDisconnect {
     server: Server;
     constructor(chatService: ChatService);
     handleMessage(message: string, client: Socket): Promise<void>;
-    handleClearHistory(): void;
+    handleClearHistory(client: Socket): void;
     handleDisconnect(client: Socket): void;
 }

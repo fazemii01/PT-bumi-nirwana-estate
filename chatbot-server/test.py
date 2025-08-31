@@ -18,7 +18,7 @@ from threading import Event
 # GENERATION_MODEL = "qwen2:1.5b"
 SOCKETIO_URL = 'http://localhost:4500' 
 CHAT_EVENT_EMIT = 'message'   
-CHAT_EVENT_RECEIVE = 'reply' 
+CHAT_EVENT_RECEIVE = 'response' 
 CHAT_CLEAR_HISTORY = 'clear history'
 # BASE_URL = "http://localhost:4600"
 test_data = {
