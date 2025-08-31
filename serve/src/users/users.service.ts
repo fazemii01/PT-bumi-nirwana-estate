@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -17,29 +18,25 @@ export class UsersService {
     @InjectRepository(User)
     private readonly usersRepositoty: Repository<User>,
   ) {}
-  async create(createUserDto: CreateUserDto) {
-    try {
-      const user = new User();
-      if (createUserDto.password_hash && createUserDto.password_hash != '') {
-        const salt = await bcrypt.genSalt();
-        const password_hash = await bcrypt.hash(
-          createUserDto.password_hash,
-          salt,
-        );
-        user.password_hash = password_hash;
-      }
-      if (createUserDto.phone_number && createUserDto.phone_number != '') {
-        user.phone_number = createUserDto.phone_number;
-      }
-      user.full_name = createUserDto.full_name;
-      user.email = createUserDto.email;
-      return this.usersRepositoty.save(user);
-    } catch (error) {
-      throw new InternalServerErrorException('Internal server error', {
-        cause: new Error(),
-        description: 'Terjadi kesalahan.',
-      });
+  async create(createUserDto: CreateUserDto): Promise<User> {
+    const exitingEmial = await this.findOneByEmail(createUserDto.email);
+    if (exitingEmial) throw new ConflictException('Email already exits');
+
+    const user = new User();
+    if (createUserDto.password_hash && createUserDto.password_hash != '') {
+      const salt = await bcrypt.genSalt();
+      const password_hash = await bcrypt.hash(
+        createUserDto.password_hash,
+        salt,
+      );
+      user.password_hash = password_hash;
     }
+    if (createUserDto.phone_number && createUserDto.phone_number != '') {
+      user.phone_number = createUserDto.phone_number;
+    }
+    user.full_name = createUserDto.full_name;
+    user.email = createUserDto.email;
+    return this.usersRepositoty.save(user);
   }
 
   async findAll(): Promise<User[]> {

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:mobile_nirwana/core/routes/app_routes.dart';
 import 'package:mobile_nirwana/data/service/auth_service.dart';
 
@@ -12,6 +10,7 @@ class LoginController extends GetxController {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final isLoading = false.obs;
+  final isLoadingGoogle = false.obs;
   final obscurePassword = true.obs;
 
   @override
@@ -26,23 +25,31 @@ class LoginController extends GetxController {
     super.dispose();
   }
 
+  void clearAll() {
+    emailController.clear();
+    passwordController.clear();
+  }
+
   Future<void> handleGoogleLogin() async {
     try {
-      isLoading.value = true;
+      isLoadingGoogle.value = true;
       final message = await _authService.loginWithGoogle();
       if (message == null) {
-        isLoading.value = false;
+        clearAll();
+        isLoadingGoogle.value = false;
         Get.snackbar("Success", "Login successfully",
             backgroundColor: Colors.green, colorText: Colors.white);
         Get.offAllNamed(Routes.LAYOUT);
+      } else if (message == 'batal') {
+        isLoadingGoogle.value = false;
       } else {
-        isLoading.value = false;
+        isLoadingGoogle.value = false;
         Get.snackbar('Error', '$message',
             backgroundColor: Colors.red, colorText: Colors.white);
         print("Error login dengan Google: $message");
       }
     } catch (error) {
-      isLoading.value = false;
+      isLoadingGoogle.value = false;
       Get.snackbar('Error', '$error',
           backgroundColor: Colors.red, colorText: Colors.white);
       print("terjadi kesalahan: $error");
@@ -53,17 +60,20 @@ class LoginController extends GetxController {
     if (formKey.currentState!.validate()) {
       isLoading.value = true;
 
-      // Simulasi login
-      await Future.delayed(Duration(seconds: 2));
-
-      isLoading.value = false;
-
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   SnackBar(
-      //     content: Text('Login berhasil!'),
-      //     backgroundColor: Colors.green,
-      //   ),
-      // );
+      final response = await _authService.login(
+          emailController.text.trim(), passwordController.text.trim());
+      if (response == null) {
+        clearAll();
+        isLoading.value = false;
+        Get.snackbar("Success", "Login successfully",
+            backgroundColor: Colors.green, colorText: Colors.white);
+        Get.offAllNamed(Routes.LAYOUT);
+      } else {
+        isLoading.value = false;
+        Get.snackbar('Error', '$response',
+            backgroundColor: Colors.red, colorText: Colors.white);
+        print("Error login dengan Google: $response");
+      }
     }
   }
 }

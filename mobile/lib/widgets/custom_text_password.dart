@@ -1,23 +1,25 @@
 import 'package:flutter/material.dart';
 
-class CustomTextFormField extends StatelessWidget {
+class Customtextpassword extends StatelessWidget {
   final TextEditingController controller;
   final String label;
   final String hint;
   final IconData icon;
+  final bool isObscure;
+  final VoidCallback onToggle;
   final TextInputAction textInputAction;
   final String? Function(String?)? validator;
-  final bool obscureText;
 
-  const CustomTextFormField({
+  const Customtextpassword({
     Key? key,
     required this.controller,
     required this.label,
     required this.hint,
     required this.icon,
+    required this.isObscure,
+    required this.onToggle,
     this.textInputAction = TextInputAction.next,
     this.validator,
-    this.obscureText = false,
   }) : super(key: key);
 
   @override
@@ -25,11 +27,20 @@ class CustomTextFormField extends StatelessWidget {
     return TextFormField(
       controller: controller,
       textInputAction: textInputAction,
-      obscureText: obscureText,
+      obscureText: isObscure,
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
         prefixIcon: Icon(icon, color: Color(0xFF757575)),
+        suffixIcon: IconButton(
+          icon: Icon(
+            isObscure
+                ? Icons.visibility_off_outlined
+                : Icons.visibility_outlined,
+            color: const Color(0xFF757575),
+          ),
+          onPressed: onToggle,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Color(0xFFE0E0E0)),

@@ -1,10 +1,8 @@
-import 'dart:ffi';
-
 class Bank {
   final String id;
   final String name;
-  final Double interest_rate;
-  final Int max_tenure;
+  final double interest_rate;
+  final int max_tenure;
   final String logo;
 
   Bank(
@@ -18,7 +16,9 @@ class Bank {
     return Bank(
         id: json['id'],
         name: json['name'],
-        interest_rate: json['interest_rate'],
+        interest_rate: json['interest_rate'] != null
+            ? double.tryParse(json['interest_rate'].toString()) ?? 0.0
+            : 0.0,
         logo: json['logo'],
         max_tenure: json['max_tenure']);
   }

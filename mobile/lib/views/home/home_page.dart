@@ -9,7 +9,7 @@ import 'package:mobile_nirwana/helper/price.dart';
 import 'package:mobile_nirwana/helper/specifications.dart';
 import 'package:mobile_nirwana/views/home/home_controller.dart';
 import 'package:mobile_nirwana/views/layout_controller.dart';
-import 'package:mobile_nirwana/widget/sceleton_home_property.dart';
+import 'package:mobile_nirwana/widgets/sceleton_home_property.dart';
 
 class HomePage extends StatefulWidget {
   @override

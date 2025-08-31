@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mobile_nirwana/core/routes/app_routes.dart';
 import 'package:mobile_nirwana/views/auth/login/login_controller.dart';
+import 'package:mobile_nirwana/widgets/customt_text_form_field.dart';
+import 'package:mobile_nirwana/widgets/custom_text_password.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -15,14 +17,22 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.white,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios, color: Color(0xFF1A1A1A)),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(horizontal: 24.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              SizedBox(height: 60),
-
               // Logo Section
               Center(
                 child: Column(
@@ -69,37 +79,11 @@ class _LoginPageState extends State<LoginPage> {
                 key: _loginController.formKey,
                 child: Column(
                   children: [
-                    // Email Field
-                    TextFormField(
+                    CustomTextFormField(
                       controller: _loginController.emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: InputDecoration(
-                        labelText: 'Email',
-                        hintText: 'Masukkan email Anda',
-                        prefixIcon: Icon(Icons.email_outlined,
-                            color: Color(0xFF757575)),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: Color(0xFFE0E0E0)),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: Color(0xFFE0E0E0)),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide:
-                              BorderSide(color: Color(0xFFE4B61A), width: 1),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: Colors.red, width: 1),
-                        ),
-                        filled: true,
-                        fillColor: Colors.white,
-                        contentPadding:
-                            EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                      ),
+                      label: 'Email',
+                      hint: 'Masukkan email Anda',
+                      icon: Icons.email_outlined,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Email tidak boleh kosong';
@@ -114,51 +98,18 @@ class _LoginPageState extends State<LoginPage> {
 
                     SizedBox(height: 20),
 
-                    // Password Field
-                    TextFormField(
+                    Customtextpassword(
                       controller: _loginController.passwordController,
-                      obscureText: _loginController.obscurePassword.value,
-                      decoration: InputDecoration(
-                        labelText: 'Password',
-                        hintText: 'Masukkan password Anda',
-                        prefixIcon:
-                            Icon(Icons.lock_outline, color: Color(0xFF757575)),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _loginController.obscurePassword.value
-                                ? Icons.visibility_off_outlined
-                                : Icons.visibility_outlined,
-                            color: Color(0xFF757575),
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _loginController.obscurePassword.value =
-                                  !_loginController.obscurePassword.value;
-                            });
-                          },
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: Color(0xFFE0E0E0)),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: Color(0xFFE0E0E0)),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide:
-                              BorderSide(color: Color(0xFFE4B61A), width: 1),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: Colors.red, width: 1),
-                        ),
-                        filled: true,
-                        fillColor: Colors.white,
-                        contentPadding:
-                            EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                      ),
+                      label: 'Password',
+                      hint: 'Masukkan password Anda',
+                      icon: Icons.lock_outline,
+                      isObscure: _loginController.obscurePassword.value,
+                      onToggle: () {
+                        setState(() {
+                          _loginController.obscurePassword.value =
+                              !_loginController.obscurePassword.value;
+                        });
+                      },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Password tidak boleh kosong';
@@ -197,41 +148,43 @@ class _LoginPageState extends State<LoginPage> {
 
                     // Login Button
                     SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: ElevatedButton(
-                        onPressed: _loginController.isLoading.value
-                            ? null
-                            : _loginController.handleLogin,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFFE4B61A),
-                          foregroundColor: Colors.white,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          disabledBackgroundColor: Color(0xFFBDBDBD),
-                        ),
-                        child: _loginController.isLoading.value
-                            ? SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.white),
-                                ),
-                              )
-                            : Text(
-                                'Login',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: 0.5,
-                                ),
+                        width: double.infinity,
+                        height: 56,
+                        child: Obx(
+                          () => ElevatedButton(
+                            onPressed: _loginController.isLoading.value
+                                ? null
+                                : _loginController.handleLogin,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xFFE4B61A),
+                              foregroundColor: Colors.white,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
                               ),
-                      ),
-                    ),
+                              disabledBackgroundColor:
+                                  Color.fromARGB(255, 255, 224, 121),
+                            ),
+                            child: _loginController.isLoading.value
+                                ? SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                          Colors.white),
+                                    ),
+                                  )
+                                : Text(
+                                    'Login',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                          ),
+                        )),
 
                     SizedBox(height: 32),
 
@@ -268,42 +221,43 @@ class _LoginPageState extends State<LoginPage> {
 
                     // Google Login Button
                     SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: OutlinedButton.icon(
-                        onPressed: _loginController.isLoading.value
-                            ? null
-                            : _loginController.handleGoogleLogin,
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Color(0xFF1A1A1A),
-                          backgroundColor: Colors.white,
-                          side: BorderSide(color: Color(0xFFE0E0E0)),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                        width: double.infinity,
+                        height: 56,
+                        child: Obx(
+                          () => OutlinedButton.icon(
+                            onPressed: _loginController.isLoadingGoogle.value
+                                ? null
+                                : _loginController.handleGoogleLogin,
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Color(0xFF1A1A1A),
+                              backgroundColor: Colors.white,
+                              side: BorderSide(color: Color(0xFFE0E0E0)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 0,
+                            ),
+                            icon: Container(
+                              width: 20,
+                              height: 20,
+                              child: Image.asset(
+                                'assets/google_icon.png', // Anda perlu menambahkan asset ini
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Icon(Icons.g_mobiledata_rounded,
+                                      color: Color(0xFF4285F4));
+                                },
+                              ),
+                            ),
+                            label: Text(
+                              'Masuk dengan Google',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                letterSpacing: 0.25,
+                              ),
+                            ),
                           ),
-                          elevation: 0,
-                        ),
-                        icon: Container(
-                          width: 20,
-                          height: 20,
-                          child: Image.asset(
-                            'assets/google_icon.png', // Anda perlu menambahkan asset ini
-                            errorBuilder: (context, error, stackTrace) {
-                              return Icon(Icons.g_mobiledata_rounded,
-                                  color: Color(0xFF4285F4));
-                            },
-                          ),
-                        ),
-                        label: Text(
-                          'Masuk dengan Google',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: 0.25,
-                          ),
-                        ),
-                      ),
-                    ),
+                        )),
 
                     SizedBox(height: 32),
 
