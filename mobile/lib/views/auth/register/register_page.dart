@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mobile_nirwana/views/auth/register/register_controller.dart';
-import 'package:mobile_nirwana/widget/CustomTextFormField.dart';
+import 'package:mobile_nirwana/widgets/customt_text_form_field.dart';
+import 'package:mobile_nirwana/widgets/custom_text_password.dart';
 
 class RegisterPage extends StatefulWidget {
   @override
@@ -124,54 +125,55 @@ class _RegisterPageState extends State<RegisterPage>
 
               // Google Register Button
               SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: OutlinedButton.icon(
-                  onPressed: _registerController.isLoading.value
-                      ? null
-                      : _registerController.handleGoogleRegister,
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Color(0xFF1A1A1A),
-                    backgroundColor: Colors.white,
-                    side: BorderSide(color: Color(0xFFE0E0E0)),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 0,
-                  ),
-                  icon: _registerController.isLoading.value
-                      ? SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                                Color(0xFF2196F3)),
-                          ),
-                        )
-                      : Container(
-                          width: 20,
-                          height: 20,
-                          child: Image.asset(
-                            'assets/google_icon.png',
-                            errorBuilder: (context, error, stackTrace) {
-                              return Icon(Icons.g_mobiledata_rounded,
-                                  color: Color(0xFF4285F4));
-                            },
-                          ),
+                  width: double.infinity,
+                  height: 56,
+                  child: Obx(
+                    () => OutlinedButton.icon(
+                      onPressed: _registerController.isLoadingGoogle.value
+                          ? null
+                          : _registerController.handleGoogleRegister,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Color(0xFF1A1A1A),
+                        backgroundColor: Colors.white,
+                        side: BorderSide(color: Color(0xFFE0E0E0)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                  label: Text(
-                    _registerController.isLoading.value
-                        ? 'Sign up...'
-                        : 'Continue with Google',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      letterSpacing: 0.25,
+                        elevation: 0,
+                      ),
+                      icon: _registerController.isLoadingGoogle.value
+                          ? SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                    Color(0xFFE4B61A)),
+                              ),
+                            )
+                          : Container(
+                              width: 20,
+                              height: 20,
+                              child: Image.asset(
+                                'assets/google_icon.png',
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Icon(Icons.g_mobiledata_rounded,
+                                      color: Color(0xFF4285F4));
+                                },
+                              ),
+                            ),
+                      label: Text(
+                        _registerController.isLoadingGoogle.value
+                            ? 'Sign up...'
+                            : 'Continue with Google',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: 0.25,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              ),
+                  )),
 
               SizedBox(height: 24),
 
@@ -262,7 +264,7 @@ class _RegisterPageState extends State<RegisterPage>
                                   SizedBox(height: 16),
                                   CustomTextFormField(
                                     controller:
-                                        _registerController.fullNameController,
+                                        _registerController.emailController,
                                     label: "Email",
                                     hint: "Masukkan email ",
                                     icon: Icons.person_outline,
@@ -283,7 +285,7 @@ class _RegisterPageState extends State<RegisterPage>
 
                                   CustomTextFormField(
                                     controller:
-                                        _registerController.fullNameController,
+                                        _registerController.phoneController,
                                     label: 'Nomor Telepon (Opsional)',
                                     hint: 'Masukkan nomor telepon Anda',
                                     icon: Icons.person_outline,
@@ -305,12 +307,22 @@ class _RegisterPageState extends State<RegisterPage>
                                   SizedBox(height: 16),
 
                                   // Password Field
-                                  CustomTextFormField(
+                                  Customtextpassword(
                                     controller:
-                                        _registerController.fullNameController,
+                                        _registerController.passwordController,
                                     label: 'Password',
                                     hint: 'Minimal 8 karakter',
                                     icon: Icons.person_outline,
+                                    isObscure: _registerController
+                                        .obscurePassword.value,
+                                    onToggle: () {
+                                      setState(() {
+                                        _registerController
+                                                .obscurePassword.value =
+                                            !_registerController
+                                                .obscurePassword.value;
+                                      });
+                                    },
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
                                         return 'Password tidak boleh kosong';
@@ -318,22 +330,33 @@ class _RegisterPageState extends State<RegisterPage>
                                       if (value.length < 8) {
                                         return 'Password minimal 8 karakter';
                                       }
-                                      if (!RegExp(
-                                              r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)')
-                                          .hasMatch(value)) {
-                                        return 'Password harus mengandung huruf besar, kecil, dan angka';
-                                      }
+                                      // if (!RegExp(
+                                      //         r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)')
+                                      //     .hasMatch(value)) {
+                                      //   return 'Password harus mengandung huruf besar, kecil, dan angka';
+                                      // }
                                       return null;
                                     },
                                   ),
 
                                   SizedBox(height: 16),
-                                  CustomTextFormField(
-                                    controller:
-                                        _registerController.fullNameController,
+
+                                  Customtextpassword(
+                                    controller: _registerController
+                                        .confirmPasswordController,
                                     label: 'Konfirmasi Password',
                                     hint: 'Masukkan ulang password',
                                     icon: Icons.person_outline,
+                                    isObscure: _registerController
+                                        .obscureConfirmPassword.value,
+                                    onToggle: () {
+                                      setState(() {
+                                        _registerController
+                                                .obscureConfirmPassword.value =
+                                            !_registerController
+                                                .obscureConfirmPassword.value;
+                                      });
+                                    },
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
                                         return 'Konfirmasi password tidak boleh kosong';
@@ -411,46 +434,51 @@ class _RegisterPageState extends State<RegisterPage>
 
                                   // Register Button
                                   SizedBox(
-                                    width: double.infinity,
-                                    height: 56,
-                                    child: ElevatedButton(
-                                      onPressed:
-                                          _registerController.isLoading.value
+                                      width: double.infinity,
+                                      height: 56,
+                                      child: Obx(
+                                        () => ElevatedButton(
+                                          onPressed: _registerController
+                                                  .isLoading.value
                                               ? null
-                                              : _registerController
-                                                  .handleManualRegister,
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.black,
-                                        foregroundColor: Colors.white,
-                                        elevation: 0,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                        ),
-                                        disabledBackgroundColor:
-                                            Color(0xFFBDBDBD),
-                                      ),
-                                      child: _registerController.isLoading.value
-                                          ? SizedBox(
-                                              width: 20,
-                                              height: 20,
-                                              child: CircularProgressIndicator(
-                                                strokeWidth: 2,
-                                                valueColor:
-                                                    AlwaysStoppedAnimation<
-                                                        Color>(Colors.white),
-                                              ),
-                                            )
-                                          : Text(
-                                              'Register',
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w600,
-                                                letterSpacing: 0.5,
-                                              ),
+                                              : () => _registerController
+                                                  .handleManualRegister(
+                                                      context),
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.black,
+                                            foregroundColor: Colors.white,
+                                            elevation: 0,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
                                             ),
-                                    ),
-                                  ),
+                                            disabledBackgroundColor:
+                                                Color(0xFFBDBDBD),
+                                          ),
+                                          child: _registerController
+                                                  .isLoading.value
+                                              ? SizedBox(
+                                                  width: 20,
+                                                  height: 20,
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                    strokeWidth: 2,
+                                                    valueColor:
+                                                        AlwaysStoppedAnimation<
+                                                                Color>(
+                                                            Colors.white),
+                                                  ),
+                                                )
+                                              : Text(
+                                                  'Register',
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.w600,
+                                                    letterSpacing: 0.5,
+                                                  ),
+                                                ),
+                                        ),
+                                      )),
                                 ],
                               ),
                             ),

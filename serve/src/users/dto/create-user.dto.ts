@@ -20,6 +20,6 @@ export class CreateUserDto {
   password_hash: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   phone_number: string;
 }

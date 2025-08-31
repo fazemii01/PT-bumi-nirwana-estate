@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
+import 'package:get/get.dart';
+import 'package:mobile_nirwana/core/utils/api.dart';
+import 'package:mobile_nirwana/data/models/bank.dart';
+import 'package:mobile_nirwana/data/models/property/property.dart';
+import 'package:mobile_nirwana/helper/address.dart';
 import 'package:mobile_nirwana/helper/price.dart';
-import 'dart:math';
+import 'package:mobile_nirwana/views/kpr/form/widgets/bank_simulation.dart';
+
+import 'package:mobile_nirwana/views/kpr/form/simulation_form_controller.dart';
+import 'package:mobile_nirwana/views/kpr/form/widgets/property_selection.dart';
+import 'package:mobile_nirwana/views/kpr/form/widgets/tenure_selection_modal.dart';
+import 'package:mobile_nirwana/widgets/currency_input_formater.dart';
 
 class SimulationForm extends StatefulWidget {
   const SimulationForm({Key? key}) : super(key: key);
@@ -12,84 +21,132 @@ class SimulationForm extends StatefulWidget {
 }
 
 class _SimulationFormState extends State<SimulationForm> {
+  final SimulationFormController _simulationFormController =
+      Get.put(SimulationFormController());
+
   final _formKey = GlobalKey<FormState>();
   final _propertyPriceController = TextEditingController();
-  final _downPaymentController = TextEditingController();
-  final _interestRateController = TextEditingController();
 
-  int _selectedTenure = 15;
-  String _selectedBank = '';
-  double _monthlyInstallment = 0;
-  double _totalInterest = 0;
-  double _totalPayment = 0;
+  int? _selectedTenure;
+  int? _maxTenure;
   bool _isCalculated = false;
+  Bank? _selectedBank;
+  String? _bankError;
+  String? _tenureError;
+  Property? _selectedProperty;
 
-  final List<int> _tenureOptions = [5, 10, 15, 20, 25];
-  final List<Map<String, dynamic>> _bankOptions = [
-    {'name': 'Bank BRI', 'id': 'BRI', 'rate': 6.5},
-    {'name': 'Bank BNI', 'id': 'BNI', 'rate': 6.75},
-    {'name': 'Bank Mandiri', 'id': 'MANDIRI', 'rate': 6.8},
-    {'name': 'Bank BCA', 'id': 'BCA', 'rate': 6.9},
-    {'name': 'Bank BTN', 'id': 'BTN', 'rate': 6.25},
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    _selectedBank = _bankOptions.first['id'];
-    _interestRateController.text = _bankOptions.first['rate'].toString();
+  void _showBankSelectionModal() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => BankSelectionModal(
+        banks: _simulationFormController.banks,
+        selectedBank: _selectedBank,
+        onBankSelected: (Bank bank) {
+          setState(() {
+            _simulationFormController.bankId = bank.id;
+            _selectedBank = bank;
+            _maxTenure = bank.max_tenure;
+            _simulationFormController.interest_rate.text =
+                bank.interest_rate.toString();
+          });
+          Navigator.pop(context);
+        },
+      ),
+    );
   }
 
-  @override
-  void dispose() {
-    _propertyPriceController.dispose();
-    _downPaymentController.dispose();
-    _interestRateController.dispose();
-    super.dispose();
+  void _showTenureSelectionModal() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => TenureSelectionModal(
+        selectedTenure: _selectedTenure,
+        maxTenure: _maxTenure,
+        onTenureSelected: (int tenure) {
+          setState(() {
+            _selectedTenure = tenure;
+          });
+          Navigator.pop(context);
+        },
+      ),
+    );
   }
 
-  void _resetForm() {
-    setState(() {
-      _propertyPriceController.clear();
-      _downPaymentController.clear();
-      _selectedTenure = 15;
-      _selectedBank = _bankOptions.first['id'];
-      _interestRateController.text = _bankOptions.first['rate'].toString();
-      _isCalculated = false;
-      _monthlyInstallment = 0;
-      _totalInterest = 0;
-      _totalPayment = 0;
-    });
+  void _showPropertySelectionModal() {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) => PropertySelectionModal(
+        properties: _simulationFormController.properties,
+        selectedProperty: _selectedProperty,
+        onPropertySelected: (Property property) {
+          setState(() {
+            _selectedProperty = property;
+            _propertyPriceController.text = 'Rp ${formatPrice(property.price)}';
+          });
+          Navigator.pop(context);
+        },
+      ),
+    );
   }
 
-  void _calculateKPR() {
-    if (_formKey.currentState!.validate()) {
-      double propertyPrice = double.parse(
-          _propertyPriceController.text.replaceAll(RegExp(r'[^0-9]'), ''));
-      double downPayment = double.parse(
-          _downPaymentController.text.replaceAll(RegExp(r'[^0-9]'), ''));
-      double interestRate = double.parse(_interestRateController.text) / 100;
+  // void _resetForm() {
+  //   setState(() {
+  //     _propertyPriceController.clear();
+  //     _downPaymentController.clear();
+  //     _selectedTenure = 15;
+  //     // _selectedBank = _bankOptions.first['id'];
+  //     // _interestRateController.text = _bankOptions.first['rate'].toString();
+  //     _isCalculated = false;
+  //     _monthlyInstallment = 0;
+  //     _totalInterest = 0;
+  //     _totalPayment = 0;
+  //   });
+  // }
 
-      double loanAmount = propertyPrice - downPayment;
-      double monthlyRate = interestRate / 12;
-      int totalMonths = _selectedTenure * 12;
+  // void _calculateKPR() {
+  //   if (_formKey.currentState!.validate()) {
+  //     if (_selectedBank == null) {
+  //       setState(() {
+  //         _bankError = "Silakan pilih bank terlebih dahulu";
+  //       });
+  //       return;
+  //     }
+  //     if (_selectedTenure == null) {
+  //       setState(() {
+  //         _bankError = "Silakan pilih jangka terlebih dahulu";
+  //       });
+  //       return;
+  //     }
+  //     double propertyPrice = double.parse(
+  //         _propertyPriceController.text.replaceAll(RegExp(r'[^0-9]'), ''));
+  //     double downPayment = double.parse(
+  //         _downPaymentController.text.replaceAll(RegExp(r'[^0-9]'), ''));
+  //     double interestRate = double.parse(_interestRateController.text) / 100;
 
-      // Rumus perhitungan cicilan KPR
-      double monthlyInstallment = loanAmount *
-          (monthlyRate * pow(1 + monthlyRate, totalMonths)) /
-          (pow(1 + monthlyRate, totalMonths) - 1);
+  //     double loanAmount = propertyPrice - downPayment;
+  //     double monthlyRate = interestRate / 12;
+  //     int totalMonths = _selectedTenure! * 12;
 
-      double totalPayment = monthlyInstallment * totalMonths;
-      double totalInterest = totalPayment - loanAmount;
+  //     // Rumus perhitungan cicilan KPR
+  //     double monthlyInstallment = loanAmount *
+  //         (monthlyRate * pow(1 + monthlyRate, totalMonths)) /
+  //         (pow(1 + monthlyRate, totalMonths) - 1);
 
-      setState(() {
-        _monthlyInstallment = monthlyInstallment;
-        _totalInterest = totalInterest;
-        _totalPayment = totalPayment;
-        _isCalculated = true;
-      });
-    }
-  }
+  //     double totalPayment = monthlyInstallment * totalMonths;
+  //     double totalInterest = totalPayment - loanAmount;
+
+  //     setState(() {
+  //       _monthlyInstallment = monthlyInstallment;
+  //       _totalInterest = totalInterest;
+  //       _totalPayment = totalPayment;
+  //       _isCalculated = true;
+  //     });
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -98,6 +155,8 @@ class _SimulationFormState extends State<SimulationForm> {
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.white,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
         title: const Text(
           'Simulasi KPR',
           style: TextStyle(
@@ -124,7 +183,7 @@ class _SimulationFormState extends State<SimulationForm> {
               _buildFormCard(),
               const SizedBox(height: 24),
               if (_isCalculated) ...[
-                _buildResultCard(),
+                // _buildResultCard(),
                 const SizedBox(height: 24),
               ],
               _buildActionButtons(),
@@ -213,25 +272,34 @@ class _SimulationFormState extends State<SimulationForm> {
           ),
           const SizedBox(height: 24),
 
-          // Harga Property
-          _buildLabel('Harga Properti'),
-          _buildCurrencyField(
-            controller: _propertyPriceController,
-            hintText: 'Masukkan harga properti',
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Harga properti harus diisi';
-              }
-              return null;
-            },
-          ),
+          _buildLabel('Pilih Properti'),
+          _buildPropertySelector(),
+          const SizedBox(height: 20),
+
+          if (_selectedProperty != null) ...[
+            _buildLabel('Harga Properti'),
+            _buildCurrencyField(
+              controller: _propertyPriceController,
+              hintText: 'Masukkan harga properti',
+              enable: false,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Harga properti harus diisi';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 20),
+          ],
           const SizedBox(height: 20),
 
           // Uang Muka
           _buildLabel('Uang Muka (DP)'),
           _buildCurrencyField(
-            controller: _downPaymentController,
+            controller: _simulationFormController.down_payment,
             hintText: 'Masukkan uang muka',
+            prefixText: 'Rp',
+            enable: true,
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'Uang muka harus diisi';
@@ -241,9 +309,8 @@ class _SimulationFormState extends State<SimulationForm> {
           ),
           const SizedBox(height: 20),
 
-          // Bank
           _buildLabel('Pilih Bank'),
-          _buildBankDropdown(),
+          _buildBankTextField(),
           const SizedBox(height: 20),
 
           // Suku Bunga
@@ -259,180 +326,6 @@ class _SimulationFormState extends State<SimulationForm> {
     );
   }
 
-  Widget _buildResultCard() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Hasil Simulasi',
-            style: TextStyle(
-              color: Color(0xFF2D3748),
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          // Cicilan Bulanan
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: const Color(0xFF667EEA).withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              children: [
-                const Text(
-                  'Cicilan per Bulan',
-                  style: TextStyle(
-                    color: Color(0xFF667EEA),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  formatPrice(_monthlyInstallment),
-                  style: const TextStyle(
-                    color: Color(0xFF667EEA),
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          // Total Interest & Payment
-          Row(
-            children: [
-              Expanded(
-                child: _buildResultItem('Total Bunga', _totalInterest),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _buildResultItem('Total Pembayaran', _totalPayment),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 20),
-          _buildLoanBreakdown(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLoanBreakdown() {
-    double propertyPrice = double.tryParse(
-            _propertyPriceController.text.replaceAll(RegExp(r'[^0-9]'), '')) ??
-        0;
-    double downPayment = double.tryParse(
-            _downPaymentController.text.replaceAll(RegExp(r'[^0-9]'), '')) ??
-        0;
-    double loanAmount = propertyPrice - downPayment;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Rincian Pinjaman',
-          style: TextStyle(
-            color: Color(0xFF2D3748),
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 12),
-        _buildBreakdownItem('Harga Properti', propertyPrice),
-        _buildBreakdownItem('Uang Muka', downPayment),
-        const Divider(height: 24),
-        _buildBreakdownItem('Jumlah Pinjaman', loanAmount, isHighlighted: true),
-      ],
-    );
-  }
-
-  Widget _buildBreakdownItem(String label, double value,
-      {bool isHighlighted = false}) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              color: isHighlighted
-                  ? const Color(0xFF2D3748)
-                  : const Color(0xFF718096),
-              fontSize: 14,
-              fontWeight: isHighlighted ? FontWeight.w600 : FontWeight.normal,
-            ),
-          ),
-          Text(
-            formatPrice(value),
-            style: TextStyle(
-              color: isHighlighted
-                  ? const Color(0xFF667EEA)
-                  : const Color(0xFF2D3748),
-              fontSize: 14,
-              fontWeight: isHighlighted ? FontWeight.w700 : FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildResultItem(String label, double value) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF7FAFC),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              color: Color(0xFF718096),
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            formatPrice(value),
-            style: const TextStyle(
-              color: Color(0xFF2D3748),
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildActionButtons() {
     return Column(
       children: [
@@ -440,7 +333,7 @@ class _SimulationFormState extends State<SimulationForm> {
           width: double.infinity,
           height: 50,
           child: ElevatedButton(
-            onPressed: _calculateKPR,
+            onPressed: () {},
             style: ElevatedButton.styleFrom(
               backgroundColor: Color(0xFFE4B61A),
               foregroundColor: Colors.white,
@@ -464,7 +357,7 @@ class _SimulationFormState extends State<SimulationForm> {
             width: double.infinity,
             height: 50,
             child: OutlinedButton(
-              onPressed: _resetForm,
+              onPressed: () {},
               style: OutlinedButton.styleFrom(
                 foregroundColor: const Color(0xFF667EEA),
                 side: const BorderSide(color: Color(0xFF667EEA)),
@@ -503,6 +396,8 @@ class _SimulationFormState extends State<SimulationForm> {
   Widget _buildCurrencyField({
     required TextEditingController controller,
     required String hintText,
+    String? prefixText,
+    required bool enable,
     String? Function(String?)? validator,
   }) {
     return TextFormField(
@@ -514,8 +409,14 @@ class _SimulationFormState extends State<SimulationForm> {
       ],
       validator: validator,
       decoration: InputDecoration(
+        enabled: enable,
         hintText: hintText,
-        prefixText: 'Rp ',
+        hintStyle: const TextStyle(
+          color: Colors.grey,
+          fontSize: 16,
+          fontWeight: FontWeight.w400,
+        ),
+        prefixText: prefixText != null ? '$prefixText ' : '',
         prefixStyle: const TextStyle(
           color: Color(0xFF2D3748),
           fontSize: 16,
@@ -545,22 +446,17 @@ class _SimulationFormState extends State<SimulationForm> {
 
   Widget _buildPercentageField() {
     return TextFormField(
-      controller: _interestRateController,
+      controller: _simulationFormController.interest_rate,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       inputFormatters: [
         FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
       ],
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Suku bunga harus diisi';
-        }
-        return null;
-      },
       decoration: InputDecoration(
-        hintText: 'Masukkan suku bunga',
+        enabled: false,
+        hintText: 'Otomatis dari pilihan bank',
         suffixText: '%',
         suffixStyle: const TextStyle(
-          color: Color(0xFF2D3748),
+          color: Colors.black87,
           fontSize: 16,
           fontWeight: FontWeight.w500,
         ),
@@ -574,122 +470,414 @@ class _SimulationFormState extends State<SimulationForm> {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Color(0xFFE4B61A), width: 1),
         ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFE53E3E), width: 1),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFE53E3E), width: 2),
-        ),
       ),
     );
   }
 
-  Widget _buildBankDropdown() {
-    return DropdownButtonFormField<String>(
-      value: _selectedBank,
-      decoration: InputDecoration(
-        filled: true,
-        fillColor: const Color(0xFFF7FAFC),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFE4B61A), width: 1),
-        ),
-      ),
-      items: _bankOptions.map((bank) {
-        return DropdownMenuItem<String>(
-          value: bank['id'],
-          child: Text(
-            '${bank['name']} (${bank['rate']}%)',
-            style: const TextStyle(
-              color: Color(0xFF2D3748),
-              fontSize: 14,
+  Widget _buildBankTextField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GestureDetector(
+          onTap: () {
+            _showBankSelectionModal();
+            setState(() {
+              _bankError = null;
+            });
+          },
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF7FAFC),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: _bankError != null ? Colors.red : Colors.transparent,
+                width: 1.5,
+              ),
+            ),
+            child: Row(
+              children: [
+                if (_selectedBank?.logo != null) ...[
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.network(
+                      Imgurl.get('banks/${_selectedBank!.logo}'),
+                      width: 32,
+                      height: 32,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: Colors.blue[100],
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Icon(
+                            Icons.account_balance,
+                            size: 16,
+                            color: Color(0xFFE4B61A),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                ],
+                Expanded(
+                  child: Text(
+                    _selectedBank?.name ?? 'Pilih Bank',
+                    style: TextStyle(
+                      color: _selectedBank != null
+                          ? Colors.black87
+                          : Colors.grey[500],
+                      fontSize: 16,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ),
+                Icon(
+                  Icons.keyboard_arrow_down,
+                  color: Colors.grey[600],
+                  size: 24,
+                ),
+              ],
             ),
           ),
-        );
-      }).toList(),
-      onChanged: (value) {
-        setState(() {
-          _selectedBank = value!;
-          final selectedBankData =
-              _bankOptions.firstWhere((bank) => bank['id'] == value);
-          _interestRateController.text = selectedBankData['rate'].toString();
-        });
-      },
+        ),
+        if (_bankError != null) ...[
+          const SizedBox(height: 6),
+          Text(
+            _bankError!,
+            style: const TextStyle(color: Colors.red, fontSize: 12),
+          ),
+        ]
+      ],
     );
   }
 
   Widget _buildTenureSelector() {
-    return Container(
-      height: 50,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: _tenureOptions.length,
-        itemBuilder: (context, index) {
-          final tenure = _tenureOptions[index];
-          final isSelected = _selectedTenure == tenure;
-
-          return Padding(
-            padding: EdgeInsets.only(
-                right: index < _tenureOptions.length - 1 ? 12 : 0),
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  _selectedTenure = tenure;
-                });
-              },
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                decoration: BoxDecoration(
-                  color:
-                      isSelected ? Color(0xFFE4B61A) : const Color(0xFFF7FAFC),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: isSelected ? Color(0xFFE4B61A) : Colors.transparent,
-                    width: 2,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GestureDetector(
+          onTap: () {
+            _selectedBank == null
+                ? _bankError = 'Silakan pilih bank terlebih dahulu'
+                : _showTenureSelectionModal();
+            setState(() {
+              _tenureError = null;
+            });
+          },
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            decoration: BoxDecoration(
+                color: const Color(0xFFF7FAFC),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                    color:
+                        _tenureError != null ? Colors.red : Colors.transparent,
+                    width: 1)),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    _selectedTenure != null
+                        ? '$_selectedTenure Tahun'
+                        : 'Pilih Jangka Waktu',
+                    style: TextStyle(
+                      color: _selectedTenure != null
+                          ? Colors.black87
+                          : Colors.grey[500],
+                      fontSize: 16,
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
                 ),
-                child: Text(
-                  '$tenure Tahun',
-                  style: TextStyle(
-                    color: isSelected ? Colors.white : const Color(0xFF2D3748),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
+                Icon(
+                  Icons.keyboard_arrow_down,
+                  color: Colors.grey[600],
+                  size: 24,
+                ),
+              ],
+            ),
+          ),
+        ),
+        if (_tenureError != null) ...[
+          const SizedBox(height: 6),
+          Text(
+            _bankError!,
+            style: const TextStyle(color: Colors.red, fontSize: 12),
+          ),
+        ]
+      ],
+    );
+  }
+
+  Widget _buildPropertySelector() {
+    return GestureDetector(
+      onTap: () => _showPropertySelectionModal(),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF7FAFC),
+          borderRadius: BorderRadius.circular(12),
+          // border: Border.all(
+          //   color: Colors.grey[300]!,
+          //   width: 1,
+          // ),
+        ),
+        child: Row(
+          children: [
+            if (_selectedProperty?.images != null) ...[
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.network(
+                  Imgurl.get(
+                      'property/property_images/${_getPropertyImage(_selectedProperty!)}'),
+                  width: 40,
+                  height: 40,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.blue[100],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.villa,
+                        size: 20,
+                        color: Colors.blue[600],
+                      ),
+                    );
+                  },
                 ),
               ),
+              const SizedBox(width: 12),
+            ],
+            // Property info
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    _selectedProperty?.name ?? 'Pilih Properti',
+                    style: TextStyle(
+                      color: _selectedProperty != null
+                          ? Colors.black87
+                          : Colors.grey[500],
+                      fontSize: 16,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  if (_selectedProperty != null) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      AreaHelper.formatSingleLine(_selectedProperty!.address),
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ),
-          );
-        },
+            // Arrow icon
+            Icon(
+              Icons.keyboard_arrow_down,
+              color: Colors.grey[600],
+              size: 24,
+            ),
+          ],
+        ),
       ),
     );
   }
+
+  // Widget _buildResultCard() {
+  //   return Container(
+  //     width: double.infinity,
+  //     padding: const EdgeInsets.all(24),
+  //     decoration: BoxDecoration(
+  //       color: Colors.white,
+  //       borderRadius: BorderRadius.circular(16),
+  //       boxShadow: [
+  //         BoxShadow(
+  //           color: Colors.black.withOpacity(0.05),
+  //           blurRadius: 10,
+  //           offset: const Offset(0, 2),
+  //         ),
+  //       ],
+  //     ),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         const Text(
+  //           'Hasil Simulasi',
+  //           style: TextStyle(
+  //             color: Color(0xFF2D3748),
+  //             fontSize: 18,
+  //             fontWeight: FontWeight.w600,
+  //           ),
+  //         ),
+  //         const SizedBox(height: 24),
+
+  //         // Cicilan Bulanan
+  //         Container(
+  //           width: double.infinity,
+  //           padding: const EdgeInsets.all(20),
+  //           decoration: BoxDecoration(
+  //             color: const Color(0xFF667EEA).withOpacity(0.1),
+  //             borderRadius: BorderRadius.circular(12),
+  //           ),
+  //           child: Column(
+  //             children: [
+  //               const Text(
+  //                 'Cicilan per Bulan',
+  //                 style: TextStyle(
+  //                   color: Color(0xFF667EEA),
+  //                   fontSize: 14,
+  //                   fontWeight: FontWeight.w600,
+  //                 ),
+  //               ),
+  //               const SizedBox(height: 8),
+  //               Text(
+  //                 formatPrice(_monthlyInstallment),
+  //                 style: const TextStyle(
+  //                   color: Color(0xFF667EEA),
+  //                   fontSize: 24,
+  //                   fontWeight: FontWeight.w700,
+  //                 ),
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //         const SizedBox(height: 16),
+
+  //         // Total Interest & Payment
+  //         Row(
+  //           children: [
+  //             Expanded(
+  //               child: _buildResultItem('Total Bunga', _totalInterest),
+  //             ),
+  //             const SizedBox(width: 16),
+  //             Expanded(
+  //               child: _buildResultItem('Total Pembayaran', _totalPayment),
+  //             ),
+  //           ],
+  //         ),
+
+  //         const SizedBox(height: 20),
+  //         _buildLoanBreakdown(),
+  //       ],
+  //     ),
+  //   );
+  // }
+
+  // Widget _buildLoanBreakdown() {
+  //   double propertyPrice = double.tryParse(
+  //           _propertyPriceController.text.replaceAll(RegExp(r'[^0-9]'), '')) ??
+  //       0;
+  //   double downPayment = double.tryParse(
+  //           _downPaymentController.text.replaceAll(RegExp(r'[^0-9]'), '')) ??
+  //       0;
+  //   double loanAmount = propertyPrice - downPayment;
+
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       const Text(
+  //         'Rincian Pinjaman',
+  //         style: TextStyle(
+  //           color: Color(0xFF2D3748),
+  //           fontSize: 16,
+  //           fontWeight: FontWeight.w600,
+  //         ),
+  //       ),
+  //       const SizedBox(height: 12),
+  //       _buildBreakdownItem('Harga Properti', propertyPrice),
+  //       _buildBreakdownItem('Uang Muka', downPayment),
+  //       const Divider(height: 24),
+  //       _buildBreakdownItem('Jumlah Pinjaman', loanAmount, isHighlighted: true),
+  //     ],
+  //   );
+  // }
+
+  // Widget _buildBreakdownItem(String label, double value,
+  //     {bool isHighlighted = false}) {
+  //   return Padding(
+  //     padding: const EdgeInsets.only(bottom: 8),
+  //     child: Row(
+  //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //       children: [
+  //         Text(
+  //           label,
+  //           style: TextStyle(
+  //             color: isHighlighted
+  //                 ? const Color(0xFF2D3748)
+  //                 : const Color(0xFF718096),
+  //             fontSize: 14,
+  //             fontWeight: isHighlighted ? FontWeight.w600 : FontWeight.normal,
+  //           ),
+  //         ),
+  //         Text(
+  //           formatPrice(value),
+  //           style: TextStyle(
+  //             color: isHighlighted
+  //                 ? const Color(0xFF667EEA)
+  //                 : const Color(0xFF2D3748),
+  //             fontSize: 14,
+  //             fontWeight: isHighlighted ? FontWeight.w700 : FontWeight.w500,
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
+
+  // Widget _buildResultItem(String label, double value) {
+  //   return Container(
+  //     padding: const EdgeInsets.all(16),
+  //     decoration: BoxDecoration(
+  //       color: const Color(0xFFF7FAFC),
+  //       borderRadius: BorderRadius.circular(12),
+  //     ),
+  //     child: Column(
+  //       children: [
+  //         Text(
+  //           label,
+  //           style: const TextStyle(
+  //             color: Color(0xFF718096),
+  //             fontSize: 12,
+  //             fontWeight: FontWeight.w500,
+  //           ),
+  //           textAlign: TextAlign.center,
+  //         ),
+  //         const SizedBox(height: 8),
+  //         Text(
+  //           formatPrice(value),
+  //           style: const TextStyle(
+  //             color: Color(0xFF2D3748),
+  //             fontSize: 14,
+  //             fontWeight: FontWeight.w700,
+  //           ),
+  //           textAlign: TextAlign.center,
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 }
 
-// Currency Input Formatter
-class CurrencyInputFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) {
-    if (newValue.selection.baseOffset == 0) {
-      return newValue;
-    }
-
-    double value = double.parse(newValue.text);
-    final formatter = NumberFormat.decimalPattern('id_ID');
-    String newText = formatter.format(value);
-
-    return newValue.copyWith(
-      text: newText,
-      selection: TextSelection.collapsed(offset: newText.length),
-    );
+String _getPropertyImage(Property property) {
+  if (property.images.isNotEmpty && property.images[0].image_url != null) {
+    return property.images[0].image_url!;
   }
+  return "";
 }

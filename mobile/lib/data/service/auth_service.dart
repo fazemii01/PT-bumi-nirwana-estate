@@ -7,6 +7,7 @@ import 'package:mobile_nirwana/core/routes/app_routes.dart';
 import 'package:mobile_nirwana/core/utils/api.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile_nirwana/data/models/auth-response.dart';
+import 'package:mobile_nirwana/data/models/user.dart';
 
 class AuthService extends Api {
   final GoogleSignIn _googleSignIn = GoogleSignIn(
@@ -20,7 +21,7 @@ class AuthService extends Api {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
       if (googleUser == null) {
-        return 'Login dibatalkan';
+        return 'batal';
       }
 
       final GoogleSignInAuthentication googleAuth =
@@ -54,6 +55,51 @@ class AuthService extends Api {
     } catch (e) {
       print("[ERROR] Terjadi kesalahan saat login $e");
       return "Gagal terhubung ke server";
+    }
+  }
+
+  Future<String?> login(String email, String password) async {
+    try {
+      final response = await http.post(Uri.parse('$baseUrl/auths/signin'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'email': email, 'password_hash': password}));
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = jsonDecode(response.body);
+        final authResponse = AuthResponse.fromJson(data);
+
+        final box = GetStorage();
+        box.write('access_token', authResponse.accessToken);
+        box.write('full_name', authResponse.user.full_name);
+        box.write('email', authResponse.user.email);
+        box.write('user_id', authResponse.user.id);
+
+        return null;
+      } else {
+        return jsonDecode(response.body)['message'] ?? 'Login failed';
+      }
+    } catch (e) {
+      print('ERROR login $e');
+      return 'Login failed';
+    }
+  }
+
+  Future<String?> register(User user) async {
+    try {
+      final response = await http.post(Uri.parse('$baseUrl/auths/signup'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode(user.toJson()));
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return null;
+      } else {
+        print(jsonDecode(response.body)['message']);
+        return jsonDecode(response.body)['message'].toString();
+      }
+    } catch (e) {
+      print("USER ${user.toJson()}");
+      print('ERROR register $e');
+      return 'Register failed';
     }
   }
 

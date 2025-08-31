@@ -1,5 +1,5 @@
 class User {
-  final String id;
+  final String? id;
   final String full_name;
   final String email;
   final String? phone_number;
@@ -7,7 +7,7 @@ class User {
   final String? password_hash;
 
   User(
-      {required this.id,
+      {this.id,
       required this.full_name,
       required this.email,
       this.phone_number,
@@ -23,11 +23,13 @@ class User {
         password_hash: json['password_hash']);
   }
 
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'full_name': full_name,
-        'email': email,
-        'role': role,
-        'password_hash': password_hash
-      };
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'full_name': full_name,
+      'email': email,
+      'role': role,
+      'password_hash': password_hash
+    };
+  }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:mobile_nirwana/core/routes/app_routes.dart';
+import 'package:mobile_nirwana/data/models/user.dart';
 import 'package:mobile_nirwana/data/service/auth_service.dart';
 
 class RegisterController extends GetxController {
@@ -17,6 +17,7 @@ class RegisterController extends GetxController {
   final obscurePassword = true.obs;
   final obscureConfirmPassword = true.obs;
   final isLoading = false.obs;
+  final isLoadingGoogle = false.obs;
 
   final agreeToTerms = false.obs;
 
@@ -33,70 +34,77 @@ class RegisterController extends GetxController {
     super.onClose();
   }
 
+  void clearAll() {
+    fullNameController.clear();
+    emailController.clear();
+    phoneController.clear();
+    passwordController.clear();
+    confirmPasswordController.clear();
+  }
+
   Future<void> handleGoogleRegister() async {
     try {
-      isLoading.value = true;
+      isLoadingGoogle.value = true;
       final message = await _authService.loginWithGoogle();
       if (message == null) {
-        isLoading.value = false;
+        clearAll();
+        isLoadingGoogle.value = false;
         Get.snackbar("Success", "Register successfully",
             backgroundColor: Colors.green, colorText: Colors.white);
         Get.offAllNamed(Routes.LAYOUT);
+      } else if (message == 'batal') {
+        isLoadingGoogle.value = false;
       } else {
-        isLoading.value = false;
+        isLoadingGoogle.value = false;
         Get.snackbar('Error', '$message',
             backgroundColor: Colors.red, colorText: Colors.white);
         print("Error register dengan Google: $message");
       }
     } catch (error) {
-      isLoading.value = false;
+      isLoadingGoogle.value = false;
       Get.snackbar('Error', '$error',
           backgroundColor: Colors.red, colorText: Colors.white);
       print("terjadi kesalahan: $error");
     }
   }
 
-  Future<void> handleManualRegister() async {
-    if (formKey.currentState!.validate() && agreeToTerms.value) {
-      //   setState(() {
-      //     isLoading = true;
-      //   });
+  void handleManualRegister(BuildContext context) async {
+    if (!formKey.currentState!.validate()) {
+      return;
+    }
 
-      //   // Simulasi register manual
-      //   await Future.delayed(Duration(seconds: 2));
+    if (!agreeToTerms.value) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Harap setujui syarat dan ketentuan'),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+      );
+      return;
+    }
 
-      //   setState(() {
-      //     isLoading = false;
-      //   });
+    final user = User(
+        full_name: fullNameController.text.trim(),
+        email: emailController.text.trim(),
+        phone_number: phoneController.text,
+        password_hash: confirmPasswordController.text.trim(),
+        role: 'USER');
 
-      //   ScaffoldMessenger.of(context).showSnackBar(
-      //     SnackBar(
-      //       content: Text('Registrasi berhasil! Silakan login.'),
-      //       backgroundColor: Colors.green,
-      //       behavior: SnackBarBehavior.floating,
-      //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      //     ),
-      //   );
-
-      //   // Reset form
-      //   formKey.currentState!.reset();
-      //   fullNameController.clear();
-      //   emailController.clear();
-      //   phoneController.clear();
-      //   passwordController.clear();
-      //   confirmPasswordController.clear();
-      //   setState(() {
-      //     agreeToTerms = false;
-      //   });
-    } else if (!agreeToTerms.value) {
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   SnackBar(
-      //     content: Text('Harap setujui syarat dan ketentuan'),
-      //     backgroundColor: Colors.orange,
-      //     behavior: SnackBarBehavior.floating,
-      //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      //   ),
-      // );
+    isLoading.value = true;
+    final response = await _authService.register(user);
+    if (response == null) {
+      clearAll();
+      isLoading.value = false;
+      Get.snackbar("Success", "Register successfully",
+          backgroundColor: Colors.green, colorText: Colors.white);
+      Get.offAllNamed(Routes.LOGIN);
+    } else {
+      isLoading.value = false;
+      Get.snackbar('Error', '$response',
+          backgroundColor: Colors.red, colorText: Colors.white);
+      print("Error register manual: $response");
     }
   }
 }
