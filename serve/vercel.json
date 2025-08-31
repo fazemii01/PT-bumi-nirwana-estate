@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "rewrites": [
+  "build": [
     {
       "src": "api/index.ts",
       "use": "@vercel/node"
