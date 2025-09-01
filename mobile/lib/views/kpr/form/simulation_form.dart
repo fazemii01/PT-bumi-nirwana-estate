@@ -25,15 +25,13 @@ class _SimulationFormState extends State<SimulationForm> {
       Get.put(SimulationFormController());
 
   final _formKey = GlobalKey<FormState>();
-  final _propertyPriceController = TextEditingController();
 
-  int? _selectedTenure;
   int? _maxTenure;
   bool _isCalculated = false;
-  Bank? _selectedBank;
+
   String? _bankError;
   String? _tenureError;
-  Property? _selectedProperty;
+  String? _propertyError;
 
   void _showBankSelectionModal() {
     showModalBottomSheet(
@@ -42,11 +40,11 @@ class _SimulationFormState extends State<SimulationForm> {
       backgroundColor: Colors.transparent,
       builder: (context) => BankSelectionModal(
         banks: _simulationFormController.banks,
-        selectedBank: _selectedBank,
+        selectedBank: _simulationFormController.selectedBank,
         onBankSelected: (Bank bank) {
           setState(() {
             _simulationFormController.bankId.value = bank.id;
-            _selectedBank = bank;
+            _simulationFormController.selectedBank = bank;
             _maxTenure = bank.max_tenure;
             _simulationFormController.interest_rate.text =
                 bank.interest_rate.toString();
@@ -63,11 +61,11 @@ class _SimulationFormState extends State<SimulationForm> {
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (context) => TenureSelectionModal(
-        selectedTenure: _selectedTenure,
+        selectedTenure: _simulationFormController.tenure,
         maxTenure: _maxTenure,
         onTenureSelected: (int tenure) {
           setState(() {
-            _selectedTenure = tenure;
+            _simulationFormController.tenure = tenure;
           });
           Navigator.pop(context);
         },
@@ -81,12 +79,13 @@ class _SimulationFormState extends State<SimulationForm> {
       barrierDismissible: true,
       builder: (context) => PropertySelectionModal(
         properties: _simulationFormController.properties,
-        selectedProperty: _selectedProperty,
+        selectedProperty: _simulationFormController.selectedProperty,
         onPropertySelected: (Property property) {
           setState(() {
-            _selectedProperty = property;
+            _simulationFormController.selectedProperty = property;
             _simulationFormController.propertyId.value = property.id;
-            _propertyPriceController.text = 'Rp ${formatPrice(property.price)}';
+            _simulationFormController.propertyPriceController.text =
+                'Rp ${formatPrice(property.price)}';
           });
           Navigator.pop(context);
         },
@@ -94,60 +93,36 @@ class _SimulationFormState extends State<SimulationForm> {
     );
   }
 
-  // void _resetForm() {
-  //   setState(() {
-  //     _propertyPriceController.clear();
-  //     _downPaymentController.clear();
-  //     _selectedTenure = 15;
-  //     // _selectedBank = _bankOptions.first['id'];
-  //     // _interestRateController.text = _bankOptions.first['rate'].toString();
-  //     _isCalculated = false;
-  //     _monthlyInstallment = 0;
-  //     _totalInterest = 0;
-  //     _totalPayment = 0;
-  //   });
-  // }
+  void _calculateKPR() {
+    if (_simulationFormController.selectedProperty == null) {
+      setState(() {
+        _propertyError = "Silahkan pilih property dahulu";
+      });
+      return;
+    }
+    if (_formKey.currentState!.validate()) {
+      if (_simulationFormController.selectedBank == null) {
+        setState(() {
+          _bankError = "Silakan pilih bank terlebih dahulu";
+        });
+        return;
+      }
+      if (_simulationFormController.tenure == null) {
+        setState(() {
+          _tenureError = "Silakan pilih jangka waktu terlebih dahulu";
+        });
+        return;
+      }
+      _simulationFormController.handleCalculateKpr();
 
-  // void _calculateKPR() {
-  //   if (_formKey.currentState!.validate()) {
-  //     if (_selectedBank == null) {
-  //       setState(() {
-  //         _bankError = "Silakan pilih bank terlebih dahulu";
-  //       });
-  //       return;
-  //     }
-  //     if (_selectedTenure == null) {
-  //       setState(() {
-  //         _bankError = "Silakan pilih jangka terlebih dahulu";
-  //       });
-  //       return;
-  //     }
-  //     double propertyPrice = double.parse(
-  //         _propertyPriceController.text.replaceAll(RegExp(r'[^0-9]'), ''));
-  //     double downPayment = double.parse(
-  //         _downPaymentController.text.replaceAll(RegExp(r'[^0-9]'), ''));
-  //     double interestRate = double.parse(_interestRateController.text) / 100;
-
-  //     double loanAmount = propertyPrice - downPayment;
-  //     double monthlyRate = interestRate / 12;
-  //     int totalMonths = _selectedTenure! * 12;
-
-  //     // Rumus perhitungan cicilan KPR
-  //     double monthlyInstallment = loanAmount *
-  //         (monthlyRate * pow(1 + monthlyRate, totalMonths)) /
-  //         (pow(1 + monthlyRate, totalMonths) - 1);
-
-  //     double totalPayment = monthlyInstallment * totalMonths;
-  //     double totalInterest = totalPayment - loanAmount;
-
-  //     setState(() {
-  //       _monthlyInstallment = monthlyInstallment;
-  //       _totalInterest = totalInterest;
-  //       _totalPayment = totalPayment;
-  //       _isCalculated = true;
-  //     });
-  //   }
-  // }
+      // setState(() {
+      //   _monthlyInstallment = monthlyInstallment;
+      //   _totalInterest = totalInterest;
+      //   _totalPayment = totalPayment;
+      //   _isCalculated = true;
+      // });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -277,10 +252,10 @@ class _SimulationFormState extends State<SimulationForm> {
           _buildPropertySelector(),
           const SizedBox(height: 20),
 
-          if (_selectedProperty != null) ...[
+          if (_simulationFormController.selectedProperty != null) ...[
             _buildLabel('Harga Properti'),
             _buildCurrencyField(
-              controller: _propertyPriceController,
+              controller: _simulationFormController.propertyPriceController,
               hintText: 'Masukkan harga properti',
               enable: false,
               validator: (value) {
@@ -335,7 +310,7 @@ class _SimulationFormState extends State<SimulationForm> {
           height: 50,
           child: ElevatedButton(
             onPressed: () {
-              _simulationFormController.handleSubmit();
+              _calculateKPR();
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Color(0xFFE4B61A),
@@ -501,11 +476,12 @@ class _SimulationFormState extends State<SimulationForm> {
             ),
             child: Row(
               children: [
-                if (_selectedBank?.logo != null) ...[
+                if (_simulationFormController.selectedBank?.logo != null) ...[
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: Image.network(
-                      Imgurl.get('banks/${_selectedBank!.logo}'),
+                      Imgurl.get(
+                          'banks/${_simulationFormController.selectedBank!.logo}'),
                       width: 32,
                       height: 32,
                       fit: BoxFit.cover,
@@ -530,9 +506,10 @@ class _SimulationFormState extends State<SimulationForm> {
                 ],
                 Expanded(
                   child: Text(
-                    _selectedBank?.name ?? 'Pilih Bank',
+                    _simulationFormController.selectedBank?.name ??
+                        'Pilih Bank',
                     style: TextStyle(
-                      color: _selectedBank != null
+                      color: _simulationFormController.selectedBank != null
                           ? Colors.black87
                           : Colors.grey[500],
                       fontSize: 16,
@@ -566,7 +543,7 @@ class _SimulationFormState extends State<SimulationForm> {
       children: [
         GestureDetector(
           onTap: () {
-            _selectedBank == null
+            _simulationFormController.selectedBank == null
                 ? _bankError = 'Silakan pilih bank terlebih dahulu'
                 : _showTenureSelectionModal();
             setState(() {
@@ -587,11 +564,11 @@ class _SimulationFormState extends State<SimulationForm> {
               children: [
                 Expanded(
                   child: Text(
-                    _selectedTenure != null
-                        ? '$_selectedTenure Tahun'
+                    _simulationFormController.tenure != null
+                        ? '${_simulationFormController.tenure} Tahun'
                         : 'Pilih Jangka Waktu',
                     style: TextStyle(
-                      color: _selectedTenure != null
+                      color: _simulationFormController.tenure != null
                           ? Colors.black87
                           : Colors.grey[500],
                       fontSize: 16,
@@ -611,7 +588,7 @@ class _SimulationFormState extends State<SimulationForm> {
         if (_tenureError != null) ...[
           const SizedBox(height: 6),
           Text(
-            _bankError!,
+            _tenureError!,
             style: const TextStyle(color: Colors.red, fontSize: 12),
           ),
         ]
@@ -620,86 +597,108 @@ class _SimulationFormState extends State<SimulationForm> {
   }
 
   Widget _buildPropertySelector() {
-    return GestureDetector(
-      onTap: () => _showPropertySelectionModal(),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: const Color(0xFFF7FAFC),
-          borderRadius: BorderRadius.circular(12),
-          // border: Border.all(
-          //   color: Colors.grey[300]!,
-          //   width: 1,
-          // ),
-        ),
-        child: Row(
-          children: [
-            if (_selectedProperty?.images != null) ...[
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.network(
-                  Imgurl.get(
-                      'property/property_images/${_getPropertyImage(_selectedProperty!)}'),
-                  width: 40,
-                  height: 40,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GestureDetector(
+          onTap: () {
+            _showPropertySelectionModal();
+            setState(() {
+              _propertyError = null;
+            });
+          },
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF7FAFC),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: _propertyError != null ? Colors.red : Colors.transparent,
+                width: 1,
+              ),
+            ),
+            child: Row(
+              children: [
+                if (_simulationFormController.selectedProperty?.images !=
+                    null) ...[
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.network(
+                      Imgurl.get(
+                          'property/property_images/${_getPropertyImage(_simulationFormController.selectedProperty!)}'),
                       width: 40,
                       height: 40,
-                      decoration: BoxDecoration(
-                        color: Colors.blue[100],
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Icon(
-                        Icons.villa,
-                        size: 20,
-                        color: Colors.blue[600],
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(width: 12),
-            ],
-            // Property info
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    _selectedProperty?.name ?? 'Pilih Properti',
-                    style: TextStyle(
-                      color: _selectedProperty != null
-                          ? Colors.black87
-                          : Colors.grey[500],
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: Colors.blue[100],
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(
+                            Icons.villa,
+                            size: 20,
+                            color: Colors.blue[600],
+                          ),
+                        );
+                      },
                     ),
                   ),
-                  if (_selectedProperty != null) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      AreaHelper.formatSingleLine(_selectedProperty!.address),
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
+                  const SizedBox(width: 12),
                 ],
-              ),
+                // Property info
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _simulationFormController.selectedProperty?.name ??
+                            'Pilih Properti',
+                        style: TextStyle(
+                          color:
+                              _simulationFormController.selectedProperty != null
+                                  ? Colors.black87
+                                  : Colors.grey[500],
+                          fontSize: 16,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                      if (_simulationFormController.selectedProperty !=
+                          null) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          AreaHelper.formatSingleLine(_simulationFormController
+                              .selectedProperty!.address),
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                // Arrow icon
+                Icon(
+                  Icons.keyboard_arrow_down,
+                  color: Colors.grey[600],
+                  size: 24,
+                ),
+              ],
             ),
-            // Arrow icon
-            Icon(
-              Icons.keyboard_arrow_down,
-              color: Colors.grey[600],
-              size: 24,
-            ),
-          ],
+          ),
         ),
-      ),
+        if (_propertyError != null) ...[
+          const SizedBox(height: 6),
+          Text(
+            _propertyError!,
+            style: const TextStyle(color: Colors.red, fontSize: 12),
+          ),
+        ]
+      ],
     );
   }
 

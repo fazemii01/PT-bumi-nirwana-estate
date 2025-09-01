@@ -23,7 +23,7 @@ import { LoanSimulationsModule } from './loan_simulations/loan_simulations.modul
 @Module({
   imports: [
     ServeStaticModule.forRoot({
-      rootPath: join(process.cwd(), 'uploads'),
+      rootPath: join(__dirname, '..', 'uploads'),
       serveRoot: '/uploads',
     }),
     ConfigModule.forRoot({

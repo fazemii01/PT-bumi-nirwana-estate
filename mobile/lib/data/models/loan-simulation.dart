@@ -10,6 +10,8 @@ class LoanSimulation {
   final double? loanAmount;
   final double downPayment;
   final int tenure;
+  final double? total_payment;
+  final double? total_interest;
   final double? monthlyInstallment;
   final double? interestRate;
   final List<Breakdown>? breakdown;
@@ -28,6 +30,8 @@ class LoanSimulation {
     this.loanAmount,
     required this.downPayment,
     required this.tenure,
+    this.total_payment,
+    this.total_interest,
     this.monthlyInstallment,
     this.interestRate,
     this.breakdown,
@@ -47,6 +51,8 @@ class LoanSimulation {
       loanAmount: (json['loan_amount'] as num).toDouble(),
       downPayment: (json['down_payment'] as num).toDouble(),
       tenure: json['tenure'],
+      total_payment: json['total_payment'],
+      total_interest: json['total_interest'],
       monthlyInstallment: (json['monthly_installment'] as num).toDouble(),
       interestRate: (json['interest_rate'] as num).toDouble(),
       breakdown: json['breakdown'] != null
@@ -75,6 +81,8 @@ class LoanSimulation {
       "loan_amount": loanAmount,
       "down_payment": downPayment,
       "tenure": tenure,
+      "total_payment": total_payment,
+      "total_interest": total_interest,
       "monthly_installment": monthlyInstallment,
       "interest_rate": interestRate,
       "breakdown": breakdown?.map((e) => e.toJson()).toList(),

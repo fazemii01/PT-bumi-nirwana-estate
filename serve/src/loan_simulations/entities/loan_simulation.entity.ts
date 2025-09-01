@@ -11,13 +11,6 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-export enum LoanStatus {
-  SIMULATED = 'SIMULATED',
-  SUBMITTED = 'SUBMITTED',
-  APPROVED = 'APPROVED',
-  REJECTED = 'REJECTED',
-}
-
 @Entity('loan_simulations')
 export class LoanSimulation {
   @PrimaryGeneratedColumn('uuid')
@@ -59,8 +52,11 @@ export class LoanSimulation {
   @Column({ type: 'decimal', precision: 5, scale: 2, nullable: false })
   interest_rate: number;
 
-  @Column({ type: 'enum', enum: LoanStatus, default: LoanStatus.SIMULATED })
-  status: LoanStatus;
+  @Column({ type: 'decimal', precision: 5, scale: 2, nullable: false })
+  total_payment: number;
+
+  @Column({ type: 'decimal', precision: 5, scale: 2, nullable: false })
+  total_interest: number;
 
   @Column('jsonb', { nullable: true })
   breakdown: {
