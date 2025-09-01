@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@vercel/node": "^5.3.17",
     "next-auth": "^4.24.11"
   }
 }
