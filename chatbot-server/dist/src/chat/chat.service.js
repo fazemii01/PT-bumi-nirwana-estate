@@ -26,11 +26,11 @@ let ChatService = class ChatService {
     async onModuleInit() {
         this.embeddings = new ollama_1.OllamaEmbeddings({
             baseUrl: 'http://localhost:4600',
-            model: 'nomic-embed-text-v1.5.f16',
+            model: 'nomic-embed-text',
         });
         this.visionModel = new ollama_1.ChatOllama({
             baseUrl: 'http://localhost:4600',
-            model: 'llava-phi-3-mini-mmproj-f16',
+            model: 'moondream',
         });
         try {
             console.log('Attempting to load Faiss index from disk...');
@@ -45,23 +45,81 @@ let ChatService = class ChatService {
     async initializeConversationalChain() {
         const ollama = new ollama_1.ChatOllama({
             baseUrl: 'http://localhost:4600',
-            model: 'Phi-3-mini-4k-instruct-q4',
+            model: 'qwen2:1.5b',
         });
-        const greetingPrompt = prompts_1.ChatPromptTemplate.fromTemplate(`You are a helpful assistant named AskNirwana. You can handle basic greetings. Respond in Indonesian. Keep your response brief, friendly, and invite the user to ask about properties.
-      User's input: {input}`);
-        this.greetingChain = greetingPrompt.pipe(ollama).pipe(new output_parsers_1.StringOutputParser());
+        const greetingPrompt = prompts_1.ChatPromptTemplate.fromTemplate(`You are a helpful assistant named AskNirwana. You can handle basic greetings.
+   Your only task is to greet the user and invite them to ask a question about properties.
+   Your response MUST be: "Halo! Ada yang bisa saya bantu terkait properti?"
+   User's input: {input}`);
+        const greetingFilter = new runnables_1.RunnableLambda({
+            func: async ({ input }) => {
+                const greetings = [
+                    'halo',
+                    'helo',
+                    'hallo',
+                    'hi',
+                    'hai',
+                    'hello',
+                    'apa kabar',
+                    'pagi',
+                    'siang',
+                    'sore',
+                    'malam',
+                    'selamat pagi',
+                    'selamat siang',
+                    'selamat sore',
+                    'selamat malam',
+                ];
+                let normalized = input.toLowerCase().trim();
+                if (greetings.includes(normalized)) {
+                    return {
+                        specialGreeting: true,
+                        text: 'Halo! Ada yang bisa saya bantu terkait properti?',
+                    };
+                }
+                for (let g of greetings) {
+                    if (normalized.startsWith(g)) {
+                        normalized = normalized.replace(g, '').trim();
+                        break;
+                    }
+                }
+                return { specialGreeting: false, text: normalized };
+            },
+        });
+        this.greetingChain = greetingFilter
+            .pipe(new runnables_1.RunnableLambda({
+            func: async (input) => {
+                if (input.specialGreeting) {
+                    return 'Halo! Ada yang bisa saya bantu terkait properti?';
+                }
+                return null;
+            },
+        }))
+            .pipe(new output_parsers_1.StringOutputParser());
         const retriever = this.vectorStore.asRetriever({ k: 2 });
         const historyAwareAnswerPrompt = prompts_1.ChatPromptTemplate.fromMessages([
             [
                 'system',
-                `You are a helpful assistant named AskNirwana.
- - Answer the user's question STRICTLY based on the provided "Context" below.
- - Each project is described in its own section. DO NOT mix details between different projects.
- - Be concise, direct, humble and answer in Indonesian.
- - If the answer is not found in the context, you MUST reply with the exact phrase: "Informasi tidak ditemukan dalam konteks." and give the possible solution 
+                `You are AskNirwana, a friendly and helpful assistant for property questions.
+- Always answer in a warm and conversational tone, and you MUST answer in Indonesian.
+- Use the provided "Context" as your main source of truth.
 
-   Context:
-   {context}`,
+Here is an example of a good response:
+User Question: Kalau saya gajinya UMR, bisa nggak ambil KPR?
+Good Answer: Tentu bisa! Untuk Anda yang memiliki gaji UMR, kami merekomendasikan Perumahan Bumi Nirwana Sumberejo yang memiliki promo Tanpa DP. Ini bisa menjadi solusi yang bagus untuk Anda. Jika ada pertanyaan lebih lanjut tentang KPR, jangan ragu bertanya ya.
+User Question: Apa ada perumahan dengan cicilan murah?
+Good Answer: Tentu, saat ini perumahan dengan cicilan murah adalah Bumi Nirwana Sumberejo dengan Angsuran hanya 1 Juta per bulan!!, dengan promo tanpa DP, apakah anda tertarik?
+User Question: Apa ada perumahan murah?
+Good Answer: Tentu, Saat ini perumahan dengan harga paling murah adalah Bumi Nirwana Sumberejo dengan harga hanya Rp 166.000.000 dengan Tipe rumah yang ditawarkan adalah 30/60, Apakah anda tertarik? 
+
+- If the context only contains partial information, give the part you found and add a gentle suggestion like:
+  "Untuk detail lebih lengkap, mungkin Anda bisa menanyakan hal lain atau menghubungi sales kami."
+- If there is no information at all in the context, say politely:
+  "Maaf, saya belum menemukan info yang sesuai. Boleh coba jelaskan lagi apa yang dicari?"
+- Keep answers concise and easy to read.
+  
+Context:
+{context}`,
             ],
             new prompts_1.MessagesPlaceholder('chat_history'),
             ['user', '{input}'],
@@ -110,9 +168,25 @@ let ChatService = class ChatService {
         });
     }
     isGreeting(message) {
-        const greetings = ['halo', 'hi', 'hello', 'apa kabar', 'pagi', 'siang', 'sore', 'malam'];
-        const lowerCaseMessage = message.toLowerCase().trim();
-        return greetings.some(greeting => lowerCaseMessage.startsWith(greeting));
+        const greetings = [
+            'halo',
+            'helo',
+            'hallo',
+            'hi',
+            'hai',
+            'hello',
+            'apa kabar',
+            'pagi',
+            'siang',
+            'sore',
+            'malam',
+            'selamat pagi',
+            'selamat siang',
+            'selamat sore',
+            'selamat malam',
+        ];
+        const lower = message.toLowerCase().trim();
+        return greetings.includes(lower);
     }
     formatDocs(docs) {
         return docs.map((doc) => doc.pageContent).join('\n\n');
@@ -133,15 +207,15 @@ let ChatService = class ChatService {
         if (typeof result === 'string') {
             answer = result;
         }
-        else if (result && typeof result.answer === 'string') {
+        else if (result?.answer) {
             answer = result.answer;
         }
         else {
-            answer = "Maaf, terjadi kesalahan dalam memproses jawaban.";
+            answer = 'Maaf, terjadi kesalahan dalam memproses jawaban.';
         }
         this.chatHistory.push(new messages_1.HumanMessage(message));
         this.chatHistory.push(new messages_1.AIMessage(answer));
-        console.log('AI Answer:', answer);
+        console.log('Final AI Answer:', answer);
         return answer;
     }
     clearHistory() {
