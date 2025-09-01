@@ -1,0 +1,52 @@
+.container {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-bottom: 16px;
+
+  @include media-tablet {
+    width: calc(100% + 16px);
+    margin-left: -8px;
+  }
+
+  tr:nth-child(odd) {
+    background-color: var(--nude);
+  }
+
+  tr:first-child td:last-child {
+    font-weight: 500;
+  }
+
+  td {
+    height: 40px;
+    padding: 8px 20px;
+    font-size: 16px;
+
+    @include media-laptop {
+      font-size: 14px;
+    }
+
+    @include media-tablet {
+      padding-left: 8px;
+      padding-right: 8px;
+    }
+
+    &:first-child {
+      font-weight: 500;
+      width: 300px;
+      border-right: 2px solid var(--white);
+
+      @include media-laptop {
+        width: 410px;
+      }
+
+      @include media-tablet {
+        width: 190px;
+      }
+    }
+
+    &:not(:first-child) {
+      font-weight: 300;
+    }
+  }
+}

@@ -24,7 +24,10 @@ const useDataFetching = () => {
     images: [],
     floor_plans: [],
     luas: '',
-    jenis: {}
+    jenis: {},
+    land_size: '',
+    name: '',
+    type: '',
   };
 
   const [data, setData] = useState<ICatalogData[]>([initialData]);
@@ -64,9 +67,10 @@ const useDataFetching = () => {
         },
         location,
         table: {
-        	rooms: specifications.kamar,
-        	bathrooms: specifications.kamar_mandi,
-        	offices: specifications.offices,
+        	// rooms: specifications.kamar,
+        	bedrooms: specifications.bedrooms,
+        	bathrooms: specifications.bathrooms,
+        	// offices: specifications.offices,
         },
        
         description: property.description || {},
@@ -75,6 +79,9 @@ const useDataFetching = () => {
         	id: property.jenis || '',
         },
         luas: property.luas,
+        type: property.type,
+        land_size: parseInt(property.land_size, 10).toString(),
+        name: property.name,
         detail_description: property.detail_description,
         status: property.status,
         contractType: (specifications as { contractType?: string }).contractType || '',

@@ -31,8 +31,6 @@ const CatalogPageInformation: FC<{
 	jenis: string;
 	luas: string;
 	status: string;
-	land_size: string;
-	type: string;
 }> = ({
 	      detail_description,
 	      tableInfo,
@@ -45,9 +43,7 @@ const CatalogPageInformation: FC<{
 	      price,
 	      jenis,
 		  luas,
-		  status,
-		  land_size,
-		  type
+		  status
 	     }) => {
 	const {t} = useTranslation('catalog');
 	const isLaptop = useMediaQuery(LAPTOP_BREAKPOINT);
@@ -75,7 +71,6 @@ const CatalogPageInformation: FC<{
 					jenis={jenis}
 					luas={luas}
 					status={status}
-					type={type}
 				/>
 
 				<CatalogPageNotice type="short"/>

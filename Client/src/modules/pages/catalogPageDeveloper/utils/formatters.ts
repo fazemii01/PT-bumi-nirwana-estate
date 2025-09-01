@@ -91,7 +91,7 @@ export const formatTableAfterPrefix = (
 		USABLEAREA: UNITS[lang].squareMeters,
 		OFFICES: UNITS[lang].pieces,
 		KITCHEN: UNITS[lang].squareMeters,
-		BATHROOMS: UNITS[lang].nothing,
+		BATHROOMS: UNITS[lang].pieces,
 		LIVINGSPACE: UNITS[lang].squareMeters,
 		ROOMS: UNITS[lang].pieces,
 		LANDPLOT: UNITS[lang].landPlot,

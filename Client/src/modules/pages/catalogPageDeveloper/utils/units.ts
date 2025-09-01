@@ -8,7 +8,6 @@ export const UNITS = {
 		priceFrom: 'from ',
 		priceTo: 'to ',
 		separator: ' or ',
-		nothing: ''
 	},
 	id: {
 		pieces: 'buah',
