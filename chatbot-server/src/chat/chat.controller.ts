@@ -8,6 +8,12 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ChatService } from './chat.service';
 
+class AskDto {
+  message: string;
+  sessionId: string;
+}
+
+
 @Controller('chat')
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
@@ -18,8 +24,8 @@ export class ChatController {
     return this.chatService.processFile(file);
   }
 
-  @Post()
-  async ask(@Body('message') message: string) {
-    return this.chatService.ask(message);
+  @Post('ask')
+  async ask(@Body() askDto: AskDto) {
+    return this.chatService.ask(askDto.message, askDto.sessionId);
   }
 }

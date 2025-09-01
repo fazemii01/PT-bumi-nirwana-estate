@@ -1,20 +1,23 @@
 import { OnModuleInit } from '@nestjs/common';
+import { HttpService } from '@nestjs/axios';
 export declare class ChatService implements OnModuleInit {
-    private greetingChain;
+    private readonly httpService;
+    private weaviateClient;
     private masterChain;
-    private conversationalChain;
-    private directChain;
     private vectorStore;
     private embeddings;
     private visionModel;
-    private chatHistory;
-    private llamaVision;
-    private llamaEmbeddings;
+    private chatHistories;
+    constructor(httpService: HttpService);
     onModuleInit(): Promise<void>;
-    private initializeConversationalChain;
+    private rerankDocuments;
+    private rerankInChunks;
+    private rerankByTokenBudget;
+    private truncateDoc;
+    private initializeMasterChain;
     private isGreeting;
-    private formatDocs;
-    ask(message: string): Promise<string>;
-    clearHistory(): void;
+    ask(message: string, sessionId: string): Promise<string>;
+    clearHistory(sessionId: string): void;
+    clearAllHistories(): void;
     processFile(file: Express.Multer.File): Promise<void>;
 }

@@ -1,0 +1,389 @@
+import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Document } from '@langchain/core/documents';
+import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
+import { StringOutputParser } from '@langchain/core/output_parsers';
+import {
+  ChatPromptTemplate,
+  MessagesPlaceholder,
+  PromptTemplate,
+} from '@langchain/core/prompts';
+import { ChatOllama, Ollama, OllamaEmbeddings } from '@langchain/ollama';
+import { HumanMessage, AIMessage, BaseMessage } from '@langchain/core/messages';
+import {
+  Runnable,
+  RunnableSequence,
+  RunnableBranch,
+  RunnableLambda,
+} from '@langchain/core/runnables';
+import { WeaviateStore } from '@langchain/weaviate';
+import weaviate, { WeaviateClient } from 'weaviate-client';
+import { createStuffDocumentsChain } from 'langchain/chains/combine_documents';
+// import weaviate from 'weaviate-ts-client';
+// import { createStuffDocumentsChain } from 'langchain/chains/combine_documents';
+import { createHistoryAwareRetriever } from 'langchain/chains/history_aware_retriever';
+import { createRetrievalChain } from 'langchain/chains/retrieval';
+// import { MultiQueryRetriever } from 'langchain/retrievers/multi-query';
+
+@Injectable()
+export class ChatService implements OnModuleInit {
+  private greetingChain: Runnable;
+  private weaviateClient: WeaviateClient;
+  private masterChain: Runnable;
+  private conversationalChain: Runnable;
+  private directChain: Runnable;
+  private vectorStore: WeaviateStore;
+  private embeddings: OllamaEmbeddings;
+  // private weaviateClient: any;
+  private visionModel: ChatOllama;
+  private chatHistory: BaseMessage[] = [];
+  private llamaVision: any;
+  private llamaEmbeddings: any;
+
+  async onModuleInit() {
+    this.embeddings = new OllamaEmbeddings({
+      baseUrl: 'http://localhost:4600',
+      model: 'nomic-embed-text',
+    });
+
+    this.visionModel = new ChatOllama({
+      baseUrl: 'http://localhost:4600',
+      model: 'moondream',
+    });
+
+    this.weaviateClient = await weaviate.connectToLocal({
+      host: 'localhost',
+      port: 4900,
+      grpcPort: 50051,
+    });
+
+    console.log(
+      'Weaviate client in onModuleInit:',
+      this.weaviateClient ? 'initialized' : 'undefined',
+    );
+
+    const meta = await this.weaviateClient.getMeta();
+    console.log('Weaviate meta:', meta);
+
+    const indexName = 'Chatbot';
+
+    this.vectorStore = new WeaviateStore(this.embeddings, {
+      client: this.weaviateClient as any,
+      indexName,
+    });
+
+    this.initializeConversationalChain();
+  }
+  private async initializeConversationalChain(): Promise<void> {
+    const ollama = new ChatOllama({
+      baseUrl: 'http://localhost:4600',
+      model: 'qwen2:1.5b',
+    });
+
+    const greetingFilter = new RunnableLambda<
+      { input: string },
+      { specialGreeting: boolean; text: string }
+    >({
+      func: async ({ input }) => {
+        const greetings = [
+          'halo',
+          'helo',
+          'hallo',
+          'hi',
+          'hai',
+          'hello',
+          'apa kabar',
+          'pagi',
+          'siang',
+          'sore',
+          'malam',
+          'selamat pagi',
+          'selamat siang',
+          'selamat sore',
+          'selamat malam',
+        ];
+        let normalized = input.toLowerCase().trim();
+        if (greetings.includes(normalized)) {
+          return {
+            specialGreeting: true,
+            text: 'Halo! Ada yang bisa saya bantu terkait properti?',
+          };
+        }
+        for (let g of greetings) {
+          if (normalized.startsWith(g)) {
+            normalized = normalized.replace(g, '').trim();
+            break;
+          }
+        }
+        return { specialGreeting: false, text: normalized };
+      },
+    });
+
+    this.greetingChain = greetingFilter
+      .pipe(
+        new RunnableLambda({
+          func: async (input: { specialGreeting: boolean; text: string }) => {
+            if (input.specialGreeting) {
+              return 'Halo! Ada yang bisa saya bantu terkait properti?';
+            }
+            return null;
+          },
+        })
+      )
+      .pipe(new StringOutputParser());
+
+    const retriever = this.vectorStore.asRetriever({ k: 10 });
+
+    const historyAwareAnswerPrompt = ChatPromptTemplate.fromMessages([
+      [
+        'system',
+        `You are AskNirwana, a friendly and helpful assistant for property questions from PT Bumi Nirwana Estate, PT Margojoyo Anugrah Persada And The Royal Avenue.
+- Always answer in a warm and conversational tone, and you MUST answer in Indonesian.
+- Use the provided "Context" as your main source of truth.
+
+Here is an example of a good response:
+User Question: Kalau saya gajinya UMR, bisa nggak ambil KPR?
+Good Answer: Tentu bisa! Untuk Anda yang memiliki gaji UMR, kami merekomendasikan Perumahan Bumi Nirwana Sumberejo yang memiliki promo Tanpa DP. Ini bisa menjadi solusi yang bagus untuk Anda. Jika ada pertanyaan lebih lanjut tentang KPR, jangan ragu bertanya ya.
+User Question: Apa ada perumahan dengan cicilan murah?
+Good Answer: Tentu, saat ini perumahan dengan cicilan murah adalah Bumi Nirwana Sumberejo dengan Angsuran hanya 1 Juta per bulan!!, dengan promo tanpa DP, apakah anda tertarik?
+User Question: Apa ada perumahan murah?
+Good Answer: Tentu, Saat ini perumahan dengan harga paling murah adalah Bumi Nirwana Sumberejo dengan harga hanya Rp 166.000.000 dengan Tipe rumah yang ditawarkan adalah 30/60, Apakah anda tertarik? 
+
+- If the context only contains partial information, give the part you found and add a gentle suggestion like:
+  "Untuk detail lebih lengkap, mungkin Anda bisa menanyakan hal lain atau menghubungi sales kami."
+- If there is no information at all in the context, say politely:
+  "Maaf, saya belum menemukan info yang sesuai. Boleh coba jelaskan lagi apa yang dicari?"
+- Keep answers concise and easy to read.
+- You must base your answer *solely* on the provided "Context". Do not use any outside knowledge.
+- If the information is not in the context, politely state that you cannot find the specific detail and suggest they contact a sales representative. Do not make up information.
+
+
+        Context:
+        {context}`,
+      ],
+      new MessagesPlaceholder('chat_history'),
+      ['user', '{input}'],
+    ]);
+
+    const historyAwareCombineDocsChain = await createStuffDocumentsChain({
+      llm: ollama,
+      prompt: historyAwareAnswerPrompt,
+    });
+
+    this.directChain = await createRetrievalChain({
+      retriever: retriever,
+      combineDocsChain: historyAwareCombineDocsChain,
+    });
+
+    const historyAwarePrompt = ChatPromptTemplate.fromMessages([
+      new MessagesPlaceholder('chat_history'),
+      ['user', '{input}'],
+      [
+        'user',
+        'Given the above conversation, generate a search query to look up in order to get information relevant to the conversation...',
+      ],
+    ]);
+
+    const historyAwareRetrieverChain = await createHistoryAwareRetriever({
+      llm: ollama,
+      retriever: retriever,
+      rephrasePrompt: historyAwarePrompt,
+    });
+
+    this.conversationalChain = await createRetrievalChain({
+      retriever: historyAwareRetrieverChain,
+      combineDocsChain: historyAwareCombineDocsChain,
+    });
+
+    this.masterChain = new RunnableBranch({
+      branches: [
+        [
+          new RunnableLambda({
+            func: (input) => this.isGreeting(input.input),
+          }),
+          this.greetingChain,
+        ],
+        [
+          new RunnableLambda({
+            func: (input: { input: string; chat_history: BaseMessage[] }) =>
+              input.chat_history.length === 0,
+          }),
+          this.directChain,
+        ],
+      ],
+      default: this.conversationalChain,
+    });
+  }
+
+  private isGreeting(message: string): boolean {
+    const greetings = [
+      'halo',
+      'helo',
+      'hallo',
+      'hi',
+      'hai',
+      'hello',
+      'apa kabar',
+      'pagi',
+      'siang',
+      'sore',
+      'malam',
+      'selamat pagi',
+      'selamat siang',
+      'selamat sore',
+      'selamat malam',
+    ];
+    const lower = message.toLowerCase().trim();
+    return greetings.includes(lower);
+  }
+
+  private formatDocs(docs: Document[]): string {
+    return docs.map((doc) => doc.pageContent).join('\n\n');
+  }
+
+  async ask(message: string): Promise<string> {
+    if (!this.vectorStore) {
+      return 'I am sorry, but I have no knowledge base to answer your question. Please upload a file first.';
+    }
+    if (!this.masterChain) {
+      await this.initializeConversationalChain();
+    }
+    console.log('Invoking master chain with question...');
+    const result = await this.masterChain.invoke({
+      chat_history: this.chatHistory,
+      input: message,
+    });
+    let answer: string;
+    if (typeof result === 'string') {
+      answer = result;
+    } else if (result?.answer) {
+      answer = result.answer;
+    } else {
+      answer = 'Maaf, terjadi kesalahan dalam memproses jawaban.';
+    }
+    this.chatHistory.push(new HumanMessage(message));
+    this.chatHistory.push(new AIMessage(answer));
+    console.log('Final AI Answer:', answer);
+    return answer;
+  }
+
+  clearHistory(): void {
+    this.chatHistory = [];
+    console.log('Chat history cleared.');
+  }
+
+  async processFile(file: Express.Multer.File): Promise<void> {
+    console.log(`Processing file: ${file.originalname} (${file.mimetype})`);
+    if (!file || !file.buffer) {
+      throw new Error(
+        'No file buffer found. Make sure multer.memoryStorage() is used.',
+      );
+    }
+    let pageContent: string;
+    if (file.mimetype.startsWith('image/')) {
+      console.log(
+        'Image file detected, processing with Moondream for structured extraction...',
+      );
+      const image_b64 = file.buffer.toString('base64');
+      const newPrompt = `Analyze the content of this real estate image and extract the information into a structured JSON format. Identify the property name, location, developer, features, pricing, payment details, and any promotions. For pricing tables, list each property type with its corresponding price, down payment, and monthly installment plans for all available tenures (e.g., 10, 15, 20 years). If the image is a site plan or map, describe the layout, identify the property name, and list the available plot numbers or blocks shown. If a piece of information is not present in the image, use null as the value.`;
+      const message = new HumanMessage({
+        content: [
+          {
+            type: 'text',
+            text: newPrompt,
+          },
+          {
+            type: 'image_url',
+            image_url: `data:image/jpeg;base64,${image_b64}`,
+          },
+        ],
+      });
+      const response = await this.visionModel.invoke([message]);
+      pageContent = response.content as string;
+      console.log('Structured Extraction Result:', pageContent);
+    } else {
+      console.log('Text file detected.');
+      pageContent = file.buffer.toString();
+    }
+    // const doc = new Document({ pageContent });
+    // const splitter = new RecursiveCharacterTextSplitter({
+    //   chunkSize: 1024,
+    //   chunkOverlap: 100,
+    //   separators: ['\n\n## ', '\n## ', '\n\n# ', '\n# ', '\n\n', '\n', ' ', ''],
+    // });
+
+    // const splits = await splitter.splitDocuments([doc]);
+    // console.log(`Split document into ${splits.length} chunks.`);
+    // const batchSize = 32;
+    // console.log(`Split document into ${splits.length} chunks.`);
+    // if (splits.length > 0) {
+    //   console.log('Example chunk:', splits[0].pageContent.slice(0, 200));
+    // } else {
+    //   console.warn('No splits were created — check if pageContent is empty!');
+    // }
+
+    // for (let i = 0; i < splits.length; i += batchSize) {
+    //   const batch = splits.slice(i, i + batchSize);
+
+    //   if (!batch.length) {
+    //     console.warn(`Skipping empty batch at index ${i}`);
+    //     continue;
+    //   }
+
+    //   console.log(`Processing batch ${i / batchSize + 1}...`);
+    //   console.log(
+    //     'Using existing WeaviateStore in processFile. Client:',
+    //     this.weaviateClient ? 'initialized' : 'undefined',
+    //   );
+
+    //   await this.vectorStore.addDocuments(batch);
+    // }
+
+    // this.initializeConversationalChain();
+    // this.clearHistory();
+    // console.log('File processed and Weaviate index updated.');
+    const doc = new Document({
+      pageContent,
+      metadata: { source: 'uploaded_file' },
+    });
+
+    const splitter = new RecursiveCharacterTextSplitter({
+      chunkSize: 1024,
+      chunkOverlap: 100,
+      separators: ['\n\n## ', '\n## ', '\n\n# ', '\n# ', '\n\n', '\n', ' ', ''],
+    });
+
+    const splits = await splitter.splitDocuments([doc]);
+    console.log(`Split document into ${splits.length} chunks.`);
+
+    if (splits.length === 0) {
+      console.warn(
+        'No splits were created — check if pageContent is empty!',
+      );
+      return;
+    }
+
+    console.log('Example chunk:', splits[0].pageContent.slice(0, 200));
+
+    const batchSize = 32;
+    for (let i = 0; i < splits.length; i += batchSize) {
+      const batch = splits.slice(i, i + batchSize);
+
+      if (!batch.length) {
+        console.warn(`Skipping empty batch at index ${i}`);
+        continue;
+      }
+
+      console.log(`Processing batch ${i / batchSize + 1}...`);
+      console.log(
+        'Using existing WeaviateStore in processFile. Client:',
+        this.weaviateClient ? 'initialized' : 'undefined',
+      );
+
+      await this.vectorStore.addDocuments(batch);
+    }
+
+    this.initializeConversationalChain();
+    this.clearHistory();
+    console.log(' File processed and Weaviate index updated.');
+  }
+}

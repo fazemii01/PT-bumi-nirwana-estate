@@ -61,7 +61,7 @@ export function ChatWidget({ isOpen, onToggle }: ChatWidgetProps) {
       console.log('Connected to server');
     });
 
-    socket.on('reply', (text: string) => { // Corrected: Listen for 'reply'
+    socket.on('response', (text: string) => { // Corrected: Listen for 'reply'
       const botResponse: Message = {
         id: (Date.now() + 1).toString(),
         text: text, // The backend sends a simple string
@@ -75,7 +75,7 @@ export function ChatWidget({ isOpen, onToggle }: ChatWidgetProps) {
 
     return () => {
       socket.off('connect');
-      socket.off('reply'); // Corrected: Clean up 'reply' listener
+      socket.off('response'); // Corrected: Clean up 'reply' listener
     };
   }, []);
 

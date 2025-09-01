@@ -1,5 +1,5 @@
 import 'package:get/state_manager.dart';
-import 'package:mobile_nirwana/data/models/property.dart';
+import 'package:mobile_nirwana/data/models/property/property.dart';
 import 'package:mobile_nirwana/data/service/property_service.dart';
 
 class PropertiesController extends GetxController {

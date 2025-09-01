@@ -37,6 +37,8 @@ android {
             signingConfig = signingConfigs.debug
         }
     }
+   
+
 }
 
 flutter {

@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:mobile_nirwana/core/utils/api.dart';
-import 'package:mobile_nirwana/data/models/property.dart';
+import 'package:mobile_nirwana/data/models/property/property.dart';
 import 'package:http/http.dart' as http;
 
 class PropertyService extends Api {

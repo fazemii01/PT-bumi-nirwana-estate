@@ -25,17 +25,21 @@
     "@langchain/core": "latest",
     "@langchain/ollama": "latest",
     "@langchain/textsplitters": "^0.1.0",
+    "@langchain/weaviate": "latest",
+    "@nestjs/axios": "^4.0.1",
     "@nestjs/common": "^11.0.1",
     "@nestjs/core": "^11.0.1",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/platform-socket.io": "^11.1.5",
     "@nestjs/websockets": "^11.1.5",
+    "cookie-parser": "^1.4.7",
     "faiss-node": "latest",
-    "langchain": "^0.3.31",
+    "gpt-tokenizer": "^3.0.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "sharp": "^0.34.3",
-    "tesseract.js": "^6.0.1"
+    "tesseract.js": "^6.0.1",
+    "weaviate-client": "^3.0.4"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
