@@ -117,13 +117,23 @@ class AuthService extends Api {
     }
   }
 
-  Future<String> getUserName() async {
+  Future<String> getFullName() async {
     try {
       final box = GetStorage();
       final userName = box.read("full_name");
       return userName ?? 'User';
     } catch (e) {
       return 'User';
+    }
+  }
+
+  Future<String> getUserId() async {
+    try {
+      final box = GetStorage();
+      final userId = box.read("user_id");
+      return userId ?? '';
+    } catch (e) {
+      return '';
     }
   }
 
@@ -141,7 +151,7 @@ class AuthService extends Api {
     try {
       bool loggedIn = await isLoggedIn();
       if (loggedIn) {
-        String userName = await getUserName();
+        String userName = await getFullName();
         return "Halo $userName";
       } else {
         return "Halo Guest";

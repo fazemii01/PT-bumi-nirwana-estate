@@ -45,7 +45,7 @@ class _SimulationFormState extends State<SimulationForm> {
         selectedBank: _selectedBank,
         onBankSelected: (Bank bank) {
           setState(() {
-            _simulationFormController.bankId = bank.id;
+            _simulationFormController.bankId.value = bank.id;
             _selectedBank = bank;
             _maxTenure = bank.max_tenure;
             _simulationFormController.interest_rate.text =
@@ -85,6 +85,7 @@ class _SimulationFormState extends State<SimulationForm> {
         onPropertySelected: (Property property) {
           setState(() {
             _selectedProperty = property;
+            _simulationFormController.propertyId.value = property.id;
             _propertyPriceController.text = 'Rp ${formatPrice(property.price)}';
           });
           Navigator.pop(context);
@@ -333,7 +334,9 @@ class _SimulationFormState extends State<SimulationForm> {
           width: double.infinity,
           height: 50,
           child: ElevatedButton(
-            onPressed: () {},
+            onPressed: () {
+              _simulationFormController.handleSubmit();
+            },
             style: ElevatedButton.styleFrom(
               backgroundColor: Color(0xFFE4B61A),
               foregroundColor: Colors.white,

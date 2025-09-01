@@ -14,8 +14,7 @@ import BasicInfoForm from "@/components/properties/create/basic-info-form";
 import LocationForm from "@/components/properties/create/location-form";
 import SpecificationsForm from "@/components/properties/create/specifications-form";
 import EditMediaForm from "@/components/properties/edit/edit-media";
-import { getDataAgent } from "@/actions/agent";
-import { getDataDeveloper } from "@/actions/developer";
+
 import { submitUpdateProperty } from "@/actions/property";
 
 type UpdateSubmitHandler = (props: { id: string; data: Property; originalData: Property }) => Promise<boolean | void>;
@@ -105,7 +104,7 @@ const PropertyEditForm = ({ initialData }: { initialData: Property }) => {
   useEffect(() => {
     (async () => {
       try {
-        const [agentsData, developersData] = await Promise.all([getDataAgent(), getDataDeveloper()]);
+        const [agentsData, developersData] = await Promise.all([getAgent(), getDeveloper()]);
         setAgents(agentsData.data || []);
         setDevelopers(developersData.data || []);
       } catch {

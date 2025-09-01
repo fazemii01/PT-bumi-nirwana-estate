@@ -81,7 +81,6 @@ export class LoanSimulationsService {
     loanSimulation.tenure = createLoanSimulationDto.tenure;
     loanSimulation.monthly_installment = monthly_installment;
     loanSimulation.interest_rate = bank.interest_rate;
-    loanSimulation.status = createLoanSimulationDto.status;
     loanSimulation.breakdown = breakdown;
 
     await this.loanSimulationRepository.save(loanSimulation);

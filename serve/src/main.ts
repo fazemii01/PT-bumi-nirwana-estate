@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
+import { join } from 'path';
 
 let server: any;
 
@@ -13,20 +14,17 @@ async function bootstrap() {
     credentials: true,
   });
   app.useGlobalPipes(new ValidationPipe());
-
-  await app.init(); 
+  console.log('Uploads folder path:', join(__dirname, '..', 'uploads'));
+  await app.init();
   const expressApp = app.getHttpAdapter().getInstance();
   return expressApp;
 }
 
-
 if (!process.env.VERCEL) {
-  bootstrap().then(app => {
-    app.listen(process.env.PORT ?? 5000, () => {
-    });
+  bootstrap().then((app) => {
+    app.listen(process.env.PORT ?? 5000, () => {});
   });
 }
-
 
 export default async function handler(req: any, res: any) {
   if (!server) {
