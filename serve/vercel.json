@@ -1,6 +1,6 @@
 {
   "functions": {
-    "serve/api/index.js": {
+    "serve/api/*.js": {
       "runtime": "nodejs22.x",
       "includeFiles": "serve/dist/**"
     }
