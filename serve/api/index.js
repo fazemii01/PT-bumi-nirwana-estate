@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module.js';
+import { AppModule } from '../dist/app.module.js';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import express from 'express';
 import cookieParser from 'cookie-parser';
@@ -32,6 +32,8 @@ async function bootstrap() {
     const app = await NestFactory.create(AppModule);
     app.setGlobalPrefix('api');
     app.enableCors();
+    app.use(cookieParser());
+    app.useGlobalPipes(new ValidationPipe());
     await app.init();
     cachedApp = app.getHttpAdapter().getInstance();
   }
@@ -39,7 +41,6 @@ async function bootstrap() {
 }
 
 export default async function handler(req, res) {
-  console.log('Incoming request URL:', req.url);
   const server = await bootstrap();
-  server(req, res);
+  return server(req, res);
 }
