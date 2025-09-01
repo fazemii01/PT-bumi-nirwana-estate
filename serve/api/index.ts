@@ -40,6 +40,7 @@ async function bootstrap() {
   return cachedApp;
 }
 
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   console.log('Incoming request URL:', req.url);
   const server = await bootstrap();
