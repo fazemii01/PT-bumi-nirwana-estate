@@ -65,7 +65,9 @@ const CatalogPage: FC = () => {
 		floor_plans,
 		luas,
 		jenis,
-		status
+		status,
+		land_size,
+		type
 	} = pageData;
 
 	useEffect(() => {
@@ -143,8 +145,10 @@ const CatalogPage: FC = () => {
 						station={itemStation}
 						price={price}
 						jenis={itemJenis}
-						luas={itemLuas}
+						luas={land_size}
 						status={status}
+						land_size={land_size}
+						type={type}
 					/>
 				</div>
 				<aside>

@@ -43,6 +43,8 @@ const CatalogCard: FC<{
 		location,
 		images,
 		luas,
+		land_size,
+		name
 	} = props;
 
 	const {i18n, t: tCommon} = useTranslation('common');
@@ -57,11 +59,12 @@ const CatalogCard: FC<{
 		address,
 	);
 	const itemCity = tCommon(formatCityTranslation(city));
+	const NameProperty = tCommon(formatCityTranslation(name));
 	// const itemContractType = tCommon(formatCatalogTranslation(contractType));
 	// const itemPropertyType = tCommon(formatCatalogTranslation(propertyType));
-	const itemTotalArea = Number(table.totalArea).toFixed();
+	// const itemTotalArea = Number(table.totalArea).toFixed();
 
-	const totalRooms = Number(table.rooms) + Number(table.bathrooms);
+	const totalRooms = Number(table.bedrooms) + Number(table.bathrooms);
 
 	return (
 		<li className={cn('yellow-shadow', s.container)}>
@@ -87,7 +90,7 @@ const CatalogCard: FC<{
 										image.caption && <li key={image.id}>{image.caption}</li>,
 								)}
 					</ul>
-					<h3 className={s.city}>{itemCity}</h3>
+					<h3 className={s.name}>{NameProperty}</h3>
 					<address className={s.address}>{`${description}, ${fullAddress}, ${itemCity}`}</address>
 					<ul className={s.description}>
 						
@@ -95,14 +98,14 @@ const CatalogCard: FC<{
 							{currencyRate &&
 								formatToPrefixAndPrice(i18n.language, price, currencyRate)}
 						</li>
-						{luas && (
+						{land_size && (
 							<li title={tCatalog('TABLE.TOTALAREA')}>
 								<IconRuler/>
-								{luas + ' ' + UNITS[i18n.language].squareMeters}
+								{land_size + ' ' + UNITS[i18n.language].squareMeters}
 							</li>
 						)}
 						{totalRooms > 0 && (
-							<li title={tCatalog('TABLE.ROOMS')}>
+							<li title={tCatalog('TABLE.RUANGAN')}>
 								<IconFloorPlan />
 								{totalRooms}
 							</li>

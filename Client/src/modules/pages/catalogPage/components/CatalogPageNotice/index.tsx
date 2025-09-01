@@ -29,10 +29,10 @@ const CatalogPageNotice: FC<{
 					components={{
 						Link: (
 							<a
-								className="link"
-								href="https://www.eximb.com/ua/business/pryvatnym-klientam/pryvatnym-klientam-inshi-poslugy/obmin-valyut/kursy-valyut.html"
-								target="_blank"
-								rel="noreferrer"
+								// className="link"
+								// href="https://www.eximb.com/ua/business/pryvatnym-klientam/pryvatnym-klientam-inshi-poslugy/obmin-valyut/kursy-valyut.html"
+								// target="_blank"
+								// rel="noreferrer"
 							/>
 						),
 					}}

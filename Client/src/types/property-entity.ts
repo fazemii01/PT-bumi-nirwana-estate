@@ -25,6 +25,7 @@ export interface Property {
   jenis: string;
   detail_description: string;
   luas: string;
+  land_size: string;
   location: Location;
   address: Address;
   specifications: {
@@ -53,4 +54,5 @@ export interface Property {
   agent: { name: string } | null;
   created_at: string;
   updated_at: string;
+  type: string;
 }

@@ -37,7 +37,10 @@ export interface ICatalogData extends ICatalogStaticData {
 	images: IImage[];
 	floor_plans: IFloorPlan[];
 	luas : string;
+	land_size : string;
 	status: string;
+	name: string;
+	type: string;
 }
 
 export interface ITransVersion {
