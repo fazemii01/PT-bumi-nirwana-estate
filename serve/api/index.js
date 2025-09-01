@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from '../dist/src/app.module.js';
+import { AppModule } from '../dist/app.module.js';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import express from 'express';
 import cookieParser from 'cookie-parser';
