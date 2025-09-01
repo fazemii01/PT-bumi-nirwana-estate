@@ -1,12 +1,11 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from '../src/app.module';
+import { AppModule } from '../src/app.module.js';
 import { ExpressAdapter } from '@nestjs/platform-express';
-import * as express from 'express';
-import * as cookieParser from 'cookie-parser';
+import express from 'express';
+import cookieParser from 'cookie-parser';
 import { ValidationPipe } from '@nestjs/common';
-import { VercelRequest, VercelResponse } from '@vercel/node';
 
-// const server = express();
+// let server = express();
 
 // export const bootstrap = async () => {
 //   const app = await NestFactory.create(
@@ -16,11 +15,10 @@ import { VercelRequest, VercelResponse } from '@vercel/node';
 
 //   app.use(cookieParser());
 //   app.enableCors({
-//     origin: true, 
+//     origin: true,
 //     credentials: true,
 //   });
 //   app.useGlobalPipes(new ValidationPipe());
-
 
 //   await app.init();
 // };
@@ -40,8 +38,7 @@ async function bootstrap() {
   return cachedApp;
 }
 
-
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req, res) {
   console.log('Incoming request URL:', req.url);
   const server = await bootstrap();
   server(req, res);
