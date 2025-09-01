@@ -1,10 +1,4 @@
 {
-  "functions": {
-    "serve/api/*.js": {
-      "runtime": "nodejs22.x",
-      "includeFiles": "serve/dist/**"
-    }
-  },
   "routes": [
     { "src": "/(.*)", "dest": "serve/api/index.js" }
   ]
