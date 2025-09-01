@@ -2,7 +2,7 @@
   "version": 2,
   "functions": {
     "serve/api/index.js": {
-      "runtime": "@vercel/node@5",
+      "runtime": "nodejs22.x",
       "includeFiles": "serve/dist/**"
     }
   },
