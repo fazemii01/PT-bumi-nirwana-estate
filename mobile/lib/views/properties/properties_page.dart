@@ -1,328 +1,526 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-class PropertiesPage extends StatefulWidget {
+class PropertiesPage extends StatelessWidget {
   const PropertiesPage({super.key});
 
   @override
-  State<PropertiesPage> createState() => _PropertiesPageState();
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Property Catalog',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFFDBB837),
+          brightness: Brightness.light,
+          primary: const Color(0xFFDBB837),
+        ),
+        useMaterial3: true,
+        fontFamily: 'Inter',
+        scaffoldBackgroundColor: const Color(0xFFFAFAFA),
+      ),
+      home: const PropertyCatalogPage(),
+    );
+  }
 }
 
-class _PropertiesPageState extends State<PropertiesPage> {
+// 1. MODEL DATA
+class Property {
+  final String id;
+  final String title;
+  final String location;
+  final String price;
+  final String priceRange;
+  final String type;
+  final int bedrooms;
+  final int bathrooms;
+  final double area;
+  final String imageUrl;
+  final bool isFavorite;
+  final double rating;
+
+  const Property({
+    required this.id,
+    required this.title,
+    required this.location,
+    required this.price,
+    required this.priceRange,
+    required this.type,
+    required this.bedrooms,
+    required this.bathrooms,
+    required this.area,
+    required this.imageUrl,
+    this.isFavorite = false,
+    required this.rating,
+  });
+}
+
+// 2. HALAMAN UTAMA
+class PropertyCatalogPage extends StatefulWidget {
+  const PropertyCatalogPage({super.key});
+
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header Section
-              _buildHeader(),
+  State<PropertyCatalogPage> createState() => _PropertyCatalogPageState();
+}
 
-              // Featured Properties Section
-              _buildFeaturedProperties(),
+class _PropertyCatalogPageState extends State<PropertyCatalogPage>
+    with TickerProviderStateMixin {
+  // Controllers
+  final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
 
-              const SizedBox(height: 24),
+  // Animation Controllers & Animations
+  late AnimationController _fabAnimationController;
 
-              // Most Popular Section
-              _buildMostPopular(),
-
-              const SizedBox(height: 24),
-            ],
-          ),
-        ),
-      ),
+  void _scrollToTop() {
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
     );
   }
 
-  Widget _buildHeader() {
-    return Padding(
-      padding: const EdgeInsets.all(20.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Current Location
-          Row(
-            children: [
-              Icon(
-                Icons.location_on,
-                color: Colors.orange,
-                size: 20,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'New Rochelle, Westchester, NY',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.grey[800],
-                ),
-              ),
-              Icon(
-                Icons.keyboard_arrow_down,
-                color: Colors.grey[600],
-                size: 20,
-              ),
-            ],
-          ),
+  // State Management
+  String _selectedFilter = 'All';
+  String _searchQuery = '';
+  List<Property> _filteredProperties = [];
 
-          const SizedBox(height: 20),
+  // 3. DATA
+  final List<String> _filterOptions = const [
+    'All',
+    'House',
+    'Apartment',
+    'Villa',
+    'Studio'
+  ];
 
-          // Search Bar
-          Container(
-            height: 50,
-            decoration: BoxDecoration(
-              color: const Color(0xFFF5F5F5),
-              borderRadius: BorderRadius.circular(25),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Search your dream house',
-                hintStyle: TextStyle(
-                  color: Colors.grey[500],
-                  fontSize: 16,
-                ),
-                prefixIcon: Icon(
-                  Icons.search,
-                  color: Colors.grey[500],
-                  size: 24,
-                ),
-                border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 15,
-                ),
-              ),
+  final List<Property> _mockProperties = const [
+    Property(
+      id: '1',
+      title: 'Modern Minimalist House',
+      location: 'Menteng, Central Jakarta',
+      price: '2.5B',
+      priceRange: '/month',
+      type: 'House',
+      bedrooms: 4,
+      bathrooms: 3,
+      area: 180.5,
+      rating: 4.8,
+      imageUrl:
+          'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800&q=80',
+    ),
+    Property(
+      id: '2',
+      title: 'Luxury Sky Apartment',
+      location: 'Kuningan, South Jakarta',
+      price: '1.8B',
+      priceRange: '/month',
+      type: 'Apartment',
+      bedrooms: 2,
+      bathrooms: 2,
+      area: 95.0,
+      rating: 4.6,
+      imageUrl:
+          'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80',
+    ),
+    Property(
+      id: '3',
+      title: 'Tropical Villa Resort',
+      location: 'Bandung, West Java',
+      price: '3.2B',
+      priceRange: '/month',
+      type: 'Villa',
+      bedrooms: 5,
+      bathrooms: 4,
+      area: 250.0,
+      rating: 4.9,
+      imageUrl:
+          'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800&q=80',
+    ),
+    Property(
+      id: '4',
+      title: 'Urban Studio Loft',
+      location: 'Kemang, South Jakarta',
+      price: '850K',
+      priceRange: '/month',
+      type: 'Studio',
+      bedrooms: 1,
+      bathrooms: 1,
+      area: 35.0,
+      rating: 4.4,
+      imageUrl:
+          'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&q=80',
+    ),
+    Property(
+      id: '5',
+      title: 'Designer Penthouse',
+      location: 'Senopati, South Jakarta',
+      price: '4.5B',
+      priceRange: '/month',
+      type: 'Apartment',
+      bedrooms: 3,
+      bathrooms: 3,
+      area: 150.0,
+      rating: 4.7,
+      imageUrl:
+          'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&q=80',
+    ),
+    Property(
+      id: '6',
+      title: 'Garden Family Home',
+      location: 'Bogor, West Java',
+      price: '1.9B',
+      priceRange: '/month',
+      type: 'House',
+      bedrooms: 3,
+      bathrooms: 2,
+      area: 140.0,
+      rating: 4.5,
+      imageUrl:
+          'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&q=80',
+    ),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _filteredProperties = _mockProperties;
+
+    // Inisialisasi Animation Controllers
+    _fabAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+
+    _fabAnimationController.forward();
+
+    // Setup Listeners
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _scrollController.dispose();
+    _fabAnimationController.dispose();
+    super.dispose();
+  }
+
+  // 4. LOGIC & HANDLERS
+  void _onSearchChanged() {
+    if (_searchQuery != _searchController.text) {
+      setState(() {
+        _searchQuery = _searchController.text.toLowerCase();
+        _filterProperties();
+      });
+    }
+  }
+
+  void _filterProperties() {
+    _filteredProperties = _mockProperties.where((p) {
+      final matchesSearch = _searchQuery.isEmpty ||
+          p.title.toLowerCase().contains(_searchQuery) ||
+          p.location.toLowerCase().contains(_searchQuery);
+      final matchesFilter =
+          _selectedFilter == 'All' || p.type == _selectedFilter;
+      return matchesSearch && matchesFilter;
+    }).toList();
+    setState(() {});
+  }
+
+  void _onFilterSelected(String filter) {
+    if (_selectedFilter != filter) {
+      setState(() {
+        _selectedFilter = filter;
+        _filterProperties();
+      });
+      HapticFeedback.lightImpact();
+    }
+  }
+
+  // 5. MAIN BUILD METHOD
+  @override
+  Widget build(BuildContext context) {
+    final topPadding = MediaQuery.of(context).padding.top;
+
+    return Scaffold(
+      body: CustomScrollView(
+        controller: _scrollController,
+        slivers: [
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: _PropertyHeaderDelegate(
+              searchController: _searchController,
+              searchQuery: _searchQuery,
+              onPinnedHeaderTap: _scrollToTop,
+              selectedFilter: _selectedFilter,
+              onFilterSelected: _onFilterSelected,
+              minExtent: topPadding + 116,
+              maxExtent: topPadding + 214,
             ),
           ),
+          const SliverToBoxAdapter(child: SizedBox(height: 16)),
+          _buildSectionHeader(),
+          const SliverToBoxAdapter(child: SizedBox(height: 16)),
+          _buildPropertyGrid(),
+          const SliverToBoxAdapter(child: SizedBox(height: 100)),
         ],
       ),
     );
   }
 
-  Widget _buildFeaturedProperties() {
-    return Column(
-      children: [
-        // Section Header
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Featured Properties',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey[900],
-                ),
-              ),
-              GestureDetector(
-                onTap: () {},
-                child: Text(
-                  'View All',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.teal,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        const SizedBox(height: 16),
-
-        // Featured Properties Section
-        SizedBox(
-          height: 300,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: 3,
-            itemBuilder: (context, index) {
-              return _buildFeaturedPropertyCard(index);
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildFeaturedPropertyCard(int index) {
-    final properties = [
-      {
-        'image':
-            'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        'status': 'FOR SALE',
-        'statusColor': Colors.blue,
-        'price': '\$45,000',
-        'name': 'Okinawa Summer House',
-        'beds': 4,
-        'baths': 3,
-        'sqft': '4,403 sqft',
-      },
-      {
-        'image':
-            'https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        'status': 'FOR SALE',
-        'statusColor': Colors.blue,
-        'price': '\$55,000',
-        'name': 'Miami Beach House',
-        'beds': 5,
-        'baths': 4,
-        'sqft': '3,200 sqft',
-      },
-      {
-        'image':
-            'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-        'status': 'SOLD OUT',
-        'statusColor': Colors.grey,
-        'price': '\$75,000',
-        'name': 'Modern Villa',
-        'beds': 6,
-        'baths': 5,
-        'sqft': '5,100 sqft',
-      },
-    ];
-
-    final property = properties[index];
-
-    return Container(
-      width: 260,
-      margin: const EdgeInsets.only(right: 16),
-      child: Card(
-        elevation: 8,
-        shadowColor: Colors.black.withOpacity(0.1),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
+  Widget _buildSectionHeader() {
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // Property Image with Status Chip
-            Stack(
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ClipRRect(
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20),
-                  ),
-                  child: Container(
-                    height: 160,
-                    width: double.infinity,
-                    color: Colors.grey[300],
-                    child: Center(
-                      child: Icon(
-                        Icons.home,
-                        size: 40,
-                        color: Colors.grey[600],
+                Text(
+                  'Featured Properties',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF1F2937),
                       ),
-                    ),
-                  ),
                 ),
-                Positioned(
-                  top: 12,
-                  left: 12,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: property['statusColor'] as Color,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      property['status'] as String,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                const SizedBox(height: 4),
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  child: Text(
+                    '${_filteredProperties.length} properties found',
+                    key: ValueKey(_filteredProperties.length),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: const Color(0xFF6B7280),
+                        ),
                   ),
                 ),
               ],
             ),
+            TextButton.icon(
+              onPressed: () {},
+              icon: const Icon(Icons.view_module_rounded),
+              label: const Text('View'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
-            // Property Details
-            Flexible(
+  Widget _buildPropertyGrid() {
+    if (_filteredProperties.isEmpty) {
+      return SliverFillRemaining(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.search_off_rounded,
+                  size: 64, color: Color(0xFF9CA3AF)),
+              const SizedBox(height: 16),
+              Text(
+                'No properties found',
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(color: const Color(0xFF6B7280)),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Try adjusting your search or filters',
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(color: const Color(0xFF9CA3AF)),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      sliver: SliverList(
+        delegate: SliverChildBuilderDelegate(
+          (context, index) => Padding(
+            padding: const EdgeInsets.only(bottom: 24.0),
+            child: _buildPropertyCard(_filteredProperties[index]),
+          ),
+          childCount: _filteredProperties.length,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPropertyCard(Property property) {
+    return AspectRatio(
+      aspectRatio: 1.1,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              offset: const Offset(0, 8),
+              blurRadius: 24,
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Image
+            Expanded(
+              flex: 3,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(20)),
+                  image: DecorationImage(
+                    image: NetworkImage(property.imageUrl),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                child: Stack(
+                  children: [
+                    Positioned(
+                      top: 16,
+                      left: 16,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.9),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          property.type,
+                          style: const TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 16,
+                      right: 16,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.9),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.star_rounded,
+                                size: 14, color: Color(0xFFFF8A00)),
+                            const SizedBox(width: 4),
+                            Text(
+                              property.rating.toString(),
+                              style: const TextStyle(
+                                  fontSize: 12, fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            // Content
+            Expanded(
+              flex: 2,
               child: Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      property['price'] as String,
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey[900],
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      property['name'] as String,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.grey[700],
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 8),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            Icon(Icons.bed, size: 16, color: Colors.grey[600]),
-                            const SizedBox(width: 4),
-                            Text(
-                              '${property['beds']}',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[600],
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                property.title,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.w700),
                               ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Icon(Icons.bathroom,
-                                size: 16, color: Colors.grey[600]),
-                            const SizedBox(width: 4),
-                            Text(
-                              '${property['baths']}',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[600],
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  const Icon(Icons.location_on_rounded,
+                                      size: 14, color: Color(0xFF6B7280)),
+                                  const SizedBox(width: 4),
+                                  Expanded(
+                                    child: Text(
+                                      property.location,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                          fontSize: 13,
+                                          color: Color(0xFF6B7280)),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
-                        ),
-                        Flexible(
-                          child: Text(
-                            property['sqft'] as String,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey[600],
-                            ),
-                            overflow: TextOverflow.ellipsis,
+                            ],
                           ),
+                        ),
+                        const SizedBox(width: 12),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              'Rp ${property.price}',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              property.priceRange,
+                              style: const TextStyle(
+                                  fontSize: 12, color: Color(0xFF6B7280)),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const Spacer(),
+                    Row(
+                      children: [
+                        _buildDetailItem(
+                            Icons.bed_rounded, '${property.bedrooms}'),
+                        const SizedBox(width: 16),
+                        _buildDetailItem(
+                            Icons.bathtub_rounded, '${property.bathrooms}'),
+                        const SizedBox(width: 16),
+                        _buildDetailItem(Icons.square_foot_rounded,
+                            '${property.area.toInt()}m²'),
+                        const Spacer(),
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .primary
+                                .withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(Icons.arrow_forward_rounded,
+                              size: 16,
+                              color: Theme.of(context).colorScheme.primary),
                         ),
                       ],
                     ),
@@ -336,179 +534,297 @@ class _PropertiesPageState extends State<PropertiesPage> {
     );
   }
 
-  Widget _buildMostPopular() {
-    return Column(
+  Widget _buildDetailItem(IconData icon, String text) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        // Section Header
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Most popular',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey[900],
+        Icon(icon, size: 16, color: const Color(0xFF6B7280)),
+        const SizedBox(width: 4),
+        Text(
+          text,
+          style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF6B7280)),
+        ),
+      ],
+    );
+  }
+}
+
+// LETAKKAN CLASS INI DI PALING BAWAH FILE ANDA
+class _PropertyHeaderDelegate extends SliverPersistentHeaderDelegate {
+  final TextEditingController searchController;
+  final String searchQuery;
+  final VoidCallback onPinnedHeaderTap;
+  final String selectedFilter;
+  final ValueChanged<String> onFilterSelected;
+  @override
+  final double minExtent;
+  @override
+  final double maxExtent;
+
+  _PropertyHeaderDelegate({
+    required this.searchController,
+    required this.searchQuery,
+    required this.onPinnedHeaderTap,
+    required this.selectedFilter,
+    required this.onFilterSelected,
+    required this.minExtent,
+    required this.maxExtent,
+  });
+
+  @override
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    final progress = (shrinkOffset / (maxExtent - minExtent)).clamp(0.0, 1.0);
+    final topPadding = MediaQuery.of(context).padding.top;
+    final filterTop = topPadding + 140 - (80 * progress);
+
+    return Material(
+      elevation: progress > 0.5 ? 4.0 : 0.0,
+      child: Container(
+        color: Colors.white,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            // === Bagian yang Scroll dan Hilang (Header & Search Bar Besar) ===
+            Positioned(
+              top: topPadding + 8,
+              left: 24,
+              right: 24,
+              child: Opacity(
+                opacity: 1.0 - (progress * 2).clamp(0.0, 1.0),
+                child: Column(
+                  children: [
+                    _buildHeader(context),
+                    const SizedBox(height: 16),
+                    _buildSearchSection(context),
+                  ],
                 ),
               ),
-              GestureDetector(
-                onTap: () {},
-                child: Text(
-                  'View All',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.teal,
-                  ),
-                ),
+            ),
+
+            // === Pinned Search Bar Kecil yang Muncul ===
+            Positioned(
+              top: topPadding,
+              left: 0,
+              right: 0,
+              child: Opacity(
+                opacity: (progress - 0.5).clamp(0.0, 1.0) * 2,
+                child: _buildPinnedSearch(context),
               ),
-            ],
+            ),
+
+            // === Filter Chips yang Bergerak ke Atas ===
+            Positioned(
+              top: filterTop,
+              left: 0,
+              right: 0,
+              child: _buildFilterChips(context),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  bool shouldRebuild(covariant _PropertyHeaderDelegate oldDelegate) {
+    return minExtent != oldDelegate.minExtent ||
+        maxExtent != oldDelegate.maxExtent ||
+        selectedFilter != oldDelegate.selectedFilter ||
+        searchQuery != oldDelegate.searchQuery ||
+        onPinnedHeaderTap != oldDelegate.onPinnedHeaderTap ||
+        searchController != oldDelegate.searchController ||
+        onFilterSelected != oldDelegate.onFilterSelected;
+  }
+
+  // Helper untuk membangun UI di dalam delegate
+  Widget _buildHeader(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.asset(
+            'assets/logo.png',
+            width: 36,
+            height: 36,
+            fit: BoxFit.cover,
+            errorBuilder: (ctx, err, st) => Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Theme.of(context).colorScheme.primary,
+                    const Color(0xFFC49B1A)
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Center(
+                  child: Text("BN",
+                      style: TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold))),
+            ),
           ),
         ),
-
-        const SizedBox(height: 16),
-
-        // Popular Properties List - Vertical
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+        const SizedBox(width: 16),
+        const Expanded(
           child: Column(
-            children: List.generate(3, (index) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: _buildPopularPropertyCard(index),
-              );
-            }),
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('PT BUMI NIRWANA ESTATE',
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+              Text('Estate Management',
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 12, color: Color(0xFF6B7280))),
+            ],
           ),
         ),
       ],
     );
   }
 
-  Widget _buildPopularPropertyCard(int index) {
-    final popularProperties = [
-      {
-        'image':
-            'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-        'name': 'Eastern House',
-        'location': 'Newport, United States',
-        'rating': 4.8,
-      },
-      {
-        'image':
-            'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-        'name': 'Western Villa',
-        'location': 'California, United States',
-        'rating': 4.9,
-      },
-      {
-        'image':
-            'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-        'name': 'Northern Resort',
-        'location': 'Seattle, United States',
-        'rating': 4.7,
-      },
-    ];
-
-    final property = popularProperties[index];
-
+  Widget _buildSearchSection(BuildContext context) {
     return Container(
-      width: 200,
-      margin: const EdgeInsets.only(right: 16),
-      child: Card(
-        elevation: 4,
-        shadowColor: Colors.black.withOpacity(0.08),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            children: [
-              // Property Thumbnail
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Container(
-                  width: 60,
-                  height: 60,
-                  color: Colors.grey[300],
-                  child: Icon(
-                    Icons.apartment,
-                    color: Colors.grey[600],
-                    size: 24,
-                  ),
-                ),
+      height: 56,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              offset: const Offset(0, 4),
+              blurRadius: 16),
+        ],
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        children: [
+          Icon(Icons.search_rounded,
+              color: Theme.of(context).colorScheme.primary),
+          const SizedBox(width: 12),
+          Expanded(
+            child: TextField(
+              controller: searchController,
+              decoration: const InputDecoration(
+                hintText: 'Search properties, locations...',
+                hintStyle: TextStyle(
+                    color: Color(0xFF9CA3AF), fontWeight: FontWeight.w400),
+                border: InputBorder.none,
+                isCollapsed: true,
               ),
-
-              const SizedBox(width: 12),
-
-              // Property Info
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      property['name'] as String,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey[900],
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.location_on,
-                          size: 14,
-                          color: Colors.grey[500],
-                        ),
-                        const SizedBox(width: 2),
-                        Expanded(
-                          child: Text(
-                            property['location'] as String,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[600],
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        ...List.generate(5, (starIndex) {
-                          return Icon(
-                            Icons.star,
-                            size: 12,
-                            color: starIndex <
-                                    (property['rating'] as double).floor()
-                                ? Colors.amber
-                                : Colors.grey[300],
-                          );
-                        }),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${property['rating']}',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.grey[700],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
+            ),
           ),
+          const SizedBox(width: 12),
+          TextButton(
+            onPressed: () => FocusScope.of(context).unfocus(),
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              foregroundColor: Colors.white,
+              shape: const StadiumBorder(),
+            ),
+            child: const Text('Cari',
+                style: TextStyle(fontWeight: FontWeight.w600)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPinnedSearch(BuildContext context) {
+    return GestureDetector(
+      onTap: onPinnedHeaderTap,
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(24, 12, 24, 12),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          border:
+              Border(bottom: BorderSide(color: Color(0xFFE5E7EB), width: 0.5)),
         ),
+        child: Row(
+          children: [
+            Icon(Icons.search_rounded,
+                color: Theme.of(context).colorScheme.primary, size: 20),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                searchQuery.isEmpty
+                    ? 'Tap to search properties...'
+                    : searchQuery,
+                style: TextStyle(
+                  color: searchQuery.isEmpty
+                      ? const Color(0xFF9CA3AF)
+                      : const Color(0xFF1F2937),
+                  fontSize: 15,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Icon(Icons.keyboard_arrow_up_rounded,
+                  size: 16, color: Theme.of(context).colorScheme.primary),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFilterChips(BuildContext context) {
+    final List<String> filterOptions = const [
+      'All',
+      'House',
+      'Apartment',
+      'Villa',
+      'Studio'
+    ];
+    return SizedBox(
+      height: 44,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        itemCount: filterOptions.length,
+        itemBuilder: (context, index) {
+          final filter = filterOptions[index];
+          final isSelected = selectedFilter == filter;
+          return Padding(
+            padding: EdgeInsets.only(
+                right: index < filterOptions.length - 1 ? 12 : 0),
+            child: FilterChip(
+              label: Text(filter),
+              selected: isSelected,
+              onSelected: (_) => onFilterSelected(filter),
+              backgroundColor: Colors.white,
+              selectedColor: Theme.of(context).colorScheme.primary,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(22),
+                side: BorderSide(
+                  color: isSelected
+                      ? Theme.of(context).colorScheme.primary
+                      : const Color(0xFFE5E7EB),
+                ),
+              ),
+              labelStyle: TextStyle(
+                color: isSelected ? Colors.white : const Color(0xFF6B7280),
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            ),
+          );
+        },
       ),
     );
   }
