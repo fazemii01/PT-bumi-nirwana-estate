@@ -52,10 +52,10 @@ export class LoanSimulation {
   @Column({ type: 'decimal', precision: 5, scale: 2, nullable: false })
   interest_rate: number;
 
-  @Column({ type: 'decimal', precision: 5, scale: 2, nullable: false })
+  @Column({ type: 'decimal', precision: 15, scale: 2, nullable: false })
   total_payment: number;
 
-  @Column({ type: 'decimal', precision: 5, scale: 2, nullable: false })
+  @Column({ type: 'decimal', precision: 15, scale: 2, nullable: false })
   total_interest: number;
 
   @Column('jsonb', { nullable: true })

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:get/get.dart';
+import 'package:mobile_nirwana/core/utils/api.dart';
 import 'package:mobile_nirwana/data/models/loan-simulation.dart';
 import 'package:mobile_nirwana/helper/price.dart';
+import 'package:mobile_nirwana/views/kpr/form/simulation_form_controller.dart';
 
 class HasilSimulation extends StatefulWidget {
   List<Breakdown> breakdown;
@@ -18,6 +21,8 @@ class HasilSimulation extends StatefulWidget {
 }
 
 class _HasilSimulationState extends State<HasilSimulation> {
+  final SimulationFormController _simulationFormController =
+      Get.put(SimulationFormController());
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -154,6 +159,8 @@ class _HasilSimulationState extends State<HasilSimulation> {
             ],
           ),
 
+          // const SizedBox(height: 20),
+          // _buildLoanBank(),
           const SizedBox(height: 20),
           _buildLoanBreakdown(),
         ],
@@ -161,22 +168,102 @@ class _HasilSimulationState extends State<HasilSimulation> {
     );
   }
 
+  // Widget _buildLoanBank() {
+  //   return Container(
+  //     margin: const EdgeInsets.only(bottom: 8),
+  //     padding: const EdgeInsets.all(3),
+  //     decoration: BoxDecoration(
+  //       color: Colors.white,
+  //       borderRadius: BorderRadius.circular(12),
+  //     ),
+  //     child: Row(
+  //       mainAxisAlignment: MainAxisAlignment.center,
+  //       children: [
+  //         Container(
+  //           width: 40,
+  //           height: 40,
+  //           decoration: BoxDecoration(
+  //             shape: BoxShape.circle,
+  //           ),
+  //           child: ClipOval(
+  //             child: Image.network(
+  //               Imgurl.get('banks/${widget.loanSimulation.bank?.logo}'),
+  //               width: 20,
+  //               height: 20,
+  //               fit: BoxFit.cover,
+  //               errorBuilder: (context, error, stackTrace) {
+  //                 return Container(
+  //                   color: Colors.grey.shade200,
+  //                   child: Icon(
+  //                     Icons.account_balance,
+  //                     size: 10,
+  //                     color: Colors.grey.shade500,
+  //                   ),
+  //                 );
+  //               },
+  //               loadingBuilder: (context, child, loadingProgress) {
+  //                 if (loadingProgress == null) return child;
+  //                 return Container(
+  //                   color: Colors.grey.shade100,
+  //                   child: Center(
+  //                     child: SizedBox(
+  //                       width: 10,
+  //                       height: 10,
+  //                       child: CircularProgressIndicator(
+  //                         strokeWidth: 2,
+  //                         valueColor: AlwaysStoppedAnimation<Color>(
+  //                           Colors.grey.shade400,
+  //                         ),
+  //                       ),
+  //                     ),
+  //                   ),
+  //                 );
+  //               },
+  //             ),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
+
   Widget _buildLoanBreakdown() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Rincian Pinjaman',
-          style: TextStyle(
-            color: Color(0xFF2D3748),
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
+        Container(
+          margin: const EdgeInsets.only(bottom: 8),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Color(0xFFF7FAFC),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Rincian Pinjaman',
+                style: TextStyle(
+                  color: Color(0xFF2D3748),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Text(
+                'Bank ${widget.loanSimulation.bank?.name}',
+                style: TextStyle(
+                  color: Color(0xFF2D3748),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
           ),
         ),
         const SizedBox(height: 12),
         _buildBreakdownItem(
             'Harga Properti', widget.loanSimulation.property?.price ?? 0.0),
-        _buildBreakdownItem('Uang Muka', widget.loanSimulation.downPayment),
+        _buildBreakdownItem('Uang Muka', widget.loanSimulation.downPayment!),
         const Divider(height: 24),
         _buildBreakdownItem(
             'Jumlah Pinjaman', widget.loanSimulation.loanAmount!,
@@ -185,7 +272,7 @@ class _HasilSimulationState extends State<HasilSimulation> {
             double.parse(widget.loanSimulation.interestRate.toString()),
             isPercentage: true),
         _buildBreakdownItem(
-            'Jangka Waktu', widget.loanSimulation.tenure.toDouble(),
+            'Jangka Waktu', widget.loanSimulation.tenure!.toDouble(),
             isTenure: true),
       ],
     );
@@ -209,14 +296,7 @@ class _HasilSimulationState extends State<HasilSimulation> {
       padding: isHighlighted ? const EdgeInsets.all(12) : EdgeInsets.zero,
       decoration: isHighlighted
           ? BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [
-                  Colors.white,
-                  Color(0xFFF7F7F7),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              color: Color(0xFFF7FAFC),
               borderRadius: BorderRadius.circular(8),
             )
           : null,
@@ -279,6 +359,7 @@ class _HasilSimulationState extends State<HasilSimulation> {
   }
 
   Widget _buildAmortizationCard() {
+    final totalBulan = widget.loanSimulation.tenure! * 12;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -313,7 +394,7 @@ class _HasilSimulationState extends State<HasilSimulation> {
               color: const Color(0xFFFFF3CD),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Row(
+            child: Row(
               children: [
                 Icon(
                   Icons.info_outline,
@@ -323,7 +404,7 @@ class _HasilSimulationState extends State<HasilSimulation> {
                 SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Tabel di atas menampilkan 12 bulan pertama. Cicilan akan terus berlanjut hingga 180 bulan.',
+                    'Tabel di atas menampilkan 12 bulan pertama. Cicilan akan terus berlanjut hingga $totalBulan bulan.',
                     style: TextStyle(
                       color: Color(0xFF856404),
                       fontSize: 12,
@@ -334,6 +415,39 @@ class _HasilSimulationState extends State<HasilSimulation> {
               ],
             ),
           ),
+          SizedBox(
+            height: 10,
+          ),
+          SizedBox(
+              width: double.infinity,
+              child: Obx(
+                () => ElevatedButton(
+                    onPressed: _simulationFormController.isLoading.value
+                        ? null
+                        : _simulationFormController.handleSubmit,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFFE4B61A),
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: _simulationFormController.isLoading.value
+                        ? SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white)),
+                          )
+                        : const Text(
+                            'Simpan Simulasi',
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.w500),
+                          )),
+              ))
         ],
       ),
     );
@@ -349,7 +463,7 @@ class _HasilSimulationState extends State<HasilSimulation> {
         child: DataTable(
           headingRowHeight: 48,
           dataRowHeight: 56,
-          horizontalMargin: 0,
+          horizontalMargin: 10,
           columnSpacing: 24,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),

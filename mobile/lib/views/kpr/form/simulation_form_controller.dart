@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:mobile_nirwana/core/routes/app_routes.dart';
@@ -26,6 +27,9 @@ class SimulationFormController extends GetxController {
   var userId = ''.obs;
   Property? selectedProperty;
   Bank? selectedBank;
+
+  final isLoading = false.obs;
+  final errorMessage = ''.obs;
 
   final banks = <Bank>[].obs;
   final properties = <Property>[].obs;
@@ -109,9 +113,6 @@ class SimulationFormController extends GetxController {
         );
       }
       final loanSimulation = LoanSimulation(
-        userId: userId.value.trim(),
-        bankId: bankId.value.trim(),
-        propertyId: propertyId.value.trim(),
         bank: selectedBank,
         property: selectedProperty,
         loanAmount: loanAmount,
@@ -137,7 +138,6 @@ class SimulationFormController extends GetxController {
   }
 
   void handleSubmit() async {
-    Get.offAllNamed(Routes.HASIL_SIMULATION);
     final raw = down_payment.text.trim();
     final cleaned = raw.replaceAll(RegExp(r'[^0-9]'), '');
     final payment = cleaned.isEmpty ? 0.0 : double.parse(cleaned);
@@ -148,8 +148,27 @@ class SimulationFormController extends GetxController {
       tenure: tenure!,
       downPayment: payment,
     );
-    final response =
-        await _loanSimulationService.addLoanSimulation(loanSimulation);
+    try {
+      isLoading.value = true;
+      errorMessage.value = '';
+      final response =
+          await _loanSimulationService.addLoanSimulation(loanSimulation);
+      if (response == null) {
+        isLoading.value = false;
+        Get.snackbar("Success", "Data simulasi berhasil disimpan.",
+            backgroundColor: Colors.green, colorText: Colors.white);
+        Get.offAllNamed(Routes.LAYOUT);
+      } else {
+        isLoading.value = false;
+        Get.snackbar('Error', '$response',
+            backgroundColor: Colors.red, colorText: Colors.white);
+        print("Error save simulation: $response");
+      }
+    } catch (e) {
+      Get.snackbar('Error', '$e',
+          backgroundColor: Colors.red, colorText: Colors.white);
+      print("Error save simulation: $e");
+    }
   }
 }
 

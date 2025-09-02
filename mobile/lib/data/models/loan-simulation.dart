@@ -4,12 +4,12 @@ import 'package:mobile_nirwana/data/models/user.dart';
 
 class LoanSimulation {
   final String? id;
-  final String userId;
-  final String bankId;
-  final String propertyId;
+  final String? userId;
+  final String? bankId;
+  final String? propertyId;
   final double? loanAmount;
-  final double downPayment;
-  final int tenure;
+  final double? downPayment;
+  final int? tenure;
   final double? total_payment;
   final double? total_interest;
   final double? monthlyInstallment;
@@ -24,12 +24,12 @@ class LoanSimulation {
 
   LoanSimulation({
     this.id,
-    required this.userId,
-    required this.bankId,
-    required this.propertyId,
+    this.userId,
+    this.bankId,
+    this.propertyId,
     this.loanAmount,
-    required this.downPayment,
-    required this.tenure,
+    this.downPayment,
+    this.tenure,
     this.total_payment,
     this.total_interest,
     this.monthlyInstallment,

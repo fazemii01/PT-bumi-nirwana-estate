@@ -70,9 +70,9 @@ class _LayoutState extends State<Layout> {
             label: 'Explore',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.favorite_outline),
-            activeIcon: Icon(Icons.favorite),
-            label: 'Favorite',
+            icon: Icon(Icons.calculate_outlined),
+            activeIcon: Icon(Icons.calculate),
+            label: 'my simulation',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
