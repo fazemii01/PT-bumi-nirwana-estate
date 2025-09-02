@@ -22,7 +22,7 @@ const FeedbackForm: FC<{ message?: string; isColumnType?: boolean }> = ({
 	const { basePath, asPath } = useRouter();
 	const WA_NUMBER = '6281959948000';
 	const orderWasByLink = `http:localhost:3001${basePath + asPath}`;
-	const messageText = message ? `[${message}]` : 'Без повідомлення';
+	const messageText = message ? `[${message}]` : '';
 	const initFormData = {
 		name: '',
 		phone_number: '',

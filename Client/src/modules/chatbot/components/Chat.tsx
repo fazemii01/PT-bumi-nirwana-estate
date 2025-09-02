@@ -223,13 +223,13 @@ export function ChatWidget({ isOpen, onToggle }: ChatWidgetProps) {
     key: "chatWidget" 
   }, [
     // Header
-    h('div', { className: styles.chatHeader, key: "header" }, [
+    h('div', { className: styles.chatHeader, key: "header" },  [
       h('div', { className: styles.headerLeft, key: "headerLeft" }, [
         h('div', { className: styles.headerInfo, key: "headerInfo" }, [
           h('div', { className: styles.teamIcon, key: "teamIcon" }, StarIcon()),
           h('div', { key: "teamText" }, [
             h('h3', { className: styles.teamName, key: "teamName" }, 'AskNirwana'),
-            h('p', { className: styles.teamSubtitle, key: "teamSubtitle" }, '')
+            h('p', { className: styles.teamSubtitle, key: "teamSubtitle" }, 'Ai Chatbot Yang akan menemani anda')
           ])
         ])
       ]),
@@ -314,7 +314,7 @@ export function ChatWidget({ isOpen, onToggle }: ChatWidgetProps) {
     h('div', { className: styles.chatMessages, key: "chatMessages" }, [
       h('div', { className: styles.welcomeMessage, key: "welcomeMessage" }, [
         h('p', { key: "welcomeText" }, [
-          'header',
+          'Halo, AskNirwana Adalah Ai Chat Agent yang dikembangkan oleh tim PT Bumi Nirwana Estate, kami menjamin privacy anda Kami tidak mengambil data apapun dari percakapan anda',
           h('a', { href: "#", key: "communityLink" }, '')
         ])
       ]),
@@ -378,7 +378,7 @@ export function ChatWidget({ isOpen, onToggle }: ChatWidgetProps) {
     // Footer
     h('div', { className: styles.chatFooter, key: "chatFooter" }, [
       h('p', { key: "footerText" }, [
-        'footer. ',
+        'AskNirwana bisa membuat kesalahan, jadi periksa kembali.',
         h('a', { href: "#", key: "privacyLink" }, '')
       ])
     ])
