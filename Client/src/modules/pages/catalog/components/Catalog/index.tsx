@@ -4,6 +4,7 @@ import Filter from '@modules/common/components/Filter';
 import Meta from '@modules/common/components/Meta';
 import CatalogHeader from '@modules/pages/catalog/components/CatalogHeader';
 import CatalogList from '@modules/pages/catalog/components/CatalogList';
+import Chatbot from '@modules/chatbot/components/index';
 
 import { APP_META_DATA } from '@utils/meta';
 
@@ -18,6 +19,7 @@ const Catalog = () => {
 			<CatalogHeader />
 			<Filter side="center" />
 			<CatalogList />
+			<Chatbot/>
 		</>
 	);
 };

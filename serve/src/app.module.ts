@@ -19,6 +19,7 @@ import { FeedbackModule } from './feedbackform/feedback.module';
 import { join } from 'path';
 import { BanksModule } from './banks/banks.module';
 import { LoanSimulationsModule } from './loan_simulations/loan_simulations.module';
+import { FileStorageService } from './file-storage/file-storage.service';
 
 @Module({
   imports: [
@@ -70,6 +71,7 @@ import { LoanSimulationsModule } from './loan_simulations/loan_simulations.modul
       provide: APP_PIPE,
       useClass: ValidationPipe,
     },
+    FileStorageService,
   ],
 })
 export class AppModule {}

@@ -21,7 +21,7 @@
   "ALL_RIGHTS_RESERVED": "All rights reserved",
   "IMAGE": "Image",
   "BOTTOM" : {
-    "TITLE" : "WE ARE TOGETHER STRONG",
+    "TITLE" : "WE ARE STRONG TOGETHER",
     "SUB" : "We develope the best Estate Management Solutions for your needs" 
   },
   "PAGE_NOT_FOUND": "<0>Page not found - Error 404.</0> <0>Sorry, but we could not find the page you requested. Maybe it was moved, deleted, or never existed. You can return to the Main page or choose another page of the site.</0>",
@@ -54,7 +54,7 @@
     "KYIV_REGION": "Kyiv region"
   },
   "OBJECT_INFO": {
-    "SELLING": "Selling",
+    "SELLING": "Buy",
     "RENT": "Rent",
     "GROUND_SECTION": "Ground section",
     "NON_RESIDENTIAL_REAL_ESTATE": "Non residential real estate",

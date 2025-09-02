@@ -321,10 +321,13 @@
   .welcomeMessage {
     text-align: center;
     color: #aaa;
-    font-size: 12px;
+    font-size: 1px;
     line-height: 1.6;
     padding: 0 20px;
     margin-bottom: 10px;
+    p {
+      font-size: 12px; 
+    }
 
     a {
       color: #667eea;
@@ -517,18 +520,20 @@
 }
 
 .chatFooter {
-  padding: 16px 20px;
-  font-size: 10px;
-  color: #666;
+  padding: 10px 12px;
+  font-size: 2px;
+  color: #aaa;
   text-align: center;
-  line-height: 1.5;
+  line-height: 1.0;
   background: #1a1a1a;
   border-top: 1px solid #333;
-
+  p {
+    font-size: 13px;
+  }
   a {
     color: #667eea;
     text-decoration: none;
-    
+    font-size: 1px;
     &:hover {
       text-decoration: underline;
     }

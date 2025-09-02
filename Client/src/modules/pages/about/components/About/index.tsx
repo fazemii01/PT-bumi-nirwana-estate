@@ -8,6 +8,7 @@ import AboutHero from './AboutHero';
 import AboutWelcome from './AboutWelcome';
 import AboutMissionVision from './AboutMissionVision';
 import Map from '@modules/pages/home/components/MapTiller/Map';
+import Chatbot from '@modules/chatbot/components/index';
 
 import AboutTestimonials from './AboutTestimonials';
 
@@ -23,6 +24,7 @@ const About: FC = () => {
 			<AboutTestimonials />
 			<Map />
 			<Feedback type='cooperation'/>
+			<Chatbot/>
 			
 		</>
 	);
