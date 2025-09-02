@@ -55,11 +55,11 @@ export class PropertiesController {
     return this.propertiesService.findOne(id);
   }
 
-  // @Public()
-  // @Get(':slug')
-  // async findOneBySlug(@Param('slug') slug: string) {
-  //   return this.propertiesService.findOneBySlug(slug);
-  // }
+  @Public()
+  @Get('type/:type')
+  async findOneBySlug(@Param('type') type: string) {
+    return this.propertiesService.findOneByType(type);
+  }
 
   @Patch(':id')
   @Roles('ADMIN')

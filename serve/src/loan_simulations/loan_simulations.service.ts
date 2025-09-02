@@ -101,6 +101,18 @@ export class LoanSimulationsService {
     return `This action returns a #${id} loanSimulation`;
   }
 
+  async findByUserEmail(email: string): Promise<LoanSimulation[]> {
+    const user = await this.userRepository.findOneBy({ email: email });
+
+    if (!user) throw new NotFoundException('email not found');
+
+    const simulation = await this.loanSimulationRepository.find({
+      where: { user: { id: user.id } },
+      relations: ['property', 'user', 'bank'],
+    });
+    return simulation;
+  }
+
   update(id: number, updateLoanSimulationDto: UpdateLoanSimulationDto) {
     return `This action updates a #${id} loanSimulation`;
   }
