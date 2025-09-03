@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_nirwana/views/home/home_page.dart';
-import 'package:mobile_nirwana/views/news/news_page.dart';
+import 'package:mobile_nirwana/views/kpr/kpr_page.dart';
 import 'package:mobile_nirwana/views/profile/profile_page.dart';
 import 'package:mobile_nirwana/views/properties/properties_page.dart';
 
@@ -16,7 +16,7 @@ class _LayoutState extends State<Layout> {
   final List<Widget> _pages = [
     HomePage(),
     PropertiesPage(),
-    NewsPage(),
+    KprPage(),
     ProfilePage(),
   ];
 
