@@ -25,9 +25,12 @@ export function transformPropertyToCatalogData(property: any): ICatalogData {
     station: {},
     images: property.images || [],
     luas: property.luas || '',
+    land_size: property.land_size || '',
     jenis: property.jenis_trans || {}, 
     detail_description: property.detail_description || '',
     floor_plans: property.floor_plans || [],
     status: property.current_status || 'available', 
+    name: property.name,
+    type: property.type
   };
 }

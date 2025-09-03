@@ -72,16 +72,21 @@ export class LoanSimulationsService {
       createLoanSimulationDto.tenure,
     );
 
+    const totalMonths = createLoanSimulationDto.tenure * 12;
+    const total_payment = monthly_installment * totalMonths;
+    const total_interest = total_payment - loanAmount;
+
     const loanSimulation = new LoanSimulation();
     loanSimulation.user = user;
     loanSimulation.bank = bank;
     loanSimulation.property = property;
     loanSimulation.loan_amount = loanAmount;
     loanSimulation.down_payment = createLoanSimulationDto.down_payment;
+    loanSimulation.total_payment = total_payment;
+    loanSimulation.total_interest = total_interest;
     loanSimulation.tenure = createLoanSimulationDto.tenure;
     loanSimulation.monthly_installment = monthly_installment;
     loanSimulation.interest_rate = bank.interest_rate;
-    loanSimulation.status = createLoanSimulationDto.status;
     loanSimulation.breakdown = breakdown;
 
     await this.loanSimulationRepository.save(loanSimulation);

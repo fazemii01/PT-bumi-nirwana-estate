@@ -1,4 +1,3 @@
-import { LoanStatus } from '@/loan_simulations/entities/loan_simulation.entity';
 import { Transform } from 'class-transformer';
 import { IsEnum, IsNumber, IsOptional, IsUUID } from 'class-validator';
 
@@ -24,7 +23,4 @@ export class CreateLoanSimulationDto {
   )
   @IsNumber()
   tenure: number;
-
-  @IsEnum(LoanStatus)
-  status: LoanStatus;
 }

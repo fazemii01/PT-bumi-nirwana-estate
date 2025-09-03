@@ -1,7 +1,7 @@
 {
   "UNFORTUNATELY_NOTHING_WAS_FOUND": "Sayangnya, tidak ada yang ditemukan",
-  "REQUIREMENTS_OF_THE_LAW_OF_UKRAINE": "Harga yang ditentukan dalam pengumuman ini dihitung dengan kurs jual dolar AS ({{uah}} hryvnia untuk 1 dolar AS pada {{date}} tahun), untuk hryvnia tunai, yang ditetapkan oleh JSC \"UKREXIMBANK\" dan dipublikasikan di situs web resmi (halaman) JSC \"UKREXIMBANK\" di tautan: <Link>https://www.eximb.com/</Link>. Harga bervariasi tergantung pada kurs jual dolar AS untuk hryvnia tunai, yang ditetapkan oleh JSC \"UKREXIMBANK\" dengan mengacu pada tanggal penjualan.",
-  "ACCORDING_TO_THE_REQUIREMENTS": "Sesuai dengan persyaratan Undang-Undang Ukraina \"Tentang Periklanan\", harga semua objek real estat di situs web ditampilkan dalam hryvnia.",
+  "REQUIREMENTS_OF_THE_LAW_OF_UKRAINE": "Harga yang ditentukan dalam pengumuman ini dihitung dengan kurs jual Rupiah, Yang ditentukan oleh BANK Indonesia.",
+  "ACCORDING_TO_THE_REQUIREMENTS": "Sesuai dengan persyaratan Negara Kesatuan Republik Indonesia \"Tentang Periklanan\", harga semua objek real estat di situs web ditampilkan dalam Rupiah.",
   "TYPE_OF_AGREEMENT": "Jenis perjanjian",
   "TYPE_OF_RESIDENCE": "Tipe Hunian",
   "LUAS": "Total Luas",
@@ -27,6 +27,8 @@
   "TABLE": {
     "TOTALAREA": "Luas total",
     "PURPOSE": "Tujuan",
+    "RUANGAN": "Kamar Tidur",
+    "BEDROOMS": "Kamar Tidur",
     "USABLEAREA": "Area yang dapat digunakan",
     "OFFICES": "Kantor",
     "KITCHEN": "Dapur",

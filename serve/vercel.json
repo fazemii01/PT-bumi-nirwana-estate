@@ -1,12 +1,5 @@
 {
-  "version": 2,
-  "functions": {
-    "serve/api/index.js": {
-      "runtime": "@vercel/node@5",
-      "includeFiles": "serve/dist/**"
-    }
-  },
   "routes": [
-    { "src": "/(.*)", "dest": "serve/api/index.js" }
+    { "src": "/(.*)", "dest": "api/index.js" }
   ]
 }
