@@ -1,6 +1,7 @@
 import 'package:mobile_nirwana/data/models/bank.dart';
 import 'package:mobile_nirwana/data/models/property/property.dart';
 import 'package:mobile_nirwana/data/models/user.dart';
+import 'package:mobile_nirwana/helper/parse-int-double.dart';
 
 class LoanSimulation {
   final String? id;
@@ -48,13 +49,13 @@ class LoanSimulation {
       userId: json['userId'] ?? '',
       bankId: json['bankId'] ?? '',
       propertyId: json['propertyId'] ?? '',
-      loanAmount: (json['loan_amount'] as num).toDouble(),
-      downPayment: (json['down_payment'] as num).toDouble(),
-      tenure: json['tenure'],
-      total_payment: json['total_payment'],
-      total_interest: json['total_interest'],
-      monthlyInstallment: (json['monthly_installment'] as num).toDouble(),
-      interestRate: (json['interest_rate'] as num).toDouble(),
+      loanAmount: parseDouble(json['loan_amount']),
+      downPayment: parseDouble(json['down_payment']),
+      tenure: parseInt(json['tenure']),
+      total_payment: parseDouble(json['total_payment']),
+      total_interest: parseDouble(json['total_interest']),
+      monthlyInstallment: parseDouble(json['monthly_installment']),
+      interestRate: parseDouble(json['interest_rate']),
       breakdown: json['breakdown'] != null
           ? (json['breakdown'] as List)
               .map((e) => Breakdown.fromJson(e))

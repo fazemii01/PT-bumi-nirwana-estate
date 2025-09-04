@@ -108,7 +108,13 @@ export class LoanSimulationsService {
 
     const simulation = await this.loanSimulationRepository.find({
       where: { user: { id: user.id } },
-      relations: ['property', 'user', 'bank'],
+      relations: [
+        'property',
+        'property.images',
+        'property.floor_plans',
+        'user',
+        'bank',
+      ],
     });
     return simulation;
   }
