@@ -11,6 +11,8 @@ import 'package:mobile_nirwana/data/service/loan_simulation_service.dart';
 import 'package:mobile_nirwana/data/service/property_service.dart';
 import 'dart:math';
 
+import 'package:mobile_nirwana/views/layout.dart';
+
 class SimulationFormController extends GetxController {
   final BankService _bankService = BankService();
   final PropertyService _propertyService = PropertyService();
@@ -124,12 +126,12 @@ class SimulationFormController extends GetxController {
         total_interest: double.parse(totalInterest.toStringAsFixed(2)),
         breakdown: breakdown,
       );
-      print("Hasil simulasi: ${loanSimulation.toJson()}");
       Get.toNamed(
         Routes.HASIL_SIMULATION,
         arguments: {
           "breakdown": breakdown.take(12).toList(),
           "loanSimulation": loanSimulation,
+          "hasil": true
         },
       );
     } catch (e) {
@@ -157,7 +159,7 @@ class SimulationFormController extends GetxController {
         isLoading.value = false;
         Get.snackbar("Success", "Data simulasi berhasil disimpan.",
             backgroundColor: Colors.green, colorText: Colors.white);
-        Get.offAllNamed(Routes.LAYOUT);
+        Get.offAll(() => Layout(initialIndex: 2));
       } else {
         isLoading.value = false;
         Get.snackbar('Error', '$response',

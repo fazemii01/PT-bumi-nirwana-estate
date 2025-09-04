@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mobile_nirwana/data/models/loan-simulation.dart';
 import 'package:mobile_nirwana/data/service/auth_service.dart';
@@ -9,6 +10,7 @@ class KprController extends GetxController {
   final simulationByUser = <LoanSimulation>[].obs;
   final isLoading = false.obs;
   final errorMessage = ''.obs;
+  final isDelete = false.obs;
   var userEmail = ''.obs;
 
   @override
@@ -48,6 +50,21 @@ class KprController extends GetxController {
       errorMessage.value = 'Failed to load simulasi: $e';
       isLoading.value = false;
       print("ERROR FETCHING DATA SIMULASI $e");
+    }
+  }
+
+  Future<void> remove(String id, BuildContext context) async {
+    isDelete.value = true;
+    final message = await _loanSimulationService.deleteSimulation(id);
+    if (message == null) {
+      isDelete.value = false;
+      Navigator.of(context).pop();
+      Get.snackbar("Success", "Data berhasil dihapus",
+          backgroundColor: Colors.green, colorText: Colors.white);
+      await loadData();
+    } else {
+      isDelete.value = false;
+      Get.snackbar("Error", "$message");
     }
   }
 }

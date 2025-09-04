@@ -28,7 +28,6 @@ class LoanSimulationService extends Api {
   }
 
   Future<List<LoanSimulation>> getByUserEmail(String email) async {
-    print("EMAIL $email");
     try {
       final response = await http.get(
           Uri.parse('$baseUrl/loan-simulations/user/$email'),
@@ -36,7 +35,7 @@ class LoanSimulationService extends Api {
 
       if (response.statusCode == 200) {
         final List<dynamic> jsonData = jsonDecode(response.body);
-        print("HASIL ${jsonData}");
+
         List<LoanSimulation> dataList =
             jsonData.map((list) => LoanSimulation.fromJson(list)).toList();
         return dataList;
@@ -46,6 +45,23 @@ class LoanSimulationService extends Api {
     } catch (e) {
       print("ERROR fetch $e");
       throw Exception('Gagal terhubung ke server');
+    }
+  }
+
+  Future<String?> deleteSimulation(String id) async {
+    try {
+      final response = await http.delete(
+          Uri.parse('$baseUrl/loan-simulations/$id'),
+          headers: getToken());
+      if (response.statusCode == 200) {
+        return null;
+      } else {
+        print("ERROR ${jsonDecode(response.body)}");
+        return "Gagal menghapus data";
+      }
+    } catch (e) {
+      print("ERROR $e");
+      return "Terjadi kesalahan. try again!.";
     }
   }
 }

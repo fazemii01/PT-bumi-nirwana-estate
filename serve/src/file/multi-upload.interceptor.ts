@@ -11,6 +11,7 @@ export function UseMultipleFileUploadInterceptor(folder: string) {
         [
           { name: 'property_images', maxCount: 10 },
           { name: 'property_floor_plans', maxCount: 10 },
+          { name: 'news_images', maxCount: 10 },
         ],
         {
           storage: diskStorage({
@@ -22,6 +23,8 @@ export function UseMultipleFileUploadInterceptor(folder: string) {
                 subFolder = 'property_images';
               } else if (file.fieldname === 'property_floor_plans') {
                 subFolder = 'property_floor_plans';
+              } else if (file.fieldname == 'news_iamges') {
+                subFolder = 'new_images';
               }
 
               const fullPath = `${basePath}/${subFolder}`;

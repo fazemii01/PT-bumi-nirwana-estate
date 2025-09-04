@@ -49,7 +49,8 @@ export class LoanSimulationsController {
   }
 
   @Delete(':id')
+  @Roles('ADMIN', 'USER')
   remove(@Param('id') id: string) {
-    return this.loanSimulationsService.remove(+id);
+    return this.loanSimulationsService.remove(id);
   }
 }
