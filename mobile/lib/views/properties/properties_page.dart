@@ -1,12 +1,13 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:mobile_nirwana/core/utils/api.dart';
 import 'package:mobile_nirwana/data/models/property/property.dart';
 import 'package:mobile_nirwana/helper/address.dart';
 import 'package:mobile_nirwana/views/properties/properties_controller.dart';
-import 'package:get/get.dart';
+import 'package:mobile_nirwana/widgets/skeleton_property_card.dart';
 
-// 2. HALAMAN UTAMA
 class PropertiesPage extends StatefulWidget {
   const PropertiesPage({super.key});
 
@@ -14,36 +15,76 @@ class PropertiesPage extends StatefulWidget {
   State<PropertiesPage> createState() => _PropertyCatalogPageState();
 }
 
-class _PropertyCatalogPageState extends State<PropertiesPage>
-    with TickerProviderStateMixin {
+class _PropertyCatalogPageState extends State<PropertiesPage> {
   // Controllers
   final PropertiesController _propertiesController =
       Get.put(PropertiesController());
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
-  // Animation Controllers & Animations
-  late AnimationController _fabAnimationController;
+  // State Management
+  String _selectedFilter = 'All';
+  String _searchQuery = '';
+  List<Property> _filteredProperties = [];
+
+  final List<FilterOption> _filterOptions = const [
+    FilterOption(icon: Icons.grid_view_rounded, label: 'All'),
+    FilterOption(icon: Icons.house_rounded, label: 'House'),
+    FilterOption(icon: Icons.apartment_rounded, label: 'Apartment'),
+    FilterOption(icon: Icons.storefront_rounded, label: 'Ruko'),
+    FilterOption(icon: Icons.landscape_rounded, label: 'Kavling'),
+  ];
+
+  late List<GlobalKey> _filterKeys;
+
+  double _indicatorWidth = 0.0;
+  double _indicatorLeft = 0.0;
+
+  Future<void> _handleRefresh() async {
+    await _propertiesController.loadProperty();
+  }
+
+  Worker? _everWorker;
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (_propertiesController.properties.isNotEmpty) {
+      _filterProperties();
+    }
+    _everWorker =
+        ever(_propertiesController.properties, (_) => _filterProperties());
+
+    _searchController.addListener(_onSearchChanged);
+
+    _filterKeys = List.generate(_filterOptions.length, (_) => GlobalKey());
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _updateIndicatorPosition(0);
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_onSearchChanged);
+    _searchController.dispose();
+    _scrollController.dispose();
+    _everWorker?.dispose();
+    super.dispose();
+  }
 
   String _formatPrice(double price) {
     if (price >= 1000000000) {
-      return 'Rp ${(price / 1000000000).toStringAsFixed(1)}B';
-    } else if (price >= 1000000) {
-      return 'Rp ${(price / 1000000).toStringAsFixed(1)}M';
-    } else if (price >= 1000) {
-      return 'Rp ${(price / 1000).toStringAsFixed(0)}K';
+      return 'Rp ${(price / 1000000000).toStringAsFixed(1)}M';
+    }
+    if (price >= 1000000) {
+      return 'Rp ${(price / 1000000).toStringAsFixed(1)}JT';
+    }
+    if (price >= 1000) {
+      return 'Rp ${(price / 1000).toStringAsFixed(0)}RB';
     }
     return 'Rp ${price.toStringAsFixed(0)}';
-  }
-
-  String _buildPropertyImageUrl(Property property) {
-    final String? filename = _getPropertyImage(property);
-
-    if (filename != null && filename.isNotEmpty) {
-      return Imgurl.get('property/property_images/$filename');
-    } else {
-      return 'https://via.placeholder.com/400x300.png?text=No+Image';
-    }
   }
 
   String? _getPropertyImage(Property property) {
@@ -53,6 +94,15 @@ class _PropertyCatalogPageState extends State<PropertiesPage>
     return null;
   }
 
+  String _buildPropertyImageUrl(Property property) {
+    final String? filename = _getPropertyImage(property);
+    if (filename != null && filename.isNotEmpty) {
+      return Imgurl.get('property/property_images/$filename');
+    }
+    return 'https://via.placeholder.com/400x300.png?text=No+Image';
+  }
+
+  // Logic & Handlers
   void _scrollToTop() {
     _scrollController.animateTo(
       0,
@@ -61,49 +111,6 @@ class _PropertyCatalogPageState extends State<PropertiesPage>
     );
   }
 
-  // State Management
-  String _selectedFilter = 'All';
-  String _searchQuery = '';
-  List<Property> _filteredProperties = [];
-
-  // 3. DATA
-  final List<String> _filterOptions = const [
-    'All',
-    'House',
-    'Apartment',
-    'Villa',
-    'Studio'
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-
-    if (_propertiesController.properties.isNotEmpty) {
-      _filterProperties();
-    }
-    ever(_propertiesController.properties, (_) => _filterProperties());
-    // Inisialisasi Animation Controllers
-    _fabAnimationController = AnimationController(
-      duration: const Duration(milliseconds: 300),
-      vsync: this,
-    );
-
-    _fabAnimationController.forward();
-
-    // Setup Listeners
-    _searchController.addListener(_onSearchChanged);
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    _scrollController.dispose();
-    _fabAnimationController.dispose();
-    super.dispose();
-  }
-
-  // 4. LOGIC & HANDLERS
   void _onSearchChanged() {
     if (_searchQuery != _searchController.text) {
       setState(() {
@@ -113,41 +120,70 @@ class _PropertyCatalogPageState extends State<PropertiesPage>
     }
   }
 
-  void _filterProperties() {
-    final sourceList = _propertiesController.properties;
+  void _updateIndicatorPosition(int index) {
+    final key = _filterKeys[index];
+    if (key.currentContext != null) {
+      final RenderBox renderBox =
+          key.currentContext!.findRenderObject() as RenderBox;
+      final RenderBox listRenderBox = context.findRenderObject() as RenderBox;
+      final listGlobalPosition = listRenderBox.localToGlobal(Offset.zero);
+      final globalPosition = renderBox.localToGlobal(Offset.zero);
 
-    _filteredProperties = sourceList.where((p) {
-      final matchesSearch = _searchQuery.isEmpty ||
-          p.name.toLowerCase().contains(_searchQuery) ||
-          (p.address?.city?.toLowerCase().contains(_searchQuery) ?? false) ||
-          (p.address?.district?.toLowerCase().contains(_searchQuery) ??
-              false) ||
-          (p.address?.village?.toLowerCase().contains(_searchQuery) ?? false);
-      final matchesFilter =
-          _selectedFilter == 'All' || p.type == _selectedFilter;
-      return matchesSearch && matchesFilter;
-    }).toList();
-
-    setState(() {});
+      setState(() {
+        _indicatorLeft = globalPosition.dx - listGlobalPosition.dx;
+        _indicatorWidth = renderBox.size.width;
+      });
+    }
   }
 
-  void _onFilterSelected(String filter) {
+  void _onFilterTapped(String filter, int index) {
     if (_selectedFilter != filter) {
       setState(() {
         _selectedFilter = filter;
         _filterProperties();
       });
+      _updateIndicatorPosition(index);
       HapticFeedback.lightImpact();
     }
   }
 
-  // 5. MAIN BUILD METHOD
+  void _filterProperties() {
+    final sourceList = _propertiesController.properties;
+
+    if (sourceList.isEmpty) {
+      setState(() {
+        _filteredProperties = [];
+      });
+      return;
+    }
+
+    _filteredProperties = sourceList.where((p) {
+      final search = _searchQuery;
+      final filter = _selectedFilter.toLowerCase();
+
+      final matchesSearch = search.isEmpty ||
+          p.name.toLowerCase().contains(search) ||
+          (p.address?.city?.toLowerCase().contains(search) ?? false) ||
+          (p.address?.district?.toLowerCase().contains(search) ?? false) ||
+          (p.address?.village?.toLowerCase().contains(search) ?? false);
+
+      final matchesFilter = filter == 'all' ||
+          (p.type != null && p.type!.toLowerCase() == filter);
+
+      return matchesSearch && matchesFilter;
+    }).toList();
+
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  // Build Methods
   @override
   Widget build(BuildContext context) {
     final topPadding = MediaQuery.of(context).padding.top;
 
     return Theme(
-      // 1. Tema baru Anda tetap di sini
       data: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFFDBB837),
@@ -158,15 +194,14 @@ class _PropertyCatalogPageState extends State<PropertiesPage>
         fontFamily: 'Inter',
         scaffoldBackgroundColor: const Color(0xFFFAFAFA),
       ),
-      // 2. Tambahkan 'Builder' di sini
       child: Builder(
         builder: (BuildContext newContext) {
           final correctTheme = Theme.of(newContext);
-          // 'newContext' sekarang adalah konteks yang sudah tahu tentang tema emas
           return Scaffold(
-            // 3. Semua kode Scaffold dan isinya tidak perlu diubah
             body: CustomScrollView(
               controller: _scrollController,
+              physics: const BouncingScrollPhysics(
+                  parent: AlwaysScrollableScrollPhysics()),
               slivers: [
                 SliverPersistentHeader(
                   pinned: true,
@@ -175,10 +210,41 @@ class _PropertyCatalogPageState extends State<PropertiesPage>
                     searchQuery: _searchQuery,
                     onPinnedHeaderTap: _scrollToTop,
                     selectedFilter: _selectedFilter,
-                    onFilterSelected: _onFilterSelected,
+                    onFilterTapped: _onFilterTapped,
+                    filterOptions: _filterOptions,
+                    filterKeys: _filterKeys,
+                    indicatorWidth: _indicatorWidth,
+                    indicatorLeft: _indicatorLeft,
                     minExtent: topPadding + 116,
-                    maxExtent: topPadding + 214,
+                    maxExtent: topPadding + 164,
                   ),
+                ),
+                CupertinoSliverRefreshControl(
+                  onRefresh: _handleRefresh,
+                  builder: (
+                    BuildContext context,
+                    RefreshIndicatorMode refreshState,
+                    double pulledExtent,
+                    double refreshTriggerPullDistance,
+                    double refreshIndicatorExtent,
+                  ) {
+                    if (refreshState == RefreshIndicatorMode.refresh ||
+                        refreshState == RefreshIndicatorMode.armed) {
+                      return Center(
+                        child: SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.5,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
                 ),
                 const SliverToBoxAdapter(child: SizedBox(height: 16)),
                 _buildSectionHeader(),
@@ -223,11 +289,7 @@ class _PropertyCatalogPageState extends State<PropertiesPage>
                 ),
               ],
             ),
-            TextButton.icon(
-              onPressed: () {},
-              icon: const Icon(Icons.view_module_rounded),
-              label: const Text('View'),
-            ),
+            // DIHAPUS: Tombol 'View' yang tidak fungsional.
           ],
         ),
       ),
@@ -236,31 +298,115 @@ class _PropertyCatalogPageState extends State<PropertiesPage>
 
   Widget _buildPropertyGrid(ThemeData theme) {
     return Obx(() {
-      // 1. Tampilkan LOADING INDICATOR
       if (_propertiesController.isLoading.value &&
           _propertiesController.properties.isEmpty) {
-        return const SliverFillRemaining(
-          child: Center(child: CircularProgressIndicator()),
+        return SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          sliver: SliverList.builder(
+            itemCount: 3,
+            itemBuilder: (context, index) => const Padding(
+              padding: EdgeInsets.only(bottom: 24.0),
+              child: SkeletonPropertyCard(),
+            ),
+          ),
         );
       }
 
-      // 2. Tampilkan PESAN ERROR
       if (_propertiesController.errorMessage.value.isNotEmpty) {
         return SliverFillRemaining(
+          hasScrollBody: false,
           child: Center(
             child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Text(
-                _propertiesController.errorMessage.value,
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.red, fontSize: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: Colors.red[50],
+                        borderRadius: BorderRadius.circular(40),
+                        border: Border.all(
+                          color: Colors.red[100]!,
+                          width: 2,
+                        ),
+                      ),
+                      child: Icon(
+                        Icons.wifi_off_rounded,
+                        size: 30,
+                        color: Colors.red[400],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      'Something went wrong',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey[800],
+                        letterSpacing: -0.3,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      constraints: const BoxConstraints(maxWidth: 280),
+                      child: Text(
+                        _propertiesController.errorMessage.value,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[600],
+                          height: 1.4,
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton(
+                      onPressed: () => _propertiesController.loadProperty(),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFDBB837),
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 28,
+                          vertical: 14,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: const [
+                          Icon(
+                            Icons.refresh_rounded,
+                            size: 18,
+                            color: Colors.white,
+                          ),
+                          SizedBox(width: 8),
+                          Text(
+                            'Try Again',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
         );
       }
 
-      // 3. Tampilkan jika DATA KOSONG (setelah filter)
       if (_filteredProperties.isEmpty) {
         return const SliverFillRemaining(
           child: Center(
@@ -285,16 +431,13 @@ class _PropertyCatalogPageState extends State<PropertiesPage>
         );
       }
 
-      // 4. Tampilkan LIST DATA
       return SliverPadding(
         padding: const EdgeInsets.symmetric(horizontal: 24),
-        sliver: SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, index) => Padding(
-              padding: const EdgeInsets.only(bottom: 24.0),
-              child: _buildPropertyCard(_filteredProperties[index], theme),
-            ),
-            childCount: _filteredProperties.length,
+        sliver: SliverList.builder(
+          itemCount: _filteredProperties.length,
+          itemBuilder: (context, index) => Padding(
+            padding: const EdgeInsets.only(bottom: 24.0),
+            child: _buildPropertyCard(_filteredProperties[index], theme),
           ),
         ),
       );
@@ -319,7 +462,6 @@ class _PropertyCatalogPageState extends State<PropertiesPage>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image
             Expanded(
               flex: 3,
               child: Container(
@@ -340,22 +482,22 @@ class _PropertyCatalogPageState extends State<PropertiesPage>
                         padding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.9),
+                          color: Color(0xFFDBB837).withOpacity(0.9),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
-                          property.type, // Data dari API
+                          property.type,
                           style: const TextStyle(
-                              fontSize: 12, fontWeight: FontWeight.w600),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white),
                         ),
                       ),
                     ),
-                    // Rating tidak ada di model baru, jadi kita hilangkan sementara
                   ],
                 ),
               ),
             ),
-            // Content
             Expanded(
               flex: 2,
               child: Padding(
@@ -371,8 +513,7 @@ class _PropertyCatalogPageState extends State<PropertiesPage>
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                property
-                                    .name, // Data dari API (name bukan title)
+                                property.name,
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
@@ -386,7 +527,6 @@ class _PropertyCatalogPageState extends State<PropertiesPage>
                                   const SizedBox(width: 4),
                                   Expanded(
                                     child: Text(
-                                      // Menggabungkan data alamat dari API
                                       AreaHelper.formatSingleLine(
                                           property.address),
                                       maxLines: 1,
@@ -406,8 +546,7 @@ class _PropertyCatalogPageState extends State<PropertiesPage>
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
-                              _formatPrice(
-                                  property.price), // Pakai helper format
+                              _formatPrice(property.price),
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
@@ -416,7 +555,7 @@ class _PropertyCatalogPageState extends State<PropertiesPage>
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              "/${property.price_unit}", // Data dari API
+                              "/${property.price_unit}",
                               style: const TextStyle(
                                   fontSize: 12, color: Color(0xFF6B7280)),
                             ),
@@ -427,7 +566,6 @@ class _PropertyCatalogPageState extends State<PropertiesPage>
                     const Spacer(),
                     Row(
                       children: [
-                        // Mengambil data dari 'specifications'
                         if (property.specifications?.bedrooms != null)
                           _buildDetailItem(Icons.bed_rounded,
                               '${property.specifications!.bedrooms}'),
@@ -479,13 +617,23 @@ class _PropertyCatalogPageState extends State<PropertiesPage>
   }
 }
 
-// LETAKKAN CLASS INI DI PALING BAWAH FILE ANDA
+class FilterOption {
+  final IconData icon;
+  final String label;
+
+  const FilterOption({required this.icon, required this.label});
+}
+
 class _PropertyHeaderDelegate extends SliverPersistentHeaderDelegate {
   final TextEditingController searchController;
   final String searchQuery;
   final VoidCallback onPinnedHeaderTap;
   final String selectedFilter;
-  final ValueChanged<String> onFilterSelected;
+  final Function(String, int) onFilterTapped;
+  final List<FilterOption> filterOptions;
+  final List<GlobalKey> filterKeys;
+  final double indicatorWidth;
+  final double indicatorLeft;
   @override
   final double minExtent;
   @override
@@ -496,7 +644,11 @@ class _PropertyHeaderDelegate extends SliverPersistentHeaderDelegate {
     required this.searchQuery,
     required this.onPinnedHeaderTap,
     required this.selectedFilter,
-    required this.onFilterSelected,
+    required this.filterOptions,
+    required this.filterKeys,
+    required this.indicatorWidth,
+    required this.indicatorLeft,
+    required this.onFilterTapped,
     required this.minExtent,
     required this.maxExtent,
   });
@@ -506,16 +658,15 @@ class _PropertyHeaderDelegate extends SliverPersistentHeaderDelegate {
       BuildContext context, double shrinkOffset, bool overlapsContent) {
     final progress = (shrinkOffset / (maxExtent - minExtent)).clamp(0.0, 1.0);
     final topPadding = MediaQuery.of(context).padding.top;
-    final filterTop = topPadding + 140 - (80 * progress);
+    final filterTop = topPadding + 100 - (45 * progress);
 
     return Material(
-      elevation: progress > 0.5 ? 4.0 : 0.0,
+      elevation: progress > 0.5 ? 1.0 : 0.0,
       child: Container(
         color: Colors.white,
         child: Stack(
           fit: StackFit.expand,
           children: [
-            // === Bagian yang Scroll dan Hilang (Header & Search Bar Besar) ===
             Positioned(
               top: topPadding + 8,
               left: 24,
@@ -524,15 +675,12 @@ class _PropertyHeaderDelegate extends SliverPersistentHeaderDelegate {
                 opacity: 1.0 - (progress * 2).clamp(0.0, 1.0),
                 child: Column(
                   children: [
-                    _buildHeader(context),
                     const SizedBox(height: 16),
                     _buildSearchSection(context),
                   ],
                 ),
               ),
             ),
-
-            // === Pinned Search Bar Kecil yang Muncul ===
             Positioned(
               top: topPadding,
               left: 0,
@@ -542,8 +690,6 @@ class _PropertyHeaderDelegate extends SliverPersistentHeaderDelegate {
                 child: _buildPinnedSearch(context),
               ),
             ),
-
-            // === Filter Chips yang Bergerak ke Atas ===
             Positioned(
               top: filterTop,
               left: 0,
@@ -562,58 +708,8 @@ class _PropertyHeaderDelegate extends SliverPersistentHeaderDelegate {
         maxExtent != oldDelegate.maxExtent ||
         selectedFilter != oldDelegate.selectedFilter ||
         searchQuery != oldDelegate.searchQuery ||
-        onPinnedHeaderTap != oldDelegate.onPinnedHeaderTap ||
-        searchController != oldDelegate.searchController ||
-        onFilterSelected != oldDelegate.onFilterSelected;
-  }
-
-  // Helper untuk membangun UI di dalam delegate
-  Widget _buildHeader(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: Image.asset(
-            'assets/logo.png',
-            width: 36,
-            height: 36,
-            fit: BoxFit.cover,
-            errorBuilder: (ctx, err, st) => Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Theme.of(context).colorScheme.primary,
-                    const Color(0xFFC49B1A)
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Center(
-                  child: Text("BN",
-                      style: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold))),
-            ),
-          ),
-        ),
-        const SizedBox(width: 16),
-        const Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('PT BUMI NIRWANA ESTATE',
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
-              Text('Estate Management',
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 12, color: Color(0xFF6B7280))),
-            ],
-          ),
-        ),
-      ],
-    );
+        indicatorWidth != oldDelegate.indicatorWidth ||
+        indicatorLeft != oldDelegate.indicatorLeft;
   }
 
   Widget _buildSearchSection(BuildContext context) {
@@ -710,59 +806,84 @@ class _PropertyHeaderDelegate extends SliverPersistentHeaderDelegate {
     );
   }
 
-  Widget _buildFilterChips(BuildContext context) {
-    final List<String> filterOptions = const [
-      'All',
-      'House',
-      'Apartment',
-      'Villa',
-      'Studio'
-    ];
-    return SizedBox(
-      height: 44,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        itemCount: filterOptions.length,
-        itemBuilder: (context, index) {
-          final filter = filterOptions[index];
-          final isSelected = selectedFilter == filter;
-          return Padding(
-            padding: EdgeInsets.only(
-                right: index < filterOptions.length - 1 ? 12 : 0),
-            child: FilterChip(
-              label: Text(filter),
-              selected: isSelected,
-              onSelected: (_) => onFilterSelected(filter),
-              backgroundColor: Colors.white,
-              selectedColor: Theme.of(context).colorScheme.primary,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(22),
-                side: BorderSide(
-                  color: isSelected
-                      ? Theme.of(context).colorScheme.primary
-                      : const Color(0xFFE5E7EB),
-                ),
+  Widget _buildFilterItem(
+    BuildContext context, {
+    required FilterOption option,
+    required bool isSelected,
+    required VoidCallback onTap,
+    required GlobalKey key,
+  }) {
+    final color = isSelected
+        ? Theme.of(context).colorScheme.primary
+        : const Color(0xFF6B7280);
+
+    return InkWell(
+      key: key,
+      onTap: onTap,
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(option.icon, color: color, size: 24),
+            const SizedBox(height: 4),
+            Text(
+              option.label,
+              style: TextStyle(
+                color: color,
+                fontSize: 12,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.normal,
               ),
-              labelStyle: TextStyle(
-                color: isSelected ? Colors.white : const Color(0xFF6B7280),
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             ),
-          );
-        },
+          ],
+        ),
       ),
     );
   }
-}
 
-String? _getPropertyImage(Property property) {
-  // Pastikan list tidak kosong dan image_url tidak null
-  if (property.images.isNotEmpty && property.images.first.image_url != null) {
-    // GANTI imageUrl MENJADI image_url
-    return property.images.first.image_url;
+  Widget _buildFilterChips(BuildContext context) {
+    // DIHAPUS: Deklarasi `filterOptions` yang berulang.
+
+    return SizedBox(
+      height: 60,
+      child: Stack(
+        children: [
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            left: indicatorLeft,
+            bottom: 3,
+            child: Container(
+              width: indicatorWidth,
+              height: 3,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            itemCount: filterOptions.length,
+            itemBuilder: (context, index) {
+              final option = filterOptions[index];
+              final isSelected =
+                  selectedFilter.toLowerCase() == option.label.toLowerCase();
+
+              return _buildFilterItem(
+                context,
+                key: filterKeys[index],
+                option: option,
+                isSelected: isSelected,
+                onTap: () => onFilterTapped(option.label, index),
+              );
+            },
+          ),
+        ],
+      ),
+    );
   }
-  // Kembalikan null jika tidak ada gambar
-  return null;
 }
