@@ -16,6 +16,7 @@ import { Roles } from '@/auths/role.decorator';
 import { UseMultipleFileUploadInterceptor } from '@/file/multi-upload.interceptor';
 import { News } from '@/news/entities/news.entity';
 import { Public } from '@/auths/public.decorator';
+import * as fs from 'fs';
 
 @Controller('news')
 export class NewsController {
@@ -29,7 +30,18 @@ export class NewsController {
     @UploadedFiles() files: { news_images: Express.Multer.File[] },
   ): Promise<News> {
     const newImages = files.news_images || [];
-    return await this.newsService.create(createNewsDto, newImages);
+    try {
+      return await this.newsService.create(createNewsDto, newImages);
+    } catch (error) {
+      for (const file of newImages) {
+        try {
+          await fs.promises.unlink(file.path);
+        } catch (error) {
+          console.log(error);
+        }
+      }
+      throw error;
+    }
   }
 
   @Get()
@@ -53,8 +65,20 @@ export class NewsController {
     @UploadedFiles() files: { news_images: Express.Multer.File[] },
   ) {
     const newImages = files.news_images || [];
-    return await this.newsService.update(id, updateNewsDto, newImages);
+    try {
+      return await this.newsService.update(id, updateNewsDto, newImages);
+    } catch (error) {
+      for (const file of newImages) {
+        try {
+          await fs.promises.unlink(file.path);
+        } catch (error) {
+          console.log(error);
+        }
+      }
+      throw error;
+    }
   }
+
   @Roles('ADMIN')
   @Delete(':id')
   async remove(@Param('id') id: string) {

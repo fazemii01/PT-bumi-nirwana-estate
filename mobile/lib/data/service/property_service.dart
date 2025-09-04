@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:mobile_nirwana/core/utils/api.dart';
 import 'package:mobile_nirwana/data/models/property/property.dart';
 import 'package:http/http.dart' as http;
+import 'package:mobile_nirwana/data/models/user_favorite.dart';
 
 class PropertyService extends Api {
   Future<List<Property>> getAllProperty() async {
@@ -21,6 +22,36 @@ class PropertyService extends Api {
       }
     } catch (e) {
       throw Exception('Error fetching properties $e');
+    }
+  }
+
+  Future<String?> createOrRemove(UserFavorite favo) async {
+    final url = Uri.parse('$baseUrl/user-favorites');
+
+    final body = jsonEncode({
+      'userId': favo.userId,
+      'propertyId': favo.propertyId,
+    });
+    print(body);
+
+    try {
+      final res = await http.post(
+        url,
+        headers: {
+          ...getToken(),
+          'Content-Type': 'application/json',
+        },
+        body: body,
+      );
+
+      if (res.statusCode == 201 || res.statusCode == 200) {
+        return null;
+      } else {
+        throw Exception(
+            'Failed to toggle favorite. Status code: ${jsonDecode(res.body)}');
+      }
+    } catch (e) {
+      throw Exception('Error toggling favorite: $e');
     }
   }
 }
