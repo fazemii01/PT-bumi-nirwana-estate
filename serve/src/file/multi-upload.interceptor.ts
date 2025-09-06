@@ -24,7 +24,7 @@ export function UseMultipleFileUploadInterceptor(folder: string) {
               } else if (file.fieldname === 'property_floor_plans') {
                 subFolder = 'property_floor_plans';
               } else if (file.fieldname == 'news_images') {
-                subFolder = 'new_images';
+                subFolder = 'news_images';
               }
 
               const fullPath = `${basePath}/${subFolder}`;
