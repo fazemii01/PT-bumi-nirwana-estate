@@ -38,7 +38,7 @@ export class News {
     nullable: true,
   })
   @JoinColumn({ name: 'propertyId' })
-  property: Property;
+  property: Property | null;
 
   @OneToMany(() => NewsImages, (images) => images.news)
   newsImages: NewsImages[];

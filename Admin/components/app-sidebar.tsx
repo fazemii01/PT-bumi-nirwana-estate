@@ -53,6 +53,16 @@ const data = {
       url: "/bank",
       icon: IconBuilding,
     },
+    {
+      title: "Kategori Berita",
+      url: "/news-category",
+      icon: IconBuilding,
+    },
+    {
+      title: "Berita",
+      url: "/news",
+      icon: IconBuilding,
+    },
   ],
   navClouds: [
     {

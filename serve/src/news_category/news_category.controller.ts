@@ -40,6 +40,8 @@ export class NewsCategoryController {
     @Param('id') id: string,
     @Body() updateNewsCategoryDto: UpdateNewsCategoryDto,
   ) {
+    console.log(updateNewsCategoryDto);
+
     return this.newsCategoryService.update(id, updateNewsCategoryDto);
   }
 

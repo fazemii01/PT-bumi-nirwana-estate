@@ -55,12 +55,20 @@ export class NewsService {
     news.newsCategory = newsCategory;
 
     if (createNewsDto.propertyId) {
-      const property = await this.propertyRepository.findOne({
-        where: { id: createNewsDto.propertyId },
-      });
+      if (
+        createNewsDto.propertyId == null ||
+        createNewsDto.propertyId == 'null' ||
+        createNewsDto.propertyId == ''
+      ) {
+        news.property = null;
+      } else {
+        const property = await this.propertyRepository.findOne({
+          where: { id: createNewsDto.propertyId },
+        });
 
-      if (!property) throw new NotFoundException();
-      news.property = property;
+        if (!property) throw new NotFoundException();
+        news.property = property;
+      }
     }
 
     const saveNews = await this.newsRepository.save(news);
@@ -111,6 +119,13 @@ export class NewsService {
     updateNewsDto: UpdateNewsDto,
     newsImages: Express.Multer.File[],
   ) {
+    console.log(
+      'PROPERTY ID VALUE:',
+      updateNewsDto.propertyId,
+      'TYPE:',
+      typeof updateNewsDto.propertyId,
+    );
+
     const news = await this.newsRepository.findOne({
       where: { id },
       relations: [
@@ -124,14 +139,35 @@ export class NewsService {
 
     if (!news) throw new NotFoundException();
 
-    if (newsImages) {
-      for (const images of news.newsImages) {
-        this.deleteFileFromUploads('news_images', images.img_url);
-      }
-      await this.newsImagesRepository.remove(news.newsImages);
+    if (updateNewsDto.categoryId) {
+      const category = await this.newsCategoryRepository.findOneBy({
+        id: updateNewsDto.categoryId,
+      });
+      if (!category)
+        throw new NotFoundException(
+          `News category with id ${updateNewsDto.categoryId} not found`,
+        );
+
+      news.newsCategory = category;
     }
 
-    Object.assign(news, updateNewsDto);
+    if (
+      updateNewsDto.propertyId == null ||
+      updateNewsDto.propertyId == 'null' ||
+      updateNewsDto.propertyId == ''
+    ) {
+      news.property = null;
+    } else if (updateNewsDto.propertyId && updateNewsDto.propertyId != null) {
+      const property = await this.propertyRepository.findOneBy({
+        id: updateNewsDto.propertyId,
+      });
+      if (!property)
+        throw new NotFoundException(
+          `Properti with id ${updateNewsDto.propertyId} not found`,
+        );
+
+      news.property = property;
+    }
 
     if (updateNewsDto.title) {
       const slug = slugify(updateNewsDto.title, { lower: true });
@@ -147,18 +183,26 @@ export class NewsService {
       news.slug = slug;
       news.title = updateNewsDto.title;
     }
+    const saveNews = await this.newsRepository.save(news);
 
     if (newsImages) {
+      if (newsImages.length > 0) {
+        for (const images of news.newsImages) {
+          this.deleteFileFromUploads('news_images', images.img_url);
+        }
+        await this.newsImagesRepository.remove(news.newsImages);
+      }
+
       const images = newsImages.map((img) => {
         return this.newsImagesRepository.create({
           img_url: img.filename,
-          news: news,
+          news: saveNews,
         });
       });
       await this.newsImagesRepository.save(images);
     }
 
-    return news;
+    return saveNews;
   }
 
   async remove(id: string) {
