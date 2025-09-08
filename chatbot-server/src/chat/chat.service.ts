@@ -1,30 +1,33 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
+import { HttpService } from '@nestjs/axios';
 import { Document } from '@langchain/core/documents';
-import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
+import { AIMessage, BaseMessage, HumanMessage } from '@langchain/core/messages';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import {
   ChatPromptTemplate,
   MessagesPlaceholder,
+  PromptTemplate,
 } from '@langchain/core/prompts';
-import { ChatOllama, OllamaEmbeddings } from '@langchain/ollama';
-import { HumanMessage, AIMessage, BaseMessage } from '@langchain/core/messages';
 import {
   Runnable,
-  RunnableSequence,
   RunnableBranch,
   RunnableLambda,
   RunnablePassthrough,
+  RunnableSequence,
 } from '@langchain/core/runnables';
+import { createHistoryAwareRetriever } from 'langchain/chains/history_aware_retriever';
+import { createStuffDocumentsChain } from 'langchain/chains/combine_documents';
+import { ChatOllama, OllamaEmbeddings } from '@langchain/ollama';
+import { MultiQueryRetriever } from 'langchain/retrievers/multi_query';
+import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { WeaviateStore } from '@langchain/weaviate';
 import weaviate, { WeaviateClient } from 'weaviate-client';
-import { createStuffDocumentsChain } from 'langchain/chains/combine_documents';
-import { createHistoryAwareRetriever } from 'langchain/chains/history_aware_retriever';
-import { MultiQueryRetriever } from 'langchain/retrievers/multi_query';
 import { encode } from 'gpt-tokenizer';
-import { HttpService } from '@nestjs/axios';
 
-
-type ScoredDoc = { doc: Document; score: number };
+type ScoredDoc = {
+  doc: Document;
+  score: number;
+};
 
 @Injectable()
 export class ChatService implements OnModuleInit {
@@ -33,13 +36,14 @@ export class ChatService implements OnModuleInit {
   private vectorStore: WeaviateStore;
   private embeddings: OllamaEmbeddings;
   private visionModel: ChatOllama;
-  // private chatHistory: BaseMessage[] = [];
   private chatHistories: Map<string, BaseMessage[]> = new Map();
+
   constructor(private readonly httpService: HttpService) {}
+
   async onModuleInit() {
     this.embeddings = new OllamaEmbeddings({
       baseUrl: 'http://localhost:4600',
-      model: 'nomic-embed-text',
+      model: 'mxbai-embed-large',
     });
 
     this.visionModel = new ChatOllama({
@@ -52,11 +56,11 @@ export class ChatService implements OnModuleInit {
       port: 4900,
       grpcPort: 50051,
     });
+
     console.log(
       'Weaviate client in onModuleInit:',
       this.weaviateClient ? 'initialized' : 'undefined',
     );
-
     const meta = await this.weaviateClient.getMeta();
     console.log('Weaviate meta:', meta);
 
@@ -103,7 +107,6 @@ export class ChatService implements OnModuleInit {
       })) as ScoredDoc[];
     } catch (err) {
       console.error('Reranker call failed:', err);
-
       return documents.map((d) => ({ doc: d, score: 0 }));
     }
   }
@@ -136,7 +139,6 @@ export class ChatService implements OnModuleInit {
 
     for (const doc of safeDocs) {
       const docTokens = encode(doc.pageContent).length;
-
       if (batchTokens + docTokens > maxTokens && batch.length > 0) {
         const scored = await this.rerankDocuments(query, batch);
         scored.forEach((r) => results.push(r));
@@ -168,8 +170,8 @@ export class ChatService implements OnModuleInit {
       1,
       Math.min(doc.pageContent.length, Math.floor(maxTokens * 4)),
     );
-    const truncated = doc.pageContent.slice(0, approxChars);
 
+    const truncated = doc.pageContent.slice(0, approxChars);
     return new Document({
       pageContent: truncated,
       metadata: doc.metadata,
@@ -182,12 +184,19 @@ export class ChatService implements OnModuleInit {
       model: 'qwen2:1.5b',
     });
 
-    const baseRetriever = this.vectorStore.asRetriever({ k: 5 });
+    const baseRetriever = this.vectorStore.asRetriever({
+      k: 15,
+    });
+
+    const queryGenPrompt = PromptTemplate.fromTemplate(
+      `You are an AI language model assistant. Your task is to generate 3 different versions of the given user question to retrieve relevant documents from a vector database. By generating multiple perspectives on the user question, your goal is to help the user overcome some of the limitations of distance-based similarity search. Provide these alternative questions separated by newlines. Focus on real estate terms like "cicilan", "uang muka", "persyaratan", "lokasi", and specific project names. Original question: {question}`,
+    );
 
     const multiQueryRetriever = MultiQueryRetriever.fromLLM({
       llm,
       retriever: baseRetriever,
       verbose: true,
+      prompt: queryGenPrompt,
     });
 
     const historyAwarePrompt = ChatPromptTemplate.fromMessages([
@@ -213,12 +222,10 @@ export class ChatService implements OnModuleInit {
     const synthesisPrompt = ChatPromptTemplate.fromMessages([
       [
         'system',
-        `You are AskNirwana, a helpful property assistant. Your task is to provide a single, clear answer in Indonesian based on the provided contexts.
-- The contexts are ranked by relevance. Give priority to the information in the first context if there are contradictions.
-- Combine the information from the different contexts into one smooth, conversational answer.
-- Do NOT mention that you are looking at multiple contexts. Just provide the final answer.
-- If the contexts do not contain the answer, say "Maaf, saya tidak dapat menemukan informasi yang Anda cari."
-
+        `You are AskNirwana, a property assistant. Answer ONLY from CONTEXTS.
+- If multiple contexts contain partial info, merge them.
+- Prioritize numbers (harga, DP, angsuran) and entity names exactly as written.
+- If not found, reply with: "Maaf, saya tidak dapat menemukan informasi yang Anda cari."
 ---
 CONTEXTS:
 {context}
@@ -232,7 +239,7 @@ CONTEXTS:
       llm,
       prompt: synthesisPrompt,
     });
-
+    /* ojo di apak apak ne iki ngentod*/
     const ragChain = RunnableSequence.from([
       RunnablePassthrough.assign({
         context: retrieverChain,
@@ -243,14 +250,43 @@ CONTEXTS:
           context: Document[];
           chat_history: BaseMessage[];
         }) => {
-          const rerankedDocs = await this.rerankByTokenBudget(
+          // const rerankedDocsWithScores = await this.rerankInChunks(
+          //   input.input,
+          //   input.context,
+          // );
+
+          // const MIN_RELEVANCE_SCORE = 0.2;
+          const MAX_DOCS_TO_USE = 5;
+          const rerankedDocs = await this.rerankInChunks(
             input.input,
             input.context,
-            256,
           );
-          return { ...input, context: rerankedDocs };
+          // console.log(
+          //   'Reranked Scores:',
+          //   rerankedDocsWithScores.map((d) => d.score),
+          // );
+
+          // const filteredDocs = rerankedDocsWithScores.filter(
+          //   (doc) => doc.score >= MIN_RELEVANCE_SCORE,
+          // );
+          // console.log(
+          //   `Kept ${filteredDocs.length} docs after filtering by score >= ${MIN_RELEVANCE_SCORE}`,
+          // );
+
+          const topDocs = rerankedDocs
+            .sort((a, b) => b.score - a.score)
+            .slice(0, MAX_DOCS_TO_USE)
+            .map((r) => r.doc);
+
+          console.log(`Passing ${topDocs.length} documents to the LLM.`);
+          console.log(
+            'TopDocs Content:',
+            topDocs.map((d) => d.pageContent.slice(0, 200)),
+          );
+          console.log("TopDocs:", topDocs.map(d => d.pageContent));
+          return { ...input, context: topDocs };
         },
-      ).withConfig({ runName: 'RerankDocuments' }),
+      ).withConfig({ runName: 'RerankAndFilterDocuments' }),
       combineDocsChain,
       new StringOutputParser(),
     ]).withConfig({ runName: 'FinalRagChain' });
@@ -295,45 +331,24 @@ CONTEXTS:
     return greetings.includes(lower);
   }
 
-  // async ask(message: string): Promise<string> {
-  //   if (!this.vectorStore) {
-  //     return 'I am sorry, but I have no knowledge base to answer your question.';
-  //   }
-  //   if (!this.masterChain) {
-  //     await this.initializeMasterChain();
-  //   }
-  //   console.log('Invoking master chain with question...');
-
-  //   const result = await this.masterChain.invoke({
-  //     chat_history: this.chatHistory,
-  //     input: message,
-  //   });
-
-  //   const answer = (result as any).answer ?? result;
-
-  //   this.chatHistory.push(new HumanMessage(message));
-  //   this.chatHistory.push(new AIMessage(answer as string));
-
-  //   console.log('Final AI Answer:', answer);
-  //   return answer as string;
-  // }
-
-   async ask(message: string, sessionId: string): Promise<string> {
+  async ask(message: string, sessionId: string): Promise<string> {
     if (!this.vectorStore) {
       return 'I am sorry, but I have no knowledge base to answer your question.';
     }
     if (!this.masterChain) {
       await this.initializeMasterChain();
     }
+
     console.log(`Invoking master chain for session ${sessionId}...`);
     const userHistory = this.chatHistories.get(sessionId) || [];
 
     const result = await this.masterChain.invoke({
-      chat_history: userHistory, 
+      chat_history: userHistory,
       input: message,
     });
 
     const answer = (result as any).answer ?? result;
+
     userHistory.push(new HumanMessage(message));
     userHistory.push(new AIMessage(answer as string));
     this.chatHistories.set(sessionId, userHistory);
@@ -341,11 +356,6 @@ CONTEXTS:
     console.log('Final AI Answer:', answer);
     return answer as string;
   }
-
-  // clearHistory(): void {
-  //   this.chatHistory = [];
-  //   console.log('Chat history cleared.');
-  // }
 
   clearHistory(sessionId: string): void {
     if (this.chatHistories.has(sessionId)) {
@@ -355,24 +365,45 @@ CONTEXTS:
       console.log(`No chat history found for session ${sessionId}.`);
     }
   }
+
   clearAllHistories(): void {
     this.chatHistories.clear();
     console.log('All chat histories cleared because a new file was processed.');
   }
+  /* fungsi delete vector data kalo perlu peke ini aja sat jangan di delete manual anj, capek anj mappingnya*/
+
+  // private async deleteIndex(indexName: string): Promise<void> {
+  //   console.log(`Attempting to delete Weaviate index: ${indexName}`);
+  //   try {
+  //     await this.weaviateClient.collections.delete(indexName);
+  //     console.log(`Successfully deleted index: ${indexName}`);
+  //   } catch (err) {
+  //     console.warn(
+  //       `Could not delete index '${indexName}'. It might not exist. Error: ${err.message}`,
+  //     );
+  //   }
+  // }
+
   async processFile(file: Express.Multer.File): Promise<void> {
     console.log(`Processing file: ${file.originalname} (${file.mimetype})`);
+    const indexName = 'Chatbot';
+    // await this.deleteIndex(indexName);
+
     if (!file || !file.buffer) {
       throw new Error(
         'No file buffer found. Make sure multer.memoryStorage() is used.',
       );
     }
+
     let pageContent: string;
+
     if (file.mimetype.startsWith('image/')) {
       console.log(
         'Image file detected, processing with Moondream for structured extraction...',
       );
       const image_b64 = file.buffer.toString('base64');
       const newPrompt = `Analyze the content of this real estate image and extract the information into a structured JSON format. Identify the property name, location, developer, features, pricing, payment details, and any promotions. For pricing tables, list each property type with its corresponding price, down payment, and monthly installment plans for all available tenures (e.g., 10, 15, 20 years). If the image is a site plan or map, describe the layout, identify the property name, and list the available plot numbers or blocks shown. If a piece of information is not present in the image, use null as the value.`;
+
       const message = new HumanMessage({
         content: [
           {
@@ -385,6 +416,7 @@ CONTEXTS:
           },
         ],
       });
+
       const response = await this.visionModel.invoke([message]);
       pageContent = response.content as string;
       console.log('Structured Extraction Result:', pageContent);
@@ -399,8 +431,8 @@ CONTEXTS:
     });
 
     const splitter = new RecursiveCharacterTextSplitter({
-      chunkSize: 512,
-      chunkOverlap: 50,
+      chunkSize: 800,
+      chunkOverlap: 100,
       separators: ['\n\n## ', '\n## ', '\n\n# ', '\n# ', '\n\n', '\n', ' ', ''],
     });
 
@@ -417,19 +449,16 @@ CONTEXTS:
     const batchSize = 32;
     for (let i = 0; i < splits.length; i += batchSize) {
       const batch = splits.slice(i, i + batchSize);
-
       if (!batch.length) {
         console.warn(`Skipping empty batch at index ${i}`);
         continue;
       }
-
       console.log(`Processing batch ${i / batchSize + 1}...`);
-
       await this.vectorStore.addDocuments(batch);
     }
 
     this.initializeMasterChain();
     this.clearAllHistories();
-    console.log(' File processed and Weaviate index updated.');
+    console.log('File processed and Weaviate index updated.');
   }
 }
