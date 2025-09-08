@@ -2,8 +2,8 @@ import 'package:get_storage/get_storage.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 
 class Api {
-  // String baseUrl = "http://192.168.1.16:3000";
-  String baseUrl = "http://10.109.129.26:3000";
+  // String baseUrl = "http://192.168.0.107:3000";
+  String baseUrl = "http://10.216.19.26:3000";
 
   Map<String, String> getToken() {
     final box = GetStorage();
@@ -19,8 +19,8 @@ class Api {
 }
 
 class Imgurl {
-  // static String baseUrl = "http://192.168.1.16:3000/uploads";
-  static String baseUrl = "http://10.109.129.26:3000/uploads";
+  // static String baseUrl = "http://192.168.0.107:3000/uploads";
+  static String baseUrl = "http://10.216.19.26:3000/uploads";
 
   static String get(String filename) {
     return "$baseUrl/$filename";

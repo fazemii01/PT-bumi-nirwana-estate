@@ -6,12 +6,21 @@ import 'package:mobile_nirwana/views/profile/profile_page.dart';
 import 'package:mobile_nirwana/views/properties/properties_page.dart';
 
 class Layout extends StatefulWidget {
+  final int initialIndex;
+  const Layout({Key? key, this.initialIndex = 0}) : super(key: key);
+
   @override
   _LayoutState createState() => _LayoutState();
 }
 
 class _LayoutState extends State<Layout> {
-  int _selectedIndex = 0;
+  late int _selectedIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.initialIndex;
+  }
 
   final List<Widget> _pages = [
     HomePage(),
@@ -42,7 +51,6 @@ class _LayoutState extends State<Layout> {
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 0,
             blurRadius: 10,
             offset: Offset(0, -2),
           ),
@@ -53,12 +61,9 @@ class _LayoutState extends State<Layout> {
         onTap: _onItemTapped,
         type: BottomNavigationBarType.fixed,
         backgroundColor: Colors.white,
-        elevation: 0,
-        selectedItemColor: Color(0xFFDBB837),
+        selectedItemColor: const Color(0xFFDBB837),
         unselectedItemColor: Colors.grey[400],
-        selectedFontSize: 12,
-        unselectedFontSize: 12,
-        items: [
+        items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home_outlined),
             activeIcon: Icon(Icons.home),
@@ -72,7 +77,7 @@ class _LayoutState extends State<Layout> {
           BottomNavigationBarItem(
             icon: Icon(Icons.calculate_outlined),
             activeIcon: Icon(Icons.calculate),
-            label: 'my simulation',
+            label: 'My Simulation',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),

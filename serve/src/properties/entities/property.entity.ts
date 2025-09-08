@@ -1,6 +1,7 @@
 import { Agent } from '@/agents/entities/agent.entity';
 import { Developer } from '@/developers/entities/developer.entity';
 import { LoanSimulation } from '@/loan_simulations/entities/loan_simulation.entity';
+import { News } from '@/news/entities/news.entity';
 import { PropertyFloorPlan } from '@/properties/entities/property-floor-plan.entity';
 import { PropertyImage } from '@/properties/entities/property-image.entity';
 
@@ -54,7 +55,7 @@ export class Property {
     onUpdate: 'CASCADE',
   })
   @JoinColumn({ name: 'agentId' })
-  agent: Agent; 
+  agent: Agent;
 
   @Column({ type: 'varchar', length: 255, nullable: false })
   name: string;
@@ -131,7 +132,13 @@ export class Property {
       onDelete: 'CASCADE',
     },
   )
-  loan_simulations: LoanSimulation[];
+  loan_simulations: [];
+
+  @OneToMany(() => News, (news) => news.property, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
+  news: News[];
 
   @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

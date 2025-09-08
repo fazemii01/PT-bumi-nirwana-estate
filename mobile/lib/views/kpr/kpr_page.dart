@@ -4,9 +4,7 @@ import 'package:mobile_nirwana/core/routes/app_routes.dart';
 import 'package:mobile_nirwana/core/utils/api.dart';
 import 'package:mobile_nirwana/data/models/loan-simulation.dart';
 import 'package:mobile_nirwana/data/models/property/property.dart';
-import 'package:mobile_nirwana/helper/format-date.dart';
 import 'package:mobile_nirwana/helper/price.dart';
-import 'package:mobile_nirwana/views/home/home_controller.dart';
 import 'package:mobile_nirwana/views/kpr/kpr_controller.dart';
 import 'package:mobile_nirwana/views/layout_controller.dart';
 import 'package:mobile_nirwana/widgets/error.dart';
@@ -161,20 +159,19 @@ class _KprPageState extends State<KprPage> {
           arguments: {
             "breakdown": simulation.breakdown!.take(12).toList(),
             "loanSimulation": simulation,
+            "hasil": false
           },
         ),
         borderRadius: BorderRadius.circular(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Content
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: IntrinsicHeight(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Property Image - Fixed square size
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: Container(
@@ -224,7 +221,6 @@ class _KprPageState extends State<KprPage> {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          // KPR Details Row - 3 columns
                           Row(
                             children: [
                               Expanded(
@@ -303,45 +299,6 @@ class _KprPageState extends State<KprPage> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildStatusBadge(String status) {
-    Color backgroundColor;
-    Color textColor;
-
-    switch (status) {
-      case 'Aktif':
-        backgroundColor = Colors.green[100]!;
-        textColor = Colors.green[700]!;
-        break;
-      case 'Draft':
-        backgroundColor = Colors.orange[100]!;
-        textColor = Colors.orange[700]!;
-        break;
-      case 'Selesai':
-        backgroundColor = Colors.blue[100]!;
-        textColor = Colors.blue[700]!;
-        break;
-      default:
-        backgroundColor = Colors.grey[100]!;
-        textColor = Colors.grey[700]!;
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(
-        status,
-        style: TextStyle(
-          fontSize: 10,
-          fontWeight: FontWeight.bold,
-          color: textColor,
-        ),
-      ),
     );
   }
 
@@ -641,25 +598,6 @@ class _KprPageState extends State<KprPage> {
     );
   }
 
-  void _viewSimulationDetail(LoanSimulation simulation) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Melihat detail ${simulation.property?.name}'),
-        duration: const Duration(seconds: 1),
-      ),
-    );
-  }
-
-  void _sortSimulations() {
-    // TODO: Implement sorting
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Fitur sorting...'),
-        duration: Duration(seconds: 1),
-      ),
-    );
-  }
-
   void _handleMenuAction(String action, LoanSimulation simulation) {
     _showDeleteDialog(simulation);
   }
@@ -667,25 +605,126 @@ class _KprPageState extends State<KprPage> {
   void _showDeleteDialog(LoanSimulation simulation) {
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Hapus Simulasi'),
-          content: Text(
-              'Apakah Anda yakin ingin menghapus simulasi ${simulation.property?.name}?'),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          elevation: 8,
+          backgroundColor: Colors.white,
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.delete_outline,
+                  color: Colors.red.shade400,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text(
+                  'Hapus Simulasi',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Text(
+              'Apakah Anda yakin ingin menghapus simulasi "${simulation.property?.name}"?',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey.shade700,
+                height: 1.4,
+              ),
+            ),
+          ),
+          actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Batal'),
+              style: TextButton.styleFrom(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(color: Colors.grey.shade300),
+                ),
+                backgroundColor: Colors.grey.shade50,
+              ),
+              child: Text(
+                'Batal',
+                style: TextStyle(
+                  color: Colors.grey.shade700,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                // TODO: Delete simulation
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Simulasi berhasil dihapus')),
-                );
-              },
-              child: const Text('Hapus', style: TextStyle(color: Colors.red)),
+            const SizedBox(width: 6),
+            Obx(
+              () => ElevatedButton(
+                onPressed: _kprController.isDelete.value
+                    ? null
+                    : () => _kprController.remove(simulation.id!, context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _kprController.isDelete.value
+                      ? Colors.red.shade200
+                      : Colors.red.shade500,
+                  foregroundColor: Colors.white,
+                  elevation: _kprController.isDelete.value ? 0 : 2,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  disabledBackgroundColor: Colors.red.shade200,
+                ),
+                child: _kprController.isDelete.value
+                    ? Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(
+                            height: 18,
+                            width: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.5,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.red.shade700,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Menghapus...',
+                            style: TextStyle(
+                              color: Colors.red.shade700,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      )
+                    : const Text(
+                        'Hapus',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+              ),
             ),
           ],
         );

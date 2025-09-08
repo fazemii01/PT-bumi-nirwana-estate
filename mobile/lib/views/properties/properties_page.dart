@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:mobile_nirwana/core/utils/api.dart';
 import 'package:mobile_nirwana/data/models/property/property.dart';
 import 'package:mobile_nirwana/helper/address.dart';
+import 'package:mobile_nirwana/views/properties/detail/detail_properties.dart';
 import 'package:mobile_nirwana/views/properties/properties_controller.dart';
 import 'package:mobile_nirwana/widgets/skeleton_property_card.dart';
 
@@ -197,61 +198,72 @@ class _PropertyCatalogPageState extends State<PropertiesPage> {
       child: Builder(
         builder: (BuildContext newContext) {
           final correctTheme = Theme.of(newContext);
-          return Scaffold(
-            body: CustomScrollView(
-              controller: _scrollController,
-              physics: const BouncingScrollPhysics(
-                  parent: AlwaysScrollableScrollPhysics()),
-              slivers: [
-                SliverPersistentHeader(
-                  pinned: true,
-                  delegate: _PropertyHeaderDelegate(
-                    searchController: _searchController,
-                    searchQuery: _searchQuery,
-                    onPinnedHeaderTap: _scrollToTop,
-                    selectedFilter: _selectedFilter,
-                    onFilterTapped: _onFilterTapped,
-                    filterOptions: _filterOptions,
-                    filterKeys: _filterKeys,
-                    indicatorWidth: _indicatorWidth,
-                    indicatorLeft: _indicatorLeft,
-                    minExtent: topPadding + 116,
-                    maxExtent: topPadding + 164,
+
+          // AnnotatedRegion diletakkan di sini, membungkus Scaffold
+          return AnnotatedRegion<SystemUiOverlayStyle>(
+            // Terapkan style dengan ikon gelap (hitam) untuk halaman ini
+            value: const SystemUiOverlayStyle(
+              statusBarBrightness:
+                  Brightness.light, // Untuk iOS (background terang)
+              statusBarIconBrightness:
+                  Brightness.dark, // Untuk Android (ikon gelap)
+            ),
+            child: Scaffold(
+              body: CustomScrollView(
+                controller: _scrollController,
+                physics: const BouncingScrollPhysics(
+                    parent: AlwaysScrollableScrollPhysics()),
+                slivers: [
+                  SliverPersistentHeader(
+                    pinned: true,
+                    delegate: _PropertyHeaderDelegate(
+                      searchController: _searchController,
+                      searchQuery: _searchQuery,
+                      onPinnedHeaderTap: _scrollToTop,
+                      selectedFilter: _selectedFilter,
+                      onFilterTapped: _onFilterTapped,
+                      filterOptions: _filterOptions,
+                      filterKeys: _filterKeys,
+                      indicatorWidth: _indicatorWidth,
+                      indicatorLeft: _indicatorLeft,
+                      minExtent: topPadding + 116,
+                      maxExtent: topPadding + 164,
+                    ),
                   ),
-                ),
-                CupertinoSliverRefreshControl(
-                  onRefresh: _handleRefresh,
-                  builder: (
-                    BuildContext context,
-                    RefreshIndicatorMode refreshState,
-                    double pulledExtent,
-                    double refreshTriggerPullDistance,
-                    double refreshIndicatorExtent,
-                  ) {
-                    if (refreshState == RefreshIndicatorMode.refresh ||
-                        refreshState == RefreshIndicatorMode.armed) {
-                      return Center(
-                        child: SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2.5,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              Theme.of(context).colorScheme.primary,
+                  CupertinoSliverRefreshControl(
+                    onRefresh: _handleRefresh,
+                    builder: (
+                      BuildContext context,
+                      RefreshIndicatorMode refreshState,
+                      double pulledExtent,
+                      double refreshTriggerPullDistance,
+                      double refreshIndicatorExtent,
+                    ) {
+                      if (refreshState == RefreshIndicatorMode.refresh ||
+                          refreshState == RefreshIndicatorMode.armed) {
+                        return Center(
+                          child: SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.5,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Theme.of(context).colorScheme.primary,
+                              ),
                             ),
                           ),
-                        ),
-                      );
-                    }
-                    return const SizedBox.shrink();
-                  },
-                ),
-                const SliverToBoxAdapter(child: SizedBox(height: 16)),
-                _buildSectionHeader(),
-                const SliverToBoxAdapter(child: SizedBox(height: 16)),
-                _buildPropertyGrid(correctTheme),
-                const SliverToBoxAdapter(child: SizedBox(height: 100)),
-              ],
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    },
+                  ),
+                  const SliverToBoxAdapter(child: SizedBox(height: 16)),
+                  _buildSectionHeader(),
+                  const SliverToBoxAdapter(child: SizedBox(height: 16)),
+                  _buildPropertyGrid(correctTheme),
+                  const SliverToBoxAdapter(child: SizedBox(height: 100)),
+                ],
+              ),
             ),
           );
         },
@@ -445,155 +457,164 @@ class _PropertyCatalogPageState extends State<PropertiesPage> {
   }
 
   Widget _buildPropertyCard(Property property, ThemeData theme) {
-    return AspectRatio(
-      aspectRatio: 1.1,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              offset: const Offset(0, 8),
-              blurRadius: 24,
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              flex: 3,
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius:
-                      const BorderRadius.vertical(top: Radius.circular(20)),
-                  image: DecorationImage(
-                    image: NetworkImage(_buildPropertyImageUrl(property)),
-                    fit: BoxFit.cover,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const PropertyDetailPage()),
+        );
+      },
+      child: AspectRatio(
+        aspectRatio: 1.1,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.04),
+                offset: const Offset(0, 8),
+                blurRadius: 24,
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                flex: 3,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius:
+                        const BorderRadius.vertical(top: Radius.circular(20)),
+                    image: DecorationImage(
+                      image: NetworkImage(_buildPropertyImageUrl(property)),
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                ),
-                child: Stack(
-                  children: [
-                    Positioned(
-                      top: 16,
-                      left: 16,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Color(0xFFDBB837).withOpacity(0.9),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          property.type,
-                          style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white),
+                  child: Stack(
+                    children: [
+                      Positioned(
+                        top: 16,
+                        left: 16,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Color(0xFFDBB837).withOpacity(0.9),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            property.type,
+                            style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white),
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-            Expanded(
-              flex: 2,
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+              Expanded(
+                flex: 2,
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  property.name,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700),
+                                ),
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    const Icon(Icons.location_on_rounded,
+                                        size: 14, color: Color(0xFF6B7280)),
+                                    const SizedBox(width: 4),
+                                    Expanded(
+                                      child: Text(
+                                        AreaHelper.formatSingleLine(
+                                            property.address),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                            fontSize: 13,
+                                            color: Color(0xFF6B7280)),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Text(
-                                property.name,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.w700),
+                                _formatPrice(property.price),
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  color: theme.colorScheme.primary,
+                                ),
                               ),
-                              const SizedBox(height: 4),
-                              Row(
-                                children: [
-                                  const Icon(Icons.location_on_rounded,
-                                      size: 14, color: Color(0xFF6B7280)),
-                                  const SizedBox(width: 4),
-                                  Expanded(
-                                    child: Text(
-                                      AreaHelper.formatSingleLine(
-                                          property.address),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                          fontSize: 13,
-                                          color: Color(0xFF6B7280)),
-                                    ),
-                                  ),
-                                ],
+                              const SizedBox(height: 2),
+                              Text(
+                                "/${property.price_unit}",
+                                style: const TextStyle(
+                                    fontSize: 12, color: Color(0xFF6B7280)),
                               ),
                             ],
                           ),
-                        ),
-                        const SizedBox(width: 12),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              _formatPrice(property.price),
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                                color: theme.colorScheme.primary,
-                              ),
+                        ],
+                      ),
+                      const Spacer(),
+                      Row(
+                        children: [
+                          if (property.specifications?.bedrooms != null)
+                            _buildDetailItem(Icons.bed_rounded,
+                                '${property.specifications!.bedrooms}'),
+                          const SizedBox(width: 16),
+                          if (property.specifications?.bathrooms != null)
+                            _buildDetailItem(Icons.bathtub_rounded,
+                                '${property.specifications!.bathrooms}'),
+                          const SizedBox(width: 16),
+                          if (property.buildingSize != null)
+                            _buildDetailItem(Icons.square_foot_rounded,
+                                '${property.buildingSize!.toInt()}m²'),
+                          const Spacer(),
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.primary.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                            const SizedBox(height: 2),
-                            Text(
-                              "/${property.price_unit}",
-                              style: const TextStyle(
-                                  fontSize: 12, color: Color(0xFF6B7280)),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const Spacer(),
-                    Row(
-                      children: [
-                        if (property.specifications?.bedrooms != null)
-                          _buildDetailItem(Icons.bed_rounded,
-                              '${property.specifications!.bedrooms}'),
-                        const SizedBox(width: 16),
-                        if (property.specifications?.bathrooms != null)
-                          _buildDetailItem(Icons.bathtub_rounded,
-                              '${property.specifications!.bathrooms}'),
-                        const SizedBox(width: 16),
-                        if (property.buildingSize != null)
-                          _buildDetailItem(Icons.square_foot_rounded,
-                              '${property.buildingSize!.toInt()}m²'),
-                        const Spacer(),
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.primary.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(8),
+                            child: Icon(Icons.arrow_forward_rounded,
+                                size: 16, color: theme.colorScheme.primary),
                           ),
-                          child: Icon(Icons.arrow_forward_rounded,
-                              size: 16, color: theme.colorScheme.primary),
-                        ),
-                      ],
-                    ),
-                  ],
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
