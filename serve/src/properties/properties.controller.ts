@@ -15,6 +15,7 @@ import { UseMultipleFileUploadInterceptor } from '@/file/multi-upload.intercepto
 import { Roles } from '@/auths/role.decorator';
 import { Property } from '@/properties/entities/property.entity';
 import { Public } from '@/auths/public.decorator';
+import * as fs from 'fs';
 
 @Controller('properties')
 export class PropertiesController {
@@ -31,15 +32,32 @@ export class PropertiesController {
       property_floor_plans?: Express.Multer.File[];
     },
   ): Promise<Property> {
-    console.log(`api jalan`);
-
     const property_images = files.property_images || [];
     const property_floor_plans = files.property_floor_plans || [];
-    return await this.propertiesService.create(
-      createPropertyDto,
-      property_images,
-      property_floor_plans,
-    );
+    try {
+      return await this.propertiesService.create(
+        createPropertyDto,
+        property_images,
+        property_floor_plans,
+      );
+    } catch (error) {
+      for (const images_file of property_images) {
+        try {
+          await fs.promises.unlink(images_file.path);
+        } catch (error) {
+          console.log(error);
+        }
+      }
+
+      for (const floor_file of property_floor_plans) {
+        try {
+          await fs.promises.unlink(floor_file.path);
+        } catch (error) {
+          console.log(error);
+        }
+      }
+      throw error;
+    }
   }
 
   @Public()
@@ -50,16 +68,15 @@ export class PropertiesController {
 
   @Public()
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    console.log(`Finding property with id: ${id}`);
+  async findOne(@Param('id') id: string): Promise<Property | null> {
     return this.propertiesService.findOne(id);
   }
 
-  // @Public()
-  // @Get(':slug')
-  // async findOneBySlug(@Param('slug') slug: string) {
-  //   return this.propertiesService.findOneBySlug(slug);
-  // }
+  @Public()
+  @Get('type/:type')
+  async findOneBySlug(@Param('type') type: string): Promise<Property[]> {
+    return this.propertiesService.findOneByType(type);
+  }
 
   @Patch(':id')
   @Roles('ADMIN')
@@ -72,15 +89,34 @@ export class PropertiesController {
       property_images?: Express.Multer.File[];
       property_floor_plans?: Express.Multer.File[];
     },
-  ) {
+  ): Promise<Property | undefined> {
     const property_images = files?.property_images || [];
     const property_floor_plans = files?.property_floor_plans || [];
-    return this.propertiesService.update(
-      id,
-      updatePropertyDto,
-      property_images,
-      property_floor_plans,
-    );
+    try {
+      return this.propertiesService.update(
+        id,
+        updatePropertyDto,
+        property_images,
+        property_floor_plans,
+      );
+    } catch (error) {
+      for (const images_file of property_images) {
+        try {
+          await fs.promises.unlink(images_file.path);
+        } catch (error) {
+          console.log(error);
+        }
+      }
+
+      for (const floor_file of property_floor_plans) {
+        try {
+          await fs.promises.unlink(floor_file.path);
+        } catch (error) {
+          console.log(error);
+        }
+      }
+      throw error;
+    }
   }
 
   @Delete(':id')

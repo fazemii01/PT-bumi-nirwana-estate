@@ -1,5 +1,6 @@
 import { object, string, number, array, nativeEnum, literal, tuple, z } from "zod";
 import { PropertyStatus, PriceUnit, PropertyType } from "../types/properties";
+import { description } from "@/components/chart-area-interactive";
 
 const emptyToUndef = z
   .string()
@@ -35,7 +36,7 @@ export const AddressZod = object({
 export const SpecificationsZod = object({
   bedrooms: number().int().min(0).optional(),
   bathrooms: number().int().min(0).optional(),
-  family_room: number().int().min(0).optional(), // disesuaikan dgn tipe & form
+  family_room: number().int().min(0).optional(),
   kitchen: number().int().min(0).optional(),
   landSize: number().min(0).optional(),
   buildingSize: number().min(0).optional(),
@@ -155,4 +156,46 @@ export const BankZodEdit = z.object({
       invalid_type_error: "Maks tenor harus berupa angka",
     })
     .refine((val) => val >= 1, { message: "Minimum tenor adalah 1 tahun" }),
+});
+
+export const NewsZod = z.object({
+  title: z.coerce
+    .string({
+      required_error: "Judul wajib diisi.",
+    })
+    .min(1, "Judul wajib diisi."),
+
+  description: z.coerce
+    .string({
+      required_error: "Deskripsi wajib diisi.",
+    })
+    .min(1, "Deskripsi wajib diisi."),
+
+  categoryId: z.coerce
+    .string({
+      required_error: "Kategori berita wajib dipilih",
+    })
+    .min(1, "Kategori berita wajib dipilih"),
+
+  newsImages: z.array(z.instanceof(File)).min(1, "Minimal upload 1 gambar"),
+});
+
+export const NewsZodUpdate = z.object({
+  title: z.coerce
+    .string({
+      required_error: "Judul wajib diisi.",
+    })
+    .min(1, "Judul wajib diisi."),
+
+  description: z.coerce
+    .string({
+      required_error: "Deskripsi wajib diisi.",
+    })
+    .min(1, "Deskripsi wajib diisi."),
+
+  categoryId: z.coerce
+    .string({
+      required_error: "Kategori berita wajib dipilih",
+    })
+    .min(1, "Kategori berita wajib dipilih"),
 });

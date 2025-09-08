@@ -1,5 +1,6 @@
 import 'package:mobile_nirwana/data/models/agent.dart';
 import 'package:mobile_nirwana/data/models/developer.dart';
+import 'package:mobile_nirwana/data/models/loan-simulation.dart';
 import 'package:mobile_nirwana/data/models/property/address.dart';
 import 'package:mobile_nirwana/data/models/property/location.dart';
 import 'package:mobile_nirwana/data/models/property/property_floor_plan.dart';
@@ -27,7 +28,7 @@ class Property {
   final Specifications? specifications;
   final List<PropertyImages> images;
   final List<PropertyFloorPlan> floorPlans;
-  // final List<LoanSimulation> loanSimulations;
+  final List<LoanSimulation> loanSimulations;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -50,7 +51,7 @@ class Property {
     this.specifications,
     this.images = const [],
     this.floorPlans = const [],
-    // this.loanSimulations = const [],
+    this.loanSimulations = const [],
     required this.createdAt,
     required this.updatedAt,
   });
@@ -90,6 +91,10 @@ class Property {
               ?.map((e) => PropertyFloorPlan.fromJson(e))
               .toList() ??
           [],
+      loanSimulations: (json['loan_simulations'] as List<dynamic>?)
+              ?.map((e) => LoanSimulation.fromJson(e))
+              .toList() ??
+          [],
       createdAt: DateTime.parse(json['created_at']),
       updatedAt: DateTime.parse(json['updated_at']),
     );
@@ -115,7 +120,7 @@ class Property {
       'specifications': specifications?.toJson(),
       'images': images.map((e) => e.toJson()).toList(),
       'floor_plans': floorPlans.map((e) => e.toJson()).toList(),
-      // 'loan_simulations': loanSimulations.map((e) => e.toJson()).toList(),
+      'loan_simulations': loanSimulations.map((e) => e.toJson()).toList(),
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
     };

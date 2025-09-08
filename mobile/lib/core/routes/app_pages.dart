@@ -35,6 +35,7 @@ class AppPages {
           return HasilSimulation(
             breakdown: args['breakdown'],
             loanSimulation: args['loanSimulation'],
+            hasil: args['hasil'],
           );
         },
         transition: Transition.leftToRight),

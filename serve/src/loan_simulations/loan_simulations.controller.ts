@@ -20,13 +20,19 @@ export class LoanSimulationsController {
 
   @Roles('ADMIN', 'USER')
   @Post()
-  create(@Body() createLoanSimulationDto: CreateLoanSimulationDto) {
-    return this.loanSimulationsService.create(createLoanSimulationDto);
+  async create(@Body() createLoanSimulationDto: CreateLoanSimulationDto) {
+    return await this.loanSimulationsService.create(createLoanSimulationDto);
   }
 
   @Get()
   findAll() {
     return this.loanSimulationsService.findAll();
+  }
+
+  @Roles('ADMIN', 'USER')
+  @Get('user/:email')
+  async findUserEmail(@Param('email') email: string) {
+    return await this.loanSimulationsService.findByUserEmail(email);
   }
 
   @Get(':id')
@@ -43,7 +49,8 @@ export class LoanSimulationsController {
   }
 
   @Delete(':id')
+  @Roles('ADMIN', 'USER')
   remove(@Param('id') id: string) {
-    return this.loanSimulationsService.remove(+id);
+    return this.loanSimulationsService.remove(id);
   }
 }

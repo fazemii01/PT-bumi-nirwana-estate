@@ -101,12 +101,44 @@ export class LoanSimulationsService {
     return `This action returns a #${id} loanSimulation`;
   }
 
+  async findByUserEmail(email: string): Promise<LoanSimulation[]> {
+    const user = await this.userRepository.findOneBy({ email: email });
+
+    if (!user) throw new NotFoundException('email not found');
+
+    const simulation = await this.loanSimulationRepository.find({
+      where: { user: { id: user.id } },
+      relations: [
+        'property',
+        'property.images',
+        'property.floor_plans',
+        'user',
+        'bank',
+      ],
+    });
+    return simulation;
+  }
+
   update(id: number, updateLoanSimulationDto: UpdateLoanSimulationDto) {
     return `This action updates a #${id} loanSimulation`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} loanSimulation`;
+  async remove(id: string) {
+    const loan = await this.loanSimulationRepository.findOne({
+      where: { id: id },
+      relations: [
+        'property',
+        'property.images',
+        'property.floor_plans',
+        'user',
+        'bank',
+      ],
+    });
+
+    if (!loan) throw new NotFoundException();
+
+    await this.loanSimulationRepository.remove(loan);
+    return { message: 'Delete successs' };
   }
 
   private calculateMonthlyInstallment(

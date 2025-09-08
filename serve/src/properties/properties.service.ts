@@ -8,7 +8,7 @@ import {
 import { CreatePropertyDto } from './dto/create-property.dto';
 import { UpdatePropertyDto } from './dto/update-property.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Property } from '@/properties/entities/property.entity';
+import { Property, PropertyType } from '@/properties/entities/property.entity';
 import { Repository } from 'typeorm';
 import slugify from 'slugify';
 import { Developer } from '@/developers/entities/developer.entity';
@@ -17,8 +17,6 @@ import { PropertyImage } from '@/properties/entities/property-image.entity';
 import { PropertyFloorPlan } from '@/properties/entities/property-floor-plan.entity';
 import * as path from 'path';
 import * as fs from 'fs';
-import { UpdatePropertyImagesDto } from '@/properties/dto/update-property-images.dto';
-import { UpdatePropertyFloorPlansDto } from '@/properties/dto/update-property-floor-plans.dto';
 
 @Injectable()
 export class PropertiesService {
@@ -174,14 +172,19 @@ export class PropertiesService {
     });
   }
 
-  async findOneBySlug(slug: string): Promise<Property | null> {
-    const property = await this.propertyRepository.findOne({
-      where: { slug },
+  async findOneByType(type: string): Promise<Property[]> {
+    if (!Object.values(PropertyType).includes(type as PropertyType)) {
+      throw new BadRequestException(`Invalid property type: ${type}`);
+    }
+
+    const properties = await this.propertyRepository.find({
+      where: { type: type as PropertyType },
       relations: ['developer', 'agent', 'images', 'floor_plans'],
     });
-    if (!property)
-      throw new NotFoundException(`Property with slug ${slug} not found`);
-    return property;
+    if (!properties || properties.length === 0) {
+      throw new NotFoundException(`Property with type ${type} not found`);
+    }
+    return properties;
   }
 
   async update(

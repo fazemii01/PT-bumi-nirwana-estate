@@ -8,6 +8,7 @@ import 'package:mobile_nirwana/helper/address.dart';
 import 'package:mobile_nirwana/helper/price.dart';
 import 'package:mobile_nirwana/helper/specifications.dart';
 import 'package:mobile_nirwana/views/home/home_controller.dart';
+import 'package:mobile_nirwana/views/home/widgets/property_favorite_user.dart';
 import 'package:mobile_nirwana/views/layout_controller.dart';
 import 'package:mobile_nirwana/widgets/sceleton_home_property.dart';
 
@@ -710,22 +711,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-              Positioned(
-                top: 12,
-                right: 12,
-                child: Container(
-                  padding: EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.9),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Icon(
-                    Icons.favorite_outline,
-                    size: 16,
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ),
+              FavoriteIcon(propertyId: property.id),
               Positioned(
                 top: 12,
                 left: 12,

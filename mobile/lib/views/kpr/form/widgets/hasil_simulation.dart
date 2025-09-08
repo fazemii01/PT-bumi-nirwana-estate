@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
-import 'package:mobile_nirwana/core/utils/api.dart';
 import 'package:mobile_nirwana/data/models/loan-simulation.dart';
 import 'package:mobile_nirwana/helper/price.dart';
 import 'package:mobile_nirwana/views/kpr/form/simulation_form_controller.dart';
@@ -9,12 +8,14 @@ import 'package:mobile_nirwana/views/kpr/form/simulation_form_controller.dart';
 class HasilSimulation extends StatefulWidget {
   List<Breakdown> breakdown;
   LoanSimulation loanSimulation;
+  bool hasil;
 
-  HasilSimulation({
-    Key? key,
-    required this.breakdown,
-    required this.loanSimulation,
-  }) : super(key: key);
+  HasilSimulation(
+      {Key? key,
+      required this.breakdown,
+      required this.loanSimulation,
+      required this.hasil})
+      : super(key: key);
 
   @override
   State<HasilSimulation> createState() => _HasilSimulationState();
@@ -418,36 +419,38 @@ class _HasilSimulationState extends State<HasilSimulation> {
           SizedBox(
             height: 10,
           ),
-          SizedBox(
-              width: double.infinity,
-              child: Obx(
-                () => ElevatedButton(
-                    onPressed: _simulationFormController.isLoading.value
-                        ? null
-                        : _simulationFormController.handleSubmit,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFFE4B61A),
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: _simulationFormController.isLoading.value
-                        ? SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                    Colors.white)),
-                          )
-                        : const Text(
-                            'Simpan Simulasi',
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.w500),
-                          )),
-              ))
+          widget.hasil
+              ? SizedBox(
+                  width: double.infinity,
+                  child: Obx(
+                    () => ElevatedButton(
+                        onPressed: _simulationFormController.isLoading.value
+                            ? null
+                            : _simulationFormController.handleSubmit,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xFFE4B61A),
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: _simulationFormController.isLoading.value
+                            ? SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white)),
+                              )
+                            : const Text(
+                                'Simpan Simulasi',
+                                style: TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.w500),
+                              )),
+                  ))
+              : const SizedBox.shrink()
         ],
       ),
     );
