@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_nirwana/data/models/property/property_images.dart';
 import 'dart:math' as math;
-// Ganti dengan path yang benar ke file api.dart Anda
 import 'package:mobile_nirwana/core/utils/api.dart';
 
 class PokerCardImageSlider extends StatefulWidget {
@@ -47,7 +46,7 @@ class _PokerCardImageSliderState extends State<PokerCardImageSlider> {
     if (_validImages.isEmpty) {
       return Center(
         child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+          margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
             color: Colors.grey[300],
@@ -69,7 +68,6 @@ class _PokerCardImageSliderState extends State<PokerCardImageSlider> {
 
         final String filename = _validImages[index].image_url!;
 
-        // PERBAIKAN FINAL DI SINI
         final String fullUrl = Imgurl.get('property/property_images/$filename');
 
         return Transform.scale(

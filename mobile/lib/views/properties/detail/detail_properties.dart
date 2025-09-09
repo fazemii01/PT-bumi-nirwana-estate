@@ -547,8 +547,7 @@ class _PropertyDetailPageState extends State<PropertyDetailPage> {
   }
 
   Widget _buildAgentCard(ThemeData theme, Agent agent) {
-    final String fullAvatarUrl =
-        Imgurl.get('agent/avatars/${agent.avatar_url}');
+    final String fullAvatarUrl = Imgurl.get('agent/${agent.avatar_url}');
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -621,8 +620,7 @@ class _PropertyDetailPageState extends State<PropertyDetailPage> {
   }
 
   Widget _buildDeveloperInfo(Developer developer) {
-    final String fullLogoUrl =
-        Imgurl.get('developer/logos/${developer.logo_url}');
+    final String fullLogoUrl = Imgurl.get('developer/${developer.logo_url}');
 
     return InkWell(
       onTap: () async {

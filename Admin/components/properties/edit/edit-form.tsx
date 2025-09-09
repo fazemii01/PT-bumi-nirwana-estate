@@ -12,10 +12,6 @@ import BasicInfoForm from "@/components/properties/create/basic-info-form";
 import LocationForm from "@/components/properties/create/location-form";
 import SpecificationsForm from "@/components/properties/create/specifications-form";
 import EditMediaForm from "@/components/properties/edit/edit-media";
-<<<<<<< HEAD
-=======
-
->>>>>>> 44e79d008eeac5bd0c320f1901bb0ad26335d296
 import { submitUpdateProperty } from "@/actions/property";
 import { useRouter } from "next/navigation";
 import { getAgent } from "@/api/agent";
@@ -125,22 +121,6 @@ const PropertyEditForm = ({
     );
   }, [safeParsed]);
 
-<<<<<<< HEAD
-=======
-  useEffect(() => {
-    (async () => {
-      try {
-        const [agentsData, developersData] = await Promise.all([getAgent(), getDeveloper()]);
-        setAgents(agentsData.data || []);
-        setDevelopers(developersData.data || []);
-      } catch {
-        /* optional toast/log */
-      }
-    })();
-  }, []);
-
-  /* ---------------------------- Handlers basic ---------------------------- */
->>>>>>> 44e79d008eeac5bd0c320f1901bb0ad26335d296
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
     setFormData(
