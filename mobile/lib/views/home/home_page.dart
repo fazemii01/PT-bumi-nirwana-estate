@@ -37,7 +37,7 @@ class _HomePageState extends State<HomePage> {
     {
       'icon': Icons.verified_user_outlined,
       'label': 'Cek Eligibilitas',
-      'routes': Routes.LOGIN,
+      'routes': Routes.ELIGIBILITAS,
     },
     {
       'icon': Icons.account_balance_outlined,

@@ -1,0 +1,14 @@
+Bank Mandiri:
+- Usia minimal 21 tahun dan maksimal 55 tahun saat kredit lunas.
+- Tenor maksimal 20 tahun.
+- Cicilan maksimal 35% dari penghasilan bulanan.
+
+Bank BCA:
+- Usia minimal 21 tahun dan maksimal 60 tahun saat kredit lunas.
+- Tenor maksimal 25 tahun.
+- Cicilan maksimal 40% dari penghasilan bulanan.
+
+Bank BRI:
+- Usia minimal 21 tahun dan maksimal 65 tahun saat kredit lunas.
+- Tenor maksimal 30 tahun.
+- Cicilan maksimal 35% dari penghasilan bulanan.

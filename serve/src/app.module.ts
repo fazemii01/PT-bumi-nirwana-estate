@@ -19,6 +19,7 @@ import { BanksModule } from './banks/banks.module';
 import { LoanSimulationsModule } from './loan_simulations/loan_simulations.module';
 import { NewsCategoryModule } from './news_category/news_category.module';
 import { NewsModule } from './news/news.module';
+import { CekEligibilityModule } from './cek_eligibility/cek_eligibility.module';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { NewsModule } from './news/news.module';
     LoanSimulationsModule,
     NewsCategoryModule,
     NewsModule,
+    CekEligibilityModule,
   ],
 
   controllers: [AppController],
