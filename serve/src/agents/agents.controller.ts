@@ -14,6 +14,7 @@ import { UpdateAgentDto } from './dto/update-agent.dto';
 import { Roles } from '@/auths/role.decorator';
 import { Agent } from '@/agents/entities/agent.entity';
 import { UseFileUploadInterceptor } from '@/file/upload.interceptor';
+import * as fs from 'fs';
 
 @Controller('agents')
 export class AgentsController {
@@ -26,35 +27,53 @@ export class AgentsController {
     @Body() createAgentDto: CreateAgentDto,
     @UploadedFile() avatar_url: Express.Multer.File,
   ): Promise<Agent> {
-    return this.agentsService.create(createAgentDto, avatar_url);
+    try {
+      return await this.agentsService.create(createAgentDto, avatar_url);
+    } catch (error) {
+      try {
+        await fs.promises.unlink(avatar_url.path);
+      } catch (error) {
+        console.log(error);
+      }
+      throw error;
+    }
   }
 
   @Get()
   @Roles('ADMIN')
-  findAll() {
-    return this.agentsService.findAll();
+  async findAll() {
+    return await this.agentsService.findAll();
   }
 
   @Get(':id')
   @Roles('ADMIN')
-  findOne(@Param('id') id: string) {
-    return this.agentsService.findOne(id);
+  async findOne(@Param('id') id: string) {
+    return await this.agentsService.findOne(id);
   }
 
   @Patch(':id')
   @Roles('ADMIN')
   @UseFileUploadInterceptor('avatar_url', 'agent')
-  update(
+  async update(
     @Param('id') id: string,
     @Body() updateAgentDto: UpdateAgentDto,
     @UploadedFile() avatar_url: Express.Multer.File,
   ) {
-    return this.agentsService.update(id, updateAgentDto, avatar_url);
+    try {
+      return await this.agentsService.update(id, updateAgentDto, avatar_url);
+    } catch (error) {
+      try {
+        await fs.promises.unlink(avatar_url.path);
+      } catch (error) {
+        console.log(error);
+      }
+      throw error;
+    }
   }
 
   @Delete(':id')
   @Roles('ADMIN')
-  remove(@Param('id') id: string) {
-    return this.agentsService.remove(id);
+  async remove(@Param('id') id: string) {
+    return await this.agentsService.remove(id);
   }
 }

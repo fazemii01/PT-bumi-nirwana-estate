@@ -13,6 +13,8 @@ import { CreateBankDto } from './dto/create-bank.dto';
 import { UpdateBankDto } from './dto/update-bank.dto';
 import { Roles } from '@/auths/role.decorator';
 import { UseFileUploadInterceptor } from '@/file/upload.interceptor';
+import * as fs from 'fs';
+import { Bank } from '@/banks/entities/bank.entity';
 
 @Controller('banks')
 export class BanksController {
@@ -24,19 +26,28 @@ export class BanksController {
   async create(
     @Body() createBankDto: CreateBankDto,
     @UploadedFile() logo: Express.Multer.File,
-  ) {
-    return await this.banksService.create(createBankDto, logo);
+  ): Promise<Bank> {
+    try {
+      return await this.banksService.create(createBankDto, logo);
+    } catch (error) {
+      try {
+        await fs.promises.unlink(logo.path);
+      } catch (error) {
+        console.log(error);
+      }
+      throw error;
+    }
   }
 
   @Roles('ADMIN', 'USER')
   @Get()
-  async findAll() {
+  async findAll(): Promise<Bank[]> {
     return await this.banksService.findAll();
   }
 
   @Roles('ADMIN', 'USER')
   @Get(':id')
-  async findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string): Promise<Bank | null> {
     return await this.banksService.findOne(id);
   }
 
@@ -47,8 +58,17 @@ export class BanksController {
     @Param('id') id: string,
     @Body() updateBankDto: UpdateBankDto,
     @UploadedFile() logo: Express.Multer.File,
-  ) {
-    return await this.banksService.update(id, updateBankDto, logo);
+  ): Promise<Bank | null> {
+    try {
+      return await this.banksService.update(id, updateBankDto, logo);
+    } catch (error) {
+      try {
+        await fs.promises.unlink(logo.path);
+      } catch (error) {
+        console.log(error);
+      }
+      throw error;
+    }
   }
 
   @Roles('ADMIN')

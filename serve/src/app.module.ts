@@ -5,7 +5,6 @@ import { UsersModule } from './users/users.module';
 import { PropertiesModule } from './properties/properties.module';
 import { AgentsModule } from './agents/agents.module';
 import { AuthsModule } from './auths/auths.module';
-import { ChatbotModule } from './chatbot/chatbot.module';
 import { DevelopersModule } from './developers/developers.module';
 import { UserFavoritesModule } from './user-favorites/user-favorites.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -18,7 +17,6 @@ import { FeedbackModule } from './feedbackform/feedback.module';
 import { join } from 'path';
 import { BanksModule } from './banks/banks.module';
 import { LoanSimulationsModule } from './loan_simulations/loan_simulations.module';
-import { FileStorageService } from './file-storage/file-storage.service';
 import { NewsCategoryModule } from './news_category/news_category.module';
 import { NewsModule } from './news/news.module';
 
@@ -49,7 +47,6 @@ import { NewsModule } from './news/news.module';
     FeedbackModule,
     AgentsModule,
     AuthsModule,
-    ChatbotModule,
     DevelopersModule,
     UserFavoritesModule,
     BanksModule,
@@ -73,7 +70,6 @@ import { NewsModule } from './news/news.module';
       provide: APP_PIPE,
       useClass: ValidationPipe,
     },
-    FileStorageService,
   ],
 })
 export class AppModule {}

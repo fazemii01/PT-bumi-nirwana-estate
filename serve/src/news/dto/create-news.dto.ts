@@ -1,4 +1,5 @@
-import { IsOptional, IsString, IsUUID } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsOptional, IsString, IsUUID, ValidateIf } from 'class-validator';
 
 export class CreateNewsDto {
   @IsString()
@@ -10,7 +11,13 @@ export class CreateNewsDto {
   @IsUUID()
   categoryId: string;
 
+  @Transform(({ value }) => {
+    if (value === null || value === '' || value === 'null') {
+      return null;
+    }
+    return value;
+  })
+  @ValidateIf((obj, value) => value !== null)
   @IsUUID()
-  @IsOptional()
-  propertyId: string;
+  propertyId?: string | null;
 }

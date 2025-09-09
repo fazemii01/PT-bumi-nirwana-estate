@@ -459,10 +459,7 @@ class _PropertyCatalogPageState extends State<PropertiesPage> {
   Widget _buildPropertyCard(Property property, ThemeData theme) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const PropertyDetailPage()),
-        );
+        Get.to(() => const PropertyDetailPage(), arguments: property.id);
       },
       child: AspectRatio(
         aspectRatio: 1.1,

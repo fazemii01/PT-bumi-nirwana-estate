@@ -3,70 +3,63 @@ import pandas as pd
 import numpy as np
 import socketio
 import time
-from langchain_community.vectorstores.faiss import FAISS
-from langchain_ollama import OllamaEmbeddings, OllamaLLM
-from langchain.prompts import PromptTemplate
-from langchain.schema.runnable import RunnablePassthrough
-from langchain.schema.output_parser import StrOutputParser
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.document_loaders import TextLoader
+import re
 from threading import Event
 
-# FAISS_INDEX_PATH = "faiss-index-py" 
-# DATA_SOURCE = "training_data_asknirwan.txt"
-# EMBEDDING_MODEL = "nomic-embed-text"
-# GENERATION_MODEL = "qwen2:1.5b"
-SOCKETIO_URL = 'http://localhost:4500' 
-CHAT_EVENT_EMIT = 'message'   
-CHAT_EVENT_RECEIVE = 'response' 
+SOCKETIO_URL = 'http://localhost:4500'
+CHAT_EVENT_EMIT = 'message'
+CHAT_EVENT_RECEIVE = 'response'
 CHAT_CLEAR_HISTORY = 'clear history'
-# BASE_URL = "http://localhost:4600"
+
+
 test_data = {
     "question": [
-        "Berapa DP untuk rumah subsidi di Margojoyo Residence?",
-        "Perumahan apa yang punya kolam renang?",
-        "Sebutkan 3 syarat untuk mengajukan KPR.",
-        "Listrik untuk rumah subsidi berapa watt?",
-        "Promo apa yang ada di Bumi Nirwana Sumberejo?",
-        "Saya seorang PNS, dokumen apa saja yang perlu saya siapkan untuk KPR?",
-        "Jika saya ambil tenor KPR 15 tahun di Margojoyo, berapa cicilannya?",
-        "Perumahan mana yang paling dekat dengan Alun-alun Lumajang?",
-        "Saya mau investasi ruko, ada pilihan apa dan berapa harganya?",
-        "Bandingkan promo antara The Margojoyo Residence dan Bumi Nirwana Sumberejo.",
-        "Berapa luas tanah untuk The Royal Avenue?",
-        "Apakah ada fasilitas kolam renang umum di Margojoyo Residence?",
-        "Berapa angsuran untuk The Royal Avenue?",
-        "Apakah ada tipe rumah dengan 3 kamar tidur?",
-        "Saya baru menikah dan budget terbatas, baiknya saya pilih yang mana?",
-        "Kenapa saya harus memilih The Royal Avenue dibandingkan perumahan lain?",
-        "Saya khawatir proses KPR ribet, bisa bantu jelaskan?",
-        "Kalau saya mau lihat-lihat lokasinya langsung, bagaimana caranya?",
-        "Apa keuntungan utama punya rumah di Bumi Nirwana Estate?",
-        "Jika UTJ saya hangus, apakah DP juga hangus?"
+        "Siapa nama pengembang perumahan ini dan apa entitas legal proyeknya?",
+        "Di mana saja lokasi utama proyek perumahan yang Anda kembangkan di Lumajang?",
+        "Saya ingin datang langsung ke kantor, di mana alamat kantor pemasarannya?",
+        "Berapa harga rumah subsidi di The Margojoyo Residence dan berapa DP-nya?",
+        "Berapa simulasi angsuran KPR per bulan untuk rumah subsidi di Margojoyo dengan tenor 15 tahun?",
+        "Apa saja spesifikasi rumah subsidi Tipe 30/72 di Margojoyo?",
+        "Selain rumah, apakah ada properti lain yang dijual di The Margojoyo Residence?",
+        "Saya seorang milenial dengan gaji UMR dan kesulitan menabung untuk DP. Apakah ada solusi perumahan untuk saya?",
+        "Berapa harga rumah di Bumi Nirwana Sumberejo dan apa saja promonya?",
+        "Apa saja ruangan yang ada di dalam rumah di Bumi Nirwana Sumberejo?",
+        "Apa konsep yang diusung oleh perumahan The Royal Avenue?",
+        "Apa fasilitas paling unggul yang ditawarkan di setiap unit The Royal Avenue?",
+        "Berapa harga satu unit rumah di The Royal Avenue dan ada promo apa?",
+        "Apa yang dimaksud dengan Uang Tanda Jadi (UTJ) dan apakah bisa dikembalikan jika saya batal membeli?",
+        "Bagaimana jika pengajuan KPR saya ditolak oleh bank, apakah Uang Muka (DP) saya bisa kembali?",
+        "Apa saja biaya yang sudah termasuk dalam harga jual rumah?",
+        "Dokumen apa saja yang umumnya diperlukan untuk mengajukan KPR?",
+        "Apakah ada dokumen tambahan yang dibutuhkan jika saya seorang PNS atau wiraswasta?",
+        "Saya sudah bosan mengontrak rumah setiap tahun, apa solusi yang ditawarkan?",
+        "Saya khawatir proses KPR itu rumit. Apakah tim Anda bisa membantu saya?"
     ],
     "ground_truth_answer": [
-        "DP untuk tipe subsidi di The Margojoyo Residence adalah Rp 1.660.000.",
-        "The Royal Avenue adalah perumahan yang memiliki kolam renang pribadi.",
-        "Tiga syarat KPR adalah Fotocopy KTP/KK/NPWP, Surat Nikah, dan Slip Gaji 3 bulan terakhir.",
-        "Listrik untuk rumah subsidi adalah 900 Watt.",
-        "Promo di Bumi Nirwana Sumberejo adalah Tanpa DP (0%) dan Free Semua Biaya.",
-        "Sebagai PNS, Anda perlu menyiapkan syarat umum KPR ditambah SK Terakhir.",
-        "Angsuran untuk tenor 15 tahun di The Margojoyo Residence adalah Rp 1.299.000 per bulan.",
-        "The Margojoyo Residence adalah yang paling dekat, hanya 5 menit dari Alun-alun Lumajang.",
-        "Ada pilihan Ruko 2 lantai di The Margojoyo Residence seharga Rp 250.000.000.",
-        "Promo di Margojoyo adalah DP ringan 1% dan Free AJB/BPHTB, sedangkan di Sumberejo ada promo Tanpa DP 0%.",
-        "Informasi mengenai luas tanah The Royal Avenue tidak ditemukan dalam konteks.",
-        "Informasi mengenai kolam renang umum di Margojoyo Residence tidak ditemukan.",
-        "Informasi mengenai simulasi angsuran The Royal Avenue tidak ditemukan.",
-        "Informasi mengenai tipe rumah dengan 3 kamar tidur tidak ditemukan dalam konteks.",
-        "Untuk keluarga baru dengan budget terbatas, rumah subsidi di Bumi Nirwana Sumberejo bisa jadi pilihan tepat karena ada promo Tanpa DP.",
-        "The Royal Avenue menawarkan kemewahan dan lokasi premium di pusat kota dengan fasilitas lengkap termasuk kolam renang pribadi.",
-        "Proses KPR tidak serumit yang dibayangkan. Anda hanya perlu menyiapkan dokumen seperti KTP, KK, dan slip gaji, tim kami akan membantu prosesnya.",
-        "Anda bisa menghubungi tim marketing kami di nomor 081999998000 untuk mengatur jadwal survey lokasi.",
-        "Keuntungan utamanya adalah mendapatkan hunian berkualitas di lokasi strategis dengan harga terjangkau dan berbagai promo menarik.",
-        "Uang Tanda Jadi (UTJ) tidak dapat kembali, namun jika KPR ditolak karena BI Checking, DP bisa dikembalikan."
+        "Nama pengembangnya adalah PT Bumi Nirwana Estate dan entitas legal proyeknya adalah PT. Margojoyo Anugrah Persada.",
+        "Proyek kami berlokasi di tiga area kunci: Klampokarum (Kecamatan Tekung), Sumberejo (Kecamatan Sukodono), dan di pusat kota di Ditotrunana.",
+        "Kantor pemasaran kami beralamat di Jalan Achmad Yani No. 172, Lumajang. Anda juga bisa menghubungi kami di nomor 081999998000.",
+        "Harga jual rumah subsidi di The Margojoyo Residence adalah Rp 166.000.000 dengan Uang Muka (DP) sebesar 1% atau Rp 1.660.000.",
+        "Untuk tenor 15 tahun, simulasi angsuran KPR per bulannya adalah Rp 1.299.000.",
+        "Spesifikasinya mencakup 2 kamar tidur, 1 kamar mandi, carport, dapur, area taman, daya listrik 900 Watt, dan sumber air dari sumur bor.",
+        "Ya, kami juga menyediakan Ruko (Rumah Toko) 2 Lantai dengan harga Rp 250.000.000.",
+        "Tentu ada. Perumahan Bumi Nirwana Sumberejo dirancang khusus untuk milenial atau masyarakat dengan gaji UMR dan menawarkan promo utama Tanpa DP (DP 0%).",
+        "Harga rumah Tipe 30/60 di sana adalah Rp 166.000.000. Promonya adalah Tanpa DP (DP 0%) dan Gratis Semua Biaya.",
+        "Rumah di Bumi Nirwana Sumberejo memiliki 2 kamar tidur, 1 kamar mandi, carport, dan sebuah ruang serbaguna.",
+        "The Royal Avenue adalah perumahan komersil premium yang berlokasi di jantung kota Lumajang dengan konsep hunian mewah 2 lantai berdesain modern dan elegan.",
+        "Fasilitas unggulan di The Royal Avenue adalah setiap rumah dilengkapi dengan kolam renang pribadi.",
+        "Harga per unitnya adalah Rp 300.000.000 dengan promo spesial \"Gratis Semua Biaya\".",
+        "UTJ adalah biaya untuk mengamankan unit pilihan Anda. Biaya ini tidak dapat dikembalikan (hangus) jika terjadi pembatalan sepihak dari konsumen.",
+        "Ya, Uang Muka (DP) dapat dikembalikan jika pengajuan KPR Anda ditolak oleh bank karena masalah BI Checking.",
+        "Harga jual sudah termasuk biaya perizinan IMB/PBG, instalasi listrik, dan sumber air dari sumur pasak.",
+        "Persyaratan dokumen umum meliputi fotokopi KTP, KK, NPWP, Pas Foto, Surat Nikah (jika sudah menikah), Slip Gaji 3 bulan terakhir, dan Surat Keterangan Kerja.",
+        "Ya. Untuk PNS, wajib melampirkan SK Terakhir. Untuk wiraswasta, wajib melampirkan SIUP/TDP atau SKU.",
+        "Kami menawarkan solusi memiliki rumah sendiri untuk mendapatkan ketenangan dan stabilitas. Anda bisa mempertimbangkan rumah subsidi kami yang angsurannya seringkali lebih ringan dari biaya sewa.",
+        "Tentu saja. Anda tidak perlu khawatir, karena tim kami siap membantu Anda di setiap langkahnya, mulai dari awal proses hingga serah terima kunci."
     ]
 }
+
+
 eval_df = pd.DataFrame(test_data)
 sio = socketio.Client()
 response_data = None
@@ -129,17 +122,32 @@ def evaluate_live_chatbot(eval_df: pd.DataFrame):
         else:
             generated_answer = response_data
         
-        # FIX: Added the hit calculation and result_hit key back
+ 
         hit = False
         lower_generated = generated_answer.lower()
         lower_ground_truth = ground_truth.lower()
-        if "tidak ditemukan" in lower_ground_truth or "tidak menemukan" in lower_ground_truth:
-            if "tidak ditemukan" in lower_generated or "tidak menemukan" in lower_generated:
+
+        negative_keywords = ["tidak ditemukan", "tidak menemukan", "tidak dapat menemukan", "tidak tersedia"]
+        is_ground_truth_negative = any(phrase in lower_ground_truth for phrase in negative_keywords)
+
+        if is_ground_truth_negative:
+            if any(phrase in lower_generated for phrase in negative_keywords):
                 hit = True
         else:
-            key_words = [word for word in lower_ground_truth.split() if len(word) > 2][:4]
-            if len(key_words) > 0 and all(word in lower_generated for word in key_words):
-                hit = True
+            gt_words = set(re.sub(r'[^\w\s]', '', lower_ground_truth).split())
+            stop_words = {'di', 'ke', 'dari', 'dan', 'ini', 'itu', 'adalah', 'untuk', 'yang', 'dengan'}
+            key_info_words = gt_words - stop_words
+            
+            if len(key_info_words) > 0:
+                words_found = 0
+                for word in key_info_words:
+                    if word in lower_generated:
+                        words_found += 1
+                
+                match_percentage = words_found / len(key_info_words)
+                if match_percentage > 0.7:
+                    hit = True
+    
         
         if hit:
             total_hits += 1
@@ -148,7 +156,7 @@ def evaluate_live_chatbot(eval_df: pd.DataFrame):
             "question": question,
             "generated_answer": generated_answer,
             "ground_truth_answer": ground_truth,
-            "result_hit": "✅ Yes" if hit else "❌ No" # The missing key
+            "result_hit": "✅ Yes" if hit else "❌ No"
         })
         print(f"Evaluation finished for question #{index+1}")
 

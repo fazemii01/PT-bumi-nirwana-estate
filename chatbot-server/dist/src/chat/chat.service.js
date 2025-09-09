@@ -14,20 +14,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ChatService = void 0;
 const common_1 = require("@nestjs/common");
+const axios_1 = require("@nestjs/axios");
 const documents_1 = require("@langchain/core/documents");
-const text_splitter_1 = require("langchain/text_splitter");
+const messages_1 = require("@langchain/core/messages");
 const output_parsers_1 = require("@langchain/core/output_parsers");
 const prompts_1 = require("@langchain/core/prompts");
-const ollama_1 = require("@langchain/ollama");
-const messages_1 = require("@langchain/core/messages");
 const runnables_1 = require("@langchain/core/runnables");
+const history_aware_retriever_1 = require("langchain/chains/history_aware_retriever");
+const combine_documents_1 = require("langchain/chains/combine_documents");
+const ollama_1 = require("@langchain/ollama");
+const multi_query_1 = require("langchain/retrievers/multi_query");
+const text_splitter_1 = require("langchain/text_splitter");
 const weaviate_1 = require("@langchain/weaviate");
 const weaviate_client_1 = __importDefault(require("weaviate-client"));
-const combine_documents_1 = require("langchain/chains/combine_documents");
-const history_aware_retriever_1 = require("langchain/chains/history_aware_retriever");
-const multi_query_1 = require("langchain/retrievers/multi_query");
 const gpt_tokenizer_1 = require("gpt-tokenizer");
-const axios_1 = require("@nestjs/axios");
 let ChatService = class ChatService {
     constructor(httpService) {
         this.httpService = httpService;
@@ -36,7 +36,7 @@ let ChatService = class ChatService {
     async onModuleInit() {
         this.embeddings = new ollama_1.OllamaEmbeddings({
             baseUrl: 'http://localhost:4600',
-            model: 'nomic-embed-text',
+            model: 'mxbai-embed-large',
         });
         this.visionModel = new ollama_1.ChatOllama({
             baseUrl: 'http://localhost:4600',
@@ -134,11 +134,15 @@ let ChatService = class ChatService {
             baseUrl: 'http://localhost:4600',
             model: 'qwen2:1.5b',
         });
-        const baseRetriever = this.vectorStore.asRetriever({ k: 5 });
+        const baseRetriever = this.vectorStore.asRetriever({
+            k: 15,
+        });
+        const queryGenPrompt = prompts_1.PromptTemplate.fromTemplate(`You are an AI language model assistant. Your task is to generate 3 different versions of the given user question to retrieve relevant documents from a vector database. By generating multiple perspectives on the user question, your goal is to help the user overcome some of the limitations of distance-based similarity search. Provide these alternative questions separated by newlines. Focus on real estate terms like "cicilan", "uang muka", "persyaratan", "lokasi", and specific project names. Original question: {question}`);
         const multiQueryRetriever = multi_query_1.MultiQueryRetriever.fromLLM({
             llm,
             retriever: baseRetriever,
             verbose: true,
+            prompt: queryGenPrompt,
         });
         const historyAwarePrompt = prompts_1.ChatPromptTemplate.fromMessages([
             new prompts_1.MessagesPlaceholder('chat_history'),
@@ -160,12 +164,10 @@ let ChatService = class ChatService {
         const synthesisPrompt = prompts_1.ChatPromptTemplate.fromMessages([
             [
                 'system',
-                `You are AskNirwana, a helpful property assistant. Your task is to provide a single, clear answer in Indonesian based on the provided contexts.
-- The contexts are ranked by relevance. Give priority to the information in the first context if there are contradictions.
-- Combine the information from the different contexts into one smooth, conversational answer.
-- Do NOT mention that you are looking at multiple contexts. Just provide the final answer.
-- If the contexts do not contain the answer, say "Maaf, saya tidak dapat menemukan informasi yang Anda cari."
-
+                `You are AskNirwana, a property assistant. Answer ONLY from CONTEXTS.
+- If multiple contexts contain partial info, merge them.
+- Prioritize numbers (harga, DP, angsuran) and entity names exactly as written.
+- If not found, reply with: "Maaf, saya tidak dapat menemukan informasi yang Anda cari."
 ---
 CONTEXTS:
 {context}
@@ -183,9 +185,17 @@ CONTEXTS:
                 context: retrieverChain,
             }),
             runnables_1.RunnableLambda.from(async (input) => {
-                const rerankedDocs = await this.rerankByTokenBudget(input.input, input.context, 256);
-                return { ...input, context: rerankedDocs };
-            }).withConfig({ runName: 'RerankDocuments' }),
+                const MAX_DOCS_TO_USE = 5;
+                const rerankedDocs = await this.rerankInChunks(input.input, input.context);
+                const topDocs = rerankedDocs
+                    .sort((a, b) => b.score - a.score)
+                    .slice(0, MAX_DOCS_TO_USE)
+                    .map((r) => r.doc);
+                console.log(`Passing ${topDocs.length} documents to the LLM.`);
+                console.log('TopDocs Content:', topDocs.map((d) => d.pageContent.slice(0, 200)));
+                console.log("TopDocs:", topDocs.map(d => d.pageContent));
+                return { ...input, context: topDocs };
+            }).withConfig({ runName: 'RerankAndFilterDocuments' }),
             combineDocsChain,
             new output_parsers_1.StringOutputParser(),
         ]).withConfig({ runName: 'FinalRagChain' });
@@ -260,6 +270,7 @@ CONTEXTS:
     }
     async processFile(file) {
         console.log(`Processing file: ${file.originalname} (${file.mimetype})`);
+        const indexName = 'Chatbot';
         if (!file || !file.buffer) {
             throw new Error('No file buffer found. Make sure multer.memoryStorage() is used.');
         }
@@ -293,8 +304,8 @@ CONTEXTS:
             metadata: { source: 'uploaded_file' },
         });
         const splitter = new text_splitter_1.RecursiveCharacterTextSplitter({
-            chunkSize: 512,
-            chunkOverlap: 50,
+            chunkSize: 800,
+            chunkOverlap: 100,
             separators: ['\n\n## ', '\n## ', '\n\n# ', '\n# ', '\n\n', '\n', ' ', ''],
         });
         const splits = await splitter.splitDocuments([doc]);
@@ -316,7 +327,7 @@ CONTEXTS:
         }
         this.initializeMasterChain();
         this.clearAllHistories();
-        console.log(' File processed and Weaviate index updated.');
+        console.log('File processed and Weaviate index updated.');
     }
 };
 exports.ChatService = ChatService;

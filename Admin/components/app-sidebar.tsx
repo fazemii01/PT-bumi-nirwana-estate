@@ -24,8 +24,11 @@ import {
   IconSettings,
   IconHelp,
   IconSearch,
+  IconNews,
+  IconNewsOff,
 } from "@tabler/icons-react";
 import { User } from "@/types/user";
+import { title } from "process";
 
 const navData = {
   navMain: [
@@ -43,6 +46,14 @@ const navData = {
       title: "Master KPR",
       icon: IconCashBanknote,
       items: [{ title: "Bank", url: "/bank", icon: IconBuilding }],
+    },
+    {
+      title: "Berita",
+      icon: IconNews,
+      items: [
+        { title: "Kategori Berita", url: "/news-category", icon: IconNews },
+        { title: "Berita", url: "/news", icon: IconNews },
+      ],
     },
   ],
   navSecondary: [

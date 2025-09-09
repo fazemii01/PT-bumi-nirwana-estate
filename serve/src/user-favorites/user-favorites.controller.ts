@@ -1,34 +1,27 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param } from '@nestjs/common';
 import { UserFavoritesService } from './user-favorites.service';
 import { CreateUserFavoriteDto } from './dto/create-user-favorite.dto';
-import { UpdateUserFavoriteDto } from './dto/update-user-favorite.dto';
+import { Roles } from '@/auths/role.decorator';
 
 @Controller('user-favorites')
 export class UserFavoritesController {
   constructor(private readonly userFavoritesService: UserFavoritesService) {}
 
   @Post()
-  create(@Body() createUserFavoriteDto: CreateUserFavoriteDto) {
-    return this.userFavoritesService.create(createUserFavoriteDto);
+  @Roles('USER', 'ADMIN')
+  async create(@Body() createUserFavoriteDto: CreateUserFavoriteDto) {
+    return await this.userFavoritesService.createOrRemove(
+      createUserFavoriteDto,
+    );
   }
 
   @Get()
   findAll() {
     return this.userFavoritesService.findAll();
   }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.userFavoritesService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserFavoriteDto: UpdateUserFavoriteDto) {
-    return this.userFavoritesService.update(+id, updateUserFavoriteDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userFavoritesService.remove(+id);
+  @Roles('USER', 'ADMIN')
+  @Get(':userId')
+  findOneByUser(@Param('userId') userId: string) {
+    return this.userFavoritesService.findOneByUserId(userId);
   }
 }
