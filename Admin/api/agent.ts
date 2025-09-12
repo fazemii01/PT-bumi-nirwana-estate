@@ -10,7 +10,25 @@ export async function getAgent(): Promise<ApiResponse<Agent[]>> {
   });
 }
 
-export async function addAgent({ data }: { data: Agent }): Promise<ApiResponse<Agent>> {
+export async function getAgentPaged(
+  page = 1,
+  limit = 10
+): Promise<{ data: Agent[]; total: number }> {
+  const res = await getAgent();
+  const all = res.data ?? [];
+  const total = all.length;
+  const start = (page - 1) * limit;
+  return {
+    data: all.slice(start, start + limit),
+    total,
+  };
+}
+
+export async function addAgent({
+  data,
+}: {
+  data: Agent;
+}): Promise<ApiResponse<Agent>> {
   const formData = new FormData();
   formData.append("full_name", data.full_name);
   formData.append("email", data.email);
@@ -26,13 +44,23 @@ export async function addAgent({ data }: { data: Agent }): Promise<ApiResponse<A
   });
 }
 
-export async function deleteAgentById({ id }: { id: string }): Promise<ApiResponse<Agent>> {
+export async function deleteAgentById({
+  id,
+}: {
+  id: string;
+}): Promise<ApiResponse<Agent>> {
   return apiFetch<Agent>(`/agents/${id}`, {
     method: "DELETE",
   });
 }
 
-export async function updateAgent({ data, originalData }: { data: Agent; originalData: Agent }): Promise<ApiResponse<Agent>> {
+export async function updateAgent({
+  data,
+  originalData,
+}: {
+  data: Agent;
+  originalData: Agent;
+}): Promise<ApiResponse<Agent>> {
   const formData = new FormData();
 
   if (data.full_name !== originalData.full_name) {

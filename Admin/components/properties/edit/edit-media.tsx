@@ -8,27 +8,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Upload, Plus, Trash2, Camera } from "lucide-react";
 import PreviewImage from "@/components/preview-image";
-
-type OldImage = {
-  id?: string;
-  image_url?: string; // dari BE
-  url?: string; // kalau FE sudah resolve jadi URL penuh
-  caption?: string;
-  sort_order?: number;
-};
-
-type OldFloorPlan = {
-  id?: string;
-  file_url?: string; // dari BE
-  url?: string; // kalau FE sudah resolve jadi URL penuh
-  name?: string;
-  sort_order?: number;
-};
+import { FloorPlan, ImageProperty } from "@/types/properties";
+import { getImageUrl } from "@/service/imageUrl";
 
 export default function EditMediaForm({
   // media lama
-  originalImages = [],
-  originalFloorPlans = [],
+  originalImages,
+  originalFloorPlans,
   // antrian file baru
   newImageFiles,
   setNewImageFiles,
@@ -47,8 +33,8 @@ export default function EditMediaForm({
   // opsional untuk resolve path -> URL (misal prepend baseURL)
   resolveUrl,
 }: {
-  originalImages?: OldImage[];
-  originalFloorPlans?: OldFloorPlan[];
+  originalImages?: ImageProperty[];
+  originalFloorPlans?: FloorPlan[];
   newImageFiles: File[];
   setNewImageFiles: React.Dispatch<React.SetStateAction<File[]>>;
   newFloorFiles: File[];
@@ -68,12 +54,7 @@ export default function EditMediaForm({
 }) {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewSrc, setPreviewSrc] = useState<string | null>(null);
-
-  const rurl = (p?: string) => {
-    if (!p) return "";
-    return resolveUrl ? resolveUrl(p) : p;
-  };
-
+  const imgUrl = (path: string) => getImageUrl(path);
   const openPreview = (src?: string) => {
     if (!src) return;
     setPreviewSrc(src);
@@ -104,25 +85,32 @@ export default function EditMediaForm({
                 {/* Existing images */}
                 <div className="space-y-2">
                   <h4 className="font-medium text-sm text-gray-700">
-                    Gambar lama ({originalImages.length})
+                    Gambar lama ({originalImages!.length})
                   </h4>
-                  {originalImages.length ? (
+                  {originalImages!.length ? (
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-h-[200px] overflow-y-auto pr-2">
-                      {originalImages.map((img, i) => {
-                        const src = rurl(img.url || img.image_url);
+                      {originalImages!.map((img, i) => {
                         return (
                           <div
                             key={img.id ?? i}
                             className="border rounded-lg p-2 bg-gray-50 space-y-2"
                           >
                             <div className="w-full aspect-square bg-white border rounded flex items-center justify-center overflow-hidden">
-                              {src ? (
+                              {img.image_url ? (
                                 // eslint-disable-next-line @next/next/no-img-element
                                 <img
-                                  src={src}
+                                  src={imgUrl(
+                                    `property/property_images/${img.image_url}`
+                                  )}
                                   alt={`image-${i}`}
                                   className="w-full h-full object-cover cursor-pointer"
-                                  onClick={() => openPreview(src)}
+                                  onClick={() =>
+                                    openPreview(
+                                      imgUrl(
+                                        `property/property_images/${img.image_url}`
+                                      )
+                                    )
+                                  }
                                 />
                               ) : (
                                 <div className="text-xs text-gray-500">
@@ -308,14 +296,14 @@ export default function EditMediaForm({
                 {/* Existing floor plans */}
                 <div className="space-y-2">
                   <h4 className="font-medium text-sm text-gray-700">
-                    Denah lama ({originalFloorPlans.length})
+                    Denah lama ({originalFloorPlans!.length})
                   </h4>
-                  {originalFloorPlans.length ? (
+                  {originalFloorPlans!.length ? (
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-h-[200px] overflow-y-auto pr-2">
-                      {originalFloorPlans.map((fp, i) => {
-                        const src = rurl(fp.url || fp.file_url);
-                        const isImage = src
-                          ? /\.(png|jpe?g|webp|gif|bmp)$/i.test(src)
+                      {originalFloorPlans!.map((fp, i) => {
+                        // const src = rurl(fp.url || fp.file_url);
+                        const isImage = fp.file_url
+                          ? /\.(png|jpe?g|webp|gif|bmp)$/i.test(fp.file_url)
                           : false;
                         return (
                           <div
@@ -323,14 +311,22 @@ export default function EditMediaForm({
                             className="border rounded-lg p-2 bg-gray-50 space-y-2"
                           >
                             <div className="w-full aspect-square bg-white border rounded flex items-center justify-center overflow-hidden">
-                              {src ? (
+                              {fp.file_url ? (
                                 isImage ? (
                                   // eslint-disable-next-line @next/next/no-img-element
                                   <img
-                                    src={src}
+                                    src={imgUrl(
+                                      `property/property_floor_plans/${fp.file_url}`
+                                    )}
                                     alt={`fp-${i}`}
                                     className="w-full h-full object-cover cursor-pointer"
-                                    onClick={() => openPreview(src)}
+                                    onClick={() =>
+                                      openPreview(
+                                        imgUrl(
+                                          `property/property_floor_plans/${fp.file_url}`
+                                        )
+                                      )
+                                    }
                                   />
                                 ) : (
                                   <div className="text-xs text-gray-500 text-center">

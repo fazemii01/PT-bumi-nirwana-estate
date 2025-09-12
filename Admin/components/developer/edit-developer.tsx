@@ -1,7 +1,21 @@
-import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+"use client";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { IconUpload, IconImageInPicture, IconBuildingSkyscraper, IconBrandChrome } from "@tabler/icons-react";
+import {
+  IconUpload,
+  IconImageInPicture,
+  IconBuildingSkyscraper,
+  IconBrandChrome,
+} from "@tabler/icons-react";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
@@ -12,7 +26,15 @@ import { Developer } from "@/types/developer";
 import { submitUpdateDeveloper } from "@/actions/developer";
 import { useRouter } from "next/navigation";
 
-const EditDeveloper = ({ edit, setEdit, developer }: { edit: boolean; setEdit: (value: boolean) => void; developer: Developer }) => {
+const EditDeveloper = ({
+  edit,
+  setEdit,
+  developer,
+}: {
+  edit: boolean;
+  setEdit: (value: boolean) => void;
+  developer: Developer;
+}) => {
   const router = useRouter();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [dragActive, setDragActive] = useState(false);
@@ -30,7 +52,9 @@ const EditDeveloper = ({ edit, setEdit, developer }: { edit: boolean; setEdit: (
 
   useEffect(() => {
     if (developer?.logo_url) {
-      setPreviewUrl(`${process.env.NEXT_PUBLIC_API_URL}/uploads/developer/${developer.logo_url}`);
+      setPreviewUrl(
+        `${process.env.NEXT_PUBLIC_API_URL}/uploads/developer/${developer.logo_url}`
+      );
     } else {
       setPreviewUrl(null);
     }
@@ -107,7 +131,10 @@ const EditDeveloper = ({ edit, setEdit, developer }: { edit: boolean; setEdit: (
     setErrors({});
 
     startTransition(async () => {
-      const res = await submitUpdateDeveloper({ data: form, originalData: developer });
+      const res = await submitUpdateDeveloper({
+        data: form,
+        originalData: developer,
+      });
       if (!res.success) {
         showToastError(res.message || "Update developer failed");
         setEdit(true);
@@ -129,7 +156,9 @@ const EditDeveloper = ({ edit, setEdit, developer }: { edit: boolean; setEdit: (
               </div>
               Update Developer
             </AlertDialogTitle>
-            <AlertDialogDescription>Fill in the information below to update agent profile.</AlertDialogDescription>
+            <AlertDialogDescription>
+              Fill in the information below to update agent profile.
+            </AlertDialogDescription>
           </AlertDialogHeader>
 
           <div className="space-y-5">
@@ -139,8 +168,16 @@ const EditDeveloper = ({ edit, setEdit, developer }: { edit: boolean; setEdit: (
                 <IconBuildingSkyscraper />
                 Developer Name
               </Label>
-              <Input id="name" name="name" value={form.name} onChange={handleChange} placeholder="Enter developer name" />
-              {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
+              <Input
+                id="name"
+                name="name"
+                value={form.name}
+                onChange={handleChange}
+                placeholder="Enter developer name"
+              />
+              {errors.name && (
+                <p className="text-sm text-red-500">{errors.name}</p>
+              )}
             </div>
 
             {/* Email */}
@@ -149,8 +186,16 @@ const EditDeveloper = ({ edit, setEdit, developer }: { edit: boolean; setEdit: (
                 <IconBrandChrome />
                 Website URL
               </Label>
-              <Input id="website_url" name="website_url" value={form.website_url} onChange={handleChange} placeholder="agent@example.com" />
-              {errors.website_url && <p className="text-sm text-red-500">{errors.website_url}</p>}
+              <Input
+                id="website_url"
+                name="website_url"
+                value={form.website_url}
+                onChange={handleChange}
+                placeholder="agent@example.com"
+              />
+              {errors.website_url && (
+                <p className="text-sm text-red-500">{errors.website_url}</p>
+              )}
             </div>
 
             {/* Logo */}
@@ -173,11 +218,19 @@ const EditDeveloper = ({ edit, setEdit, developer }: { edit: boolean; setEdit: (
                 onDragOver={handleDrag}
                 onDrop={handleDrop}
               >
-                <label htmlFor="input-file" className="flex flex-col items-center justify-center py-8 cursor-pointer">
+                <label
+                  htmlFor="input-file"
+                  className="flex flex-col items-center justify-center py-8 cursor-pointer"
+                >
                   {selectedFile && previewUrl ? (
                     <>
                       <div className="relative w-32 h-32 verflow-hidden mb-3">
-                        <Image src={previewUrl} alt="Preview" fill className="object-cover" />
+                        <Image
+                          src={previewUrl}
+                          alt="Preview"
+                          fill
+                          className="object-cover"
+                        />
                         <button
                           type="button"
                           onClick={(e) => {
@@ -191,16 +244,27 @@ const EditDeveloper = ({ edit, setEdit, developer }: { edit: boolean; setEdit: (
                       </div>
 
                       <div className="text-center space-y-3">
-                        <p className="text-sm font-medium text-foreground/90 dark:text-white/90 truncate max-w-48">{selectedFile.name}</p>
-                        <p className="text-xs text-muted-foreground/70 dark:text-white/70">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                        <p className="text-sm font-medium text-foreground/90 dark:text-white/90 truncate max-w-48">
+                          {selectedFile.name}
+                        </p>
+                        <p className="text-xs text-muted-foreground/70 dark:text-white/70">
+                          {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                        </p>
                       </div>
 
-                      <p className="text-xs text-muted-foreground/60 dark:text-white/60">Click to change image</p>
+                      <p className="text-xs text-muted-foreground/60 dark:text-white/60">
+                        Click to change image
+                      </p>
                     </>
                   ) : previewUrl ? (
                     <>
                       <div className="relative w-32 h-32 overflow-hidden mb-3">
-                        <Image fill src={previewUrl} alt="Preview" className=" object-cover " />
+                        <Image
+                          fill
+                          src={previewUrl}
+                          alt="Preview"
+                          className=" object-cover "
+                        />
                         <button
                           type="button"
                           onClick={(e) => {
@@ -213,37 +277,76 @@ const EditDeveloper = ({ edit, setEdit, developer }: { edit: boolean; setEdit: (
                         </button>
                       </div>
                       <div className="text-center">
-                        <p className="text-sm font-medium text-green-700 truncate max-w-48">{developer.logo_url}</p>
+                        <p className="text-sm font-medium text-green-700 truncate max-w-48">
+                          {developer.logo_url}
+                        </p>
                       </div>
-                      <p className="text-xs text-gray-500">Click to change image</p>
+                      <p className="text-xs text-gray-500">
+                        Click to change image
+                      </p>
                     </>
                   ) : (
                     <div className="text-center space-y-2">
-                      <div className={`p-3 rounded-full w-fit mx-auto transition-colors ${dragActive ? "bg-blue-100" : "bg-gray-200"}`}>
-                        <IconUpload className={`size-6 ${dragActive ? "text-blue-600" : "text-gray-500"}`} />
+                      <div
+                        className={`p-3 rounded-full w-fit mx-auto transition-colors ${
+                          dragActive ? "bg-blue-100" : "bg-gray-200"
+                        }`}
+                      >
+                        <IconUpload
+                          className={`size-6 ${
+                            dragActive ? "text-blue-600" : "text-gray-500"
+                          }`}
+                        />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-gray-700">{dragActive ? "Drop your image here" : "Upload profile image"}</p>
-                        <p className="text-xs text-gray-500 mt-1">Drag & drop or click to browse</p>
+                        <p className="text-sm font-medium text-gray-700">
+                          {dragActive
+                            ? "Drop your image here"
+                            : "Upload profile image"}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          Drag & drop or click to browse
+                        </p>
                       </div>
-                      <p className="text-xs text-gray-400">PNG, JPG, GIF up to 4MB</p>
+                      <p className="text-xs text-gray-400">
+                        PNG, JPG, GIF up to 4MB
+                      </p>
                     </div>
                   )}
                 </label>
-                <input ref={fileInputRef} type="file" id="input-file" name="file_avatar" className="hidden" accept="image/*" onChange={handleFileSelect} />
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  id="input-file"
+                  name="file_avatar"
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleFileSelect}
+                />
               </div>
-              {errors.logo && <p className="text-sm text-red-500">{errors.logo}</p>}
+              {errors.logo && (
+                <p className="text-sm text-red-500">{errors.logo}</p>
+              )}
             </div>
           </div>
 
           <AlertDialogFooter className="pt-6 border-t border-gray-200 gap-3">
-            <AlertDialogCancel disabled={pending} onClick={handleCancel} className="flex-1 cursor-pointer">
+            <AlertDialogCancel
+              disabled={pending}
+              onClick={handleCancel}
+              className="flex-1 cursor-pointer"
+            >
               Cancel
             </AlertDialogCancel>
             {/* <AlertDialogAction onClick={handleSubmit} disabled={pending} className="flex-1 bg-yellow-600 hover:bg-yellow-700 cursor-pointer">
               {pending ? "Submitting..." : "Create Agent"}
             </AlertDialogAction> */}
-            <Button type="button" onClick={handleSubmit} disabled={pending} className="flex-1 cursor-pointer">
+            <Button
+              type="button"
+              onClick={handleSubmit}
+              disabled={pending}
+              className="flex-1 cursor-pointer"
+            >
               {pending ? "Submitting..." : "Update Agent"}
             </Button>
           </AlertDialogFooter>

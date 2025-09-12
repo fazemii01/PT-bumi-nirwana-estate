@@ -9,7 +9,25 @@ export async function getDeveloper(): Promise<ApiResponse<Developer[]>> {
   });
 }
 
-export async function addDeveloper({ data }: { data: Developer }): Promise<ApiResponse<Developer>> {
+export async function getDeveloperPaged(
+  page = 1,
+  limit = 10
+): Promise<{ data: Developer[]; total: number }> {
+  const res = await getDeveloper(); // { data: Developer[] }
+  const all = res.data ?? [];
+  const total = all.length;
+  const start = (page - 1) * limit;
+  return {
+    data: all.slice(start, start + limit),
+    total,
+  };
+}
+
+export async function addDeveloper({
+  data,
+}: {
+  data: Developer;
+}): Promise<ApiResponse<Developer>> {
   const formData = new FormData();
   formData.append("name", data.name);
   formData.append("website_url", data.website_url);
@@ -24,13 +42,23 @@ export async function addDeveloper({ data }: { data: Developer }): Promise<ApiRe
   });
 }
 
-export async function deleteDeveloperById({ id }: { id: string }): Promise<ApiResponse<Developer | null>> {
+export async function deleteDeveloperById({
+  id,
+}: {
+  id: string;
+}): Promise<ApiResponse<Developer | null>> {
   return apiFetch<Developer | null>(`/developers/${id}`, {
     method: "DELETE",
   });
 }
 
-export async function updateDeveloper({ data, originalData }: { data: Developer; originalData: Developer }): Promise<ApiResponse<Developer>> {
+export async function updateDeveloper({
+  data,
+  originalData,
+}: {
+  data: Developer;
+  originalData: Developer;
+}): Promise<ApiResponse<Developer>> {
   const formData = new FormData();
 
   if (data.name !== originalData.name) {

@@ -25,6 +25,47 @@ class PropertyService extends Api {
     }
   }
 
+  Future<Property> getPropertiesById(String id) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/properties/$id'),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+
+        return Property.fromJson(data);
+      } else {
+        throw Exception(
+            'Gagal memuat detail properti. Status: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Terjadi kesalahan jaringan: $e');
+    }
+  }
+
+  Future<List<Property>> getPropertiesByType(String type) async {
+    try {
+      final response = await http.get(
+          Uri.parse('$baseUrl/properties/type/$type'),
+          headers: {'Content-Type': 'application/json'});
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonData = jsonDecode(response.body);
+
+        List<Property> properties =
+            jsonData.map((propJson) => Property.fromJson(propJson)).toList();
+
+        return properties;
+      } else {
+        throw Exception(
+            'Failed to load property by type $type. Status code : ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error fatching property by type $type');
+    }
+  }
+
   Future<String?> createOrRemove(UserFavorite favo) async {
     final url = Uri.parse('$baseUrl/user-favorites');
 
