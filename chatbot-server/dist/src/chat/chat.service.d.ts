@@ -19,5 +19,7 @@ export declare class ChatService implements OnModuleInit {
     ask(message: string, sessionId: string): Promise<string>;
     clearHistory(sessionId: string): void;
     clearAllHistories(): void;
+    private clearIndexData;
+    processBatch(files: Express.Multer.File[]): Promise<void>;
     processFile(file: Express.Multer.File): Promise<void>;
 }
