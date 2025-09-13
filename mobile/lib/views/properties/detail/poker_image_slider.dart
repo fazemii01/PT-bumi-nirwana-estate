@@ -46,7 +46,7 @@ class _PokerCardImageSliderState extends State<PokerCardImageSlider> {
     if (_validImages.isEmpty) {
       return Center(
         child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+          margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 46),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
             color: Colors.grey[300],
@@ -75,7 +75,7 @@ class _PokerCardImageSliderState extends State<PokerCardImageSlider> {
           child: Opacity(
             opacity: opacity,
             child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+              margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 46),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [

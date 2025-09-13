@@ -29,7 +29,7 @@ class PropertiesController extends GetxController {
       }
       properties.value = propertyList;
     } catch (e) {
-      errorMessage.value = 'Failed to load property: $e';
+      errorMessage.value = 'Failed to load property';
       print('Error loading rooms: $e');
     } finally {
       isLoading.value = false;
