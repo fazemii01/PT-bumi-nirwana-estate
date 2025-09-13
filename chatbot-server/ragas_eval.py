@@ -21,8 +21,6 @@ from langchain_core.output_parsers import JsonOutputParser
 
 load_dotenv()
 
-
-
 SOCKETIO_URL = "http://localhost:4500"
 CHAT_EVENT_EMIT = "message"
 CHAT_EVENT_RECEIVE = "response"

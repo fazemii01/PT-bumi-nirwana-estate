@@ -1,0 +1,40 @@
+version: "3.9"
+
+services:
+  weaviate:
+    image: semitechnologies/weaviate:1.25.9
+    container_name: weaviate
+    hostname: 59b5a3e8c115
+    environment:
+      CLUSTER_HOSTNAME: node1
+      QUERY_DEFAULTS_LIMIT: 25
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: "true"
+      PERSISTENCE_DATA_PATH: /var/lib/weaviate
+      DEFAULT_VECTORIZER_MODULE: none
+      ENABLE_MODULES: ""
+      PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    volumes:
+      - "E:/my project/JS/PT bumi nirwana estate/chatbot-server/chatbot-server/weaviate_data:/var/lib/weaviate:rw"
+    ports:
+      - "50051:50051"
+      - "4900:8080"
+    networks:
+      - chatbot-server_default
+    restart: "no"
+    labels:
+      com.docker.compose.config-hash: a50f3a01123c1f47549f9e2f14cb5b08848d647008037cf885d991a7c46aec1f
+      com.docker.compose.container-number: "1"
+      com.docker.compose.depends_on: ""
+      com.docker.compose.image: sha256:609358a6369fe758a8092fd6f74c4689b863aa8c2869707c3cce10643892cc15
+      com.docker.compose.oneoff: "False"
+      com.docker.compose.project: chatbot-server
+      com.docker.compose.project.config_files: "E:/my project/JS/PT bumi nirwana estate/chatbot-server/chatbot-server/docker-compose.yml"
+      com.docker.compose.project.working_dir: "E:/my project/JS/PT bumi nirwana estate/chatbot-server/chatbot-server"
+      com.docker.compose.replace: weaviate-1
+      com.docker.compose.service: weaviate
+      com.docker.compose.version: "2.39.1"
+    runtime: runc
+
+networks:
+  chatbot-server_default:
+    external: true

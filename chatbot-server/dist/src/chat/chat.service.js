@@ -50,6 +50,11 @@ let ChatService = class ChatService {
         console.log('Weaviate client in onModuleInit:', this.weaviateClient ? 'initialized' : 'undefined');
         const meta = await this.weaviateClient.getMeta();
         console.log('Weaviate meta:', meta);
+        const collections = await this.weaviateClient.collections.listAll();
+        console.log('Weaviate collections:', collections);
+        const chatbot = this.weaviateClient.collections.get('Chatbot');
+        const config = await chatbot.config.get();
+        console.log('Chatbot config:', JSON.stringify(config, null, 2));
         const indexName = 'Chatbot';
         this.vectorStore = new weaviate_1.WeaviateStore(this.embeddings, {
             client: this.weaviateClient,
@@ -132,7 +137,7 @@ let ChatService = class ChatService {
     async initializeMasterChain() {
         const llm = new ollama_1.ChatOllama({
             baseUrl: 'http://localhost:4600',
-            model: 'qwen2:1.5b',
+            model: 'llama3',
         });
         const baseRetriever = this.vectorStore.asRetriever({
             k: 15,
@@ -185,6 +190,11 @@ CONTEXTS:
                 context: retrieverChain,
             }),
             runnables_1.RunnableLambda.from(async (input) => {
+                const allRetrievedDocs = input.context;
+                const textDocs = allRetrievedDocs.filter((doc) => ['text_document', 'image_description'].includes((doc.metadata.source || '').trim().toLowerCase()));
+                return { ...input, context: textDocs };
+            }).withConfig({ runName: 'FilterTextDocuments' }),
+            runnables_1.RunnableLambda.from(async (input) => {
                 const MAX_DOCS_TO_USE = 5;
                 const rerankedDocs = await this.rerankInChunks(input.input, input.context);
                 const topDocs = rerankedDocs
@@ -193,7 +203,7 @@ CONTEXTS:
                     .map((r) => r.doc);
                 console.log(`Passing ${topDocs.length} documents to the LLM.`);
                 console.log('TopDocs Content:', topDocs.map((d) => d.pageContent.slice(0, 200)));
-                console.log("TopDocs:", topDocs.map(d => d.pageContent));
+                console.log('TopDocs:', topDocs.map((d) => d.pageContent));
                 return { ...input, context: topDocs };
             }).withConfig({ runName: 'RerankAndFilterDocuments' }),
             combineDocsChain,
@@ -268,6 +278,29 @@ CONTEXTS:
         this.chatHistories.clear();
         console.log('All chat histories cleared because a new file was processed.');
     }
+    async clearIndexData(indexName) {
+        console.log(`Clearing all objects in Weaviate collection: ${indexName}`);
+        try {
+            const collection = this.weaviateClient.collections.get(indexName);
+            await collection.data.deleteMany(weaviate_client_1.default.filter
+                .byProperty('text')
+                .notEqual('a-string-that-will-never-exist-and-is-just-for-deleting'));
+            console.log(`Successfully cleared data in collection: ${indexName}`);
+        }
+        catch (err) {
+            console.warn(`Could not clear data for collection '${indexName}'. It might not exist yet. Error: ${err.message}`);
+        }
+    }
+    async processBatch(files) {
+        const indexName = 'Chatbot';
+        await this.clearIndexData(indexName);
+        for (const file of files) {
+            await this.processFile(file);
+        }
+        this.initializeMasterChain();
+        this.clearAllHistories();
+        console.log('Batch processed and Weaviate index refreshed.');
+    }
     async processFile(file) {
         console.log(`Processing file: ${file.originalname} (${file.mimetype})`);
         const indexName = 'Chatbot';
@@ -275,6 +308,7 @@ CONTEXTS:
             throw new Error('No file buffer found. Make sure multer.memoryStorage() is used.');
         }
         let pageContent;
+        let metadata;
         if (file.mimetype.startsWith('image/')) {
             console.log('Image file detected, processing with Moondream for structured extraction...');
             const image_b64 = file.buffer.toString('base64');
@@ -294,15 +328,14 @@ CONTEXTS:
             const response = await this.visionModel.invoke([message]);
             pageContent = response.content;
             console.log('Structured Extraction Result:', pageContent);
+            metadata = { source: 'image_description', file_name: file.originalname };
         }
         else {
             console.log('Text file detected.');
             pageContent = file.buffer.toString();
+            metadata = { source: 'text_document', file_name: file.originalname };
         }
-        const doc = new documents_1.Document({
-            pageContent,
-            metadata: { source: 'uploaded_file' },
-        });
+        const doc = new documents_1.Document({ pageContent, metadata });
         const splitter = new text_splitter_1.RecursiveCharacterTextSplitter({
             chunkSize: 800,
             chunkOverlap: 100,
@@ -315,6 +348,7 @@ CONTEXTS:
             return;
         }
         console.log('Example chunk:', splits[0].pageContent.slice(0, 200));
+        console.log('Example chunk metadata:', splits[0].metadata);
         const batchSize = 32;
         for (let i = 0; i < splits.length; i += batchSize) {
             const batch = splits.slice(i, i + batchSize);
