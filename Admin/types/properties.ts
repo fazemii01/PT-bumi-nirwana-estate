@@ -1,22 +1,6 @@
 import { Agent } from "@/types/agent";
 import { Developer } from "@/types/developer";
 
-export type PropertyImage = {
-  id: string;
-  caption?: string;
-  sort_order?: number;
-  url?: string;
-  propertyId: string;
-};
-
-export type PropertyFloorPlan = {
-  id: string;
-  name: string;
-  sort_order?: number;
-  url?: string;
-  propertyId: string;
-};
-
 export type Property = {
   id: string;
   developerId: string;

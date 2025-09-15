@@ -1,70 +1,157 @@
-import { Injectable } from '@nestjs/common';
-import { readFileSync } from 'fs';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import * as path from 'path';
+import * as fs from 'fs';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Bank } from '@/banks/entities/bank.entity';
+import { Repository } from 'typeorm';
+import { CekEligibility } from '@/cek_eligibility/entities/cek_eligibility.entity';
+import * as dotenv from 'dotenv';
+import { AiService } from '@/ai/ai.service';
+
+dotenv.config();
 
 @Injectable()
 export class CekEligibilityService {
-  private rules: string;
+  private datasetPath = path.join(process.cwd(), 'src/cek_eligibility/dataset');
 
-  constructor() {
-    const filePath = path.join(
-      process.cwd(),
-      'src',
-      'cek_eligibility',
-      'rules.txt',
-    );
-    this.rules = readFileSync(filePath, 'utf-8');
-  }
+  private readonly bankKeywords = {
+    bca: 'BCA',
+    mandiri: 'Mandiri',
+    bni: 'BNI',
+    bri: 'BRI',
+  };
 
-  async checkEligibilityFromText(question: string): Promise<any> {
-    const prompt = `
-    Gunakan aturan berikut (jangan mengarang):
-    ${this.rules}
+  private readonly greetings = [
+    'halo',
+    'helo',
+    'hallo',
+    'hi',
+    'hai',
+    'hello',
+    'pagi',
+    'siang',
+    'sore',
+    'malam',
+    'selamat pagi',
+    'selamat siang',
+    'selamat sore',
+    'selamat malam',
+    'apa kabar',
+    'halo apa kabar',
+  ];
 
-    Cek eligibilitas KPR berdasarkan pertanyaan berikut:
-    "${question}"
+  private readonly thanksResponses = {
+    oke: 'Siap! Ada lagi yang bisa saya bantu?',
+    siap: 'Baik! Ada yang perlu ditanyakan lagi?',
+    'terima kasih': 'Sama-sama! Semoga proses KPR-nya lancar, ya!',
+    terimakasih: 'Sama-sama! Semoga proses KPR-nya lancar, ya!',
+    mantab: 'Senang bisa membantu!',
+    ok: 'Siap! Ada lagi yang bisa saya bantu?',
+    oketerimakasih: 'Sama-sama! Semoga proses KPR-nya lancar, ya',
+    baikterimakasih: 'Sama-sama! Semoga proses KPR-nya lancar, ya',
+    baik: 'Baik! Ada yang perlu ditanyakan lagi?',
+  };
 
-    - Jika pertanyaan menyebutkan setidaknya umur, penghasilan, jumlah pinjaman, dan tenor, anggap relevan.
-    - Jika relevan, jawab hanya dalam format JSON:
-    {
-      "result": "Eligible - alasan singkat"
+  constructor(
+    @InjectRepository(Bank)
+    private readonly bankRepository: Repository<Bank>,
+    @InjectRepository(CekEligibility)
+    private readonly cekEligibilityRepository: Repository<CekEligibility>,
+    private readonly aiService: AiService,
+  ) {}
+
+  async getEligibility(userQuestion: string) {
+    const normalizedQuestion = userQuestion.toLowerCase().trim();
+    if (this.greetings.includes(normalizedQuestion)) {
+      return {
+        result:
+          'Halo! Ada yang bisa saya bantu dengan pertanyaan kualifikasi eligibilitas KPR di Bumi Nirwana?',
+      };
     }
 
-    - Jika tidak menyebutkan data-data di atas, jawab dalam format JSON:
-    {
-      "result": "Pertanyaan tidak terkait dengan cek eligibilitas KPR. Mohon tanyakan hal yang relevan."
+    const thankResponse = this.thanksResponses[normalizedQuestion];
+    if (thankResponse) {
+      return { result: thankResponse };
     }
-
-    Jangan tambahkan teks lain.
-    `;
-
-    const response = await fetch('http://localhost:11434/api/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'phi3',
-        prompt,
-        stream: false,
-      }),
-    });
-
-    const data = await response.json();
 
     try {
-      let raw = data.response ?? '';
+      const bankName = this.detectBankName(userQuestion);
+      let bankId: string | null = null;
+      if (bankName) {
+        const bank = await this.bankRepository.findOne({
+          where: { name: bankName },
+        });
+        if (bank) {
+          bankId = bank.id;
+        }
+      }
+      const answer = await this.aiService.query(userQuestion, bankId!);
+      console.log('Final Answer from AiService:', answer);
+      return answer;
+    } catch (error) {
+      console.error('Terjadi kesalahan pada alur RAG:', error.message);
+      throw new HttpException(
+        'Gagal memproses permintaan.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 
-      raw = raw
-        .replace(/```json/g, '')
-        .replace(/```/g, '')
-        .trim();
+  private detectBankName(question: string): string | null {
+    const normalizedQuestion = question.toLowerCase();
 
-      const parsed = JSON.parse(raw);
-      return parsed;
-    } catch (e) {
-      console.error('Parsing error:', e, 'Raw response:', data.response);
-      return {
-        result: 'Format jawaban tidak valid dari AI.',
-      };
+    for (const keyword in this.bankKeywords) {
+      if (normalizedQuestion.includes(keyword)) {
+        return this.bankKeywords[keyword];
+      }
+    }
+
+    return null;
+  }
+  async seed() {
+    const bankFolders = fs.readdirSync(this.datasetPath);
+
+    for (const bankName of bankFolders) {
+      const bank = await this.bankRepository
+        .createQueryBuilder('bank')
+        .where('bank.name ILIKE :name', { name: bankName })
+        .getOne();
+
+      const bankId = bank ? bank.id : null;
+      if (!bankId) {
+        console.error(`Bank ${bankName} tidak ditemukan. Melewati folder ini.`);
+        continue;
+      }
+
+      const bankPath = path.join(this.datasetPath, bankName);
+      const files = fs.readdirSync(bankPath);
+
+      for (const fileName of files) {
+        const filePath = path.join(bankPath, fileName);
+        const fileContent = fs.readFileSync(filePath, 'utf-8');
+
+        const rules = fileContent
+          .split('\n')
+          .map((line) => line.trim())
+          .filter((line) => line.length > 0 && !line.startsWith('-'));
+
+        for (const rule of rules) {
+          console.log(bankId);
+
+          const embedding = await this.aiService.embedText(rule);
+
+          await this.cekEligibilityRepository.save({
+            bank_id: bankId,
+            rule_text: rule,
+            embedding: embedding && embedding.length > 0 ? embedding : null,
+            metadata: { bank_id: bankId },
+          });
+
+          console.log(
+            `Inserted rule for ${bankName}: "${rule.substring(0, 50)}..."`,
+          );
+        }
+      }
     }
   }
 }

@@ -1,4 +1,13 @@
-import { object, string, number, array, nativeEnum, literal, tuple, z } from "zod";
+import {
+  object,
+  string,
+  number,
+  array,
+  nativeEnum,
+  literal,
+  tuple,
+  z,
+} from "zod";
 import { PropertyStatus, PriceUnit, PropertyType } from "../types/properties";
 import { description } from "@/components/chart-area-interactive";
 
@@ -9,19 +18,32 @@ const emptyToUndef = z
 
 export const AgentZod = object({
   full_name: string().min(1, "Name is required"),
-  email: string().min(1, "Email is required").email("please enter a valid email"),
+  email: string()
+    .min(1, "Email is required")
+    .email("please enter a valid email"),
   phone_number: string().min(10, "Phone number invalid"),
 });
 
 export const DeveloperSchema = object({
   name: string().min(1, "Name is required"),
-  website_url: string().min(1, "Website URL is required").url("Please enter a valid URL"),
+  website_url: string()
+    .min(1, "Website URL is required")
+    .url("Please enter a valid URL"),
 });
 
 // Lokasi [lng, lat]
 const LocationZod = z.object({
   type: z.literal("Point"),
-  coordinates: z.tuple([z.number(), z.number()]).refine(([lng, lat]) => typeof lng === "number" && typeof lat === "number" && !isNaN(lng) && !isNaN(lat), { message: "Koordinat lokasi wajib diisi" }),
+  coordinates: z
+    .tuple([z.number(), z.number()])
+    .refine(
+      ([lng, lat]) =>
+        typeof lng === "number" &&
+        typeof lat === "number" &&
+        !isNaN(lng) &&
+        !isNaN(lat),
+      { message: "Koordinat lokasi wajib diisi" }
+    ),
 });
 
 export const AddressZod = object({
@@ -91,13 +113,26 @@ export const PropertyZod = object({
   detail_description: string().optional(),
   location: object({
     type: literal("Point"),
-    coordinates: tuple([number(), number()]).refine(([lng, lat]) => typeof lng === "number" && typeof lat === "number" && !isNaN(lng) && !isNaN(lat), { message: "Koordinat lokasi wajib diisi" }),
+    coordinates: tuple([number(), number()]).refine(
+      ([lng, lat]) =>
+        typeof lng === "number" &&
+        typeof lat === "number" &&
+        !isNaN(lng) &&
+        !isNaN(lat),
+      { message: "Koordinat lokasi wajib diisi" }
+    ),
   }),
   address: AddressZod.optional(),
   specifications: SpecificationsZod.optional(),
 
-  property_images: array(object({})).min(1, "Minimal 1 gambar property wajib diupload"),
-  property_floor_plans: array(object({})).min(1, "Minimal 1 gambar denah wajib diupload"),
+  property_images: array(object({})).min(
+    1,
+    "Minimal 1 gambar property wajib diupload"
+  ),
+  property_floor_plans: array(object({})).min(
+    1,
+    "Minimal 1 gambar denah wajib diupload"
+  ),
 
   images: array(ImagePropertyZod).optional(),
   floor_plans: array(FloorPlanZod),

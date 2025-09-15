@@ -6,9 +6,11 @@ import 'package:mobile_nirwana/data/models/eligibility_request.dart';
 
 class EligibilityService extends Api {
   Future<EligibilityResponse> checkEligibility(String question) async {
+    final headers = getToken()..addAll({"Content-Type": "application/json"});
+
     final response = await http.post(
       Uri.parse("$baseUrl/cek-eligibility"),
-      headers: getToken(),
+      headers: headers,
       body: jsonEncode({"question": question}),
     );
 

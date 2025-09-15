@@ -2,8 +2,6 @@
 import React, { useEffect, useMemo, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getAgent } from "@/api/agent";
-import { getDeveloper } from "@/api/developer";
 import { Agent } from "@/types/agent";
 import { Developer } from "@/types/developer";
 import { Property } from "@/types/properties";
@@ -14,10 +12,16 @@ import BasicInfoForm from "@/components/properties/create/basic-info-form";
 import LocationForm from "@/components/properties/create/location-form";
 import SpecificationsForm from "@/components/properties/create/specifications-form";
 import EditMediaForm from "@/components/properties/edit/edit-media";
-
 import { submitUpdateProperty } from "@/actions/property";
+import { useRouter } from "next/navigation";
+import { getAgent } from "@/api/agent";
+import { getDeveloper } from "@/api/developer";
 
-type UpdateSubmitHandler = (props: { id: string; data: Property; originalData: Property }) => Promise<boolean | void>;
+type UpdateSubmitHandler = (props: {
+  id: string;
+  data: Property;
+  originalData: Property;
+}) => Promise<boolean | void>;
 
 function safeParseInitial(initialData: Property): Property {
   const parsed: Property = { ...initialData };
@@ -32,7 +36,9 @@ function safeParseInitial(initialData: Property): Property {
 
   if (typeof parsed.specifications === "string") {
     try {
-      parsed.specifications = JSON.parse(parsed.specifications as unknown as string);
+      parsed.specifications = JSON.parse(
+        parsed.specifications as unknown as string
+      );
     } catch {
       parsed.specifications = {};
     }
@@ -53,14 +59,24 @@ function safeParseInitial(initialData: Property): Property {
   return parsed;
 }
 
-const PropertyEditForm = ({ initialData }: { initialData: Property }) => {
-  const safeParsed = useMemo(() => safeParseInitial(initialData), [initialData]);
+const PropertyEditForm = ({
+  initialData,
+  agents,
+  developers,
+}: {
+  initialData: Property;
+  agents: Agent[];
+  developers: Developer[];
+}) => {
+  const router = useRouter();
+  const safeParsed = useMemo(
+    () => safeParseInitial(initialData),
+    [initialData]
+  );
 
   const [formData, setFormData] = useState<Property>(safeParsed);
   const [originalData, setOriginalData] = useState<Property>(safeParsed);
 
-  const [agents, setAgents] = useState<Agent[]>([]);
-  const [developers, setDevelopers] = useState<Developer[]>([]);
   const [activeTab, setActiveTab] = useState("basic");
   const [error, setError] = useState<{ [key: string]: string }>({});
   const [pending, startTransition] = useTransition();
@@ -68,13 +84,17 @@ const PropertyEditForm = ({ initialData }: { initialData: Property }) => {
   // state khusus tab media (queue & meta sejajar index)
   const [newImageFiles, setNewImageFiles] = useState<File[]>([]);
   const [newFloorFiles, setNewFloorFiles] = useState<File[]>([]);
-  const [imagesMeta, setImagesMeta] = useState<Array<{ caption?: string; sort_order?: number }>>(
+  const [imagesMeta, setImagesMeta] = useState<
+    Array<{ caption?: string; sort_order?: number }>
+  >(
     formData.images?.map((x, i) => ({
       caption: x.caption,
       sort_order: x.sort_order ?? i,
     })) ?? []
   );
-  const [floorPlansMeta, setFloorPlansMeta] = useState<Array<{ name?: string; sort_order?: number }>>(
+  const [floorPlansMeta, setFloorPlansMeta] = useState<
+    Array<{ name?: string; sort_order?: number }>
+  >(
     formData.floor_plans?.map((x, i) => ({
       name: x.name,
       sort_order: x.sort_order ?? i,
@@ -101,19 +121,6 @@ const PropertyEditForm = ({ initialData }: { initialData: Property }) => {
     );
   }, [safeParsed]);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const [agentsData, developersData] = await Promise.all([getAgent(), getDeveloper()]);
-        setAgents(agentsData.data || []);
-        setDevelopers(developersData.data || []);
-      } catch {
-        /* optional toast/log */
-      }
-    })();
-  }, []);
-
-  /* ---------------------------- Handlers basic ---------------------------- */
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
     setFormData(
@@ -132,13 +139,19 @@ const PropertyEditForm = ({ initialData }: { initialData: Property }) => {
     setFormData((prev) => ({ ...prev, [name]: value } as Property));
   };
 
-  /* ----------------------------- Handlers map ----------------------------- */
-  const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement> | { target: { name: string; value: string } }) => {
+  const handleLocationChange = (
+    e:
+      | React.ChangeEvent<HTMLInputElement>
+      | { target: { name: string; value: string } }
+  ) => {
     const { name, value } = e.target;
     const numValue = parseFloat(value);
     setFormData((prev) => {
       const [lng0, lat0] = prev.location?.coordinates ?? [0, 0];
-      const nextCoords = name === "lng" ? [isNaN(numValue) ? lng0 : numValue, lat0] : [lng0, isNaN(numValue) ? lat0 : numValue];
+      const nextCoords =
+        name === "lng"
+          ? [isNaN(numValue) ? lng0 : numValue, lat0]
+          : [lng0, isNaN(numValue) ? lat0 : numValue];
       return {
         ...prev,
         location: {
@@ -148,7 +161,11 @@ const PropertyEditForm = ({ initialData }: { initialData: Property }) => {
       } as Property;
     });
   };
-  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement> | { target: { name: string; value: string } }) => {
+  const handleAddressChange = (
+    e:
+      | React.ChangeEvent<HTMLInputElement>
+      | { target: { name: string; value: string } }
+  ) => {
     const { name, value } = e.target;
     setFormData(
       (prev) =>
@@ -159,8 +176,9 @@ const PropertyEditForm = ({ initialData }: { initialData: Property }) => {
     );
   };
 
-  /* ------------------------- Handlers specifications ---------------------- */
-  const handleSpecificationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSpecificationChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const { name, value, type } = e.target;
     setFormData(
       (prev) =>
@@ -173,7 +191,9 @@ const PropertyEditForm = ({ initialData }: { initialData: Property }) => {
         } as Property)
     );
   };
-  const handleTextAreaSpecificationChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleTextAreaSpecificationChange = (
+    e: React.ChangeEvent<HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setFormData(
       (prev) =>
@@ -184,11 +204,9 @@ const PropertyEditForm = ({ initialData }: { initialData: Property }) => {
     );
   };
 
-  /* -------------------------------- Submit -------------------------------- */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // sinkronkan queue & meta ke formData hanya untuk payload
     const dataForSubmit: Property = {
       ...formData,
       property_images: newImageFiles,
@@ -202,11 +220,19 @@ const PropertyEditForm = ({ initialData }: { initialData: Property }) => {
       const firstError = result.error.errors[0];
       const path = firstError.path;
       let tab = "basic";
-      if (path.includes("location") || path.includes("address") || path.includes("coordinates")) {
+      if (
+        path.includes("location") ||
+        path.includes("address") ||
+        path.includes("coordinates")
+      ) {
         tab = "location";
       } else if (path.includes("specifications")) {
         tab = "specs";
-      } else if (path.includes("images") || path.includes("floor_plans") || path.includes("property_")) {
+      } else if (
+        path.includes("images") ||
+        path.includes("floor_plans") ||
+        path.includes("property_")
+      ) {
         tab = "media";
       }
       setActiveTab(tab);
@@ -216,11 +242,17 @@ const PropertyEditForm = ({ initialData }: { initialData: Property }) => {
     setError({});
 
     startTransition(async () => {
-      const res = await submitUpdateProperty({ data: dataForSubmit, originalData });
+      const res = await submitUpdateProperty({
+        data: dataForSubmit,
+        originalData,
+      });
 
       if (!res.success) {
-        showToastError(res.message || "Failed to update property. Please try again.");
+        showToastError(
+          res.message || "Failed to update property. Please try again."
+        );
       }
+      router.push("/properties");
       showToastSuccess("Property updated successfully!");
       setOriginalData(dataForSubmit);
       setNewImageFiles([]);
@@ -236,31 +268,62 @@ const PropertyEditForm = ({ initialData }: { initialData: Property }) => {
 
       <form onSubmit={handleSubmit}>
         <div>
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="space-y-6"
+          >
             <TabsList className="grid grid-cols-4 w-full h-auto">
-              <TabsTrigger value="basic" className="flex items-center justify-center py-2 cursor-pointer">
+              <TabsTrigger
+                value="basic"
+                className="flex items-center justify-center py-2 cursor-pointer"
+              >
                 <Info className="w-4 h-4 sm:hidden" />
                 <span className="hidden sm:inline">Info Dasar</span>
               </TabsTrigger>
-              <TabsTrigger value="location" className="flex items-center justify-center py-2 cursor-pointer">
+              <TabsTrigger
+                value="location"
+                className="flex items-center justify-center py-2 cursor-pointer"
+              >
                 <MapPin className="w-4 h-4 sm:hidden" />
                 <span className="hidden sm:inline">Lokasi</span>
               </TabsTrigger>
-              <TabsTrigger value="media" className="flex items-center justify-center py-2 cursor-pointer">
+              <TabsTrigger
+                value="media"
+                className="flex items-center justify-center py-2 cursor-pointer"
+              >
                 <Camera className="w-4 h-4 sm:hidden" />
                 <span className="hidden sm:inline">Media</span>
               </TabsTrigger>
-              <TabsTrigger value="specs" className="flex items-center justify-center py-2 cursor-pointer">
+              <TabsTrigger
+                value="specs"
+                className="flex items-center justify-center py-2 cursor-pointer"
+              >
                 <Settings className="w-4 h-4 sm:hidden" />
                 <span className="hidden sm:inline">Spesifikasi</span>
               </TabsTrigger>
             </TabsList>
 
             {/* Basic */}
-            <BasicInfoForm formData={formData} handleSelectChange={handleSelectChange as any} handleInputChange={handleInputChange} handleTextAreaChange={handleTextAreaChange} developers={developers} agents={agents} error={error} />
+            <BasicInfoForm
+              formData={formData}
+              handleSelectChange={handleSelectChange}
+              handleInputChange={handleInputChange}
+              handleTextAreaChange={handleTextAreaChange}
+              developers={developers}
+              agents={agents}
+              error={error}
+            />
 
             {/* Location */}
-            {activeTab === "location" && <LocationForm formData={formData} handleAddressChange={handleAddressChange} handleLocationChange={handleLocationChange} error={error} />}
+            {activeTab === "location" && (
+              <LocationForm
+                formData={formData}
+                handleAddressChange={handleAddressChange}
+                handleLocationChange={handleLocationChange}
+                error={error}
+              />
+            )}
 
             {/* Media */}
             {activeTab === "media" && (
@@ -282,11 +345,24 @@ const PropertyEditForm = ({ initialData }: { initialData: Property }) => {
             )}
 
             {/* Specs */}
-            {activeTab === "specs" && <SpecificationsForm formData={formData} handleSpecificationChange={handleSpecificationChange} handleTextAreaSpecificationChange={handleTextAreaSpecificationChange} error={error} />}
+            {activeTab === "specs" && (
+              <SpecificationsForm
+                formData={formData}
+                handleSpecificationChange={handleSpecificationChange}
+                handleTextAreaSpecificationChange={
+                  handleTextAreaSpecificationChange
+                }
+                error={error}
+              />
+            )}
           </Tabs>
 
           <div className="flex justify-end gap-4 pt-6 border-t">
-            <Button type="submit" className="bg-blue-600 hover:bg-blue-700 cursor-pointer" disabled={pending}>
+            <Button
+              type="submit"
+              className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
+              disabled={pending}
+            >
               {pending ? "Saving..." : "Save Changes"}
             </Button>
           </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import PropertyCreateForm from "@/components/properties/create-form";
+import PropertyCreateForm from "@/components/properties/create/create-form";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { IconPlus } from "@tabler/icons-react";

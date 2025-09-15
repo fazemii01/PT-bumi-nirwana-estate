@@ -20,7 +20,10 @@ import { LoanSimulationsModule } from './loan_simulations/loan_simulations.modul
 import { NewsCategoryModule } from './news_category/news_category.module';
 import { NewsModule } from './news/news.module';
 import { CekEligibilityModule } from './cek_eligibility/cek_eligibility.module';
-
+import { OllamaService } from '@/ollama/ollama.service';
+import { AiService } from './ai/ai.service';
+import { AiModule } from './ai/ai.module';
+import { OllamaModule } from './ollama/ollama.module';
 @Module({
   imports: [
     ServeStaticModule.forRoot({
@@ -36,7 +39,7 @@ import { CekEligibilityModule } from './cek_eligibility/cek_eligibility.module';
         type: 'postgres',
         url: configService.get<string>('DATABASE_URL'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: true, // Shouldn't be used in production
+        synchronize: false, // Shouldn't be used in production
         ssl: {
           rejectUnauthorized: false,
         },
@@ -55,6 +58,8 @@ import { CekEligibilityModule } from './cek_eligibility/cek_eligibility.module';
     NewsCategoryModule,
     NewsModule,
     CekEligibilityModule,
+    AiModule,
+    OllamaModule,
   ],
 
   controllers: [AppController],
@@ -72,6 +77,7 @@ import { CekEligibilityModule } from './cek_eligibility/cek_eligibility.module';
       provide: APP_PIPE,
       useClass: ValidationPipe,
     },
+    AiService,
   ],
 })
 export class AppModule {}

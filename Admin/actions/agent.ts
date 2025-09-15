@@ -9,14 +9,23 @@ export async function submitCreateAgent({ data }: { data: Agent }) {
     if (res.success) {
       return { success: true, message: "Agent berhasil ditambahkan!" };
     } else {
-      return { success: false, message: res.error || "Gagal menambahkan agent." };
+      return {
+        success: false,
+        message: res.error || "Gagal menambahkan agent.",
+      };
     }
   } catch (error) {
     return { success: false, message: "Terjadi error pada server." };
   }
 }
 
-export async function submitUpdateAgent({ data, originalData }: { data: Agent; originalData: Agent }) {
+export async function submitUpdateAgent({
+  data,
+  originalData,
+}: {
+  data: Agent;
+  originalData: Agent;
+}) {
   try {
     const res = await updateAgent({ data, originalData });
 

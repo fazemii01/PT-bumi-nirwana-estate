@@ -8,11 +8,13 @@ class PropertiesController extends GetxController {
   var properties = <Property>[].obs;
   var isLoading = false.obs;
   var errorMessage = ''.obs;
+  var type = ''.obs;
 
   @override
   void onInit() {
     super.onInit();
-    loadProperty();
+    ever(type, (_) => loadProperty());
+    type.value = 'All';
   }
 
   Future<void> loadProperty() async {
@@ -20,7 +22,11 @@ class PropertiesController extends GetxController {
       isLoading.value = true;
       errorMessage.value = '';
       List<Property> propertyList = [];
-      propertyList = await _propertyService.getAllProperty();
+      if (type.value == 'All') {
+        propertyList = await _propertyService.getAllProperty();
+      } else {
+        propertyList = await _propertyService.getPropertiesByType(type.value);
+      }
       properties.value = propertyList;
     } catch (e) {
       errorMessage.value = 'Failed to load property: $e';

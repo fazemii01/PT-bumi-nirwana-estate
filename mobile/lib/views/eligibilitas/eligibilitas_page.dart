@@ -427,15 +427,6 @@ class _EligibilitasKPRPageState extends State<EligibilitasKPRPage>
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  'AI sedang mengetik',
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 14,
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-                SizedBox(width: 8),
                 SizedBox(
                   width: 20,
                   height: 20,

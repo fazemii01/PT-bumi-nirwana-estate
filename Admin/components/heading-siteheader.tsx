@@ -10,26 +10,32 @@ export function HeadingSiteHeader() {
   const { pageTitle, linkTo } = useMemo(() => {
     if (pathname.startsWith("/properties")) {
       return {
-        pageTitle: "Properties",
+        pageTitle: "Data Properties",
         linkTo: "/properties",
       };
     }
     if (pathname.startsWith("/agent")) {
       return {
-        pageTitle: "Agents",
+        pageTitle: "Data Agents",
         linkTo: "/agent",
       };
     }
-    if (pathname.startsWith("/developers")) {
+    if (pathname.startsWith("/developer")) {
       return {
-        pageTitle: "Developers",
-        linkTo: "/developers",
+        pageTitle: "Data Developers",
+        linkTo: "/developer",
       };
     }
     if (pathname.startsWith("/dashboard")) {
       return {
-        pageTitle: "Dashboard",
+        pageTitle: "Data Dashboard",
         linkTo: "/dashboard",
+      };
+    }
+    if (pathname.startsWith("/bank")) {
+      return {
+        pageTitle: "Data Bank",
+        linkTo: "/bank",
       };
     }
     return {

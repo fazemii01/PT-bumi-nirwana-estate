@@ -14,7 +14,7 @@ class EligibilityController extends GetxController {
       print(response.result);
       result.value = response.result; // ambil string dari model
     } catch (e) {
-      result.value = "Error: ${e.toString()}";
+      result.value = "Terjadi kesalhan";
     } finally {
       isLoading.value = false;
     }

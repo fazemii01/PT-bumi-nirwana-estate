@@ -2,7 +2,13 @@
 import { Developer } from "@/types/developer";
 import { useState } from "react";
 import { showToastError, showToastSuccess } from "../toast";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
 import { IconEdit, IconTrash } from "@tabler/icons-react";
@@ -39,17 +45,29 @@ const ActionDeveloperCell = ({ developer }: { developer: Developer }) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem className="cursor-pointer" onClick={() => setEdit(true)}>
+          <DropdownMenuItem
+            className="cursor-pointer"
+            onClick={() => setEdit(true)}
+          >
             <IconEdit />
             Edit
           </DropdownMenuItem>
-          <DropdownMenuItem className="cursor-pointer" onClick={() => setOpen(true)}>
+          <DropdownMenuItem
+            className="cursor-pointer"
+            onClick={() => setOpen(true)}
+          >
             <IconTrash />
             Delete
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <ConfirmMessage open={open} setOpen={setOpen} data={developer.id} onConfirm={handleDelete} isLoading={isLoading} />
+      <ConfirmMessage
+        open={open}
+        setOpen={setOpen}
+        data={developer.id}
+        onConfirm={handleDelete}
+        isLoading={isLoading}
+      />
       <EditDeveloper edit={edit} setEdit={setEdit} developer={developer} />
     </>
   );
