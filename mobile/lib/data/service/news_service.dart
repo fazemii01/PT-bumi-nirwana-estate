@@ -21,4 +21,23 @@ class NewsService extends Api {
       throw Exception('Error fetching properties $e');
     }
   }
+
+  Future<News> getNewsById(String id) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/news/$id'),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+
+        return News.fromJson(data);
+      } else {
+        throw Exception(
+            'Gagal memuat detail berita. Status: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Terjadi kesalahan jaringan: $e');
+    }
+  }
 }

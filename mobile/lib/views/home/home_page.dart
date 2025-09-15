@@ -23,6 +23,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final HomeController _homeController = Get.put(HomeController());
   final LayoutController _layoutController = Get.put(LayoutController());
+  final LayoutController layoutController = Get.find();
 
   @override
   void initState() {
@@ -465,9 +466,6 @@ class _HomePageState extends State<HomePage> {
           SizedBox(height: 20),
           ElevatedButton(
             onPressed: () {
-              // Temukan LayoutController yang sudah aktif
-              final LayoutController layoutController = Get.find();
-
               layoutController.changeTabIndex(1);
             },
             style: ElevatedButton.styleFrom(
@@ -583,7 +581,9 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             TextButton(
-              onPressed: () {},
+              onPressed: () {
+                layoutController.changeTabIndex(1);
+              },
               child: Text(
                 'Lihat Semua',
                 style: TextStyle(
@@ -598,7 +598,6 @@ class _HomePageState extends State<HomePage> {
         SizedBox(height: 16),
         Container(
           height: 280,
-          // Tidak ada lagi Obx di sini
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             physics: BouncingScrollPhysics(),
@@ -606,7 +605,12 @@ class _HomePageState extends State<HomePage> {
             separatorBuilder: (context, index) => SizedBox(width: 16),
             itemBuilder: (context, index) {
               final property = _homeController.properties[index];
-              return _buildPropertyCard(property);
+              return GestureDetector(
+                onTap: () {
+                  Get.toNamed(Routes.DETAIL_PROPERTIES, arguments: property.id);
+                },
+                child: _buildPropertyCard(property),
+              );
             },
           ),
         ),
@@ -816,7 +820,12 @@ class _HomePageState extends State<HomePage> {
           separatorBuilder: (context, index) => SizedBox(height: 16),
           itemBuilder: (context, index) {
             final news = _homeController.news[index];
-            return _buildNewsCard(news);
+            return GestureDetector(
+              onTap: () {
+                Get.toNamed(Routes.DETAIL_NEWS, arguments: news.id);
+              },
+              child: _buildNewsCard(news),
+            );
           },
         ),
       ],

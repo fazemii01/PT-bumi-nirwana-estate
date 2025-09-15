@@ -74,7 +74,7 @@ export class PropertiesController {
 
   @Public()
   @Get('type/:type')
-  async findOneBySlug(@Param('type') type: string): Promise<Property[]> {
+  async findOneByType(@Param('type') type: string): Promise<Property[]> {
     return this.propertiesService.findOneByType(type);
   }
 

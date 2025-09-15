@@ -5,6 +5,8 @@ import 'package:mobile_nirwana/views/kpr/form/widgets/hasil_simulation.dart';
 import 'package:mobile_nirwana/views/kpr/form/simulation_form.dart';
 import 'package:mobile_nirwana/views/kpr/kpr_page.dart';
 import 'package:mobile_nirwana/views/layout.dart';
+import 'package:mobile_nirwana/views/news/detail/detail_news.dart';
+import 'package:mobile_nirwana/views/properties/detail/detail_properties.dart';
 
 class AppPages {
   static final pages = [
@@ -39,5 +41,17 @@ class AppPages {
           );
         },
         transition: Transition.leftToRight),
+    GetPage(
+      name: '/detail-properties',
+      page: () => PropertyDetailPage(),
+      transition: Transition.downToUp,
+      transitionDuration: Duration(milliseconds: 500),
+    ),
+    GetPage(
+      name: '/detail-news',
+      page: () => NewsDetailPage(),
+      transition: Transition.downToUp,
+      transitionDuration: Duration(milliseconds: 500),
+    ),
   ];
 }
