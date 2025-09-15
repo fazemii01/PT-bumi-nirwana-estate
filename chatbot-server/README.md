@@ -145,8 +145,7 @@ The chatbot's workflow can be broken down into two main parts: data processing a
     *   LangChain
     *   Ollama (for local LLMs)
     *   Weaviate (vector database)
-    *   FAISS (for similarity search)
-    *   Tesseract.js (for OCR)
+    *   Moondream (for image processing)
     *   gpt-tokenizer
 *   **Real-time Communication**: WebSockets (Socket.IO)
 *   **Containerization**: Docker
