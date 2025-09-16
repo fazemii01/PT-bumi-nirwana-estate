@@ -95,6 +95,7 @@ class _PropertyDetailPageState extends State<PropertyDetailPage> {
                           expandedHeight: 350.0,
                           backgroundColor: Colors.white,
                           elevation: 0.5,
+                          surfaceTintColor: Colors.white,
                           pinned: true,
                           title: CollapsingTitle(
                             title: property.name,
@@ -144,7 +145,7 @@ class _PropertyDetailPageState extends State<PropertyDetailPage> {
                                   margin: const EdgeInsets.symmetric(
                                       horizontal: 24.0),
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 20.0, vertical: 24.0),
+                                      horizontal: 24.0, vertical: 20.0),
                                   decoration: BoxDecoration(
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(16.0),
@@ -248,7 +249,7 @@ class _PropertyDetailPageState extends State<PropertyDetailPage> {
             Text(
               price,
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 16,
                 fontWeight: FontWeight.bold,
                 color: theme.colorScheme.primary,
               ),
@@ -256,7 +257,7 @@ class _PropertyDetailPageState extends State<PropertyDetailPage> {
             Text(
               unit,
               style: const TextStyle(
-                fontSize: 14,
+                fontSize: 12,
                 color: Color(0xFF6B7280),
               ),
             ),
@@ -279,7 +280,7 @@ class _PropertyDetailPageState extends State<PropertyDetailPage> {
           child: Text(
             address,
             style: const TextStyle(
-              fontSize: 15,
+              fontSize: 12,
               color: Color(0xFF6B7280),
             ),
           ),

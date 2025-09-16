@@ -3,14 +3,17 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:mobile_nirwana/core/routes/app_routes.dart';
 import 'package:mobile_nirwana/core/utils/api.dart';
+import 'package:mobile_nirwana/data/models/news/news.dart';
 import 'package:mobile_nirwana/data/models/property/property.dart';
 import 'package:mobile_nirwana/helper/address.dart';
 import 'package:mobile_nirwana/helper/price.dart';
 import 'package:mobile_nirwana/helper/specifications.dart';
 import 'package:mobile_nirwana/views/home/home_controller.dart';
 import 'package:mobile_nirwana/views/home/widgets/property_favorite_user.dart';
+import 'package:mobile_nirwana/views/layout.dart';
 import 'package:mobile_nirwana/views/layout_controller.dart';
 import 'package:mobile_nirwana/widgets/sceleton_home_property.dart';
+import 'package:mobile_nirwana/widgets/skeleton_home_news.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -19,8 +22,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final HomeController _homeController = Get.put(HomeController());
-
   final LayoutController _layoutController = Get.put(LayoutController());
+  final LayoutController layoutController = Get.find();
 
   @override
   void initState() {
@@ -211,8 +214,7 @@ class _HomePageState extends State<HomePage> {
   Widget _buildHomeContent() {
     return RefreshIndicator(
       onRefresh: () async {
-        await _homeController.refreshProperties();
-        // Tambahkan refresh untuk data lainnya jika diperlukan
+        await _homeController.refreshAllData();
       },
       color: Color(0xFFDBB837),
       backgroundColor: Colors.white,
@@ -228,17 +230,167 @@ class _HomePageState extends State<HomePage> {
               padding: EdgeInsets.all(20),
               child: Column(
                 children: [
-                  // Menu
                   _buildMenuSection(),
                   SizedBox(height: 32),
-
-                  // Recommended Properties
-                  _buildRecommendedSection(),
-                  SizedBox(height: 32),
-
-                  // Nearby Properties
-                  _buildNearbySection(),
+                  Obx(() {
+                    if (_homeController.isLoading.value) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Properti Rekomendasi',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          SizedBox(height: 16),
+                          Container(
+                            height: 280,
+                            child: ListView.separated(
+                              scrollDirection: Axis.horizontal,
+                              physics: const BouncingScrollPhysics(),
+                              itemCount: 3,
+                              separatorBuilder: (context, index) =>
+                                  const SizedBox(width: 1),
+                              itemBuilder: (context, index) {
+                                return const SceletonHomeProperty();
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 32),
+                          Text(
+                            'Berita Terbaru',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          SizedBox(height: 16),
+                          Container(
+                            height: 280,
+                            child: ListView.separated(
+                              scrollDirection: Axis.vertical,
+                              physics: const BouncingScrollPhysics(),
+                              itemCount: 2,
+                              separatorBuilder: (context, index) =>
+                                  const SizedBox(width: 16),
+                              itemBuilder: (context, index) {
+                                return const SkeletonHomeNews();
+                              },
+                            ),
+                          ),
+                        ],
+                      );
+                    } else if (_homeController.errorMessage.isNotEmpty) {
+                      return _buildErrorState();
+                    } else {
+                      return _buildMainContentSections();
+                    }
+                  }),
                   SizedBox(height: 20),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMainContentSections() {
+    return Column(
+      children: [
+        if (_homeController.properties.isNotEmpty) _buildRecommendedSection(),
+        SizedBox(height: 32),
+        if (_homeController.news.isNotEmpty) _buildNewsSection(),
+      ],
+    );
+  }
+
+  Widget _buildErrorState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                color: Colors.red[50],
+                borderRadius: BorderRadius.circular(40),
+                border: Border.all(
+                  color: Colors.red[100]!,
+                  width: 2,
+                ),
+              ),
+              child: Icon(
+                Icons.wifi_off_rounded,
+                size: 30,
+                color: Colors.red[400],
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'Something went wrong',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey[800],
+                letterSpacing: -0.3,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Container(
+              constraints: BoxConstraints(maxWidth: 280),
+              child: Text(
+                _homeController.errorMessage.value,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[600],
+                  height: 1.4,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () => _homeController.refreshAllData(),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFFDBB837),
+                foregroundColor: Colors.white,
+                elevation: 0,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 28,
+                  vertical: 14,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.refresh_rounded,
+                    size: 18,
+                    color: Colors.white,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Try Again',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -314,9 +466,7 @@ class _HomePageState extends State<HomePage> {
           SizedBox(height: 20),
           ElevatedButton(
             onPressed: () {
-              // setState(() {
-              //   _selectedIndex = 1;
-              // });
+              layoutController.changeTabIndex(1);
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
@@ -432,9 +582,7 @@ class _HomePageState extends State<HomePage> {
             ),
             TextButton(
               onPressed: () {
-                // setState(() {
-                //   _selectedIndex = 1;
-                // });
+                layoutController.changeTabIndex(1);
               },
               child: Text(
                 'Lihat Semua',
@@ -450,208 +598,21 @@ class _HomePageState extends State<HomePage> {
         SizedBox(height: 16),
         Container(
           height: 280,
-          child: Obx(() {
-            if (_homeController.isLoading.value) {
-              // tampilkan 3 skeleton
-              return ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: 3,
-                itemBuilder: (context, index) {
-                  return const SceletonHomeProperty();
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            physics: BouncingScrollPhysics(),
+            itemCount: _homeController.properties.length,
+            separatorBuilder: (context, index) => SizedBox(width: 16),
+            itemBuilder: (context, index) {
+              final property = _homeController.properties[index];
+              return GestureDetector(
+                onTap: () {
+                  Get.toNamed(Routes.DETAIL_PROPERTIES, arguments: property.id);
                 },
+                child: _buildPropertyCard(property),
               );
-            }
-
-            if (_homeController.errorMessage.isNotEmpty) {
-              return Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 50,
-                        height: 50,
-                        decoration: BoxDecoration(
-                          color: Colors.red[50],
-                          borderRadius: BorderRadius.circular(40),
-                          border: Border.all(
-                            color: Colors.red[100]!,
-                            width: 2,
-                          ),
-                        ),
-                        child: Icon(
-                          Icons.wifi_off_rounded,
-                          size: 30,
-                          color: Colors.red[400],
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      Text(
-                        'Something went wrong',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey[800],
-                          letterSpacing: -0.3,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 8),
-                      Container(
-                        constraints: BoxConstraints(maxWidth: 280),
-                        child: Text(
-                          _homeController.errorMessage.value,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[600],
-                            height: 1.4,
-                          ),
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      ElevatedButton(
-                        onPressed: () => _homeController.loadProperty(),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFFDBB837),
-                          foregroundColor: Colors.white,
-                          elevation: 0,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 28,
-                            vertical: 14,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.refresh_rounded,
-                              size: 18,
-                              color: Colors.white,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Try Again',
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            }
-
-            if (_homeController.properties.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[50],
-                        borderRadius: BorderRadius.circular(40),
-                        border: Border.all(
-                          color: Colors.grey[200]!,
-                          width: 2,
-                        ),
-                      ),
-                      child: Icon(
-                        Icons.home_work_outlined,
-                        size: 40,
-                        color: Colors.grey[400],
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    Text(
-                      'No properties available',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey[700],
-                        letterSpacing: -0.3,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      'Check back later for new listings',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[500],
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.1),
-                            blurRadius: 8,
-                            offset: Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: ElevatedButton(
-                        onPressed: () => _homeController.refreshProperties(),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: Colors.grey[700],
-                          elevation: 0,
-                          side: BorderSide(color: Colors.grey[300]!),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 12,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.refresh_rounded, size: 18),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Refresh',
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }
-
-            // Success state - clean horizontal ListView
-            return ListView.separated(
-              scrollDirection: Axis.horizontal,
-              physics: BouncingScrollPhysics(),
-              itemCount: _homeController.properties.length,
-              separatorBuilder: (context, index) => SizedBox(width: 16),
-              itemBuilder: (context, index) {
-                final properties = _homeController.properties[index];
-                return _buildPropertyCard(properties);
-              },
-            );
-          }),
+            },
+          ),
         ),
       ],
     );
@@ -823,14 +784,14 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildNearbySection() {
+  Widget _buildNewsSection() {
     return Column(
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Properti Terdekat',
+              'Berita Terbaru',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -838,11 +799,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             TextButton(
-              onPressed: () {
-                // setState(() {
-                //   _selectedIndex = 1;
-                // });
-              },
+              onPressed: () {},
               child: Text(
                 'Lihat Semua',
                 style: TextStyle(
@@ -855,55 +812,56 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
         SizedBox(height: 16),
-        _buildNearbyPropertyCard(),
-        SizedBox(height: 12),
-        _buildNearbyPropertyCard2(),
+        // Tidak ada lagi Obx di sini
+        ListView.separated(
+          shrinkWrap: true,
+          physics: NeverScrollableScrollPhysics(),
+          itemCount: _homeController.news.length,
+          separatorBuilder: (context, index) => SizedBox(height: 16),
+          itemBuilder: (context, index) {
+            final news = _homeController.news[index];
+            return GestureDetector(
+              onTap: () {
+                Get.toNamed(Routes.DETAIL_NEWS, arguments: news.id);
+              },
+              child: _buildNewsCard(news),
+            );
+          },
+        ),
       ],
     );
   }
 
-  Widget _buildNearbyPropertyCard() {
+  Widget _buildNewsCard(News news) {
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 0,
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
+        border: Border.all(color: Colors.grey[200]!),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-            ),
+            width: 100,
+            height: 100,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child: Image.network(
-                'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=400&h=300&fit=crop&crop=center',
+                Imgurl.get('news/news_images/${_getNewsImage(news)}'),
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Colors.blue[100]!, Colors.blue[50]!],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
+                      borderRadius: BorderRadius.circular(12),
+                      color: Colors.grey[200],
                     ),
                     child: Center(
                       child: Icon(
-                        Icons.villa,
-                        size: 32,
-                        color: Colors.blue[300],
+                        Icons.article_outlined,
+                        size: 40,
+                        color: Colors.grey[400],
                       ),
                     ),
                   );
@@ -916,203 +874,26 @@ class _HomePageState extends State<HomePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'BlissView Villa',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    Icon(
-                      Icons.favorite_outline,
-                      size: 20,
-                      color: Colors.grey[400],
-                    ),
-                  ],
+                Text(
+                  news.title,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 SizedBox(height: 8),
-                Row(
-                  children: [
-                    Icon(
-                      Icons.location_on,
-                      size: 14,
-                      color: Colors.grey[400],
-                    ),
-                    SizedBox(width: 4),
-                    Text(
-                      'Depok, Jawa Barat',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Rp 18.000.000/bulan',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFFDBB837),
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.star,
-                          size: 14,
-                          color: Colors.orange,
-                        ),
-                        SizedBox(width: 4),
-                        Text(
-                          '4.9',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black87,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNearbyPropertyCard2() {
-    return Container(
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 0,
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.network(
-                'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=400&h=300&fit=crop&crop=center',
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Colors.green[100]!, Colors.green[50]!],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                    ),
-                    child: Center(
-                      child: Icon(
-                        Icons.home,
-                        size: 32,
-                        color: Colors.green[300],
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-          SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Modern House',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    Icon(
-                      Icons.favorite_outline,
-                      size: 20,
-                      color: Colors.grey[400],
-                    ),
-                  ],
-                ),
-                SizedBox(height: 8),
-                Row(
-                  children: [
-                    Icon(
-                      Icons.location_on,
-                      size: 14,
-                      color: Colors.grey[400],
-                    ),
-                    SizedBox(width: 4),
-                    Text(
-                      'Bekasi, Jawa Barat',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Rp 12.500.000/bulan',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFFDBB837),
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.star,
-                          size: 14,
-                          color: Colors.orange,
-                        ),
-                        SizedBox(width: 4),
-                        Text(
-                          '4.6',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black87,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                Text(
+                  news.description,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[600],
+                    height: 1.4,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
@@ -1139,6 +920,13 @@ IconData _getPropertyIcon(String type) {
 String _getPropertyImage(Property property) {
   if (property.images.isNotEmpty && property.images[0].image_url != null) {
     return property.images[0].image_url!;
+  }
+  return "";
+}
+
+String _getNewsImage(News news) {
+  if (news.newsImages.isNotEmpty && news.newsImages[0].imgUrl != null) {
+    return news.newsImages[0].imgUrl!;
   }
   return "";
 }

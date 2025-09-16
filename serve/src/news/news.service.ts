@@ -97,6 +97,19 @@ export class NewsService {
     });
   }
 
+  async findOne(id: string): Promise<News | null> {
+    return await this.newsRepository.findOne({
+      where: { id },
+      relations: [
+        'newsCategory',
+        'newsImages',
+        'property',
+        'property.images',
+        'property.floor_plans',
+      ],
+    });
+  }
+
   async findOneBySlug(slug: string) {
     const news = await this.newsRepository.findOne({
       where: { slug: slug },
