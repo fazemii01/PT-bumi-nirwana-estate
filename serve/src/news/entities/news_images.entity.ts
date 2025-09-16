@@ -12,7 +12,9 @@ export class NewsImages {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => News, (news) => news.newsImages)
+  @ManyToOne(() => News, (news) => news.newsImages, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'newsId' })
   news: News;
 

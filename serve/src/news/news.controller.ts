@@ -7,7 +7,6 @@ import {
   Param,
   Delete,
   UploadedFiles,
-  flatten,
 } from '@nestjs/common';
 import { NewsService } from './news.service';
 import { CreateNewsDto } from './dto/create-news.dto';
@@ -50,9 +49,15 @@ export class NewsController {
     return await this.newsService.findAll();
   }
 
+  @Public()
+  @Get(':id')
+  async findOne(@Param('id') id: string): Promise<News | null> {
+    return this.newsService.findOne(id);
+  }
+
   @Get(':slug')
   @Public()
-  async findOne(@Param('slug') slug: string): Promise<News | null> {
+  async findOneBySlug(@Param('slug') slug: string): Promise<News | null> {
     return await this.newsService.findOneBySlug(slug);
   }
 

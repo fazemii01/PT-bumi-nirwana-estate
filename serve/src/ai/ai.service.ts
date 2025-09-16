@@ -21,7 +21,7 @@ export class AiService implements OnModuleInit {
 
   constructor(private readonly ollamaService: OllamaService) {}
   async onModuleInit() {
-    console.log('Menginisialisasi AI Service dengan Custom Ollama Service...');
+    // console.log('Menginisialisasi AI Service dengan Custom Ollama Service...');
 
     const llmModelName = 'qwen2:1.5b';
     const embeddingModelName = 'nomic-embed-text';
@@ -44,7 +44,7 @@ export class AiService implements OnModuleInit {
 
     this.index = await VectorStoreIndex.fromVectorStore(vectorStore);
 
-    console.log('✅ AI Service berhasil diinisialisasi.');
+    // console.log('✅ AI Service berhasil diinisialisasi.');
   }
 
   /**

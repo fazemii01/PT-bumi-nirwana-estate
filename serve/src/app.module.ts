@@ -24,6 +24,9 @@ import { OllamaService } from '@/ollama/ollama.service';
 import { AiService } from './ai/ai.service';
 import { AiModule } from './ai/ai.module';
 import { OllamaModule } from './ollama/ollama.module';
+import { FcmService } from './fcm/fcm.service';
+import { FcmModule } from './fcm/fcm.module';
+import { DeviceTokenModule } from './device-token/device-token.module';
 @Module({
   imports: [
     ServeStaticModule.forRoot({
@@ -60,6 +63,8 @@ import { OllamaModule } from './ollama/ollama.module';
     CekEligibilityModule,
     AiModule,
     OllamaModule,
+    FcmModule,
+    DeviceTokenModule,
   ],
 
   controllers: [AppController],
@@ -78,6 +83,7 @@ import { OllamaModule } from './ollama/ollama.module';
       useClass: ValidationPipe,
     },
     AiService,
+    FcmService,
   ],
 })
 export class AppModule {}

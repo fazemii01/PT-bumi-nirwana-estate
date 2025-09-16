@@ -2,10 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:mobile_nirwana/core/routes/app_routes.dart';
 import 'package:mobile_nirwana/core/utils/api.dart';
 import 'package:mobile_nirwana/data/models/property/property.dart';
 import 'package:mobile_nirwana/helper/address.dart';
-import 'package:mobile_nirwana/views/properties/detail/detail_properties.dart';
 import 'package:mobile_nirwana/views/properties/properties_controller.dart';
 import 'package:mobile_nirwana/widgets/skeleton_property_card.dart';
 
@@ -459,7 +459,7 @@ class _PropertyCatalogPageState extends State<PropertiesPage> {
   Widget _buildPropertyCard(Property property, ThemeData theme) {
     return GestureDetector(
       onTap: () {
-        Get.to(() => const PropertyDetailPage(), arguments: property.id);
+        Get.toNamed(Routes.DETAIL_PROPERTIES, arguments: property.id);
       },
       child: AspectRatio(
         aspectRatio: 1.1,

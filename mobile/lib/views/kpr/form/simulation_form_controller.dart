@@ -12,6 +12,7 @@ import 'package:mobile_nirwana/data/service/property_service.dart';
 import 'dart:math';
 
 import 'package:mobile_nirwana/views/layout.dart';
+import 'package:mobile_nirwana/views/layout_controller.dart';
 
 class SimulationFormController extends GetxController {
   final BankService _bankService = BankService();
@@ -159,7 +160,7 @@ class SimulationFormController extends GetxController {
         isLoading.value = false;
         Get.snackbar("Success", "Data simulasi berhasil disimpan.",
             backgroundColor: Colors.green, colorText: Colors.white);
-        Get.offAll(() => Layout(initialIndex: 2));
+        Get.offAll(() => const Layout(), arguments: 2);
       } else {
         isLoading.value = false;
         Get.snackbar('Error', '$response',

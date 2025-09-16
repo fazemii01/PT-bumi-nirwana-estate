@@ -64,6 +64,13 @@ export class ChatService implements OnModuleInit {
     const meta = await this.weaviateClient.getMeta();
     console.log('Weaviate meta:', meta);
 
+    const collections = await this.weaviateClient.collections.listAll();
+    console.log('Weaviate collections:', collections);
+
+    const chatbot = this.weaviateClient.collections.get('Chatbot');
+    const config = await chatbot.config.get();
+    console.log('Chatbot config:', JSON.stringify(config, null, 2));
+
     const indexName = 'Chatbot';
     this.vectorStore = new WeaviateStore(this.embeddings, {
       client: this.weaviateClient as any,
@@ -181,7 +188,7 @@ export class ChatService implements OnModuleInit {
   private async initializeMasterChain(): Promise<void> {
     const llm = new ChatOllama({
       baseUrl: 'http://localhost:4600',
-      model: 'qwen2:1.5b',
+      model: 'llama3',
     });
 
     const baseRetriever = this.vectorStore.asRetriever({
@@ -244,6 +251,34 @@ CONTEXTS:
       RunnablePassthrough.assign({
         context: retrieverChain,
       }),
+      RunnableLambda.from(async (input: { context: Document[] }) => {
+        const allRetrievedDocs = input.context;
+
+        const textDocs = allRetrievedDocs.filter((doc) =>
+          ['text_document', 'image_description'].includes(
+            (doc.metadata.source || '').trim().toLowerCase(),
+          ),
+        );
+
+        // const cleanedDocs = textDocs.map((doc) => {
+        //   const cleanedContent = doc.pageContent
+        //     .replace(/\* \[cite_start\].*?\[cite: \d+\]/g, '')
+        //     .replace(/\*\*/g, '')
+        //     .replace(/#+/g, '')
+        //     .trim();
+
+        //   return new Document({
+        //     pageContent: cleanedContent,
+        //     metadata: doc.metadata,
+        //   });
+        // });
+
+        // console.log(
+        //   `Retrieved ${allRetrievedDocs.length} docs, filtered down to ${textDocs.length} text documents.`,
+        // );
+        // return { ...input, context: cleanedDocs };
+        return { ...input, context: textDocs };
+      }).withConfig({ runName: 'FilterTextDocuments' }),
       RunnableLambda.from(
         async (input: {
           input: string;
@@ -283,7 +318,10 @@ CONTEXTS:
             'TopDocs Content:',
             topDocs.map((d) => d.pageContent.slice(0, 200)),
           );
-          console.log("TopDocs:", topDocs.map(d => d.pageContent));
+          console.log(
+            'TopDocs:',
+            topDocs.map((d) => d.pageContent),
+          );
           return { ...input, context: topDocs };
         },
       ).withConfig({ runName: 'RerankAndFilterDocuments' }),
@@ -383,6 +421,35 @@ CONTEXTS:
   //     );
   //   }
   // }
+  private async clearIndexData(indexName: string): Promise<void> {
+    console.log(`Clearing all objects in Weaviate collection: ${indexName}`);
+    try {
+      const collection = this.weaviateClient.collections.get(indexName);
+      await collection.data.deleteMany(
+        weaviate.filter
+          .byProperty('text')
+          .notEqual('a-string-that-will-never-exist-and-is-just-for-deleting'),
+      );
+      console.log(`Successfully cleared data in collection: ${indexName}`);
+    } catch (err) {
+      console.warn(
+        `Could not clear data for collection '${indexName}'. It might not exist yet. Error: ${err.message}`,
+      );
+    }
+  }
+
+  async processBatch(files: Express.Multer.File[]): Promise<void> {
+    const indexName = 'Chatbot';
+    await this.clearIndexData(indexName);
+
+    for (const file of files) {
+      await this.processFile(file);
+    }
+
+    this.initializeMasterChain();
+    this.clearAllHistories();
+    console.log('Batch processed and Weaviate index refreshed.');
+  }
 
   async processFile(file: Express.Multer.File): Promise<void> {
     console.log(`Processing file: ${file.originalname} (${file.mimetype})`);
@@ -396,6 +463,7 @@ CONTEXTS:
     }
 
     let pageContent: string;
+    let metadata: object;
 
     if (file.mimetype.startsWith('image/')) {
       console.log(
@@ -420,16 +488,18 @@ CONTEXTS:
       const response = await this.visionModel.invoke([message]);
       pageContent = response.content as string;
       console.log('Structured Extraction Result:', pageContent);
+      metadata = { source: 'image_description', file_name: file.originalname };
     } else {
       console.log('Text file detected.');
       pageContent = file.buffer.toString();
+      metadata = { source: 'text_document', file_name: file.originalname };
     }
 
-    const doc = new Document({
-      pageContent,
-      metadata: { source: 'uploaded_file' },
-    });
-
+    // const doc = new Document({
+    //   pageContent,
+    //   metadata: { source: 'uploaded_file' },
+    // });
+    const doc = new Document({ pageContent, metadata });
     const splitter = new RecursiveCharacterTextSplitter({
       chunkSize: 800,
       chunkOverlap: 100,
@@ -445,6 +515,7 @@ CONTEXTS:
     }
 
     console.log('Example chunk:', splits[0].pageContent.slice(0, 200));
+    console.log('Example chunk metadata:', splits[0].metadata);
 
     const batchSize = 32;
     for (let i = 0; i < splits.length; i += batchSize) {

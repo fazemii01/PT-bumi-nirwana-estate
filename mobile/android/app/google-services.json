@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "746207251726",
+    "project_id": "mobile-nirwana-5f8aa",
+    "storage_bucket": "mobile-nirwana-5f8aa.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:746207251726:android:3b0d61117c41a2a579db5f",
+        "android_client_info": {
+          "package_name": "com.example.mobile_nirwana"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBOmj10CXKZyHx_-kHdnCnC3MsarI07j_Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
