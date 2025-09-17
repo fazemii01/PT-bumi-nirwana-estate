@@ -7,7 +7,6 @@ import {
   Param,
   Delete,
   UploadedFiles,
-  flatten,
 } from '@nestjs/common';
 import { NewsService } from './news.service';
 import { CreateNewsDto } from './dto/create-news.dto';

@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:mobile_nirwana/views/auth/login/login_page.dart';
 import 'package:mobile_nirwana/views/auth/register/register_page.dart';
+import 'package:mobile_nirwana/views/eligibilitas/eligibilitas_page.dart';
 import 'package:mobile_nirwana/views/kpr/form/widgets/hasil_simulation.dart';
 import 'package:mobile_nirwana/views/kpr/form/simulation_form.dart';
 import 'package:mobile_nirwana/views/kpr/kpr_page.dart';
@@ -41,6 +42,11 @@ class AppPages {
           );
         },
         transition: Transition.leftToRight),
+    GetPage(
+      name: '/cek-eligibilitas',
+      page: () => EligibilitasKPRPage(),
+      transition: Transition.leftToRight,
+    ),
     GetPage(
       name: '/detail-properties',
       page: () => PropertyDetailPage(),

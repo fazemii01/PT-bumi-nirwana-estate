@@ -16,7 +16,6 @@ class LayoutController extends GetxController {
   void onInit() {
     super.onInit();
     loadUserStatus();
-
     if (Get.arguments != null && Get.arguments is int) {
       changeTabIndex(Get.arguments);
     }

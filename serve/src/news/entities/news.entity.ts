@@ -3,6 +3,7 @@ import { NewsCategory } from '@/news_category/entities/news_category.entity';
 import { Property } from '@/properties/entities/property.entity';
 import {
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -24,6 +25,9 @@ export class News {
 
   @Column({ type: 'text', nullable: false })
   description: string;
+
+  @CreateDateColumn({ type: 'timestamp with time zone' })
+  created_at: Date;
 
   @ManyToOne(() => NewsCategory, (category) => category.news, {
     onDelete: 'CASCADE',

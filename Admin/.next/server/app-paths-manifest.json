@@ -1,9 +1,13 @@
 {
-  "/(admin)/agent/page": "app/(admin)/agent/page.js",
+  "/(admin)/bank/page": "app/(admin)/bank/page.js",
   "/(admin)/dashboard/page": "app/(admin)/dashboard/page.js",
+<<<<<<< HEAD
+  "/(auth)/login/page": "app/(auth)/login/page.js",
+=======
   "/(admin)/developer/page": "app/(admin)/developer/page.js",
   "/(admin)/properties/detail/[id]/page": "app/(admin)/properties/detail/[id]/page.js",
   "/(admin)/properties/edit/[id]/page": "app/(admin)/properties/edit/[id]/page.js",
   "/(admin)/properties/page": "app/(admin)/properties/page.js",
+>>>>>>> 542dab46bff37c70e775a7d3b7be678395bb05b8
   "/page": "app/page.js"
 }
