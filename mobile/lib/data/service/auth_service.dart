@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -69,6 +68,7 @@ class AuthService extends Api {
         final authResponse = AuthResponse.fromJson(data);
 
         final box = GetStorage();
+        box.write('user', authResponse.user.toJson());
         box.write('access_token', authResponse.accessToken);
         box.write('full_name', authResponse.user.full_name);
         box.write('email', authResponse.user.email);
@@ -100,6 +100,33 @@ class AuthService extends Api {
       print("USER ${user.toJson()}");
       print('ERROR register $e');
       return 'Register failed';
+    }
+  }
+
+  Future<User> getCurrentUser() async {
+    try {
+      final box = GetStorage();
+      final userJson = box.read('user');
+
+      if (userJson != null) {
+        return User.fromJson(Map<String, dynamic>.from(userJson));
+      } else {
+        return User(
+          id: '',
+          full_name: 'Guest',
+          email: '',
+          phone_number: '',
+          role: '',
+        );
+      }
+    } catch (e) {
+      return User(
+        id: '',
+        full_name: 'Guest',
+        email: '',
+        phone_number: '',
+        role: '',
+      );
     }
   }
 

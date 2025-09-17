@@ -1,10 +1,45 @@
 {
   "app": {
+<<<<<<< HEAD
     "[project]/app/(admin)/agent/page": [],
     "[project]/app/(admin)/dashboard/page": [],
     "[project]/app/(admin)/properties/detail/[id]/page": [],
     "[project]/app/(admin)/properties/edit/[id]/page": [],
     "[project]/app/(admin)/properties/page": []
+=======
+    "[project]/app/(admin)/bank/page": [
+      "static/media/b0a57561b6cb5495-s.p.da1ebef7.woff2",
+      "static/media/8ee3a1ba4ed5baee-s.p.be19f591.woff2"
+    ],
+    "[project]/app/(admin)/dashboard/page": [
+      "static/media/b0a57561b6cb5495-s.p.da1ebef7.woff2",
+      "static/media/8ee3a1ba4ed5baee-s.p.be19f591.woff2"
+    ],
+<<<<<<< HEAD
+    "[project]/app/(auth)/login/page": [
+=======
+    "[project]/app/(admin)/developer/page": [
+      "static/media/b0a57561b6cb5495-s.p.da1ebef7.woff2",
+      "static/media/8ee3a1ba4ed5baee-s.p.be19f591.woff2"
+    ],
+    "[project]/app/(admin)/properties/detail/[id]/page": [
+      "static/media/b0a57561b6cb5495-s.p.da1ebef7.woff2",
+      "static/media/8ee3a1ba4ed5baee-s.p.be19f591.woff2"
+    ],
+    "[project]/app/(admin)/properties/edit/[id]/page": [
+      "static/media/b0a57561b6cb5495-s.p.da1ebef7.woff2",
+      "static/media/8ee3a1ba4ed5baee-s.p.be19f591.woff2"
+    ],
+    "[project]/app/(admin)/properties/page": [
+>>>>>>> 542dab46bff37c70e775a7d3b7be678395bb05b8
+      "static/media/b0a57561b6cb5495-s.p.da1ebef7.woff2",
+      "static/media/8ee3a1ba4ed5baee-s.p.be19f591.woff2"
+    ],
+    "[project]/app/page": [
+      "static/media/b0a57561b6cb5495-s.p.da1ebef7.woff2",
+      "static/media/8ee3a1ba4ed5baee-s.p.be19f591.woff2"
+    ]
+>>>>>>> d5752076390bb9520435439268686f62764608a6
   },
   "appUsingSizeAdjust": false,
   "pages": {},

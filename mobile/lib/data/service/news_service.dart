@@ -40,4 +40,21 @@ class NewsService extends Api {
       throw Exception('Terjadi kesalahan jaringan: $e');
     }
   }
+
+  Future<News?> getLatestNewsInfo() async {
+    try {
+      final res = await http.get(Uri.parse('$baseUrl/news/latest'));
+
+      if (res.statusCode == 200) {
+        return News.fromJson(jsonDecode(res.body));
+      } else {
+        print(
+            'Failed to load latest news info. Status code : ${res.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error fetching latest news info: $e');
+      return null;
+    }
+  }
 }

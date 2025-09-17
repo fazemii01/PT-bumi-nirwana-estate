@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
-import { join } from 'path';
+import { CekEligibilityService } from '@/cek_eligibility/cek_eligibility.service';
 
 let server: any;
 
@@ -14,8 +14,9 @@ async function bootstrap() {
     credentials: true,
   });
   app.useGlobalPipes(new ValidationPipe());
-  console.log('Uploads folder path:', join(__dirname, '..', 'uploads'));
   await app.init();
+  // const seeder = app.get(CekEligibilityService);
+  // await seeder.seed();
   const expressApp = app.getHttpAdapter().getInstance();
   return expressApp;
 }
