@@ -23,7 +23,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final HomeController _homeController = Get.put(HomeController());
   final LayoutController _layoutController = Get.put(LayoutController());
-  final LayoutController layoutController = Get.find();
 
   @override
   void initState() {
@@ -466,7 +465,7 @@ class _HomePageState extends State<HomePage> {
           SizedBox(height: 20),
           ElevatedButton(
             onPressed: () {
-              layoutController.changeTabIndex(1);
+              _layoutController.changeTabIndex(1);
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
@@ -582,7 +581,7 @@ class _HomePageState extends State<HomePage> {
             ),
             TextButton(
               onPressed: () {
-                layoutController.changeTabIndex(1);
+                _layoutController.changeTabIndex(1);
               },
               child: Text(
                 'Lihat Semua',
