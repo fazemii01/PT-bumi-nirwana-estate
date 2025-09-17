@@ -10,7 +10,6 @@ import 'package:mobile_nirwana/helper/price.dart';
 import 'package:mobile_nirwana/helper/specifications.dart';
 import 'package:mobile_nirwana/views/home/home_controller.dart';
 import 'package:mobile_nirwana/views/home/widgets/property_favorite_user.dart';
-import 'package:mobile_nirwana/views/layout.dart';
 import 'package:mobile_nirwana/views/layout_controller.dart';
 import 'package:mobile_nirwana/widgets/sceleton_home_property.dart';
 import 'package:mobile_nirwana/widgets/skeleton_home_news.dart';
@@ -671,7 +670,10 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-              FavoriteIcon(propertyId: property.id),
+              FavoriteIcon(
+                propertyId: property.id,
+                isLoggedIn: _layoutController.isLoggedIn.value,
+              ),
               Positioned(
                 top: 12,
                 left: 12,

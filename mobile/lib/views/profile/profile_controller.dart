@@ -50,6 +50,7 @@ class ProfileController extends GetxController {
       userFavorities.value =
           await _userFavoriteService.getUserFavorities(currentUser.value.id!);
     } catch (e) {
+      isLoading.value = false;
       GetSnackBar(
         title: "Error",
         message: "Gagal memuat properti favorit",
