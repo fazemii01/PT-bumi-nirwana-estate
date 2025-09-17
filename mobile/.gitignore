@@ -34,8 +34,6 @@ migrate_working_dir/
 /build/
 .android
 firebase_options.dart
-<<<<<<< HEAD
-=======
 
 >>>>>>> f7c67f8dd9255cb6190dd1d4ca0cc35d792183fc
 # Symbolication related
