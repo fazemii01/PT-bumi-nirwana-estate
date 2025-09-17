@@ -1,79 +1,91 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_nirwana/core/utils/api.dart'; // Sesuaikan path import ini jika perlu
-import 'package:mobile_nirwana/data/models/property/property_images.dart'; // Sesuaikan path import ini jika perlu
+import 'package:flutter/services.dart';
+import 'package:mobile_nirwana/core/utils/api.dart';
+import 'package:mobile_nirwana/data/models/property/property_images.dart';
 
 class AllPhotosGridScreen extends StatelessWidget {
   final List<PropertyImages> images;
 
   const AllPhotosGridScreen({super.key, required this.images});
 
-  void _showStyleBottomSheet(BuildContext context, String imageUrl) {
+  void _showGojekStyleBottomSheet(BuildContext context, String imageUrl) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
-        // FIX 1: Kurangi padding horizontal agar modal lebih lebar
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 0),
-          child: Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(28.0)),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                // Handle bar
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12.0),
-                  child: Container(
-                    width: 40,
-                    height: 5,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                ),
-
-                // FIX 2: Beri Padding pada gambar agar tidak menempel di tepi
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: ClipRRect(
-                    // FIX 2: Beri gambar sudut melengkung di semua sisinya
-                    borderRadius: BorderRadius.circular(16.0),
-                    child: Image.network(
-                      imageUrl,
-                      fit: BoxFit.cover,
-                      height: MediaQuery.of(context).size.height * 0.4,
-                    ),
-                  ),
-                ),
-
-                // Tombol (tidak ada perubahan)
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFDBB837),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+        return AnnotatedRegion<SystemUiOverlayStyle>(
+          value: SystemUiOverlayStyle(
+            systemNavigationBarColor: Colors.white,
+            systemNavigationBarIconBrightness: Brightness.dark,
+          ),
+          child: Padding(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 0), // Modal lebih lebar
+            child: Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(28.0)),
+              ),
+              child: SafeArea(
+                top: false,
+                child: Column(
+                  // mainAxisSize.min tidak diperlukan lagi karena ada Expanded
+                  children: <Widget>[
+                    // Handle bar
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12.0),
+                      child: Container(
+                        width: 40,
+                        height: 5,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      child: const Text(
-                        'Kembali',
-                        style: TextStyle(fontSize: 16, color: Colors.white),
-                      ),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
                     ),
-                  ),
+
+                    // FIX: Gambar dibuat fleksibel dengan Expanded agar tidak overflow
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(16.0),
+                          child: Image.network(
+                            imageUrl,
+                            fit: BoxFit.cover,
+                            // height dihapus dari sini agar Expanded bisa bekerja
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // Tombol Kembali
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                const Color(0xFFDBB837), // Warna disesuaikan
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text(
+                            'Kembali',
+                            style: TextStyle(fontSize: 16, color: Colors.white),
+                          ),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         );
@@ -84,9 +96,11 @@ class AllPhotosGridScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('Semua Foto'),
         backgroundColor: Colors.white,
+        surfaceTintColor: Colors.white,
         elevation: 1.0,
       ),
       body: GridView.builder(
@@ -105,7 +119,8 @@ class AllPhotosGridScreen extends StatelessWidget {
 
           return GestureDetector(
             onTap: () {
-              _showStyleBottomSheet(context, fullUrl);
+              // Pastikan memanggil nama fungsi yang benar
+              _showGojekStyleBottomSheet(context, fullUrl);
             },
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8.0),

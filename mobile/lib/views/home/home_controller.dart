@@ -85,7 +85,6 @@ class HomeController extends GetxController {
     try {
       await _propertyService.createOrRemove(fav);
 
-      // toggle state di lokal
       if (favoriteIds.contains(propertyId)) {
         favoriteIds.remove(propertyId);
       } else {

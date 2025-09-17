@@ -35,7 +35,7 @@ import { NewsModule } from './news/news.module';
         type: 'postgres',
         url: configService.get<string>('DATABASE_URL'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: true, // Shouldn't be used in production
+        synchronize: false, // Shouldn't be used in production
         ssl: {
           rejectUnauthorized: false,
         },

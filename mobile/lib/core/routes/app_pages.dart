@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-import 'package:mobile_nirwana/data/models/property/property_images.dart';
 import 'package:mobile_nirwana/views/auth/login/login_page.dart';
 import 'package:mobile_nirwana/views/auth/register/register_page.dart';
 import 'package:mobile_nirwana/views/kpr/form/widgets/hasil_simulation.dart';
@@ -7,7 +6,6 @@ import 'package:mobile_nirwana/views/kpr/form/simulation_form.dart';
 import 'package:mobile_nirwana/views/kpr/kpr_page.dart';
 import 'package:mobile_nirwana/views/layout.dart';
 import 'package:mobile_nirwana/views/news/detail/detail_news.dart';
-import 'package:mobile_nirwana/views/properties/detail/all_photos_grid_screen.dart';
 import 'package:mobile_nirwana/views/properties/detail/detail_properties.dart';
 
 class AppPages {
