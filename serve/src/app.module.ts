@@ -19,13 +19,6 @@ import { BanksModule } from './banks/banks.module';
 import { LoanSimulationsModule } from './loan_simulations/loan_simulations.module';
 import { NewsCategoryModule } from './news_category/news_category.module';
 import { NewsModule } from './news/news.module';
-import { CekEligibilityModule } from './cek_eligibility/cek_eligibility.module';
-import { OllamaService } from '@/ollama/ollama.service';
-import { AiService } from './ai/ai.service';
-import { AiModule } from './ai/ai.module';
-import { OllamaModule } from './ollama/ollama.module';
-import { FcmService } from './fcm/fcm.service';
-import { FcmModule } from './fcm/fcm.module';
 import { DeviceTokenModule } from './device-token/device-token.module';
 @Module({
   imports: [
@@ -60,10 +53,6 @@ import { DeviceTokenModule } from './device-token/device-token.module';
     LoanSimulationsModule,
     NewsCategoryModule,
     NewsModule,
-    CekEligibilityModule,
-    AiModule,
-    OllamaModule,
-    FcmModule,
     DeviceTokenModule,
   ],
 
@@ -82,8 +71,6 @@ import { DeviceTokenModule } from './device-token/device-token.module';
       provide: APP_PIPE,
       useClass: ValidationPipe,
     },
-    AiService,
-    FcmService,
   ],
 })
 export class AppModule {}

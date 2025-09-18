@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_nirwana/core/routes/app_routes.dart';
 import 'package:mobile_nirwana/data/models/agent.dart';
 import 'package:mobile_nirwana/data/models/developer.dart';
 import 'package:mobile_nirwana/data/models/property/property.dart';
 import 'package:mobile_nirwana/data/models/property/property_floor_plan.dart';
-import 'package:mobile_nirwana/views/properties/detail/widget/animated_category_chip.dart'; // <-- SESUAIKAN PATH
+import 'package:mobile_nirwana/helper/price.dart';
+import 'package:mobile_nirwana/views/layout_controller.dart';
+import 'package:mobile_nirwana/views/properties/detail/widget/animated_category_chip.dart';
 import 'package:mobile_nirwana/core/utils/api.dart';
 import 'package:mobile_nirwana/data/models/property/specification.dart';
 import 'package:mobile_nirwana/views/properties/detail/detail_properties_controller.dart';
@@ -15,7 +18,8 @@ import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class PropertyDetailPage extends StatefulWidget {
-  const PropertyDetailPage({super.key});
+  final Property property;
+  const PropertyDetailPage({super.key, required this.property});
 
   @override
   State<PropertyDetailPage> createState() => _PropertyDetailPageState();
@@ -25,24 +29,19 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
     with SingleTickerProviderStateMixin {
   final PropertyDetailController _propertyDetailController =
       Get.put(PropertyDetailController());
+  final LayoutController _layoutController = Get.find<LayoutController>();
   late TabController _tabController;
+  bool _isMaterialExpanded = false;
 
   @override
   void initState() {
     super.initState();
 
-    if (Get.arguments != null && Get.arguments is String) {
-      final String id = Get.arguments;
-      _propertyDetailController.fetchDetail(id);
-    } else {
-      _propertyDetailController.errorMessage.value = "ID properti tidak valid.";
-      _propertyDetailController.isLoading.value = false;
-    }
-
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(() {
       setState(() {});
     });
+    _propertyDetailController.property.value = widget.property;
   }
 
   String _formatPhoneNumberForWhatsApp(String phone) {
@@ -54,16 +53,6 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
       return digitsOnly;
     }
     return digitsOnly;
-  }
-
-  String _formatPrice(double price) {
-    if (price >= 1000000000) {
-      return 'Rp ${(price / 1000000000).toStringAsFixed(1)}M';
-    }
-    if (price >= 1000000) {
-      return 'Rp ${(price / 1000000).toStringAsFixed(1)}JT';
-    }
-    return 'Rp ${price.toStringAsFixed(0)}';
   }
 
   @override
@@ -189,7 +178,7 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
                                             const SizedBox(height: 24.0),
                                             _buildHeader(
                                                 property.name,
-                                                _formatPrice(property.price),
+                                                formatPrice(property.price),
                                                 "/${property.price_unit}",
                                                 theme),
                                             const SizedBox(height: 16),
@@ -201,10 +190,8 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
                                       ),
                                     ),
                                     Positioned(
-                                      top:
-                                          10, // Atur posisi vertikal (0 = di tepi atas Stack)
-                                      left:
-                                          40, // Atur posisi horizontal (40 = 40px dari kiri)
+                                      top: 10,
+                                      left: 40,
                                       child: AnimatedCategoryChip(
                                           categoryType: property.type),
                                     ),
@@ -285,8 +272,7 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
                           ),
                         ],
                       ),
-                      if (property.agent != null)
-                        _buildCtaButton(theme, property.agent!),
+                      _buildCtaButton(theme, property),
                     ],
                   ),
                 );
@@ -341,7 +327,6 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
     final String addressText =
         "${property.address?.street ?? ''}, ${property.address?.village ?? ''}, ${property.address?.district ?? ''}, ${property.address?.city ?? ''}, ${property.address?.province ?? ''}";
 
-    // Mengambil koordinat dari model Anda dengan benar
     double? lat;
     double? lng;
 
@@ -502,7 +487,26 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
     );
   }
 
-  Widget _buildMaterialTeknis(Specifications specs) {
+  Widget _buildMaterialTeknis(Specifications? specs) {
+    if (specs == null) return const Text("Data material tidak tersedia.");
+
+    final allSpecItems = <Widget>[
+      _buildSpecRow("Struktur", specs.structure ?? '-'),
+      _buildSpecRow("Lantai", specs.floor ?? '-'),
+      _buildSpecRow("Dinding", specs.walls ?? '-'),
+      _buildSpecRow("Atap", specs.roof ?? '-'),
+      _buildSpecRow("Pintu", specs.doors ?? '-'),
+      _buildSpecRow("Jendela", specs.windows ?? '-'),
+      _buildSpecRow("Listrik", specs.electricity ?? '-'),
+      _buildSpecRow("Sumber Air", specs.waterSource ?? '-'),
+      _buildSpecRow("Internet", specs.internet ?? '-'),
+      _buildSpecRow("Keamanan", specs.security ?? '-'),
+      _buildSpecRow("Fasilitas Lain", specs.facilities ?? '-'),
+    ];
+
+    final displayedItems =
+        _isMaterialExpanded ? allSpecItems : allSpecItems.take(4).toList();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -514,17 +518,38 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
               color: Color(0xFF1F2937)),
         ),
         const SizedBox(height: 8),
-        _buildSpecRow("Struktur", specs.structure ?? '-'),
-        _buildSpecRow("Lantai", specs.floor ?? '-'),
-        _buildSpecRow("Dinding", specs.walls ?? '-'),
-        _buildSpecRow("Atap", specs.roof ?? '-'),
-        _buildSpecRow("Pintu", specs.doors ?? '-'),
-        _buildSpecRow("Jendela", specs.windows ?? '-'),
-        _buildSpecRow("Listrik", specs.electricity ?? '-'),
-        _buildSpecRow("Sumber Air", specs.waterSource ?? '-'),
-        _buildSpecRow("Internet", specs.internet ?? '-'),
-        _buildSpecRow("Keamanan", specs.security ?? '-'),
-        _buildSpecRow("Fasilitas Lain", specs.facilities ?? '-'),
+        AnimatedSize(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+          child: Column(
+            children: displayedItems,
+          ),
+        ),
+        if (allSpecItems.length > 4)
+          Align(
+            alignment: Alignment.center,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: TextButton(
+                onPressed: () {
+                  setState(() {
+                    _isMaterialExpanded = !_isMaterialExpanded;
+                  });
+                },
+                style: TextButton.styleFrom(
+                  foregroundColor: const Color(0xFFDBB837),
+                ),
+                child: Text(
+                  _isMaterialExpanded
+                      ? 'Lihat Lebih Sedikit'
+                      : 'Lihat Selengkapnya...',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ),
       ],
     );
   }
@@ -554,7 +579,7 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
     );
   }
 
-  Widget _buildCtaButton(ThemeData theme, Agent agent) {
+  Widget _buildCtaButton(ThemeData theme, Property property) {
     return Align(
       alignment: Alignment.bottomCenter,
       child: SafeArea(
@@ -580,9 +605,17 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12)),
             ),
-            onPressed: () => _showAgentContactOptions(
-                context, agent.phone_number, agent.email),
-            child: const Text("Hubungi Agen",
+            onPressed: () {
+              if (_layoutController.isLoggedIn.value) {
+                Get.toNamed(
+                  Routes.SIMULATION_KPR,
+                  arguments: property.id,
+                );
+              } else {
+                Get.toNamed(Routes.LOGIN);
+              }
+            },
+            child: const Text("Simulasi KPR",
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           ),
         ),
@@ -776,7 +809,7 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    "Dikembangkan oleh",
+                    "Properti ini dibuat oleh",
                     style: TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
                   ),
                   const SizedBox(height: 2),

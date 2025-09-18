@@ -42,6 +42,10 @@ lerna-debug.log*
 .env.production.local
 .env.local
 firebase-service-account.json
+src/ai/
+src/cek_eligibility/
+src/fcm/
+src/ollama/
 
 # temp directory
 .temp

@@ -1,21 +1,6 @@
 {
-  "/(admin)/bank/page": "app/(admin)/bank/page.js",
   "/(admin)/dashboard/page": "app/(admin)/dashboard/page.js",
-<<<<<<< HEAD
-  "/(admin)/properties/detail/[id]/page": "app/(admin)/properties/detail/[id]/page.js",
-  "/(admin)/properties/edit/[id]/page": "app/(admin)/properties/edit/[id]/page.js",
-  "/(admin)/properties/page": "app/(admin)/properties/page.js",
+  "/(admin)/news/page": "app/(admin)/news/page.js",
   "/(auth)/login/page": "app/(auth)/login/page.js",
-  "/favicon.ico/route": "app/favicon.ico/route.js",
-=======
-<<<<<<< HEAD
-  "/(auth)/login/page": "app/(auth)/login/page.js",
-=======
-  "/(admin)/developer/page": "app/(admin)/developer/page.js",
-  "/(admin)/properties/detail/[id]/page": "app/(admin)/properties/detail/[id]/page.js",
-  "/(admin)/properties/edit/[id]/page": "app/(admin)/properties/edit/[id]/page.js",
-  "/(admin)/properties/page": "app/(admin)/properties/page.js",
->>>>>>> 542dab46bff37c70e775a7d3b7be678395bb05b8
->>>>>>> d5752076390bb9520435439268686f62764608a6
   "/page": "app/page.js"
 }

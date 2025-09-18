@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:mobile_nirwana/core/routes/app_routes.dart';
 import 'package:mobile_nirwana/data/models/news/news.dart';
 import 'package:mobile_nirwana/data/models/property/property.dart';
 import 'package:mobile_nirwana/helper/address.dart';
+import 'package:mobile_nirwana/helper/price.dart';
 import 'package:mobile_nirwana/views/news/detail/detail_news_controller.dart';
+import 'package:mobile_nirwana/core/utils/api.dart';
 import 'package:get/get.dart';
 
 class NewsDetailPage extends StatefulWidget {
-  const NewsDetailPage({Key? key}) : super(key: key);
+  final News news;
+  const NewsDetailPage({super.key, required this.news});
 
   @override
   State<NewsDetailPage> createState() => _NewsDetailPageState();
@@ -18,105 +21,111 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
       Get.put(NewsDetailController());
   final PageController _pageController = PageController();
   int _currentImageIndex = 0;
-  final ScrollController _scrollController = ScrollController();
-  bool _isAppBarCollapsed = false;
+  double _textSize = 16.0;
+  final double _minTextSize = 14.0;
+  final double _maxTextSize = 20.0;
 
   @override
   void initState() {
     super.initState();
-    _scrollController.addListener(_onScroll);
-    if (Get.arguments != null && Get.arguments is String) {
-      final String id = Get.arguments;
-      _newsDetailController.fetchDetail(id);
-    } else {
-      _newsDetailController.errorMessage.value = "ID properti tidak valid.";
-      _newsDetailController.isLoading.value = false;
-    }
-  }
-
-  void _onScroll() {
-    if (_scrollController.hasClients) {
-      final isCollapsed = _scrollController.offset > 200;
-      if (isCollapsed != _isAppBarCollapsed) {
-        setState(() {
-          _isAppBarCollapsed = isCollapsed;
-        });
-      }
-    }
+    _newsDetailController.news.value = widget.news;
   }
 
   @override
   void dispose() {
     _pageController.dispose();
-    _scrollController.dispose();
     super.dispose();
+  }
+
+  void _increaseTextSize() {
+    if (_textSize < _maxTextSize) {
+      setState(() {
+        _textSize += 2.0;
+      });
+    }
+  }
+
+  void _decreaseTextSize() {
+    if (_textSize > _minTextSize) {
+      setState(() {
+        _textSize -= 2.0;
+      });
+    }
+  }
+
+  void _jumpToImage(int index) {
+    _pageController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: Colors.white,
       body: Obx(() {
         if (_newsDetailController.isLoading.value) {
           return const Center(child: CircularProgressIndicator());
         }
         if (_newsDetailController.errorMessage.value.isNotEmpty) {
-          return Center(child: Text(_newsDetailController.errorMessage.value));
+          return Center(
+              child:
+                  Text('Error: ${_newsDetailController.errorMessage.value}'));
         }
-        if (_newsDetailController.news.value == null) {
-          return const Center(child: Text("Berita tidak ditemukan."));
+        final news = _newsDetailController.news.value;
+        if (news == null) {
+          return const Center(child: Text('Berita tidak ditemukan.'));
         }
-
-        final news = _newsDetailController.news.value!;
-        return CustomScrollView(
-          controller: _scrollController,
-          slivers: [
-            _buildSliverAppBar(news),
-            SliverToBoxAdapter(
-              child: _buildContent(news),
-            ),
-          ],
-        );
+        return _buildNewsScaffold(news);
       }),
     );
   }
 
-  Widget _buildSliverAppBar(News news) {
-    return SliverAppBar(
-      expandedHeight: 300,
-      floating: false,
-      pinned: true,
-      elevation: 0,
-      backgroundColor: const Color(0xFFDBB837),
-      systemOverlayStyle: SystemUiOverlayStyle.dark,
-      leading: Container(
-        margin: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.3),
-          borderRadius: BorderRadius.circular(12),
+  Widget _buildNewsScaffold(News news) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.black87),
+          onPressed: () => Navigator.pop(context),
         ),
-        child: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.text_decrease, color: Colors.black87),
+            onPressed: _decreaseTextSize,
+          ),
+          IconButton(
+            icon: const Icon(Icons.text_increase, color: Colors.black87),
+            onPressed: _increaseTextSize,
+          ),
+        ],
       ),
-      actions: [
-        Container(
-          margin: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.3),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: IconButton(
-            icon: const Icon(Icons.share, color: Colors.white),
-            onPressed: () {
-              // Implement share functionality
-            },
-          ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Hero Image Carousel
+            _buildImageCarousel(news),
+
+            // Image Thumbnails
+            if (news.newsImages.length > 1) _buildImageThumbnails(news),
+
+            // Newws Content
+            _buildNewsContent(news),
+
+            if (news.property != null) _buildPropertyCard(news),
+
+            // Recommended Newws
+            // if (widget.recommendedNews.isNotEmpty) _buildRecommendedNews(),
+
+            const SizedBox(height: 24),
+          ],
         ),
-      ],
-      flexibleSpace: FlexibleSpaceBar(
-        background: _buildImageCarousel(news),
       ),
     );
   }
@@ -124,378 +133,457 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
   Widget _buildImageCarousel(News news) {
     if (news.newsImages.isEmpty) {
       return Container(
+        height: 250,
         color: Colors.grey[300],
-        child: const Center(
-          child: Icon(
-            Icons.image_not_supported,
-            size: 60,
-            color: Colors.grey,
-          ),
-        ),
+        child:
+            Icon(Icons.image_not_supported, color: Colors.grey[600], size: 64),
       );
     }
-
-    return Stack(
-      children: [
-        PageView.builder(
-          controller: _pageController,
-          onPageChanged: (index) {
-            setState(() {
-              _currentImageIndex = index;
-            });
-          },
-          itemCount: news.newsImages.length,
-          itemBuilder: (context, index) {
-            return Image.network(
-              news.newsImages[index].imgUrl,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  color: Colors.grey[300],
-                  child: const Center(
-                    child: Icon(
-                      Icons.broken_image,
-                      size: 60,
-                      color: Colors.grey,
-                    ),
-                  ),
-                );
-              },
-              loadingBuilder: (context, child, loadingProgress) {
-                if (loadingProgress == null) return child;
-                return Container(
-                  color: Colors.grey[200],
-                  child: Center(
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        const Color(0xFFDBB837),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            );
-          },
-        ),
-        if (news.newsImages.length > 1)
-          Positioned(
-            bottom: 16,
-            left: 0,
-            right: 0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
-                news.newsImages.length,
-                (index) => AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  height: 8,
-                  width: _currentImageIndex == index ? 24 : 8,
-                  decoration: BoxDecoration(
-                    color: _currentImageIndex == index
-                        ? Colors.white
-                        : Colors.white.withOpacity(0.5),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
+    return SizedBox(
+      height: 250,
+      child: PageView.builder(
+        controller: _pageController,
+        onPageChanged: (index) {
+          setState(() {
+            _currentImageIndex = index;
+          });
+        },
+        itemCount: news.newsImages.length,
+        itemBuilder: (context, index) {
+          final String filename = news.newsImages[index].imgUrl;
+          final String fullUrl = Imgurl.get('news/news_images/$filename');
+          return Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: NetworkImage(fullUrl),
+                fit: BoxFit.cover,
               ),
             ),
-          ),
-        if (news.newsImages.length > 1)
-          Positioned(
-            bottom: 16,
-            right: 16,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.6),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Text(
-                '${_currentImageIndex + 1}/${news.newsImages.length}',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.transparent,
+                    Colors.black.withOpacity(0.3),
+                  ],
                 ),
               ),
             ),
-          ),
-      ],
+          );
+        },
+      ),
     );
   }
 
-  Widget _buildContent(News news) {
+  Widget _buildImageThumbnails(News news) {
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(24),
-          topRight: Radius.circular(24),
-        ),
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildHeader(news),
-          _buildDescription(news.description),
-          if (news.property != null) _buildPropertySection(news.property!),
-          const SizedBox(height: 32),
+          // Dots Indicator (tidak ada perubahan)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(
+              news.newsImages.length,
+              (index) => Container(
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: _currentImageIndex == index
+                      ? const Color(0xFFDBB837)
+                      : Colors.grey.shade300,
+                ),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          // Thumbnail Row (struktur tetap, hanya pemanggilan gambar diubah)
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: List.generate(
+                news.newsImages.length,
+                (index) {
+                  // Ubah menjadi blok body agar bisa deklarasi variabel
+
+                  // FIX: Logika pembuatan URL lengkap diletakkan di dalam sini
+                  final String filename = news.newsImages[index].imgUrl;
+                  final String fullUrl =
+                      Imgurl.get('news/news_images/$filename');
+
+                  return GestureDetector(
+                    onTap: () => _jumpToImage(index),
+                    child: Container(
+                      margin: const EdgeInsets.only(right: 8),
+                      width: 60,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: _currentImageIndex == index
+                              ? const Color(0xFFDBB837)
+                              : Colors.grey.shade300,
+                          width: 2,
+                        ),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(6),
+                        child: Image.network(
+                          fullUrl, // <-- Gunakan URL yang sudah benar
+                          fit: BoxFit.cover,
+                          // (Opsional) Tambahkan error/loading builder agar lebih baik
+                          errorBuilder: (context, error, stackTrace) =>
+                              Container(color: Colors.grey.shade200),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildHeader(News news) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+  Widget _buildNewsContent(News news) {
+    return Padding(
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Category Badge
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
               color: const Color(0xFFDBB837).withOpacity(0.1),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
                 color: const Color(0xFFDBB837).withOpacity(0.3),
-                width: 1,
               ),
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.category_outlined,
-                  size: 16,
-                  color: const Color(0xFFDBB837),
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  news.newsCategory.name,
-                  style: TextStyle(
-                    color: const Color(0xFFDBB837),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
+            child: Text(
+              news.newsCategory.name,
+              style: const TextStyle(
+                color: Color(0xFFDBB837),
+                fontWeight: FontWeight.w600,
+                fontSize: 12,
+              ),
             ),
           ),
+
           const SizedBox(height: 16),
+
+          // Title
           Text(
             news.title,
             style: const TextStyle(
-              fontSize: 28,
+              fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1A1A1A),
-              height: 1.2,
+              color: Colors.black87,
+              height: 1.3,
             ),
           ),
+
           const SizedBox(height: 16),
-          Row(
-            children: [
-              Icon(
-                Icons.access_time,
-                size: 16,
-                color: Colors.grey[600],
-              ),
-              const SizedBox(width: 6),
-              Text(
-                'Dipublikasikan hari ini',
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 14,
-                ),
-              ),
-              const Spacer(),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.grey[100],
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.visibility_outlined,
-                      size: 14,
-                      color: Colors.grey[600],
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '1.2k',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
 
-  Widget _buildDescription(String description) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Deskripsi',
+          // Description with adjustable text size
+          AnimatedDefaultTextStyle(
+            duration: const Duration(milliseconds: 200),
             style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF1A1A1A),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            description,
-            style: const TextStyle(
-              fontSize: 16,
+              fontSize: _textSize,
+              color: Colors.black54,
               height: 1.6,
-              color: Color(0xFF4A4A4A),
+              letterSpacing: 0.3,
             ),
+            child: Text(news.description),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildPropertySection(Property property) {
+  Widget _buildPropertyCard(News news) {
+    final property = news.property!;
+
+    String getPropertyImage(Property property) {
+      if (property.images.isNotEmpty &&
+          property.images.first.image_url != null) {
+        return property.images.first.image_url!;
+      }
+      return '';
+    }
+
     return Container(
-      margin: const EdgeInsets.fromLTRB(24, 32, 24, 0),
-      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            const Color(0xFFDBB837).withOpacity(0.1),
-            const Color(0xFFDBB837).withOpacity(0.05),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: const Color(0xFFDBB837).withOpacity(0.2),
-          width: 1,
-        ),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.shade200,
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.home_work,
                   color: const Color(0xFFDBB837),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(
-                  Icons.home,
-                  color: Colors.white,
                   size: 20,
                 ),
-              ),
-              const SizedBox(width: 12),
-              const Text(
-                'Properti Terkait',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1A1A1A),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  property.name,
-                  style: const TextStyle(
+                const SizedBox(width: 8),
+                const Text(
+                  'Properti Terkait',
+                  style: TextStyle(
                     fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF1A1A1A),
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
                   ),
                 ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Icon(
-                      Icons.location_on_outlined,
-                      size: 16,
-                      color: Colors.grey[600],
-                    ),
-                    const SizedBox(width: 4),
-                    Expanded(
-                      child: Text(
-                        AreaHelper.formatSingleLine(property.address) ??
-                            'Lokasi Premium',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // Navigate to property detail
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFDBB837),
-                          foregroundColor: Colors.white,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                        child: const Text(
-                          'Lihat Properti',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
               ],
             ),
-          ),
-        ],
+            const SizedBox(height: 12),
+            InkWell(
+              onTap: () {
+                Get.toNamed(
+                  Routes.DETAIL_PROPERTIES,
+                  arguments: property,
+                );
+              },
+              borderRadius:
+                  BorderRadius.circular(12), // Efek klik mengikuti bentuk kartu
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey.shade200),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.shade200,
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    // Property Image
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.network(
+                        Imgurl.get(
+                            'property/property_images/${getPropertyImage(property)}'),
+                        width: 80,
+                        height: 80,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          width: 80,
+                          height: 80,
+                          color: Colors.grey.shade200,
+                          child: Icon(Icons.home_work_outlined,
+                              color: Colors.grey.shade400),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(width: 12),
+
+                    // Property Details
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            property.name,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.location_on,
+                                size: 14,
+                                color: Colors.grey.shade600,
+                              ),
+                              const SizedBox(width: 4),
+                              Expanded(
+                                child: Text(
+                                  AreaHelper.formatSingleLine(property.address),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey.shade600,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            formatPrice(property.price),
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFFDBB837),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Arrow Icon
+                    Icon(
+                      Icons.arrow_forward_ios,
+                      size: 16,
+                      color: Colors.grey.shade400,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
+
+  // Widget _buildRecommendedNews() {
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       const Padding(
+  //         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+  //         child: Text(
+  //           'Berita Lainnya',
+  //           style: TextStyle(
+  //             fontSize: 18,
+  //             fontWeight: FontWeight.bold,
+  //             color: Colors.black87,
+  //           ),
+  //         ),
+  //       ),
+  //       SizedBox(
+  //         height: 160,
+  //         child: ListView.builder(
+  //           scrollDirection: Axis.horizontal,
+  //           padding: const EdgeInsets.symmetric(horizontal: 16),
+  //           itemCount: widget.recommendedNews.length,
+  //           itemBuilder: (context, index) {
+  //             final news = widget.recommendedNews[index];
+  //             return GestureDetector(
+  //               onTap: () {
+  //                 Navigator.push(
+  //                   context,
+  //                   MaterialPageRoute(
+  //                     builder: (context) => NewsDetailScreen(
+  //                       news: news,
+  //                       recommendedNews: widget.recommendedNews,
+  //                     ),
+  //                   ),
+  //                 );
+  //               },
+  //               child: Container(
+  //                 width: 280,
+  //                 margin: const EdgeInsets.only(right: 12),
+  //                 decoration: BoxDecoration(
+  //                   color: Colors.white,
+  //                   borderRadius: BorderRadius.circular(12),
+  //                   boxShadow: [
+  //                     BoxShadow(
+  //                       color: Colors.grey.shade200,
+  //                       blurRadius: 6,
+  //                       offset: const Offset(0, 3),
+  //                     ),
+  //                   ],
+  //                 ),
+  //                 child: Row(
+  //                   children: [
+  //                     ClipRRect(
+  //                       borderRadius: const BorderRadius.only(
+  //                         topLeft: Radius.circular(12),
+  //                         bottomLeft: Radius.circular(12),
+  //                       ),
+  //                       child: Image.network(
+  //                         news.newsImages.first.imgUrl,
+  //                         width: 100,
+  //                         height: 160,
+  //                         fit: BoxFit.cover,
+  //                       ),
+  //                     ),
+  //                     Expanded(
+  //                       child: Padding(
+  //                         padding: const EdgeInsets.all(12),
+  //                         child: Column(
+  //                           crossAxisAlignment: CrossAxisAlignment.start,
+  //                           children: [
+  //                             Container(
+  //                               padding: const EdgeInsets.symmetric(
+  //                                 horizontal: 8,
+  //                                 vertical: 4,
+  //                               ),
+  //                               decoration: BoxDecoration(
+  //                                 color:
+  //                                     const Color(0xFFDBB837).withOpacity(0.1),
+  //                                 borderRadius: BorderRadius.circular(12),
+  //                               ),
+  //                               child: Text(
+  //                                 news.newsCategory.name,
+  //                                 style: const TextStyle(
+  //                                   color: Color(0xFFDBB837),
+  //                                   fontSize: 10,
+  //                                   fontWeight: FontWeight.w600,
+  //                                 ),
+  //                               ),
+  //                             ),
+  //                             const SizedBox(height: 8),
+  //                             Expanded(
+  //                               child: Text(
+  //                                 news.title,
+  //                                 style: const TextStyle(
+  //                                   fontSize: 14,
+  //                                   fontWeight: FontWeight.bold,
+  //                                   color: Colors.black87,
+  //                                   height: 1.2,
+  //                                 ),
+  //                                 maxLines: 4,
+  //                                 overflow: TextOverflow.ellipsis,
+  //                               ),
+  //                             ),
+  //                           ],
+  //                         ),
+  //                       ),
+  //                     ),
+  //                   ],
+  //                 ),
+  //               ),
+  //             );
+  //           },
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
 }

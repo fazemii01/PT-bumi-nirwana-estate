@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
-import { CekEligibilityService } from '@/cek_eligibility/cek_eligibility.service';
+// import { CekEligibilityService } from '@/cek_eligibility/cek_eligibility.service';
 
 let server: any;
 

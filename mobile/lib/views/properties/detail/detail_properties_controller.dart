@@ -10,7 +10,7 @@ class PropertyDetailController extends GetxController {
 
   final Rx<Property?> property = Rx<Property?>(null);
 
-  var isLoading = true.obs;
+  var isLoading = false.obs;
   var errorMessage = ''.obs;
   var userId = ''.obs;
   var favoriteIds = <String>[].obs;

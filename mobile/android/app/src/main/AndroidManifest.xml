@@ -2,7 +2,7 @@
 
   <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
   <application
-    android:label="mobile_nirwana"
+    android:label="Bumi Nirwana"
     android:name="${applicationName}"
     android:icon="@drawable/logo">
     <activity
@@ -51,7 +51,6 @@
          https://developer.android.com/reference/android/content/Intent#ACTION_PROCESS_TEXT.
 
          In particular, this is used by the Flutter engine in io.flutter.plugin.text.ProcessTextPlugin. -->
-<<<<<<< HEAD
     <queries>
      <intent>
        <action android:name="android.intent.action.VIEW" />
@@ -64,12 +63,3 @@
       </intent>
    </queries>
 </manifest>
-=======
-  <queries>
-    <intent>
-      <action android:name="android.intent.action.VIEW" />
-      <data android:scheme="https" />
-    </intent>
-  </queries>
-</manifest>
->>>>>>> d5752076390bb9520435439268686f62764608a6

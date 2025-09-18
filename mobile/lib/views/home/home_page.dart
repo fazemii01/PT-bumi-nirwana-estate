@@ -10,7 +10,6 @@ import 'package:mobile_nirwana/helper/price.dart';
 import 'package:mobile_nirwana/helper/specifications.dart';
 import 'package:mobile_nirwana/views/home/home_controller.dart';
 import 'package:mobile_nirwana/views/home/widgets/property_favorite_user.dart';
-import 'package:mobile_nirwana/views/layout.dart';
 import 'package:mobile_nirwana/views/layout_controller.dart';
 import 'package:mobile_nirwana/widgets/sceleton_home_property.dart';
 import 'package:mobile_nirwana/widgets/skeleton_home_news.dart';
@@ -237,7 +236,7 @@ class _HomePageState extends State<HomePage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Properti Rekomendasi',
+                            'Properti Terbaru',
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -572,7 +571,7 @@ class _HomePageState extends State<HomePage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Properti Rekomendasi',
+              'Properti Terbaru',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -583,6 +582,9 @@ class _HomePageState extends State<HomePage> {
               onPressed: () {
                 _layoutController.changeTabIndex(1);
               },
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFFDBB837),
+              ),
               child: Text(
                 'Lihat Semua',
                 style: TextStyle(
@@ -606,7 +608,10 @@ class _HomePageState extends State<HomePage> {
               final property = _homeController.properties[index];
               return GestureDetector(
                 onTap: () {
-                  Get.toNamed(Routes.DETAIL_PROPERTIES, arguments: property.id);
+                  Get.toNamed(
+                    Routes.DETAIL_PROPERTIES,
+                    arguments: property,
+                  );
                 },
                 child: _buildPropertyCard(property),
               );
@@ -671,7 +676,9 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-              FavoriteIcon(propertyId: property.id),
+              FavoriteIcon(
+                propertyId: property.id,
+              ),
               Positioned(
                 top: 12,
                 left: 12,
@@ -799,6 +806,9 @@ class _HomePageState extends State<HomePage> {
             ),
             TextButton(
               onPressed: () {},
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFFDBB837),
+              ),
               child: Text(
                 'Lihat Semua',
                 style: TextStyle(
@@ -821,7 +831,7 @@ class _HomePageState extends State<HomePage> {
             final news = _homeController.news[index];
             return GestureDetector(
               onTap: () {
-                Get.toNamed(Routes.DETAIL_NEWS, arguments: news.id);
+                Get.toNamed(Routes.DETAIL_NEWS, arguments: news);
               },
               child: _buildNewsCard(news),
             );

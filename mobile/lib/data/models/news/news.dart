@@ -10,6 +10,8 @@ class News {
   final NewsCategory newsCategory;
   final Property? property;
   final List<NewsImages> newsImages;
+  final DateTime createdAt;
+  final DateTime updatedAt;
 
   News({
     required this.id,
@@ -19,6 +21,8 @@ class News {
     required this.newsCategory,
     this.property,
     this.newsImages = const [],
+    required this.createdAt,
+    required this.updatedAt,
   });
 
   factory News.fromJson(Map<String, dynamic> json) {
@@ -36,6 +40,8 @@ class News {
       property:
           json['property'] != null ? Property.fromJson(json['property']) : null,
       newsImages: images,
+      createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updated_at'] ?? '') ?? DateTime.now(),
     );
   }
 }
