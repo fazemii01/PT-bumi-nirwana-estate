@@ -583,6 +583,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
+              // fav
               FavoriteIcon(
                 propertyId: property.id,
                 isLoggedIn: _layoutController.isLoggedIn.value,
