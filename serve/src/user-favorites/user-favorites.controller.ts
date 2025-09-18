@@ -21,7 +21,7 @@ export class UserFavoritesController {
   }
   @Roles('USER', 'ADMIN')
   @Get(':userId')
-  findOneByUser(@Param('userId') userId: string) {
-    return this.userFavoritesService.findOneByUserId(userId);
+  async findOneByUser(@Param('userId') userId: string) {
+    return await this.userFavoritesService.findOneByUserId(userId);
   }
 }

@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mobile_nirwana/core/routes/app_routes.dart';
+import 'package:mobile_nirwana/core/utils/api.dart';
 import 'package:mobile_nirwana/data/models/property/property.dart';
-import 'package:mobile_nirwana/helper/address.dart';
 import 'package:mobile_nirwana/helper/price.dart';
+import 'package:mobile_nirwana/views/layout.dart';
 import 'package:mobile_nirwana/views/profile/profile_controller.dart';
+import 'package:mobile_nirwana/views/profile/widgets/update_profile.dart';
+import 'package:mobile_nirwana/widgets/error.dart';
+import 'package:mobile_nirwana/widgets/simmer.dart';
 
 class ProfilePage extends StatelessWidget {
   final ProfileController _profileController = Get.put(ProfileController());
@@ -22,165 +26,305 @@ class ProfilePage extends StatelessWidget {
   }
 
   Widget _loggedInView(BuildContext context) {
-    return CustomScrollView(
-      slivers: [
-        // Modern App Bar dengan gradient
-        SliverAppBar(
-          expandedHeight: 280,
-          floating: false,
-          pinned: true,
-          elevation: 0,
-          backgroundColor: Colors.white,
-          flexibleSpace: FlexibleSpaceBar(
-            background: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFFDBB837),
-                    Color(0xFFF4D03F),
-                  ],
-                ),
-              ),
-              child: SafeArea(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(height: 40),
-                    // Avatar dengan shadow yang lebih modern
-                    Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            blurRadius: 20,
-                            offset: Offset(0, 8),
+    return RefreshIndicator(
+      onRefresh: () async {
+        _profileController.loadPage();
+      },
+      child: CustomScrollView(
+        slivers: [
+          // === HEADER ===
+          SliverLayoutBuilder(
+            builder: (context, constraints) {
+              final isCollapsed = constraints.scrollOffset > 200;
+
+              return SliverAppBar(
+                expandedHeight: 320,
+                pinned: true,
+                elevation: 0,
+                backgroundColor: Colors.white,
+                title: isCollapsed
+                    ? Obx(() => Text(
+                          _profileController.currentUser.value.full_name,
+                          style: const TextStyle(
+                            color: Colors.black87,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
                           ),
-                        ],
-                      ),
-                      child: CircleAvatar(
-                        radius: 45,
-                        backgroundColor: Colors.white,
-                        child: Icon(
-                          Icons.person_rounded,
-                          size: 45,
-                          color: Color(0xFFDBB837),
+                        ))
+                    : null,
+                leading: isCollapsed
+                    ? IconButton(
+                        icon:
+                            const Icon(Icons.arrow_back, color: Colors.black87),
+                        onPressed: () =>
+                            Get.offAll(() => const Layout(), arguments: 0),
+                      )
+                    : null,
+                flexibleSpace: FlexibleSpaceBar(
+                  background: Stack(
+                    children: [
+                      // Background gradient
+                      Container(
+                        height: 280,
+                        decoration: const BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [Color(0xFFDBB837), Color(0xFFF59E0B)],
+                          ),
                         ),
                       ),
-                    ),
-                    SizedBox(height: 20),
-                    Text(
-                      _profileController.currentUser.value.full_name,
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                        letterSpacing: 0.5,
+
+                      // Curved bottom
+                      Positioned(
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        child: Container(
+                          height: 80,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[50],
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(40),
+                              topRight: Radius.circular(40),
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      _profileController.currentUser.value.email,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.white.withOpacity(0.9),
-                        letterSpacing: 0.3,
+
+                      // Content
+                      SafeArea(
+                        child: Column(
+                          children: [
+                            const SizedBox(height: 20),
+
+                            // Header email
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 20),
+                              child: Row(
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.arrow_back,
+                                        color: Colors.white),
+                                    onPressed: () => Get.offAll(
+                                        () => const Layout(),
+                                        arguments: 0),
+                                  ),
+                                  Expanded(
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 16, vertical: 8),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withOpacity(0.2),
+                                        borderRadius: BorderRadius.circular(25),
+                                        border: Border.all(
+                                          color: Colors.white.withOpacity(0.3),
+                                          width: 1,
+                                        ),
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          const Icon(Icons.email_outlined,
+                                              color: Colors.white, size: 16),
+                                          const SizedBox(width: 8),
+                                          Flexible(
+                                            child: Obx(() => Text(
+                                                  _profileController
+                                                      .currentUser.value.email,
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                )),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.more_vert,
+                                        color: Colors.white),
+                                    onPressed: () {},
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            const SizedBox(height: 40),
+
+                            Obx(() => _profilePictureSection()),
+
+                            const SizedBox(height: 8),
+
+                            // Tombol kamera
+                            _cameraButton(),
+
+                            const SizedBox(height: 20),
+
+                            // Nama user
+                            Obx(() => _profileController.isLoadUser.value
+                                ? Simmer(
+                                    width: 230,
+                                    height: 30,
+                                    borderRadius: BorderRadius.circular(8),
+                                  )
+                                : _profileController
+                                        .errorLoadUser.value.isNotEmpty
+                                    ? SizedBox.shrink()
+                                    : Text(
+                                        _profileController
+                                            .currentUser.value.full_name,
+                                        style: const TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.black87,
+                                        ),
+                                      )),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
+              );
+            },
+          ),
+          // Content
+          SliverToBoxAdapter(
+            child: Column(
+              children: [
+                Container(
+                  margin: EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.04),
+                        blurRadius: 20,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      _buildModernMenuItem(
+                        icon: Icons.person_outline_rounded,
+                        title: 'Edit Profile',
+                        subtitle: 'Kelola informasi pribadi',
+                        isExpandable: true,
+                        isExpanded: _profileController.isProfileExpanded.value,
+                        onTap: () {
+                          _profileController.toggleProfileExpansion();
+                        },
+                      ),
+                      _buildDivider(),
+                      _buildModernMenuItem(
+                        icon: Icons.security_rounded,
+                        title: 'Keamanan',
+                        subtitle: 'Password & keamanan akun',
+                        onTap: () => print('Security tapped'),
+                      ),
+                      _buildDivider(),
+                      _buildModernMenuItem(
+                        icon: Icons.help_outline_rounded,
+                        title: 'Bantuan',
+                        subtitle: 'FAQ & dukungan pelanggan',
+                        onTap: () => print('Help tapped'),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: 20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.04),
+                        blurRadius: 20,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: _buildLogoutItem(),
+                ),
+                _buildFavoriteSection(),
+                SizedBox(height: 100),
+              ],
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _profilePictureSection() {
+    if (_profileController.isLoadUser.value) {
+      return ClipOval(child: Simmer(height: 120, width: 120));
+    }
+
+    if (_profileController.errorLoadUser.value.isNotEmpty) {
+      return Container(
+        width: 120,
+        height: 120,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: const Color(0xFFDBB837),
+          border: Border.all(color: Colors.white, width: 4),
         ),
+        child: const Icon(Icons.person, size: 80, color: Colors.white),
+      );
+    }
 
-        // Content
-        SliverToBoxAdapter(
-          child: Column(
-            children: [
-              // Menu Items dengan card modern
-              Container(
-                margin: EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
-                      blurRadius: 20,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    _buildModernMenuItem(
-                      icon: Icons.person_outline_rounded,
-                      title: 'Edit Profile',
-                      subtitle: 'Kelola informasi pribadi',
-                      onTap: () => print('Edit Profile tapped'),
-                    ),
-                    _buildDivider(),
-                    _buildModernMenuItem(
-                      icon: Icons.phone_outlined,
-                      title: 'Nomor Telepon',
-                      subtitle:
-                          _profileController.currentUser.value.phone_number ??
-                              'Belum ada',
-                      onTap: () => print('Phone tapped'),
-                    ),
-                    _buildDivider(),
-                    _buildModernMenuItem(
-                      icon: Icons.notifications_none_rounded,
-                      title: 'Notifikasi',
-                      subtitle: 'Atur preferensi notifikasi',
-                      onTap: () => print('Notifications tapped'),
-                    ),
-                    _buildDivider(),
-                    _buildModernMenuItem(
-                      icon: Icons.security_rounded,
-                      title: 'Keamanan',
-                      subtitle: 'Password & keamanan akun',
-                      onTap: () => print('Security tapped'),
-                    ),
-                    _buildDivider(),
-                    _buildModernMenuItem(
-                      icon: Icons.help_outline_rounded,
-                      title: 'Bantuan',
-                      subtitle: 'FAQ & dukungan pelanggan',
-                      onTap: () => print('Help tapped'),
-                    ),
-                  ],
-                ),
-              ),
-
-              // Logout Button terpisah
-              Container(
-                margin: EdgeInsets.symmetric(horizontal: 20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
-                      blurRadius: 20,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: _buildLogoutItem(),
-              ),
-
-              // Favorite Properties Section
-              _buildFavoriteSection(),
-
-              SizedBox(height: 100), // Extra space for bottom navigation
-            ],
+    return Container(
+      width: 120,
+      height: 120,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: const Color(0xFFDBB837),
+        border: Border.all(color: Colors.white, width: 4),
+      ),
+      child: Center(
+        child: Text(
+          _getInitials(_profileController.currentUser.value.full_name),
+          style: const TextStyle(
+            fontSize: 36,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
           ),
         ),
-      ],
+      ),
+    );
+  }
+
+  Widget _cameraButton() {
+    return GestureDetector(
+      onTap: () {
+        // Action untuk ganti foto profil
+      },
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: const Icon(Icons.camera_alt, size: 16, color: Colors.black54),
+      ),
     );
   }
 
@@ -189,59 +333,70 @@ class ProfilePage extends StatelessWidget {
     required String title,
     required String subtitle,
     required VoidCallback onTap,
+    bool isExpandable = false,
+    bool isExpanded = false,
   }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Padding(
-        padding: EdgeInsets.all(20),
-        child: Row(
-          children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: Color(0xFFF8F9FA),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(
-                icon,
-                color: Color(0xFFDBB837),
-                size: 24,
-              ),
-            ),
-            SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                    ),
+    return Column(
+      children: [
+        InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: EdgeInsets.all(20),
+            child: Row(
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: Color(0xFFF8F9FA),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.grey[600],
-                    ),
+                  child: Icon(
+                    icon,
+                    color: Color(0xFFDBB837),
+                    size: 24,
                   ),
-                ],
-              ),
+                ),
+                SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        subtitle,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  isExpandable
+                      ? (isExpanded
+                          ? Icons.keyboard_arrow_down_rounded
+                          : Icons.arrow_forward_ios_rounded)
+                      : Icons.arrow_forward_ios_rounded,
+                  size: isExpandable ? 16 : 16,
+                  color: Colors.grey[400],
+                ),
+              ],
             ),
-            Icon(
-              Icons.arrow_forward_ios_rounded,
-              size: 16,
-              color: Colors.grey[400],
-            ),
-          ],
+          ),
         ),
-      ),
+        if (isExpandable && isExpanded) _buildProfileInfoSection(),
+      ],
     );
   }
 
@@ -364,21 +519,59 @@ class ProfilePage extends StatelessWidget {
           Obx(() {
             if (_profileController.isLoading.value) {
               return Container(
-                height: 200,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Center(
-                  child: CircularProgressIndicator(
-                    color: Color(0xFFDBB837),
-                    strokeWidth: 3,
-                  ),
+                height: 140,
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: 3,
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Stack(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: Simmer(width: 160, height: 80),
+                              ),
+                              Positioned(
+                                top: 6,
+                                right: 6,
+                                child: Container(
+                                  padding: EdgeInsets.all(4),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.1),
+                                        blurRadius: 4,
+                                        offset: Offset(0, 1),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Simmer(width: 12, height: 12),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 8),
+                          Simmer(width: 80, height: 10),
+                          SizedBox(height: 4),
+                          Simmer(width: 100, height: 10),
+                        ],
+                      ),
+                    );
+                  },
                 ),
               );
-            }
-
-            if (_profileController.favoriteProperties.isEmpty) {
+            } else if (_profileController.errorMessage.isNotEmpty) {
+              return ErrorStateWidget.server(
+                onRetry: () => _profileController.loadFavoriteProperties(),
+              );
+            } else if (_profileController.userFavorities.isEmpty) {
               return Container(
                 padding: EdgeInsets.all(40),
                 decoration: BoxDecoration(
@@ -427,17 +620,21 @@ class ProfilePage extends StatelessWidget {
                   ],
                 ),
               );
+            } else {
+              return Container(
+                height: 140,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal, // Horizontal scroll
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: _profileController.userFavorities.length,
+                  itemBuilder: (context, index) {
+                    final userFavorite =
+                        _profileController.userFavorities[index];
+                    return _buildFavoriteProperty(userFavorite.property!);
+                  },
+                ),
+              );
             }
-
-            return ListView.builder(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: _profileController.favoriteProperties.length,
-              itemBuilder: (context, index) {
-                final property = _profileController.favoriteProperties[index];
-                return _buildModernFavoriteProperty(property);
-              },
-            );
           }),
         ],
       ),
@@ -588,174 +785,303 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  Widget _buildModernFavoriteProperty(Property property) {
+  Widget _buildFavoriteProperty(Property property) {
     return Container(
-      margin: EdgeInsets.only(bottom: 16),
+      width: 160,
+      margin: EdgeInsets.only(right: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 20,
-            offset: Offset(0, 4),
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 8,
+            offset: Offset(0, 2),
           ),
         ],
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Property Image
-          Container(
-            height: 180,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(16),
-                topRight: Radius.circular(16),
-              ),
-              image: DecorationImage(
-                image: NetworkImage(
-                  'property/property_images/${_getPropertyImage(property)}',
+          // Thumbnail image
+          Stack(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(12),
+                  topRight: Radius.circular(12),
                 ),
-                fit: BoxFit.cover,
+                child: Image.network(
+                  Imgurl.get(
+                      'property/property_images/${_getPropertyImage(property)}'),
+                  fit: BoxFit.cover,
+                  width: 160,
+                  height: 80,
+                ),
               ),
-            ),
-            child: Stack(
-              children: [
-                // Gradient overlay
-                Container(
+              // Favorite badge
+              Positioned(
+                top: 6,
+                right: 6,
+                child: Container(
+                  padding: EdgeInsets.all(4),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(16),
-                      topRight: Radius.circular(16),
-                    ),
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.transparent,
-                        Colors.black.withOpacity(0.1),
-                      ],
-                    ),
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 4,
+                        offset: Offset(0, 1),
+                      ),
+                    ],
+                  ),
+                  child: Icon(
+                    Icons.favorite_rounded,
+                    color: Colors.red,
+                    size: 12,
                   ),
                 ),
-                Positioned(
-                  top: 12,
-                  right: 12,
-                  child: Container(
-                    padding: EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 8,
-                          offset: Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Icon(
-                      Icons.favorite_rounded,
-                      color: Colors.red,
-                      size: 20,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
 
-          // Property Info
-          Padding(
-            padding: EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  property.name,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.black87,
+          SizedBox(height: 8),
+
+          // Property details dengan padding
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    property.name,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-                SizedBox(height: 6),
-                Row(
-                  children: [
-                    Icon(
-                      Icons.location_on_rounded,
-                      size: 16,
-                      color: Colors.grey[500],
+                  SizedBox(height: 2),
+                  Text(
+                    formatPrice(property.price),
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFFDBB837),
                     ),
-                    SizedBox(width: 4),
-                    Expanded(
-                      child: Text(
-                        AreaHelper.formatSingleLine(property.address),
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 13,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 12),
-                Text(
-                  formatPrice(property.price),
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFFDBB837),
                   ),
-                ),
-                SizedBox(height: 12),
-                Row(
-                  children: [
-                    _buildModernPropertyFeature(
-                      Icons.bed_rounded,
-                      property.specifications!.bedrooms.toString(),
-                    ),
-                    SizedBox(width: 16),
-                    _buildModernPropertyFeature(
-                      Icons.bathroom_rounded,
-                      property.specifications!.bathrooms.toString(),
-                    ),
-                    SizedBox(width: 16),
-                    _buildModernPropertyFeature(
-                      Icons.square_foot_rounded,
-                      '${property.buildingSize}m²',
-                    ),
-                  ],
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
+          )
         ],
       ),
     );
   }
 
-  Widget _buildModernPropertyFeature(IconData icon, String value) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: Color(0xFFF8F9FA),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, size: 16, color: Colors.grey[600]),
-          SizedBox(width: 4),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: Colors.grey[700],
-            ),
+  Widget _buildProfileInfoSection() {
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+      padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
+      child: Container(
+        padding: EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: Colors.grey[200]!,
+            width: 1,
           ),
-        ],
+        ),
+        child: _profileController.isLoadUser.value
+            ? Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 32,
+                    height: 32,
+                    alignment: Alignment.center,
+                    child: const Simmer(
+                        width: 16,
+                        height: 16,
+                        borderRadius: BorderRadius.all(Radius.circular(8))),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        Simmer(width: 80, height: 10), // label shimmer
+                        SizedBox(height: 4),
+                        Simmer(
+                            width: double.infinity,
+                            height: 12), // value shimmer
+                      ],
+                    ),
+                  ),
+                ],
+              )
+            : _profileController.errorLoadUser.value.isNotEmpty
+                ? Container(
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.red[50],
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: Colors.red[100]!,
+                        width: 1,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.info_outline,
+                          color: Colors.red[700],
+                          size: 20,
+                        ),
+                        SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            'Terjadi kesalahan saat memuat konten',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.red[800],
+                              height: 1.4,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      InkWell(
+                        onTap: () {},
+                        child: Padding(
+                          padding: EdgeInsets.all(5),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Informasi Pribadi',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              Container(
+                                width: 32,
+                                height: 32,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: Colors.grey[200]!,
+                                    width: 1,
+                                  ),
+                                ),
+                                child: IconButton(
+                                  padding: EdgeInsets.zero,
+                                  icon: Icon(
+                                    Icons.edit_outlined,
+                                    size: 16,
+                                    color: Color(0xFFDBB837),
+                                  ),
+                                  onPressed: () => _showUpdateProfileDialog(),
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 16),
+
+                      // Field Nama Lengkap
+                      _buildInfoField(
+                        label: 'Nama Lengkap',
+                        value: _profileController.currentUser.value.full_name,
+                        icon: Icons.person_outline,
+                      ),
+
+                      SizedBox(height: 12),
+
+                      // Field Email
+                      _buildInfoField(
+                        label: 'Email',
+                        value: _profileController.currentUser.value.email,
+                        icon: Icons.email_outlined,
+                      ),
+
+                      // Button Perbarui
+                    ],
+                  ),
       ),
+    );
+  }
+
+// Widget untuk field informasi
+  Widget _buildInfoField({
+    required String label,
+    required String value,
+    required IconData icon,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 32,
+          height: 32,
+          child: Icon(
+            icon,
+            size: 16,
+            color: Color(0xFFDBB837),
+          ),
+        ),
+        SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey[600],
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              SizedBox(height: 2),
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.black87,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showUpdateProfileDialog() {
+    UpdateProfileBottomSheet.show(
+      context: Get.context!,
+      initialName: _profileController.currentUser.value.full_name,
+      isLoading: _profileController.isEditing.value,
+      onUpdate: (String name) {
+        _profileController.editProfile(
+            _profileController.currentUser.value.id!, name);
+      },
     );
   }
 }
@@ -765,4 +1091,15 @@ String _getPropertyImage(Property property) {
     return property.images[0].image_url!;
   }
   return "";
+}
+
+String _getInitials(String name) {
+  if (name.isEmpty) return 'U';
+
+  List<String> nameParts = name.split(' ');
+  if (nameParts.length == 1) {
+    return nameParts[0][0].toUpperCase();
+  } else {
+    return (nameParts[0][0] + nameParts[1][0]).toUpperCase();
+  }
 }

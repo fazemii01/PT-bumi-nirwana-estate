@@ -6,12 +6,16 @@ import 'package:http/http.dart' as http;
 
 class UserFavoriteService extends Api {
   Future<List<UserFavorite>> getUserFavorities(String userId) async {
+    print("Fetching favorites for userId: $userId");
     final response = await http
         .get(Uri.parse('$baseUrl/user-favorites/$userId'), headers: getToken());
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       final List<dynamic> data = jsonDecode(response.body);
-      return data.map((json) => UserFavorite.fromJson(json)).toList();
+      List<UserFavorite> userFavorites =
+          data.map((item) => UserFavorite.fromJson(item)).toList();
+
+      return userFavorites;
     } else {
       throw Exception('Failed to load user favorites');
     }

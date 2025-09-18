@@ -11,6 +11,7 @@ import 'package:mobile_nirwana/helper/specifications.dart';
 import 'package:mobile_nirwana/views/home/home_controller.dart';
 import 'package:mobile_nirwana/views/home/widgets/property_favorite_user.dart';
 import 'package:mobile_nirwana/views/layout_controller.dart';
+import 'package:mobile_nirwana/widgets/error.dart';
 import 'package:mobile_nirwana/widgets/sceleton_home_property.dart';
 import 'package:mobile_nirwana/widgets/skeleton_home_news.dart';
 
@@ -283,7 +284,9 @@ class _HomePageState extends State<HomePage> {
                         ],
                       );
                     } else if (_homeController.errorMessage.isNotEmpty) {
-                      return _buildErrorState();
+                      return ErrorStateWidget.network(
+                        onRetry: () => _homeController.refreshAllData(),
+                      );
                     } else {
                       return _buildMainContentSections();
                     }
@@ -305,96 +308,6 @@ class _HomePageState extends State<HomePage> {
         SizedBox(height: 32),
         if (_homeController.news.isNotEmpty) _buildNewsSection(),
       ],
-    );
-  }
-
-  Widget _buildErrorState() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                color: Colors.red[50],
-                borderRadius: BorderRadius.circular(40),
-                border: Border.all(
-                  color: Colors.red[100]!,
-                  width: 2,
-                ),
-              ),
-              child: Icon(
-                Icons.wifi_off_rounded,
-                size: 30,
-                color: Colors.red[400],
-              ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              'Something went wrong',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-                color: Colors.grey[800],
-                letterSpacing: -0.3,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            Container(
-              constraints: BoxConstraints(maxWidth: 280),
-              child: Text(
-                _homeController.errorMessage.value,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
-                  height: 1.4,
-                ),
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () => _homeController.refreshAllData(),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFFDBB837),
-                foregroundColor: Colors.white,
-                elevation: 0,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 28,
-                  vertical: 14,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.refresh_rounded,
-                    size: 18,
-                    color: Colors.white,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Try Again',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 

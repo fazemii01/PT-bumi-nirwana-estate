@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserFavoriteDto } from './dto/create-user-favorite.dto';
-import { UpdateUserFavoriteDto } from './dto/update-user-favorite.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserFavorite } from '@/user-favorites/entities/user-favorite.entity';
 import { Repository } from 'typeorm';
