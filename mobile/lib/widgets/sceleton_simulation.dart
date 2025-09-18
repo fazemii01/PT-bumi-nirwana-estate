@@ -23,17 +23,6 @@ class SimulationCardSkeleton extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header dengan tanggal palsu
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: Colors.grey[50],
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(12)),
-            ),
-            child: shimmerBox(height: 12, width: 80),
-          ),
-
           // Content skeleton
           Padding(
             padding: const EdgeInsets.all(16.0),

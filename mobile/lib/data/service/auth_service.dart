@@ -40,6 +40,7 @@ class AuthService extends Api {
           final authResponse = AuthResponse.fromJson(data);
 
           final box = GetStorage();
+          box.write('user', authResponse.user.toJson());
           box.write('access_token', authResponse.accessToken);
           box.write('full_name', authResponse.user.full_name);
           box.write('email', authResponse.user.email);
@@ -66,7 +67,6 @@ class AuthService extends Api {
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = jsonDecode(response.body);
         final authResponse = AuthResponse.fromJson(data);
-
         final box = GetStorage();
         box.write('user', authResponse.user.toJson());
         box.write('access_token', authResponse.accessToken);
@@ -100,33 +100,6 @@ class AuthService extends Api {
       print("USER ${user.toJson()}");
       print('ERROR register $e');
       return 'Register failed';
-    }
-  }
-
-  Future<User> getCurrentUser() async {
-    try {
-      final box = GetStorage();
-      final userJson = box.read('user');
-
-      if (userJson != null) {
-        return User.fromJson(Map<String, dynamic>.from(userJson));
-      } else {
-        return User(
-          id: '',
-          full_name: 'Guest',
-          email: '',
-          phone_number: '',
-          role: '',
-        );
-      }
-    } catch (e) {
-      return User(
-        id: '',
-        full_name: 'Guest',
-        email: '',
-        phone_number: '',
-        role: '',
-      );
     }
   }
 

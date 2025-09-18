@@ -84,7 +84,7 @@ class ErrorStateWidget extends StatelessWidget {
     required this.message,
     this.buttonText = 'Coba Lagi',
     this.onRetry,
-    this.icon = Icons.error_outline_rounded,
+    this.icon = Icons.wifi_off_outlined,
     this.showButton = true,
     this.primaryColor,
   }) : super(key: key);
@@ -102,8 +102,8 @@ class ErrorStateWidget extends StatelessWidget {
           children: [
             // Error icon with gradient background
             Container(
-              width: 120,
-              height: 120,
+              width: 60,
+              height: 60,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: LinearGradient(
@@ -116,18 +116,18 @@ class ErrorStateWidget extends StatelessWidget {
                 ),
               ),
               child: Icon(
-                icon ?? Icons.error_outline_rounded,
-                size: 60,
+                icon ?? Icons.wifi_off_outlined,
+                size: 30,
                 color: _errorColor,
               ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 20),
 
             // Error title
             Text(
               title ?? 'Terjadi Kesalahan',
               style: TextStyle(
-                fontSize: 24,
+                fontSize: 20,
                 fontWeight: FontWeight.w700,
                 color: Color(0xFF1A1A1A),
                 letterSpacing: -0.5,
@@ -143,7 +143,7 @@ class ErrorStateWidget extends StatelessWidget {
                 message ??
                     'Mohon maaf, terjadi kesalahan\nSilakan coba lagi nanti',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 14,
                   color: Colors.grey[600],
                   height: 1.5,
                   letterSpacing: 0.1,
@@ -151,109 +151,33 @@ class ErrorStateWidget extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
             ),
-            const SizedBox(height: 40),
+            const SizedBox(height: 12),
 
             // Retry button (conditional)
             if (showButton && onRetry != null) ...[
               Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: _primaryColor.withOpacity(0.3),
-                      blurRadius: 12,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: ElevatedButton.icon(
+                width: 50,
+                height: 50,
+                // decoration: BoxDecoration(
+                //   color: Colors.white,
+                //   shape: BoxShape.circle,
+                //   border: Border.all(
+                //     color: Colors.grey[200]!,
+                //     width: 1,
+                //   ),
+                // ),
+                child: IconButton(
+                  padding: EdgeInsets.zero,
+                  icon: Icon(
+                    Icons.refresh_outlined,
+                    size: 35,
+                    color: Colors.grey[400],
+                  ),
                   onPressed: onRetry,
-                  icon: Container(
-                    padding: EdgeInsets.all(2),
-                    child: Icon(
-                      Icons.refresh_rounded,
-                      size: 20,
-                    ),
-                  ),
-                  label: Text(
-                    buttonText ?? 'Coba Lagi',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.3,
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _primaryColor,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    minimumSize: Size(200, 52),
-                  ),
                 ),
               ),
               const SizedBox(height: 16),
             ],
-
-            // Secondary action button (optional)
-            if (showButton) ...[
-              TextButton.icon(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                icon: Icon(
-                  Icons.arrow_back_rounded,
-                  size: 18,
-                  color: Colors.grey[600],
-                ),
-                label: Text(
-                  'Kembali',
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ],
-
-            const SizedBox(height: 24),
-
-            // Error info box
-            Container(
-              padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.red[50],
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: Colors.red[100]!,
-                  width: 1,
-                ),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.info_outline,
-                    color: Colors.red[700],
-                    size: 20,
-                  ),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      'Jika masalah terus berlanjut, silakan hubungi tim support kami',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.red[800],
-                        height: 1.4,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
           ],
         ),
       ),
