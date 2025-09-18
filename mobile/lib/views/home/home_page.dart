@@ -589,6 +589,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
+              // fav
               FavoriteIcon(
                 propertyId: property.id,
               ),
