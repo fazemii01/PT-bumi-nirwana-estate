@@ -2,18 +2,19 @@ import { Module } from '@nestjs/common';
 import { PropertiesService } from './properties.service';
 import { PropertiesController } from './properties.controller';
 import { Property } from '@/properties/entities/property.entity';
-import { PropertyImage } from '@/properties/entities/property-image.entity';
-import { PropertyFloorPlan } from '@/properties/entities/property-floor-plan.entity';
+import { PropertyImage } from '@/properties/entities/property_images.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Agent } from '@/agents/entities/agent.entity';
 import { Developer } from '@/developers/entities/developer.entity';
+import { PropertySitePlan } from '@/properties/entities/property_site_plans.entity';
+import { BuildingProperty } from '@/building_property/entities/building_property.entity';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
       Property,
       PropertyImage,
-      PropertyFloorPlan,
+      PropertySitePlan,
       Agent,
       Developer,
     ]),

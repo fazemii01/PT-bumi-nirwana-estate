@@ -1,4 +1,5 @@
 import { Bank } from '@/banks/entities/bank.entity';
+import { BuildingProperty } from '@/building_property/entities/building_property.entity';
 import { Property } from '@/properties/entities/property.entity';
 import { User } from '@/users/entities/user.entity';
 import {
@@ -30,12 +31,12 @@ export class LoanSimulation {
   @JoinColumn({ name: 'bankId' })
   bank: Bank;
 
-  @ManyToOne(() => Property, (property) => property.loan_simulations, {
+  @ManyToOne(() => BuildingProperty, (building) => building.loan_simulations, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
-  @JoinColumn({ name: 'propertyId' })
-  property: Property;
+  @JoinColumn({ name: 'building_propeprtyId' })
+  building_property: BuildingProperty;
 
   @Column({ type: 'decimal', precision: 15, scale: 2, nullable: false })
   loan_amount: number;

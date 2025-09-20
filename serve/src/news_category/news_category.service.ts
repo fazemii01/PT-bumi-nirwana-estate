@@ -4,6 +4,7 @@ import { UpdateNewsCategoryDto } from './dto/update-news_category.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { NewsCategory } from '@/news_category/entities/news_category.entity';
 import { Repository } from 'typeorm';
+import { DeletedAtStatus, nowUtc } from '@/types/deleted_at';
 
 @Injectable()
 export class NewsCategoryService {
@@ -20,7 +21,9 @@ export class NewsCategoryService {
   }
 
   async findAll() {
-    return await this.newsCategoryRepository.find();
+    return await this.newsCategoryRepository.find({
+      where: { status_delete: DeletedAtStatus.NOT_DELETED },
+    });
   }
 
   async findOne(id: string) {
@@ -42,7 +45,10 @@ export class NewsCategoryService {
     const category = await this.newsCategoryRepository.findOneBy({ id });
     if (!category)
       throw new NotFoundException('Categori berita tidak ditemukan');
-    await this.newsCategoryRepository.remove(category);
+    await this.newsCategoryRepository.update(
+      { id },
+      { status_delete: DeletedAtStatus.DELETED, deleted_at: nowUtc() },
+    );
     return { message: 'Delete successfull' };
   }
 }

@@ -9,6 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '@/users/entities/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { DeletedAtStatus, nowUtc } from '@/types/deleted_at';
 
 @Injectable()
 export class UsersService {
@@ -38,7 +39,9 @@ export class UsersService {
   }
 
   async findAll(): Promise<User[]> {
-    return await this.usersRepositoty.find();
+    return await this.usersRepositoty.find({
+      where: { status_delete: DeletedAtStatus.NOT_DELETED },
+    });
   }
 
   async findOne(id: string): Promise<User | null> {
@@ -77,7 +80,10 @@ export class UsersService {
   }
 
   async remove(id: string) {
-    const user = await this.usersRepositoty.delete({ id });
+    const user = await this.usersRepositoty.update(
+      { id },
+      { status_delete: DeletedAtStatus.DELETED, deleted_at: nowUtc() },
+    );
     if (user) {
       return { message: 'Delete successful' };
     }

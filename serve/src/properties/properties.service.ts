@@ -13,10 +13,11 @@ import { Repository } from 'typeorm';
 import slugify from 'slugify';
 import { Developer } from '@/developers/entities/developer.entity';
 import { Agent } from '@/agents/entities/agent.entity';
-import { PropertyImage } from '@/properties/entities/property-image.entity';
-import { PropertyFloorPlan } from '@/properties/entities/property-floor-plan.entity';
+import { PropertyImage } from '@/properties/entities/property_images.entity';
 import * as path from 'path';
 import * as fs from 'fs';
+import { DeletedAtStatus, nowUtc } from '@/types/deleted_at';
+import { PropertySitePlan } from '@/properties/entities/property_site_plans.entity';
 
 @Injectable()
 export class PropertiesService {
@@ -33,18 +34,15 @@ export class PropertiesService {
     @InjectRepository(PropertyImage)
     private readonly propertyImageRepository: Repository<PropertyImage>,
 
-    @InjectRepository(PropertyFloorPlan)
-    private readonly propertyFloorPlanRepository: Repository<PropertyFloorPlan>,
+    @InjectRepository(PropertySitePlan)
+    private readonly propertySitePlanRepository: Repository<PropertySitePlan>,
   ) {}
 
   async create(
     createPropertyDto: CreatePropertyDto,
     property_images: Express.Multer.File[],
-    property_floor_plans: Express.Multer.File[],
+    property_site_plans: Express.Multer.File[],
   ) {
-    console.log('createPropertyDto:', createPropertyDto);
-    // console.log('property_images:', property_images);
-    // console.log('property_floor_plans:', property_floor_plans);
     try {
       const slug = slugify(createPropertyDto.name, { lower: true });
       const exitingSlug = await this.propertyRepository.findOneBy({ slug });
@@ -58,15 +56,9 @@ export class PropertiesService {
       property.name = createPropertyDto.name;
       property.slug = slug;
       property.type = createPropertyDto.type;
-      property.status = createPropertyDto.status;
-      property.price = createPropertyDto.price;
-      property.land_size = createPropertyDto.land_size;
-      property.building_size = createPropertyDto.building_size;
-      property.price_unit = createPropertyDto.price_unit;
       property.description = createPropertyDto.description;
       property.detail_description = createPropertyDto.description;
       property.address = createPropertyDto.address;
-      property.specifications = createPropertyDto.specifications;
 
       if (createPropertyDto.location) {
         try {
@@ -137,17 +129,17 @@ export class PropertiesService {
         }
       }
 
-      if (property_floor_plans && createPropertyDto.floor_plans) {
-        const floor_plan = property_floor_plans.map((file, index) => {
-          const metadata = createPropertyDto.floor_plans[index];
-          return this.propertyFloorPlanRepository.create({
+      if (property_site_plans && createPropertyDto.site_plans) {
+        const site_plan = property_site_plans.map((file, index) => {
+          const metadata = createPropertyDto.site_plans[index];
+          return this.propertySitePlanRepository.create({
             name: metadata.name,
             file_url: file.filename,
             sort_order: metadata.sort_order || index,
             property: saveProperty,
           });
         });
-        await this.propertyFloorPlanRepository.save(floor_plan);
+        await this.propertySitePlanRepository.save(site_plan);
       }
 
       return saveProperty;
@@ -161,14 +153,15 @@ export class PropertiesService {
 
   async findAll(): Promise<Property[]> {
     return await this.propertyRepository.find({
-      relations: ['developer', 'agent', 'images', 'floor_plans'],
+      where: { status_delete: DeletedAtStatus.NOT_DELETED },
+      relations: ['developer', 'agent', 'images', 'site_plans'],
     });
   }
 
   async findOne(id: string): Promise<Property | null> {
     return await this.propertyRepository.findOne({
       where: { id },
-      relations: ['developer', 'agent', 'images', 'floor_plans'],
+      relations: ['developer', 'agent', 'images', 'site_plans'],
     });
   }
 
@@ -179,7 +172,7 @@ export class PropertiesService {
 
     const properties = await this.propertyRepository.find({
       where: { type: type as PropertyType },
-      relations: ['developer', 'agent', 'images', 'floor_plans'],
+      relations: ['developer', 'agent', 'images', 'site_plans'],
     });
     if (!properties || properties.length === 0) {
       throw new NotFoundException(`Property with type ${type} not found`);
@@ -191,12 +184,12 @@ export class PropertiesService {
     id: string,
     updatePropertyDto: UpdatePropertyDto,
     property_images: Express.Multer.File[],
-    property_floor_plans: Express.Multer.File[],
+    property_site_plans: Express.Multer.File[],
   ) {
     try {
       const property = await this.propertyRepository.findOne({
         where: { id },
-        relations: ['developer', 'agent', 'images', 'floor_plans'],
+        relations: ['developer', 'agent', 'images', 'site_plans'],
       });
       if (!property) throw new NotFoundException(`Property not found`);
 
@@ -207,14 +200,11 @@ export class PropertiesService {
         await this.propertyImageRepository.remove(property.images);
       }
 
-      if (property_floor_plans && property_floor_plans.length > 0) {
-        for (const floorPlan of property.floor_plans) {
-          this.deleteFileFromUploads(
-            'property_floor_plans',
-            floorPlan.file_url,
-          );
+      if (property_site_plans && property_site_plans.length > 0) {
+        for (const sitePlan of property.site_plans) {
+          this.deleteFileFromUploads('property_site_plans', sitePlan.file_url);
         }
-        await this.propertyFloorPlanRepository.remove(property.floor_plans);
+        await this.propertySitePlanRepository.remove(property.site_plans);
       }
 
       Object.assign(property, updatePropertyDto);
@@ -307,22 +297,22 @@ export class PropertiesService {
       }
 
       if (
-        property_floor_plans &&
-        property_floor_plans.length > 0 &&
-        updatePropertyDto.floor_plans
+        property_site_plans &&
+        property_site_plans.length > 0 &&
+        updatePropertyDto.site_plans
       ) {
-        const newFloorPlans = property_floor_plans.map((file, index) => {
-          console.log(` floor plan ${index + 1}: ${file.filename}`);
-          const metadata = updatePropertyDto.floor_plans?.[index];
-          return this.propertyFloorPlanRepository.create({
-            name: metadata?.name || `Floor Plan ${index + 1}`,
+        const newSitePlans = property_site_plans.map((file, index) => {
+          console.log(` site plan ${index + 1}: ${file.filename}`);
+          const metadata = updatePropertyDto.site_plans?.[index];
+          return this.propertySitePlanRepository.create({
+            name: metadata?.name || `Site Plan ${index + 1}`,
             file_url: file.filename,
             sort_order: metadata?.sort_order || index,
             property: property,
           });
         });
-        await this.propertyFloorPlanRepository.save(newFloorPlans);
-        property.floor_plans = newFloorPlans;
+        await this.propertySitePlanRepository.save(newSitePlans);
+        property.site_plans = newSitePlans;
       }
       return await this.propertyRepository.save(property);
     } catch (error) {
@@ -339,7 +329,7 @@ export class PropertiesService {
   async remove(id: string) {
     const property = await this.propertyRepository.findOne({
       where: { id },
-      relations: ['developer', 'agent', 'images', 'floor_plans'],
+      relations: ['developer', 'agent', 'images', 'site_plans'],
     });
 
     if (!property) throw new NotFoundException('Property not found');
@@ -350,13 +340,16 @@ export class PropertiesService {
       }
     }
 
-    if (property.floor_plans.length > 0) {
-      for (const floor_plan of property.floor_plans) {
-        this.deleteFileFromUploads('property_floor_plans', floor_plan.file_url);
+    if (property.site_plans.length > 0) {
+      for (const site_plan of property.site_plans) {
+        this.deleteFileFromUploads('property_site_plans', site_plan.file_url);
       }
     }
 
-    await this.propertyRepository.remove(property);
+    await this.propertyRepository.update(
+      { id },
+      { status_delete: DeletedAtStatus.DELETED, deleted_at: nowUtc() },
+    );
     return { message: 'Delete successful' };
   }
 

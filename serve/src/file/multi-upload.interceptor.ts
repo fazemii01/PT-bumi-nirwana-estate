@@ -5,27 +5,30 @@ import { extname } from 'path';
 import * as fs from 'fs';
 
 export function UseMultipleFileUploadInterceptor(folder: string) {
+  const folderMap: Record<string, string> = {
+    property_images: 'property_images',
+    property_site_plans: 'property_site_plans',
+    building_images: 'building_images',
+    building_floor_plans: 'building_floor_plans',
+    news_images: 'news_images',
+  };
+
   return applyDecorators(
     UseInterceptors(
       FileFieldsInterceptor(
         [
           { name: 'property_images', maxCount: 10 },
-          { name: 'property_floor_plans', maxCount: 10 },
+          { name: 'property_site_plans', maxCount: 10 },
+          { name: 'building_images', maxCount: 10 },
+          { name: 'building_floor_plans', maxCount: 10 },
           { name: 'news_images', maxCount: 10 },
         ],
         {
           storage: diskStorage({
             destination: (req, file, cb) => {
               const basePath = `./uploads/${folder}`;
-              let subFolder = 'others';
 
-              if (file.fieldname === 'property_images') {
-                subFolder = 'property_images';
-              } else if (file.fieldname === 'property_floor_plans') {
-                subFolder = 'property_floor_plans';
-              } else if (file.fieldname == 'news_images') {
-                subFolder = 'news_images';
-              }
+              const subFolder = folderMap[file.fieldname] || 'others';
 
               const fullPath = `${basePath}/${subFolder}`;
               fs.mkdirSync(fullPath, { recursive: true });

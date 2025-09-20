@@ -5,12 +5,13 @@ import 'package:mobile_nirwana/core/utils/api.dart';
 import 'package:mobile_nirwana/data/models/user.dart';
 
 class UserService extends Api {
-  Future<String?> updateName(String userId, String full_name) async {
+  Future<String?> updateName(
+      String userId, String full_name, String phone) async {
     try {
       final response = await http.patch(
         Uri.parse('$baseUrl/users/$userId'),
         headers: getToken()..addAll({"Content-Type": "application/json"}),
-        body: jsonEncode({'full_name': full_name}),
+        body: jsonEncode({'full_name': full_name, 'phone_number': phone}),
       );
 
       if (response.statusCode == 200) {

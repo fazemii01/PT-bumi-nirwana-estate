@@ -11,6 +11,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as path from 'path';
 import * as fs from 'fs';
+import { DeletedAtStatus, nowUtc } from '@/types/deleted_at';
 
 @Injectable()
 export class AgentsService {
@@ -41,7 +42,9 @@ export class AgentsService {
   }
 
   async findAll(): Promise<Agent[]> {
-    const agents = await this.agentRepository.find();
+    const agents = await this.agentRepository.find({
+      where: { status_delete: DeletedAtStatus.NOT_DELETED },
+    });
     return agents;
   }
 
@@ -97,7 +100,10 @@ export class AgentsService {
   }
 
   async remove(id: string) {
-    await this.agentRepository.delete({ id });
+    await this.agentRepository.update(
+      { id },
+      { status_delete: DeletedAtStatus.DELETED, deleted_at: nowUtc() },
+    );
     return { message: 'delete successful' };
   }
 }

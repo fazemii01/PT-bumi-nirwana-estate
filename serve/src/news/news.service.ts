@@ -130,9 +130,9 @@ export class NewsService {
     });
   }
 
-  async findOneBySlug(slug: string) {
-    const news = await this.newsRepository.findOne({
-      where: { slug: slug },
+  async findOneByCatgoryId(categoryId: string): Promise<News[]> {
+    const news = await this.newsRepository.find({
+      where: { newsCategory: { id: categoryId } },
       relations: [
         'newsCategory',
         'newsImages',
@@ -141,8 +141,6 @@ export class NewsService {
         'property.floor_plans',
       ],
     });
-
-    if (!news) throw new NotFoundException();
 
     return news;
   }
