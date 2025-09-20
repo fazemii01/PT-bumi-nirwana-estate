@@ -15,6 +15,7 @@ import 'package:mobile_nirwana/views/properties/detail/poker_image_slider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:mobile_nirwana/views/properties/detail/widget/property_favorite_user_detail.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class PropertyDetailPage extends StatefulWidget {
@@ -128,14 +129,10 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
                               SafeArea(
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
-                                  child: CircleAvatar(
-                                    backgroundColor:
-                                        Colors.white.withOpacity(0.8),
-                                    child: IconButton(
-                                      icon: const Icon(Icons.favorite_border,
-                                          color: Colors.black),
-                                      onPressed: () {},
-                                    ),
+                                  child: FavoriteIcon(
+                                    propertyId: property.id,
+                                    isLoggedIn:
+                                        _layoutController.isLoggedIn.value,
                                   ),
                                 ),
                               ),

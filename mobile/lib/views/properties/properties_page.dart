@@ -7,6 +7,8 @@ import 'package:mobile_nirwana/core/utils/api.dart';
 import 'package:mobile_nirwana/data/models/property/property.dart';
 import 'package:mobile_nirwana/helper/address.dart';
 import 'package:mobile_nirwana/helper/price.dart';
+import 'package:mobile_nirwana/views/properties/detail/widget/property_favorite_user_detail.dart';
+import 'package:mobile_nirwana/views/layout_controller.dart';
 import 'package:mobile_nirwana/views/properties/properties_controller.dart';
 import 'package:mobile_nirwana/widgets/skeleton_property_card.dart';
 
@@ -23,6 +25,7 @@ class _PropertyCatalogPageState extends State<PropertiesPage> {
       Get.put(PropertiesController());
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  final LayoutController _layoutController = Get.put(LayoutController());
 
   // State Management
   String _selectedFilter = 'All';
@@ -499,6 +502,10 @@ class _PropertyCatalogPageState extends State<PropertiesPage> {
                                 color: Colors.white),
                           ),
                         ),
+                      ),
+                      FavoriteIcon(
+                        propertyId: property.id,
+                        isLoggedIn: _layoutController.isLoggedIn.value,
                       ),
                     ],
                   ),

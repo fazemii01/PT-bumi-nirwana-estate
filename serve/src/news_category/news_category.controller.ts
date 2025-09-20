@@ -11,6 +11,7 @@ import { NewsCategoryService } from './news_category.service';
 import { CreateNewsCategoryDto } from './dto/create-news_category.dto';
 import { UpdateNewsCategoryDto } from './dto/update-news_category.dto';
 import { Roles } from '@/auths/role.decorator';
+import { Public } from '@/auths/public.decorator';
 
 @Controller('news-category')
 export class NewsCategoryController {
@@ -22,7 +23,7 @@ export class NewsCategoryController {
     return this.newsCategoryService.create(createNewsCategoryDto);
   }
 
-  @Roles('ADMIN')
+  @Public()
   @Get()
   findAll() {
     return this.newsCategoryService.findAll();

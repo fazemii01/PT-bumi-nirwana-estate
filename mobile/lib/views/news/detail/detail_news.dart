@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:mobile_nirwana/core/routes/app_routes.dart';
 import 'package:mobile_nirwana/data/models/news/news.dart';
 import 'package:mobile_nirwana/data/models/property/property.dart';
@@ -105,26 +106,30 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Hero Image Carousel
-            _buildImageCarousel(news),
+      body: SafeArea(
+        top: false,
+        bottom: true,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Hero Image Carousel
+              _buildImageCarousel(news),
 
-            // Image Thumbnails
-            if (news.newsImages.length > 1) _buildImageThumbnails(news),
+              // Image Thumbnails
+              if (news.newsImages.length > 1) _buildImageThumbnails(news),
 
-            // Newws Content
-            _buildNewsContent(news),
+              // Newws Content
+              _buildNewsContent(news),
 
-            if (news.property != null) _buildPropertyCard(news),
+              if (news.property != null) _buildPropertyCard(news),
 
-            // Recommended Newws
-            // if (widget.recommendedNews.isNotEmpty) _buildRecommendedNews(),
+              // Recommended Newws
+              // if (widget.recommendedNews.isNotEmpty) _buildRecommendedNews(),
 
-            const SizedBox(height: 24),
-          ],
+              const SizedBox(height: 24),
+            ],
+          ),
         ),
       ),
     );
@@ -289,6 +294,15 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
               fontWeight: FontWeight.bold,
               color: Colors.black87,
               height: 1.3,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            DateFormat('d MMMM yyyy').format(news.createdAt),
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: Colors.black54,
             ),
           ),
 
@@ -469,121 +483,4 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
       ),
     );
   }
-
-  // Widget _buildRecommendedNews() {
-  //   return Column(
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     children: [
-  //       const Padding(
-  //         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-  //         child: Text(
-  //           'Berita Lainnya',
-  //           style: TextStyle(
-  //             fontSize: 18,
-  //             fontWeight: FontWeight.bold,
-  //             color: Colors.black87,
-  //           ),
-  //         ),
-  //       ),
-  //       SizedBox(
-  //         height: 160,
-  //         child: ListView.builder(
-  //           scrollDirection: Axis.horizontal,
-  //           padding: const EdgeInsets.symmetric(horizontal: 16),
-  //           itemCount: widget.recommendedNews.length,
-  //           itemBuilder: (context, index) {
-  //             final news = widget.recommendedNews[index];
-  //             return GestureDetector(
-  //               onTap: () {
-  //                 Navigator.push(
-  //                   context,
-  //                   MaterialPageRoute(
-  //                     builder: (context) => NewsDetailScreen(
-  //                       news: news,
-  //                       recommendedNews: widget.recommendedNews,
-  //                     ),
-  //                   ),
-  //                 );
-  //               },
-  //               child: Container(
-  //                 width: 280,
-  //                 margin: const EdgeInsets.only(right: 12),
-  //                 decoration: BoxDecoration(
-  //                   color: Colors.white,
-  //                   borderRadius: BorderRadius.circular(12),
-  //                   boxShadow: [
-  //                     BoxShadow(
-  //                       color: Colors.grey.shade200,
-  //                       blurRadius: 6,
-  //                       offset: const Offset(0, 3),
-  //                     ),
-  //                   ],
-  //                 ),
-  //                 child: Row(
-  //                   children: [
-  //                     ClipRRect(
-  //                       borderRadius: const BorderRadius.only(
-  //                         topLeft: Radius.circular(12),
-  //                         bottomLeft: Radius.circular(12),
-  //                       ),
-  //                       child: Image.network(
-  //                         news.newsImages.first.imgUrl,
-  //                         width: 100,
-  //                         height: 160,
-  //                         fit: BoxFit.cover,
-  //                       ),
-  //                     ),
-  //                     Expanded(
-  //                       child: Padding(
-  //                         padding: const EdgeInsets.all(12),
-  //                         child: Column(
-  //                           crossAxisAlignment: CrossAxisAlignment.start,
-  //                           children: [
-  //                             Container(
-  //                               padding: const EdgeInsets.symmetric(
-  //                                 horizontal: 8,
-  //                                 vertical: 4,
-  //                               ),
-  //                               decoration: BoxDecoration(
-  //                                 color:
-  //                                     const Color(0xFFDBB837).withOpacity(0.1),
-  //                                 borderRadius: BorderRadius.circular(12),
-  //                               ),
-  //                               child: Text(
-  //                                 news.newsCategory.name,
-  //                                 style: const TextStyle(
-  //                                   color: Color(0xFFDBB837),
-  //                                   fontSize: 10,
-  //                                   fontWeight: FontWeight.w600,
-  //                                 ),
-  //                               ),
-  //                             ),
-  //                             const SizedBox(height: 8),
-  //                             Expanded(
-  //                               child: Text(
-  //                                 news.title,
-  //                                 style: const TextStyle(
-  //                                   fontSize: 14,
-  //                                   fontWeight: FontWeight.bold,
-  //                                   color: Colors.black87,
-  //                                   height: 1.2,
-  //                                 ),
-  //                                 maxLines: 4,
-  //                                 overflow: TextOverflow.ellipsis,
-  //                               ),
-  //                             ),
-  //                           ],
-  //                         ),
-  //                       ),
-  //                     ),
-  //                   ],
-  //                 ),
-  //               ),
-  //             );
-  //           },
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
 }

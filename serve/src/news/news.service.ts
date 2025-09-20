@@ -134,9 +134,17 @@ export class NewsService {
     });
   }
 
-  async findOneBySlug(slug: string) {
-    const news = await this.newsRepository.findOne({
-      where: { slug: slug },
+  async findAllByCategory(categoryName: string): Promise<News[]> {
+    const category = await this.newsCategoryRepository.findOneBy({
+      name: categoryName,
+    });
+
+    if (!category) {
+      return [];
+    }
+
+    const news = await this.newsRepository.find({
+      where: { newsCategory: { id: category.id } },
       relations: [
         'newsCategory',
         'newsImages',
@@ -145,8 +153,6 @@ export class NewsService {
         'property.floor_plans',
       ],
     });
-
-    if (!news) throw new NotFoundException();
 
     return news;
   }

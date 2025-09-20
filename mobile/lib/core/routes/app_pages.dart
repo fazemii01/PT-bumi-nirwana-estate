@@ -71,6 +71,12 @@ class AppPages {
       transitionDuration: Duration(milliseconds: 300),
     ),
     GetPage(
+      name: '/news',
+      page: () => const NewsPage(),
+      transition: Transition.rightToLeft,
+      transitionDuration: Duration(milliseconds: 300),
+    ),
+    GetPage(
       name: '/detail-news',
       page: () {
         final News news = Get.arguments as News;
