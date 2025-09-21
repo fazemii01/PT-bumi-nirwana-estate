@@ -38,6 +38,11 @@ const navData = {
       icon: IconListDetails,
       items: [
         { title: "Properties", url: "/properties", icon: IconListDetails },
+        {
+          title: "Building Properties",
+          url: "/building-properties",
+          icon: IconListDetails,
+        },
         { title: "Agent", url: "/agent", icon: IconUser },
         { title: "Developer", url: "/developer", icon: IconBuildingSkyscraper },
       ],

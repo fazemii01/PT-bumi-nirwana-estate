@@ -1,11 +1,11 @@
 "use client";
 
-import { Property } from "@/types/properties";
+import { Building_Property } from "@/types/building-properties";
 import { ColumnDef } from "@tanstack/react-table";
-import ActionPropertyCell from "@/components/properties/action-cell";
+import ActionPropertyCell from "@/components/building-properties/action-cell";
 import { formatCurrency } from "@/lib/utils";
 
-export const columns: ColumnDef<Property>[] = [
+export const columns: ColumnDef<Building_Property>[] = [
   {
     id: "no",
     header: "No",
@@ -31,6 +31,6 @@ export const columns: ColumnDef<Property>[] = [
   {
     id: "actions",
     header: "Actions",
-    cell: ({ row }) => <ActionPropertyCell property={row.original} />,
+    cell: ({ row }) => <ActionPropertyCell buildingProperty={row.original} />,
   },
 ];
