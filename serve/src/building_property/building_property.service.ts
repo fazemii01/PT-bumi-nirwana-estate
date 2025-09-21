@@ -16,6 +16,7 @@ import { BuildingProperty } from '@/building_property/entities/building_property
 import { DeletedAtStatus, nowUtc } from '@/types/deleted_at';
 import * as fs from 'fs';
 import * as path from 'path';
+import { BuildingKprRules } from '@/building_property/entities/building_kpr_rules.entity';
 
 @Injectable()
 export class BuildingPropertyService {
@@ -30,12 +31,16 @@ export class BuildingPropertyService {
 
     @InjectRepository(BuildingFloorPlans)
     private readonly buildingFloorPlanRepository: Repository<BuildingFloorPlans>,
+
+    @InjectRepository(BuildingKprRules)
+    private readonly buildingKprRulesRepository: Repository<BuildingKprRules>,
   ) {}
 
   async create(
     createBuildingPropertyDto: CreateBuildingPropertyDto,
     building_images: Express.Multer.File[],
     building_floor_plans: Express.Multer.File[],
+    building_kpr_rules: Express.Multer.File[],
   ) {
     try {
       const building = new BuildingProperty();
@@ -99,6 +104,16 @@ export class BuildingPropertyService {
         await this.buildingFloorPlanRepository.save(building_plan);
       }
 
+      if (building_kpr_rules) {
+        const rules = building_kpr_rules.map((file) => {
+          return this.buildingKprRulesRepository.create({
+            file_url: file.filename,
+            building_property: saveBuilding,
+          });
+        });
+        await this.buildingKprRulesRepository.save(rules);
+      }
+
       return saveBuilding;
     } catch (error) {
       throw new InternalServerErrorException('Internal server eroro', {
@@ -111,14 +126,14 @@ export class BuildingPropertyService {
   async findAll(): Promise<BuildingProperty[]> {
     return await this.buildingPropertyRepository.find({
       where: { status_delete: DeletedAtStatus.NOT_DELETED },
-      relations: ['property', 'images', 'floor_plans'],
+      relations: ['property', 'images', 'floor_plans', 'building_kpr_rules'],
     });
   }
 
   async findOne(id: string): Promise<BuildingProperty | null> {
     return await this.buildingPropertyRepository.findOne({
       where: { id },
-      relations: ['property', 'images', 'floor_plans'],
+      relations: ['property', 'images', 'floor_plans', 'building_kpr_rules'],
     });
   }
 
@@ -127,11 +142,12 @@ export class BuildingPropertyService {
     updateBuildingPropertyDto: UpdateBuildingPropertyDto,
     building_images: Express.Multer.File[],
     building_floor_plans: Express.Multer.File[],
+    building_kpr_rules: Express.Multer.File[],
   ) {
     try {
       const building = await this.buildingPropertyRepository.findOne({
         where: { id },
-        relations: ['property', 'images', 'floor_plans'],
+        relations: ['property', 'images', 'floor_plans', 'building_kpr_rules'],
       });
       if (!building) throw new NotFoundException(`building property not found`);
 
@@ -147,6 +163,15 @@ export class BuildingPropertyService {
           this.deleteFileFromUploads('building_site_plans', floorPlan.file_url);
         }
         await this.buildingFloorPlanRepository.remove(building.floor_plans);
+      }
+
+      if (building_kpr_rules && building_kpr_rules.length > 0) {
+        for (const rules of building.building_kpr_rules) {
+          this.deleteFileFromUploads('building_kpr_rules', rules.file_url);
+        }
+        await this.buildingKprRulesRepository.remove(
+          building.building_kpr_rules,
+        );
       }
 
       Object.assign(building, updateBuildingPropertyDto);
@@ -207,6 +232,16 @@ export class BuildingPropertyService {
         await this.buildingFloorPlanRepository.save(newFloorPlan);
         building.floor_plans = newFloorPlan;
       }
+
+      if (building_kpr_rules && building_kpr_rules.length > 0) {
+        const newRules = building_kpr_rules.map((file) => {
+          return this.buildingKprRulesRepository.create({
+            file_url: file.filename,
+          });
+        });
+        await this.buildingKprRulesRepository.save(newRules);
+        building.building_kpr_rules = newRules;
+      }
       return await this.buildingPropertyRepository.save(building);
     } catch (error) {
       if (
@@ -222,7 +257,7 @@ export class BuildingPropertyService {
   async remove(id: string) {
     const building = await this.buildingPropertyRepository.findOne({
       where: { id },
-      relations: ['property', 'images', 'floor_plans'],
+      relations: ['property', 'images', 'floor_plans', 'building_kpr_rules'],
     });
 
     if (!building) throw new NotFoundException('building property not found');
@@ -236,6 +271,12 @@ export class BuildingPropertyService {
     if (building.floor_plans.length > 0) {
       for (const floorPlan of building.floor_plans) {
         this.deleteFileFromUploads('building_floor_plans', floorPlan.file_url);
+      }
+    }
+
+    if (building.building_kpr_rules.length > 0) {
+      for (const buildingKpr of building.building_kpr_rules) {
+        this.deleteFileFromUploads('building_kpr_rules', buildingKpr.file_url);
       }
     }
 

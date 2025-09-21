@@ -30,14 +30,17 @@ export class BuildingPropertyController {
     files: {
       building_images?: Express.Multer.File[];
       building_floor_plans?: Express.Multer.File[];
+      building_kpr_rules?: Express.Multer.File[];
     },
   ) {
     const building_images = files.building_images || [];
     const building_floor_plans = files.building_floor_plans || [];
+    const building_kpr_rules = files.building_kpr_rules || [];
     return await this.buildingPropertyService.create(
       createBuildingPropertyDto,
       building_images,
       building_floor_plans,
+      building_kpr_rules,
     );
   }
 
@@ -63,15 +66,18 @@ export class BuildingPropertyController {
     files: {
       building_images?: Express.Multer.File[];
       building_floor_plans?: Express.Multer.File[];
+      building_kpr_rules?: Express.Multer.File[];
     },
   ) {
     const building_images = files.building_images || [];
     const building_floor_plans = files.building_floor_plans || [];
+    const building_kpr_rules = files.building_kpr_rules || [];
     return await this.buildingPropertyService.update(
       id,
       updateBuildingPropertyDto,
       building_images,
       building_floor_plans,
+      building_kpr_rules,
     );
   }
 

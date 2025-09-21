@@ -6,6 +6,7 @@ import { BuildingProperty } from '@/building_property/entities/building_property
 import { BuildingImages } from '@/building_property/entities/building_images.entity';
 import { BuildingFloorPlans } from '@/building_property/entities/building_floor_plans.entity';
 import { Property } from '@/properties/entities/property.entity';
+import { BuildingKprRules } from '@/building_property/entities/building_kpr_rules.entity';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { Property } from '@/properties/entities/property.entity';
       BuildingProperty,
       BuildingImages,
       BuildingFloorPlans,
+      BuildingKprRules,
       Property,
     ]),
   ],
