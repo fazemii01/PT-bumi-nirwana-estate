@@ -41,6 +41,7 @@
     "class-validator": "^0.14.2",
     "cookie-parser": "^1.4.7",
     "dotenv": "^16.6.1",
+    "fcm": "^1.0.3",
     "firebase-admin": "^13.5.0",
     "langchain": "^0.3.33",
     "llamaindex": "^0.11.29",
