@@ -8,23 +8,23 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Upload, Plus, Trash2, Camera } from "lucide-react";
 import PreviewImage from "@/components/preview-image";
-import { FloorPlan, ImageProperty } from "@/types/properties";
+import { SitePlan, ImageProperty } from "@/types/properties";
 import { getImageUrl } from "@/service/imageUrl";
 
 export default function EditMediaForm({
   // media lama
   originalImages,
-  originalFloorPlans,
+  originalSitePlans,
   // antrian file baru
   newImageFiles,
   setNewImageFiles,
-  newFloorFiles,
-  setNewFloorFiles,
+  newSiteFiles,
+  setNewSiteFiles,
   // meta untuk file baru (sejajar index file)
   imagesMeta,
   setImagesMeta,
-  floorPlansMeta,
-  setFloorPlansMeta,
+  sitePlansMeta,
+  setSitePlansMeta,
   // optional error map dari zod/FE
   error = {},
   // optional delete per item lama (kalau mau support hapus item tunggal)
@@ -34,19 +34,15 @@ export default function EditMediaForm({
   resolveUrl,
 }: {
   originalImages?: ImageProperty[];
-  originalFloorPlans?: FloorPlan[];
+  originalSitePlans?: SitePlan[];
   newImageFiles: File[];
   setNewImageFiles: React.Dispatch<React.SetStateAction<File[]>>;
-  newFloorFiles: File[];
-  setNewFloorFiles: React.Dispatch<React.SetStateAction<File[]>>;
+  newSiteFiles: File[];
+  setNewSiteFiles: React.Dispatch<React.SetStateAction<File[]>>;
   imagesMeta: Array<{ caption?: string; sort_order?: number }>;
-  setImagesMeta: React.Dispatch<
-    React.SetStateAction<Array<{ caption?: string; sort_order?: number }>>
-  >;
-  floorPlansMeta: Array<{ name?: string; sort_order?: number }>;
-  setFloorPlansMeta: React.Dispatch<
-    React.SetStateAction<Array<{ name?: string; sort_order?: number }>>
-  >;
+  setImagesMeta: React.Dispatch<React.SetStateAction<Array<{ caption?: string; sort_order?: number }>>>;
+  sitePlansMeta: Array<{ name?: string; sort_order?: number }>;
+  setSitePlansMeta: React.Dispatch<React.SetStateAction<Array<{ name?: string; sort_order?: number }>>>;
   error?: Record<string, string>;
   onDeleteOldImage?: (id: string) => Promise<void>;
   onDeleteOldFloorPlan?: (id: string) => Promise<void>;
@@ -68,9 +64,7 @@ export default function EditMediaForm({
           {/* Info bar */}
           <div className="rounded-lg border p-4">
             <p className="text-sm text-muted-foreground">
-              Mengupload media baru akan <b>mengganti semua media lama</b> untuk
-              tipe tersebut. Jika tidak upload apa pun, media lama tetap
-              dipakai.
+              Mengupload media baru akan <b>mengganti semua media lama</b> untuk tipe tersebut. Jika tidak upload apa pun, media lama tetap dipakai.
             </p>
           </div>
 
@@ -84,51 +78,28 @@ export default function EditMediaForm({
               <CardContent className="space-y-4">
                 {/* Existing images */}
                 <div className="space-y-2">
-                  <h4 className="font-medium text-sm text-gray-700">
-                    Gambar lama ({originalImages!.length})
-                  </h4>
+                  <h4 className="font-medium text-sm text-gray-700">Gambar lama ({originalImages!.length})</h4>
                   {originalImages!.length ? (
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-h-[200px] overflow-y-auto pr-2">
                       {originalImages!.map((img, i) => {
                         return (
-                          <div
-                            key={img.id ?? i}
-                            className="border rounded-lg p-2 bg-gray-50 space-y-2"
-                          >
+                          <div key={img.id ?? i} className="border rounded-lg p-2 bg-gray-50 space-y-2">
                             <div className="w-full aspect-square bg-white border rounded flex items-center justify-center overflow-hidden">
                               {img.image_url ? (
                                 // eslint-disable-next-line @next/next/no-img-element
                                 <img
-                                  src={imgUrl(
-                                    `property/property_images/${img.image_url}`
-                                  )}
+                                  src={imgUrl(`property/property_images/${img.image_url}`)}
                                   alt={`image-${i}`}
                                   className="w-full h-full object-cover cursor-pointer"
-                                  onClick={() =>
-                                    openPreview(
-                                      imgUrl(
-                                        `property/property_images/${img.image_url}`
-                                      )
-                                    )
-                                  }
+                                  onClick={() => openPreview(imgUrl(`property/property_images/${img.image_url}`))}
                                 />
                               ) : (
-                                <div className="text-xs text-gray-500">
-                                  (No preview)
-                                </div>
+                                <div className="text-xs text-gray-500">(No preview)</div>
                               )}
                             </div>
-                            <div className="text-xs text-muted-foreground truncate">
-                              {img.caption ?? "—"}
-                            </div>
+                            <div className="text-xs text-muted-foreground truncate">{img.caption ?? "—"}</div>
                             {onDeleteOldImage && img.id && (
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                className="w-full"
-                                onClick={() => onDeleteOldImage(img.id!)}
-                              >
+                              <Button type="button" variant="outline" size="sm" className="w-full" onClick={() => onDeleteOldImage(img.id!)}>
                                 Hapus
                               </Button>
                             )}
@@ -137,18 +108,14 @@ export default function EditMediaForm({
                       })}
                     </div>
                   ) : (
-                    <div className="text-sm text-muted-foreground">
-                      Tidak ada gambar lama.
-                    </div>
+                    <div className="text-sm text-muted-foreground">Tidak ada gambar lama.</div>
                   )}
                 </div>
 
                 {/* Upload area */}
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center h-[200px] flex flex-col items-center justify-center">
                   <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-                  <p className="text-sm text-gray-600 mb-2">
-                    Upload gambar property satu per satu atau multi-select
-                  </p>
+                  <p className="text-sm text-gray-600 mb-2">Upload gambar property satu per satu atau multi-select</p>
                   <input
                     type="file"
                     multiple
@@ -169,47 +136,26 @@ export default function EditMediaForm({
                     className="hidden"
                     id="image-upload-edit"
                   />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="cursor-pointer"
-                    onClick={() =>
-                      document.getElementById("image-upload-edit")?.click()
-                    }
-                  >
+                  <Button type="button" variant="outline" className="cursor-pointer" onClick={() => document.getElementById("image-upload-edit")?.click()}>
                     <Plus className="w-4 h-4 mr-2" />
                     Tambah Gambar
                   </Button>
                 </div>
-                {error["property_images"] && (
-                  <span className="text-red-500 text-xs">
-                    {error["property_images"]}
-                  </span>
-                )}
+                {error["property_images"] && <span className="text-red-500 text-xs">{error["property_images"]}</span>}
 
                 {/* New images queue */}
                 {newImageFiles.length > 0 && (
                   <div className="space-y-4">
-                    <h4 className="font-medium text-sm text-gray-700">
-                      Gambar baru ({newImageFiles.length})
-                    </h4>
+                    <h4 className="font-medium text-sm text-gray-700">Gambar baru ({newImageFiles.length})</h4>
                     <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
                       {newImageFiles.map((file, index) => {
                         const blobUrl = URL.createObjectURL(file);
                         return (
-                          <div
-                            key={index}
-                            className="flex items-start gap-4 p-4 border rounded-lg bg-gray-50"
-                          >
+                          <div key={index} className="flex items-start gap-4 p-4 border rounded-lg bg-gray-50">
                             {/* Preview */}
                             <div className="flex-shrink-0 relative">
                               {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img
-                                src={blobUrl}
-                                alt={`Preview ${index + 1}`}
-                                className="w-20 h-20 object-cover rounded border cursor-pointer"
-                                onClick={() => openPreview(blobUrl)}
-                              />
+                              <img src={blobUrl} alt={`Preview ${index + 1}`} className="w-20 h-20 object-cover rounded border cursor-pointer" onClick={() => openPreview(blobUrl)} />
                               <div className="absolute -top-2 -right-2 ">
                                 <Button
                                   type="button"
@@ -217,12 +163,8 @@ export default function EditMediaForm({
                                   size="sm"
                                   className="h-6 w-6 p-0 rounded-full cursor-pointer"
                                   onClick={() => {
-                                    setNewImageFiles((prev) =>
-                                      prev.filter((_, i) => i !== index)
-                                    );
-                                    setImagesMeta((prev) =>
-                                      prev.filter((_, i) => i !== index)
-                                    );
+                                    setNewImageFiles((prev) => prev.filter((_, i) => i !== index));
+                                    setImagesMeta((prev) => prev.filter((_, i) => i !== index));
                                   }}
                                 >
                                   <Trash2 className="w-3 h-3" />
@@ -232,14 +174,10 @@ export default function EditMediaForm({
 
                             {/* Meta */}
                             <div className="flex-1 space-y-2">
-                              <div className="text-sm text-gray-600">
-                                File: {file.name}
-                              </div>
+                              <div className="text-sm text-gray-600">File: {file.name}</div>
                               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                                 <div className="space-y-1">
-                                  <Label className="text-xs">
-                                    Caption (Opsional)
-                                  </Label>
+                                  <Label className="text-xs">Caption (Opsional)</Label>
                                   <Input
                                     placeholder="Masukkan caption"
                                     value={imagesMeta[index]?.caption ?? ""}
@@ -256,14 +194,10 @@ export default function EditMediaForm({
                                   />
                                 </div>
                                 <div className="space-y-1">
-                                  <Label className="text-xs">
-                                    Urutan (Integer)
-                                  </Label>
+                                  <Label className="text-xs">Urutan (Integer)</Label>
                                   <Input
                                     type="number"
-                                    value={
-                                      imagesMeta[index]?.sort_order ?? index
-                                    }
+                                    value={imagesMeta[index]?.sort_order ?? index}
                                     onChange={(e) =>
                                       setImagesMeta((prev) => {
                                         const next = [...prev];
@@ -295,38 +229,23 @@ export default function EditMediaForm({
               <CardContent className="space-y-4">
                 {/* Existing floor plans */}
                 <div className="space-y-2">
-                  <h4 className="font-medium text-sm text-gray-700">
-                    Denah lama ({originalFloorPlans!.length})
-                  </h4>
-                  {originalFloorPlans!.length ? (
+                  <h4 className="font-medium text-sm text-gray-700">Denah lama ({originalSitePlans!.length})</h4>
+                  {originalSitePlans!.length ? (
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-h-[200px] overflow-y-auto pr-2">
-                      {originalFloorPlans!.map((fp, i) => {
+                      {originalSitePlans!.map((fp, i) => {
                         // const src = rurl(fp.url || fp.file_url);
-                        const isImage = fp.file_url
-                          ? /\.(png|jpe?g|webp|gif|bmp)$/i.test(fp.file_url)
-                          : false;
+                        const isImage = fp.file_url ? /\.(png|jpe?g|webp|gif|bmp)$/i.test(fp.file_url) : false;
                         return (
-                          <div
-                            key={fp.id ?? i}
-                            className="border rounded-lg p-2 bg-gray-50 space-y-2"
-                          >
+                          <div key={fp.id ?? i} className="border rounded-lg p-2 bg-gray-50 space-y-2">
                             <div className="w-full aspect-square bg-white border rounded flex items-center justify-center overflow-hidden">
                               {fp.file_url ? (
                                 isImage ? (
                                   // eslint-disable-next-line @next/next/no-img-element
                                   <img
-                                    src={imgUrl(
-                                      `property/property_floor_plans/${fp.file_url}`
-                                    )}
+                                    src={imgUrl(`property/property_site_plans/${fp.file_url}`)}
                                     alt={`fp-${i}`}
                                     className="w-full h-full object-cover cursor-pointer"
-                                    onClick={() =>
-                                      openPreview(
-                                        imgUrl(
-                                          `property/property_floor_plans/${fp.file_url}`
-                                        )
-                                      )
-                                    }
+                                    onClick={() => openPreview(imgUrl(`property/property_site_plans/${fp.file_url}`))}
                                   />
                                 ) : (
                                   <div className="text-xs text-gray-500 text-center">
@@ -335,22 +254,12 @@ export default function EditMediaForm({
                                   </div>
                                 )
                               ) : (
-                                <div className="text-xs text-gray-500">
-                                  (No preview)
-                                </div>
+                                <div className="text-xs text-gray-500">(No preview)</div>
                               )}
                             </div>
-                            <div className="text-xs text-muted-foreground truncate">
-                              {fp.name ?? "—"}
-                            </div>
+                            <div className="text-xs text-muted-foreground truncate">{fp.name ?? "—"}</div>
                             {onDeleteOldFloorPlan && fp.id && (
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                className="w-full"
-                                onClick={() => onDeleteOldFloorPlan(fp.id!)}
-                              >
+                              <Button type="button" variant="outline" size="sm" className="w-full" onClick={() => onDeleteOldFloorPlan(fp.id!)}>
                                 Hapus
                               </Button>
                             )}
@@ -359,18 +268,14 @@ export default function EditMediaForm({
                       })}
                     </div>
                   ) : (
-                    <div className="text-sm text-muted-foreground">
-                      Tidak ada denah lama.
-                    </div>
+                    <div className="text-sm text-muted-foreground">Tidak ada denah lama.</div>
                   )}
                 </div>
 
                 {/* Upload area */}
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center h-[200px] flex flex-col items-center justify-center">
                   <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-                  <p className="text-sm text-gray-600 mb-2">
-                    Upload denah lantai satu per satu atau multi-select
-                  </p>
+                  <p className="text-sm text-gray-600 mb-2">Upload denah lokasi satu per satu atau multi-select</p>
                   <input
                     type="file"
                     multiple
@@ -378,65 +283,42 @@ export default function EditMediaForm({
                     onChange={(e) => {
                       const files = Array.from(e.target.files ?? []);
                       if (!files.length) return;
-                      setNewFloorFiles((prev) => [...prev, ...files]);
-                      setFloorPlansMeta((prev) => [
+                      setNewSiteFiles((prev) => [...prev, ...files]);
+                      setSitePlansMeta((prev) => [
                         ...prev,
                         ...files.map((_, k) => ({
-                          name: `Floor Plan ${prev.length + k + 1}`,
+                          name: `Site Plan ${prev.length + k + 1}`,
                           sort_order: prev.length + k,
                         })),
                       ]);
                       e.currentTarget.value = "";
                     }}
                     className="hidden"
-                    id="floorplan-upload-edit"
+                    id="sitePlans-upload-edit"
                   />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="cursor-pointer"
-                    onClick={() =>
-                      document.getElementById("floorplan-upload-edit")?.click()
-                    }
-                  >
+                  <Button type="button" variant="outline" className="cursor-pointer" onClick={() => document.getElementById("sitePlans-upload-edit")?.click()}>
                     <Plus className="w-4 h-4 mr-2" />
                     Tambah Denah
                   </Button>
                 </div>
-                {error["property_floor_plans"] && (
-                  <span className="text-red-500 text-xs">
-                    {error["property_floor_plans"]}
-                  </span>
-                )}
+                {error["property_floor_plans"] && <span className="text-red-500 text-xs">{error["property_floor_plans"]}</span>}
 
                 {/* New floor plans queue */}
-                {newFloorFiles.length > 0 && (
+                {newSiteFiles.length > 0 && (
                   <div className="space-y-4">
-                    <h4 className="font-medium text-sm text-gray-700">
-                      Denah baru ({newFloorFiles.length})
-                    </h4>
+                    <h4 className="font-medium text-sm text-gray-700">Denah baru ({newSiteFiles.length})</h4>
                     <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
-                      {newFloorFiles.map((file, index) => {
+                      {newSiteFiles.map((file, index) => {
                         const isImg = file.type.startsWith("image/");
-                        const blobUrl = isImg
-                          ? URL.createObjectURL(file)
-                          : undefined;
+                        const blobUrl = isImg ? URL.createObjectURL(file) : undefined;
                         return (
-                          <div
-                            key={index}
-                            className="flex items-start gap-4 p-4 border rounded-lg bg-gray-50"
-                          >
+                          <div key={index} className="flex items-start gap-4 p-4 border rounded-lg bg-gray-50">
                             {/* Preview */}
                             <div className="flex-shrink-0 relative">
                               <div className="w-20 h-20 bg-gray-100 rounded border flex items-center justify-center overflow-hidden">
                                 {isImg ? (
                                   // eslint-disable-next-line @next/next/no-img-element
-                                  <img
-                                    src={blobUrl}
-                                    alt="Floor plan"
-                                    className="w-full h-full object-cover cursor-pointer"
-                                    onClick={() => openPreview(blobUrl!)}
-                                  />
+                                  <img src={blobUrl} alt="Floor plan" className="w-full h-full object-cover cursor-pointer" onClick={() => openPreview(blobUrl!)} />
                                 ) : (
                                   <div className="text-xs text-gray-500 text-center">
                                     <div>PDF</div>
@@ -451,12 +333,8 @@ export default function EditMediaForm({
                                   size="sm"
                                   className="h-6 w-6 p-0 rounded-full cursor-pointer"
                                   onClick={() => {
-                                    setNewFloorFiles((prev) =>
-                                      prev.filter((_, i) => i !== index)
-                                    );
-                                    setFloorPlansMeta((prev) =>
-                                      prev.filter((_, i) => i !== index)
-                                    );
+                                    setNewSiteFiles((prev) => prev.filter((_, i) => i !== index));
+                                    setSitePlansMeta((prev) => prev.filter((_, i) => i !== index));
                                   }}
                                 >
                                   <Trash2 className="w-3 h-3" />
@@ -466,20 +344,15 @@ export default function EditMediaForm({
 
                             {/* Meta */}
                             <div className="flex-1 space-y-2">
-                              <div className="text-sm text-gray-600">
-                                File: {file.name}
-                              </div>
+                              <div className="text-sm text-gray-600">File: {file.name}</div>
                               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                                 <div className="space-y-1">
                                   <Label className="text-xs">Nama Denah</Label>
                                   <Input
                                     placeholder="Nama denah (Lantai 1, Tipe A)"
-                                    value={
-                                      floorPlansMeta[index]?.name ??
-                                      `Floor Plan ${index + 1}`
-                                    }
+                                    value={sitePlansMeta[index]?.name ?? `Floor Plan ${index + 1}`}
                                     onChange={(e) =>
-                                      setFloorPlansMeta((prev) => {
+                                      setSitePlansMeta((prev) => {
                                         const next = [...prev];
                                         next[index] = {
                                           ...(next[index] ?? {}),
@@ -491,16 +364,12 @@ export default function EditMediaForm({
                                   />
                                 </div>
                                 <div className="space-y-1">
-                                  <Label className="text-xs">
-                                    Urutan (Integer)
-                                  </Label>
+                                  <Label className="text-xs">Urutan (Integer)</Label>
                                   <Input
                                     type="number"
-                                    value={
-                                      floorPlansMeta[index]?.sort_order ?? index
-                                    }
+                                    value={sitePlansMeta[index]?.sort_order ?? index}
                                     onChange={(e) =>
-                                      setFloorPlansMeta((prev) => {
+                                      setSitePlansMeta((prev) => {
                                         const next = [...prev];
                                         next[index] = {
                                           ...(next[index] ?? {}),
@@ -526,11 +395,7 @@ export default function EditMediaForm({
       </TabsContent>
 
       {/* Modal preview */}
-      <PreviewImage
-        open={previewOpen}
-        setOpen={setPreviewOpen}
-        image={previewSrc}
-      />
+      <PreviewImage open={previewOpen} setOpen={setPreviewOpen} image={previewSrc} />
     </>
   );
 }

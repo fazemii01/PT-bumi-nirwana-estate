@@ -8,11 +8,6 @@ export type Property = {
   name: string;
   slug?: string;
   type: PropertyType;
-  status: PropertyStatus;
-  price: number;
-  price_unit: PriceUnit;
-  land_size: number;
-  building_size: number;
   description: string;
   detail_description: string;
   location?: {
@@ -20,13 +15,11 @@ export type Property = {
     coordinates: [number, number];
   };
   address?: Address;
-  specifications?: Specifications;
-
   property_images?: File[];
-  property_floor_plans?: File[];
+  property_site_plans?: File[];
 
   images: ImageProperty[];
-  floor_plans: FloorPlan[];
+  site_plans: SitePlan[];
   created_at?: Date;
   updated_at?: Date;
   developer?: Developer;
@@ -42,7 +35,7 @@ export type ImageProperty = {
   preview?: string;
 };
 
-export type FloorPlan = {
+export type SitePlan = {
   id?: string;
   name: string;
   file_url?: string;
@@ -60,49 +53,7 @@ export type Address = {
   postal_code?: string;
 };
 
-export type Specifications = {
-  // Dimensi
-  bedrooms?: number;
-  bathrooms?: number;
-  family_room?: number;
-  kitchen?: number;
-  garage?: number;
-  floors?: number;
-
-  // Material
-  structure?: string;
-  floor?: string;
-  walls?: string;
-  roof?: string;
-  doors?: string;
-  windows?: string;
-
-  // Utilitas
-  electricity?: string;
-  water_source?: string;
-  internet?: string;
-  security?: string;
-
-  // Fasilitas
-  facilities?: string;
-};
-
-export enum PropertyStatus {
-  PRE_LAUNCH = "PRE_LAUNCH",
-  AVAILABLE = "AVAILABLE",
-  SOLD_OUT = "SOLD_OUT",
-  RESERVED = "RESERVED",
-}
-
-export enum PriceUnit {
-  TOTAL = "TOTAL",
-  PER_MONTH = "PER_MONTH",
-  PER_SQM = "PER_SQM",
-}
-
 export enum PropertyType {
-  HOUSE = "HOUSE",
-  APARTMENT = "APARTMENT",
-  RUKO = "RUKO",
-  KAVLING = "KAVLING",
+  SUBSIDI = "SUBSIDI",
+  KOMERSIL = "KOMERSIL",
 }
