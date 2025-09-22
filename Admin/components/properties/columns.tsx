@@ -22,8 +22,8 @@ export const columns: ColumnDef<Property>[] = [
     header: "Tipe Properti",
   },
   {
-    accessorKey: "price",
-    header: "Price",
+    accessorKey: "address",
+    header: "Alamat",
     cell: ({ row }) => formatAddress(row.original.address),
   },
 
