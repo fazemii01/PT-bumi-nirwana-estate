@@ -3,39 +3,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MapPin, Home, Car, Bed, Bath, Zap, Droplets, Building, Download } from "lucide-react";
 
-import { Address, Property, Specifications } from "@/types/properties";
+import { Address, Property } from "@/types/properties";
 import { getImageUrl } from "@/service/imageUrl";
+import { formatAddress } from "@/lib/utils";
 const DetailTab = ({ property }: { property: Property }) => {
   const imgUrl = (path: string) => getImageUrl(path);
-
-  let addressObj: Address | undefined;
-
-  if (typeof property.address === "string") {
-    try {
-      addressObj = JSON.parse(property.address);
-    } catch (e) {
-      console.error("Gagal parse address:", e);
-    }
-  } else {
-    addressObj = property.address;
-  }
-  const formatAddress = () => {
-    return [addressObj?.street, addressObj?.village, addressObj?.district, addressObj?.city, addressObj?.province, addressObj?.postal_code]
-      .filter((part) => part && part.trim() !== "") // buang yang kosong/null/undefined
-      .join(", "); // gabungkan dengan koma
-  };
-
-  let specObj: Specifications | undefined;
-
-  if (typeof property.specifications === "string") {
-    try {
-      specObj = JSON.parse(property.specifications);
-    } catch (e) {
-      console.error("Gagal parse specifications:", e);
-    }
-  } else {
-    specObj = property.specifications;
-  }
 
   return (
     <Card>
@@ -57,12 +29,12 @@ const DetailTab = ({ property }: { property: Property }) => {
               <h3 className="text-lg font-semibold mb-3">Alamat Lengkap</h3>
               <div className="flex items-start gap-2">
                 <MapPin className="w-5 h-5 text-gray-500 mt-0.5 flex-shrink-0" />
-                <p className="text-gray-700">{formatAddress()}</p>
+                <p className="text-gray-700">{formatAddress(property.address)}</p>
               </div>
             </div>
           </TabsContent>
 
-          <TabsContent value="specs" className="space-y-4">
+          {/* <TabsContent value="specs" className="space-y-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                 <Bed className="w-5 h-5 text-blue-500" />
@@ -127,28 +99,28 @@ const DetailTab = ({ property }: { property: Property }) => {
               <h3 className="text-lg font-semibold mb-3">Fasilitas</h3>
               <p className="text-gray-700 leading-relaxed">{specObj!.facilities ?? "0"}</p>
             </div>
-          </TabsContent>
+          </TabsContent> */}
 
           <TabsContent value="floorplan" className="space-y-4">
-            {property.floor_plans.length > 0 ? (
+            {property.site_plans.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {property.floor_plans.map((floorPlan) => (
-                  <div key={floorPlan.id} className="space-y-2">
+                {property.site_plans.map((sitePlan) => (
+                  <div key={sitePlan.id} className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <h4 className="font-semibold">{floorPlan.name}</h4>
+                      <h4 className="font-semibold">{sitePlan.name}</h4>
                       <Button variant="outline" size="sm">
                         <Download className="w-4 h-4 mr-2" />
                         Download
                       </Button>
                     </div>
-                    <img src={imgUrl(`property/property_floor_plans/${floorPlan.file_url!}`)} alt={floorPlan.name} className="w-full h-48 object-cover rounded-lg border" />
+                    <img src={imgUrl(`property/property_site_plans/${sitePlan.file_url!}`)} alt={sitePlan.name} className="w-full h-48 object-cover rounded-lg border" />
                   </div>
                 ))}
               </div>
             ) : (
               <div className="text-center py-8 text-gray-500">
                 <Building className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                <p>Denah lantai belum tersedia</p>
+                <p>Denah lokasi belum tersedia</p>
               </div>
             )}
           </TabsContent>

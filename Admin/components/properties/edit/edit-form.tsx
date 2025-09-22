@@ -10,116 +10,46 @@ import { UpdatePropertyZod } from "@/lib/zod";
 import { showToastError, showToastSuccess } from "@/components/toast";
 import BasicInfoForm from "@/components/properties/create/basic-info-form";
 import LocationForm from "@/components/properties/create/location-form";
-import SpecificationsForm from "@/components/properties/create/specifications-form";
 import EditMediaForm from "@/components/properties/edit/edit-media";
 import { submitUpdateProperty } from "@/actions/property";
 import { useRouter } from "next/navigation";
-import { getAgent } from "@/api/agent";
-import { getDeveloper } from "@/api/developer";
 
-type UpdateSubmitHandler = (props: {
-  id: string;
-  data: Property;
-  originalData: Property;
-}) => Promise<boolean | void>;
-
-function safeParseInitial(initialData: Property): Property {
-  const parsed: Property = { ...initialData };
-
-  if (typeof parsed.address === "string") {
-    try {
-      parsed.address = JSON.parse(parsed.address as unknown as string);
-    } catch {
-      parsed.address = {};
-    }
-  } else parsed.address = parsed.address ?? {};
-
-  if (typeof parsed.specifications === "string") {
-    try {
-      parsed.specifications = JSON.parse(
-        parsed.specifications as unknown as string
-      );
-    } catch {
-      parsed.specifications = {};
-    }
-  } else parsed.specifications = parsed.specifications ?? {};
-
-  parsed.location = parsed.location ?? { type: "Point", coordinates: [0, 0] };
-
-  parsed.developerId = parsed.developerId ?? parsed.developer?.id ?? "";
-  parsed.agentId = parsed.agentId ?? parsed.agent?.id ?? "";
-
-  // queue upload baru selalu kosong saat masuk edit
-  parsed.property_images = [];
-  parsed.property_floor_plans = [];
-
-  parsed.images = parsed.images ?? [];
-  parsed.floor_plans = parsed.floor_plans ?? [];
-
-  return parsed;
-}
-
-const PropertyEditForm = ({
-  initialData,
-  agents,
-  developers,
-}: {
-  initialData: Property;
-  agents: Agent[];
-  developers: Developer[];
-}) => {
+const PropertyEditForm = ({ initialData, agents, developers }: { initialData: Property; agents: Agent[]; developers: Developer[] }) => {
   const router = useRouter();
-  const safeParsed = useMemo(
-    () => safeParseInitial(initialData),
-    [initialData]
-  );
 
-  const [formData, setFormData] = useState<Property>(safeParsed);
-  const [originalData, setOriginalData] = useState<Property>(safeParsed);
+  const [formData, setFormData] = useState<Property>({
+    id: initialData.id ?? "",
+    developerId: initialData.developer?.id ?? "",
+    agentId: initialData.agent?.id ?? "",
+    name: initialData.name ?? "",
+    type: initialData.type ?? "",
+    description: initialData.description ?? "",
+    detail_description: initialData.detail_description ?? "",
+    address: JSON.parse(initialData.address as unknown as string) ?? {},
 
+    location: initialData.location ?? {
+      type: "Point",
+      coordinates: [0, 0],
+    },
+    property_images: initialData.property_images ?? [],
+    property_site_plans: initialData.property_site_plans ?? [],
+    images: initialData.images ?? [],
+    site_plans: initialData.site_plans ?? [],
+  });
   const [activeTab, setActiveTab] = useState("basic");
   const [error, setError] = useState<{ [key: string]: string }>({});
   const [pending, startTransition] = useTransition();
-
-  // state khusus tab media (queue & meta sejajar index)
   const [newImageFiles, setNewImageFiles] = useState<File[]>([]);
-  const [newFloorFiles, setNewFloorFiles] = useState<File[]>([]);
-  const [imagesMeta, setImagesMeta] = useState<
-    Array<{ caption?: string; sort_order?: number }>
-  >(
-    formData.images?.map((x, i) => ({
-      caption: x.caption,
-      sort_order: x.sort_order ?? i,
-    })) ?? []
-  );
-  const [floorPlansMeta, setFloorPlansMeta] = useState<
-    Array<{ name?: string; sort_order?: number }>
-  >(
-    formData.floor_plans?.map((x, i) => ({
-      name: x.name,
-      sort_order: x.sort_order ?? i,
-    })) ?? []
-  );
+  const [imagesMeta, setImagesMeta] = useState<{ caption?: string }[]>([]);
+  const [newSiteFiles, setNewSiteFiles] = useState<File[]>([]);
+  const [sitePlansMeta, setSitePlansMeta] = useState<{ name?: string }[]>([]);
 
   useEffect(() => {
-    setFormData(safeParsed);
-    setOriginalData(safeParsed);
-    // reset media states saat initialData berubah
     setNewImageFiles([]);
-    setNewFloorFiles([]);
-    setImagesMeta(
-      safeParsed.images?.map((x, i) => ({
-        caption: x.caption,
-        sort_order: x.sort_order ?? i,
-      })) ?? []
-    );
-    setFloorPlansMeta(
-      safeParsed.floor_plans?.map((x, i) => ({
-        name: x.name,
-        sort_order: x.sort_order ?? i,
-      })) ?? []
-    );
-  }, [safeParsed]);
+    setNewSiteFiles([]);
+    setImagesMeta([]);
+    setSitePlansMeta([]);
+  }, [initialData]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
@@ -131,27 +61,22 @@ const PropertyEditForm = ({
         } as Property)
     );
   };
+
   const handleTextAreaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value } as Property));
   };
+
   const handleSelectChange = (name: keyof Property, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value } as Property));
   };
 
-  const handleLocationChange = (
-    e:
-      | React.ChangeEvent<HTMLInputElement>
-      | { target: { name: string; value: string } }
-  ) => {
+  const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement> | { target: { name: string; value: string } }) => {
     const { name, value } = e.target;
     const numValue = parseFloat(value);
     setFormData((prev) => {
       const [lng0, lat0] = prev.location?.coordinates ?? [0, 0];
-      const nextCoords =
-        name === "lng"
-          ? [isNaN(numValue) ? lng0 : numValue, lat0]
-          : [lng0, isNaN(numValue) ? lat0 : numValue];
+      const nextCoords = name === "lng" ? [isNaN(numValue) ? lng0 : numValue, lat0] : [lng0, isNaN(numValue) ? lat0 : numValue];
       return {
         ...prev,
         location: {
@@ -161,11 +86,8 @@ const PropertyEditForm = ({
       } as Property;
     });
   };
-  const handleAddressChange = (
-    e:
-      | React.ChangeEvent<HTMLInputElement>
-      | { target: { name: string; value: string } }
-  ) => {
+
+  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement> | { target: { name: string; value: string } }) => {
     const { name, value } = e.target;
     setFormData(
       (prev) =>
@@ -176,63 +98,33 @@ const PropertyEditForm = ({
     );
   };
 
-  const handleSpecificationChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const { name, value, type } = e.target;
-    setFormData(
-      (prev) =>
-        ({
-          ...prev,
-          specifications: {
-            ...(prev.specifications as any),
-            [name]: type === "number" ? Number(value) : value,
-          },
-        } as Property)
-    );
-  };
-  const handleTextAreaSpecificationChange = (
-    e: React.ChangeEvent<HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData(
-      (prev) =>
-        ({
-          ...prev,
-          specifications: { ...(prev.specifications as any), [name]: value },
-        } as Property)
-    );
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const dataForSubmit: Property = {
+    const updated = {
       ...formData,
       property_images: newImageFiles,
-      property_floor_plans: newFloorFiles,
-      images: imagesMeta as any,
-      floor_plans: floorPlansMeta as any,
+      property_site_plans: newSiteFiles,
+      images: imagesMeta.map((meta, i) => ({
+        file: newImageFiles[i],
+        preview: URL.createObjectURL(newImageFiles[i]),
+        caption: meta.caption ?? "",
+      })),
+      site_plans: sitePlansMeta.map((meta, i) => ({
+        file: newSiteFiles[i],
+        preview: newSiteFiles[i].type.startsWith("image/") ? URL.createObjectURL(newSiteFiles[i]) : undefined,
+        name: meta.name ?? "",
+      })),
     };
 
-    const result = UpdatePropertyZod.safeParse(dataForSubmit);
+    const result = UpdatePropertyZod.safeParse(updated);
     if (!result.success) {
       const firstError = result.error.errors[0];
       const path = firstError.path;
       let tab = "basic";
-      if (
-        path.includes("location") ||
-        path.includes("address") ||
-        path.includes("coordinates")
-      ) {
+      if (path.includes("location") || path.includes("address") || path.includes("coordinates")) {
         tab = "location";
-      } else if (path.includes("specifications")) {
-        tab = "specs";
-      } else if (
-        path.includes("images") ||
-        path.includes("floor_plans") ||
-        path.includes("property_")
-      ) {
+      } else if (path.includes("images") || path.includes("site_plans") || path.includes("property_")) {
         tab = "media";
       }
       setActiveTab(tab);
@@ -243,126 +135,68 @@ const PropertyEditForm = ({
 
     startTransition(async () => {
       const res = await submitUpdateProperty({
-        data: dataForSubmit,
-        originalData,
+        data: updated,
+        originalData: initialData,
       });
 
       if (!res.success) {
-        showToastError(
-          res.message || "Failed to update property. Please try again."
-        );
+        showToastError(res.message || "Failed to update property. Please try again.");
       }
       router.push("/properties");
       showToastSuccess("Property updated successfully!");
-      setOriginalData(dataForSubmit);
-      setNewImageFiles([]);
-      setNewFloorFiles([]);
     });
   };
 
   return (
     <div className="mx-auto space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Edit Property</h1>
+        <h1 className="text-3xl font-bold">Edit Properti</h1>
       </div>
 
       <form onSubmit={handleSubmit}>
         <div>
-          <Tabs
-            value={activeTab}
-            onValueChange={setActiveTab}
-            className="space-y-6"
-          >
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <TabsList className="grid grid-cols-4 w-full h-auto">
-              <TabsTrigger
-                value="basic"
-                className="flex items-center justify-center py-2 cursor-pointer"
-              >
+              <TabsTrigger value="basic" className="flex items-center justify-center py-2 cursor-pointer">
                 <Info className="w-4 h-4 sm:hidden" />
                 <span className="hidden sm:inline">Info Dasar</span>
               </TabsTrigger>
-              <TabsTrigger
-                value="location"
-                className="flex items-center justify-center py-2 cursor-pointer"
-              >
+              <TabsTrigger value="location" className="flex items-center justify-center py-2 cursor-pointer">
                 <MapPin className="w-4 h-4 sm:hidden" />
                 <span className="hidden sm:inline">Lokasi</span>
               </TabsTrigger>
-              <TabsTrigger
-                value="media"
-                className="flex items-center justify-center py-2 cursor-pointer"
-              >
+              <TabsTrigger value="media" className="flex items-center justify-center py-2 cursor-pointer">
                 <Camera className="w-4 h-4 sm:hidden" />
                 <span className="hidden sm:inline">Media</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="specs"
-                className="flex items-center justify-center py-2 cursor-pointer"
-              >
-                <Settings className="w-4 h-4 sm:hidden" />
-                <span className="hidden sm:inline">Spesifikasi</span>
               </TabsTrigger>
             </TabsList>
 
             {/* Basic */}
-            <BasicInfoForm
-              formData={formData}
-              handleSelectChange={handleSelectChange}
-              handleInputChange={handleInputChange}
-              handleTextAreaChange={handleTextAreaChange}
-              developers={developers}
-              agents={agents}
-              error={error}
-            />
+            <BasicInfoForm formData={formData} handleSelectChange={handleSelectChange} handleInputChange={handleInputChange} handleTextAreaChange={handleTextAreaChange} developers={developers} agents={agents} error={error} />
 
             {/* Location */}
-            {activeTab === "location" && (
-              <LocationForm
-                formData={formData}
-                handleAddressChange={handleAddressChange}
-                handleLocationChange={handleLocationChange}
-                error={error}
-              />
-            )}
+            {activeTab === "location" && <LocationForm formData={formData} handleAddressChange={handleAddressChange} handleLocationChange={handleLocationChange} error={error} />}
 
             {/* Media */}
             {activeTab === "media" && (
               <EditMediaForm
-                originalImages={originalData.images ?? []}
-                originalFloorPlans={originalData.floor_plans ?? []}
+                originalImages={formData.images ?? []}
+                originalSitePlans={formData.site_plans ?? []}
                 newImageFiles={newImageFiles}
                 setNewImageFiles={setNewImageFiles}
                 imagesMeta={imagesMeta}
                 setImagesMeta={setImagesMeta}
-                newFloorFiles={newFloorFiles}
-                setNewFloorFiles={setNewFloorFiles}
-                floorPlansMeta={floorPlansMeta}
-                setFloorPlansMeta={setFloorPlansMeta}
-                error={error}
-                // onDeleteOldImage={async (id) => { /* optional: panggil DELETE /properties/property-image/:id */ }}
-                // onDeleteOldFloorPlan={async (id) => { /* optional: panggil DELETE /properties/property-floor-plan/:id */ }}
-              />
-            )}
-
-            {/* Specs */}
-            {activeTab === "specs" && (
-              <SpecificationsForm
-                formData={formData}
-                handleSpecificationChange={handleSpecificationChange}
-                handleTextAreaSpecificationChange={
-                  handleTextAreaSpecificationChange
-                }
+                newSiteFiles={newSiteFiles}
+                setNewSiteFiles={setNewSiteFiles}
+                sitePlansMeta={sitePlansMeta}
+                setSitePlansMeta={setSitePlansMeta}
                 error={error}
               />
             )}
           </Tabs>
 
           <div className="flex justify-end gap-4 pt-6 border-t">
-            <Button
-              type="submit"
-              className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
-              disabled={pending}
-            >
+            <Button type="submit" className="bg-blue-600 hover:bg-blue-700 cursor-pointer" disabled={pending}>
               {pending ? "Saving..." : "Save Changes"}
             </Button>
           </div>
