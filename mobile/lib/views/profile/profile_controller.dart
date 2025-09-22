@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:mobile_nirwana/data/models/user.dart';
 import 'package:mobile_nirwana/data/models/user_favorite.dart';
 import 'package:mobile_nirwana/data/service/auth_service.dart';
@@ -8,6 +9,7 @@ import 'package:mobile_nirwana/data/service/user_favorite_service.dart';
 import 'package:mobile_nirwana/data/service/user_service.dart';
 
 class ProfileController extends GetxController {
+  final LocalAuthentication auth = LocalAuthentication();
   final AuthService _authService = AuthService();
   final UserFavoriteService _userFavoriteService = UserFavoriteService();
   final UserService _userService = UserService();
@@ -16,10 +18,12 @@ class ProfileController extends GetxController {
   final RxBool isLoading = false.obs;
   final RxBool isLoadUser = false.obs;
   final RxBool isProfileExpanded = false.obs;
+  final RxBool isSecurityExpanded = false.obs;
   final RxBool isEditing = false.obs;
   final RxString errorMessage = ''.obs;
   final RxString errorLoadUser = ''.obs;
   final RxString userId = ''.obs;
+  final RxBool isAuthenticated = false.obs;
   final currentUser = User(
     id: '',
     full_name: 'Guest',
@@ -70,6 +74,7 @@ class ProfileController extends GetxController {
       errorLoadUser.value = '';
       isLoadUser.value = true;
       currentUser.value = await _userService.getUserById(userId.value);
+      print('PHONE ${currentUser.value.phone_number}');
     } catch (e) {
       errorLoadUser.value = e.toString();
     } finally {
@@ -90,21 +95,17 @@ class ProfileController extends GetxController {
     isProfileExpanded.value = !isProfileExpanded.value;
   }
 
-  void editProfile(String userId, String name) async {
-    isEditing.value = true;
-    final response = await _userService.updateName(userId, name);
-    if (response == null) {
-      isEditing.value = false;
-      currentUser.value = User(
-        id: currentUser.value.id,
-        full_name: name,
-        email: currentUser.value.email,
-        phone_number: currentUser.value.phone_number,
-        role: currentUser.value.role,
-      );
+  void toggleSecurityExpansion() {
+    isSecurityExpanded.value = !isSecurityExpanded.value;
+  }
 
-      final box = GetStorage();
-      box.write('user', currentUser.value.toJson());
+  void editProfile(String name, String phone, BuildContext context) async {
+    isEditing.value = true;
+    final response = await _userService.updateName(userId.value, name, phone);
+    if (response == null) {
+      await loadUserData();
+      Navigator.pop(context);
+      isEditing.value = false;
       Get.snackbar('Berhasil', 'Nama berhasil diperbarui',
           backgroundColor: Colors.green, colorText: Colors.white);
     } else {
@@ -114,14 +115,35 @@ class ProfileController extends GetxController {
     }
   }
 
-  // Show phone number dialog
-  void showPhoneDialog() {
-    Get.defaultDialog(
-      title: "Nomor Telepon",
-      middleText: currentUser.value.phone_number ?? 'Tidak ada nomor telepon',
-      textConfirm: "OK",
-      confirmTextColor: Colors.white,
-      buttonColor: Color(0xFFDBB837),
-    );
+  Future<void> authenticateAndChangePassword() async {
+    bool didAuthenticate = false;
+    try {
+      final bool canCheckBiometrics = await auth.canCheckBiometrics;
+      if (!canCheckBiometrics) {
+        Get.snackbar('Gagal', 'Perangkat tidak mendukung biometrik.');
+        return;
+      }
+
+      didAuthenticate = await auth.authenticate(
+        localizedReason: 'Verifikasi sidik jari Anda untuk mengubah password',
+        options: const AuthenticationOptions(
+          stickyAuth:
+              true, // Dialog akan tetap terbuka saat aplikasi ke background
+          biometricOnly: true, // Hanya izinkan biometrik (bukan PIN/Pola)
+        ),
+      );
+    } on PlatformException catch (e) {
+      Get.snackbar('Gagal', 'Terjadi error: $e',
+          backgroundColor: Colors.red, colorText: Colors.white);
+      return;
+    }
+
+    if (isClosed) return;
+
+    if (didAuthenticate) {
+      isAuthenticated.value = true;
+
+      toggleSecurityExpansion();
+    }
   }
 }

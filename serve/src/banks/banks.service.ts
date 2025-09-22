@@ -6,6 +6,7 @@ import { Bank } from '@/banks/entities/bank.entity';
 import { Repository } from 'typeorm';
 import * as path from 'path';
 import * as fs from 'fs';
+import { DeletedAtStatus, nowUtc } from '@/types/deleted_at';
 
 @Injectable()
 export class BanksService {
@@ -27,7 +28,9 @@ export class BanksService {
   }
 
   async findAll(): Promise<Bank[]> {
-    return await this.bankRepository.find();
+    return await this.bankRepository.find({
+      where: { status_delete: DeletedAtStatus.NOT_DELETED },
+    });
   }
 
   async findOne(id: string): Promise<Bank | null> {
@@ -78,7 +81,10 @@ export class BanksService {
       console.error('Failed to delete old logo:', fs.message);
     }
 
-    await this.bankRepository.delete({ id });
+    await this.bankRepository.update(
+      { id },
+      { status_delete: DeletedAtStatus.DELETED, deleted_at: nowUtc() },
+    );
     return { message: 'Bank berhasil dihapus' };
   }
 }

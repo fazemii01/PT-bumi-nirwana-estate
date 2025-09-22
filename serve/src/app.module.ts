@@ -27,6 +27,7 @@ import { NewsModule } from './news/news.module';
 // import { FcmService } from './fcm/fcm.service';
 // import { FcmModule } from './fcm/fcm.module';
 import { DeviceTokenModule } from './device-token/device-token.module';
+import { BuildingPropertyModule } from './building_property/building_property.module';
 @Module({
   imports: [
     ServeStaticModule.forRoot({
@@ -42,7 +43,7 @@ import { DeviceTokenModule } from './device-token/device-token.module';
         type: 'postgres',
         url: configService.get<string>('DATABASE_URL'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: false, // Shouldn't be used in production
+        synchronize: true, // Shouldn't be used in production
         ssl: {
           rejectUnauthorized: false,
         },
@@ -65,6 +66,7 @@ import { DeviceTokenModule } from './device-token/device-token.module';
     // OllamaModule,
     // FcmModule,
     DeviceTokenModule,
+    BuildingPropertyModule,
   ],
 
   controllers: [AppController],

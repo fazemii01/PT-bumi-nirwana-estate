@@ -1,21 +1,17 @@
-import { CreatePropertyFloorPlansDto } from '@/properties/dto/create-property-floor-plans.dto';
+import { CreatePropertySitePlansDto } from '@/properties/dto/create-property-site-plans.dto';
 import { CreatePropertyImageDto } from '@/properties/dto/create-property-image.dto';
-import {
-  PriceUnit,
-  PropertyStatus,
-  PropertyType,
-} from '@/properties/entities/property.entity';
+
 import { Transform, Type } from 'class-transformer';
 import {
   IsArray,
   IsEnum,
-  IsNumber,
   IsObject,
   IsOptional,
   IsString,
   IsUUID,
   ValidateNested,
 } from 'class-validator';
+import { PropertyType } from '@/properties/entities/property.entity';
 
 export class CreatePropertyDto {
   @IsOptional()
@@ -31,24 +27,6 @@ export class CreatePropertyDto {
 
   @IsEnum(PropertyType)
   type: PropertyType;
-
-  @IsEnum(PropertyStatus)
-  status: PropertyStatus;
-
-  @Transform(({ value }) => Number(value))
-  @IsNumber()
-  price: number;
-
-  @IsEnum(PriceUnit)
-  price_unit: PriceUnit;
-
-  @Transform(({ value }) => Number(value))
-  @IsNumber()
-  land_size: number;
-
-  @Transform(({ value }) => Number(value))
-  @IsNumber()
-  building_size: number;
 
   @IsOptional()
   @IsString()
@@ -80,13 +58,6 @@ export class CreatePropertyDto {
   address: object;
 
   @IsOptional()
-  @IsObject()
-  @Transform(({ value }) =>
-    typeof value === 'string' ? JSON.parse(value) : value,
-  )
-  specifications: object;
-
-  @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => CreatePropertyImageDto)
@@ -95,6 +66,6 @@ export class CreatePropertyDto {
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => CreatePropertyFloorPlansDto)
-  floor_plans: CreatePropertyFloorPlansDto[];
+  @Type(() => CreatePropertySitePlansDto)
+  site_plans: CreatePropertySitePlansDto[];
 }

@@ -1,7 +1,7 @@
 import { Type } from 'class-transformer';
 import { IsInt, IsOptional, IsString } from 'class-validator';
 
-export class CreatePropertyFloorPlansDto {
+export class CreatePropertySitePlansDto {
   @IsString()
   name: string;
 

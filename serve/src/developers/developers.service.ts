@@ -6,6 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as path from 'path';
 import * as fs from 'fs';
+import { DeletedAtStatus, nowUtc } from '@/types/deleted_at';
 
 @Injectable()
 export class DevelopersService {
@@ -25,7 +26,9 @@ export class DevelopersService {
   }
 
   async findAll(): Promise<Developer[]> {
-    return await this.developerRepository.find();
+    return await this.developerRepository.find({
+      where: { status_delete: DeletedAtStatus.NOT_DELETED },
+    });
   }
 
   async findOne(id: string): Promise<Developer | null> {
@@ -70,7 +73,10 @@ export class DevelopersService {
   }
 
   async remove(id: string) {
-    await this.developerRepository.delete({ id });
+    await this.developerRepository.update(
+      { id },
+      { status_delete: DeletedAtStatus.DELETED, deleted_at: nowUtc() },
+    );
     return { message: 'Delete successfull' };
   }
 }

@@ -29,16 +29,16 @@ export class PropertiesController {
     @UploadedFiles()
     files: {
       property_images?: Express.Multer.File[];
-      property_floor_plans?: Express.Multer.File[];
+      property_site_plans?: Express.Multer.File[];
     },
   ): Promise<Property> {
     const property_images = files.property_images || [];
-    const property_floor_plans = files.property_floor_plans || [];
+    const property_site_plans = files.property_site_plans || [];
     try {
       return await this.propertiesService.create(
         createPropertyDto,
         property_images,
-        property_floor_plans,
+        property_site_plans,
       );
     } catch (error) {
       for (const images_file of property_images) {
@@ -49,9 +49,9 @@ export class PropertiesController {
         }
       }
 
-      for (const floor_file of property_floor_plans) {
+      for (const site_file of property_site_plans) {
         try {
-          await fs.promises.unlink(floor_file.path);
+          await fs.promises.unlink(site_file.path);
         } catch (error) {
           console.log(error);
         }
@@ -87,17 +87,17 @@ export class PropertiesController {
     @UploadedFiles()
     files?: {
       property_images?: Express.Multer.File[];
-      property_floor_plans?: Express.Multer.File[];
+      property_site_plans?: Express.Multer.File[];
     },
   ): Promise<Property | undefined> {
     const property_images = files?.property_images || [];
-    const property_floor_plans = files?.property_floor_plans || [];
+    const property_site_plans = files?.property_site_plans || [];
     try {
       return this.propertiesService.update(
         id,
         updatePropertyDto,
         property_images,
-        property_floor_plans,
+        property_site_plans,
       );
     } catch (error) {
       for (const images_file of property_images) {
@@ -108,9 +108,9 @@ export class PropertiesController {
         }
       }
 
-      for (const floor_file of property_floor_plans) {
+      for (const site_file of property_site_plans) {
         try {
-          await fs.promises.unlink(floor_file.path);
+          await fs.promises.unlink(site_file.path);
         } catch (error) {
           console.log(error);
         }

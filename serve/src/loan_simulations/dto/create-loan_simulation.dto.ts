@@ -3,7 +3,7 @@ import { IsEnum, IsNumber, IsOptional, IsUUID } from 'class-validator';
 
 export class CreateLoanSimulationDto {
   @IsUUID()
-  propertyId: string;
+  buildingPropertyId: string;
 
   @IsUUID()
   bankId: string;

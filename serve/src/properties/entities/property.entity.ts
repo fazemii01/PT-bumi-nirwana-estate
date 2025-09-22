@@ -1,9 +1,11 @@
 import { Agent } from '@/agents/entities/agent.entity';
+import { BuildingProperty } from '@/building_property/entities/building_property.entity';
 import { Developer } from '@/developers/entities/developer.entity';
 import { LoanSimulation } from '@/loan_simulations/entities/loan_simulation.entity';
 import { News } from '@/news/entities/news.entity';
-import { PropertyFloorPlan } from '@/properties/entities/property-floor-plan.entity';
-import { PropertyImage } from '@/properties/entities/property-image.entity';
+import { PropertyImage } from '@/properties/entities/property_images.entity';
+import { PropertySitePlan } from '@/properties/entities/property_site_plans.entity';
+import { DeletedAtStatus } from '@/types/deleted_at';
 
 import {
   Entity,
@@ -16,24 +18,9 @@ import {
   JoinColumn,
 } from 'typeorm';
 
-export enum PropertyStatus {
-  PRE_LAUNCH = 'PRE_LAUNCH',
-  AVAILABLE = 'AVAILABLE',
-  SOLD_OUT = 'SOLD_OUT',
-  RESERVED = 'RESERVED',
-}
-
-export enum PriceUnit {
-  TOTAL = 'TOTAL',
-  PER_MONTH = 'PER_MONTH',
-  PER_SQM = 'PER_SQM',
-}
-
 export enum PropertyType {
-  HOUSE = 'HOUSE',
-  APARTMENT = 'APARTMENT',
-  RUKO = 'RUKO',
-  KAVLING = 'KAVLING',
+  KOMERSIL = 'KOMERSIL',
+  SUBSIDI = 'SUBSIDI',
 }
 
 @Entity('properties')
@@ -63,31 +50,8 @@ export class Property {
   @Column({ type: 'varchar', length: 255, unique: true, nullable: false })
   slug: string;
 
-  @Column({
-    type: 'enum',
-    enum: PropertyStatus,
-    default: PropertyStatus.AVAILABLE,
-  })
-  status: PropertyStatus;
-
-  @Column({ type: 'decimal', precision: 15, scale: 2, nullable: false })
-  price: number;
-
-  @Column({
-    type: 'enum',
-    enum: PriceUnit,
-    default: PriceUnit.TOTAL,
-  })
-  price_unit: PriceUnit;
-
-  @Column({ type: 'enum', enum: PropertyType, default: PropertyType.HOUSE })
+  @Column({ type: 'enum', enum: PropertyType, default: PropertyType.SUBSIDI })
   type: PropertyType;
-
-  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
-  land_size: number;
-
-  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
-  building_size: number;
 
   @Column({ type: 'text', nullable: true })
   description: string;
@@ -109,36 +73,40 @@ export class Property {
   @Column({ type: 'jsonb', nullable: true })
   address: object;
 
-  @Column({ type: 'jsonb', nullable: true })
-  specifications: object;
-
   @OneToMany(() => PropertyImage, (image) => image.property, {
     cascade: true,
     onDelete: 'CASCADE',
   })
   images: PropertyImage[];
 
-  @OneToMany(() => PropertyFloorPlan, (floorPlan) => floorPlan.property, {
+  @OneToMany(() => PropertySitePlan, (sitePlan) => sitePlan.property, {
     cascade: true,
     onDelete: 'CASCADE',
   })
-  floor_plans: PropertyFloorPlan[];
-
-  @OneToMany(
-    () => LoanSimulation,
-    (loanSimulation) => loanSimulation.property,
-    {
-      cascade: true,
-      onDelete: 'CASCADE',
-    },
-  )
-  loan_simulations: [];
+  site_plans: PropertySitePlan[];
 
   @OneToMany(() => News, (news) => news.property, {
     cascade: true,
     onDelete: 'CASCADE',
   })
   news: News[];
+
+  @OneToMany(() => BuildingProperty, (building) => building.property, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
+  building_property: BuildingProperty[];
+
+  @Column({
+    type: 'enum',
+    enum: DeletedAtStatus,
+    default: DeletedAtStatus.NOT_DELETED,
+    nullable: true,
+  })
+  status_delete: DeletedAtStatus | null;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  deleted_at: Date | null;
 
   @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

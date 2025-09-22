@@ -55,10 +55,12 @@ export class NewsController {
     return this.newsService.findOne(id);
   }
 
-  @Get(':slug')
+  @Get('/category/:categoryId')
   @Public()
-  async findOneBySlug(@Param('slug') slug: string): Promise<News | null> {
-    return await this.newsService.findOneBySlug(slug);
+  async findOneBySlug(
+    @Param('categoryId') categoryId: string,
+  ): Promise<News[]> {
+    return await this.newsService.findOneByCatgoryId(categoryId);
   }
 
   @Patch(':id')
