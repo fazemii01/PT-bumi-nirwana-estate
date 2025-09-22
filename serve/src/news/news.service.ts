@@ -145,17 +145,23 @@ export class NewsService {
 
     const news = await this.newsRepository.find({
       where: { newsCategory: { id: category.id } },
-      relations: [
-        'newsCategory',
-        'newsImages',
-        'property',
-        'property.images',
-        'property.floor_plans',
-      ],
     });
-
     return news;
   }
+  // async findOneByCatgoryId(categoryId: string): Promise<News[]> {
+  //   const news = await this.newsRepository.find({
+  //     where: { newsCategory: { id: categoryId } },
+  //     relations: [
+  //       'newsCategory',
+  //       'newsImages',
+  //       'property',
+  //       'property.images',
+  //       'property.floor_plans',
+  //     ],
+  //   });
+
+  //   return news;
+  // }
 
   async update(
     id: string,

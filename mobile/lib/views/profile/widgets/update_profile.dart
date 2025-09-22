@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:mobile_nirwana/views/profile/profile_controller.dart';
 
 class UpdateProfileBottomSheet extends StatefulWidget {
   final String initialName;
-  final bool isLoading;
-  final Function(String name) onUpdate;
+  final String initialPhone;
 
   const UpdateProfileBottomSheet({
     Key? key,
     required this.initialName,
-    required this.onUpdate,
-    required this.isLoading,
+    required this.initialPhone,
   }) : super(key: key);
 
   @override
@@ -19,8 +19,7 @@ class UpdateProfileBottomSheet extends StatefulWidget {
   static void show({
     required BuildContext context,
     required String initialName,
-    required bool isLoading,
-    required Function(String name) onUpdate,
+    required String initialPhone,
   }) {
     showModalBottomSheet(
       context: context,
@@ -28,25 +27,28 @@ class UpdateProfileBottomSheet extends StatefulWidget {
       backgroundColor: Colors.transparent,
       builder: (context) => UpdateProfileBottomSheet(
         initialName: initialName,
-        isLoading: isLoading,
-        onUpdate: onUpdate,
+        initialPhone: initialPhone,
       ),
     );
   }
 }
 
 class _UpdateProfileBottomSheetState extends State<UpdateProfileBottomSheet> {
+  final _profileController = Get.find<ProfileController>();
   late TextEditingController nameController;
+  late TextEditingController phoneController;
 
   @override
   void initState() {
     super.initState();
     nameController = TextEditingController(text: widget.initialName);
+    phoneController = TextEditingController(text: widget.initialPhone);
   }
 
   @override
   void dispose() {
     nameController.dispose();
+    phoneController.dispose();
     super.dispose();
   }
 
@@ -59,7 +61,7 @@ class _UpdateProfileBottomSheetState extends State<UpdateProfileBottomSheet> {
       child: Container(
         constraints: BoxConstraints(
           maxHeight: MediaQuery.of(context).size.height * 0.9,
-          minHeight: MediaQuery.of(context).size.height * 0.33,
+          minHeight: MediaQuery.of(context).size.height * 0.45,
         ),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -159,41 +161,73 @@ class _UpdateProfileBottomSheetState extends State<UpdateProfileBottomSheet> {
                       ),
 
                       SizedBox(height: 15),
-
+                      Text(
+                        'Phone Number',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[600],
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey[300]!),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: TextField(
+                          controller: phoneController,
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.all(13),
+                            hintText: 'Masukkan no handphone',
+                            hintStyle: TextStyle(color: Colors.grey[400]),
+                          ),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 15),
                       // Save Button
                       Container(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: () {
-                            widget.onUpdate(nameController.text);
-                            Navigator.pop(context);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xFFDBB837),
-                            padding: EdgeInsets.symmetric(vertical: 10),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                            onPressed: () {
+                              _profileController.editProfile(
+                                  nameController.text,
+                                  phoneController.text,
+                                  context);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xFFDBB837),
+                              padding: EdgeInsets.symmetric(vertical: 10),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 0,
                             ),
-                            elevation: 0,
-                          ),
-                          child: widget.isLoading
-                              ? SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : Text(
-                                  'Simpan Perubahan',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                        ),
+                            child: Obx(
+                              () => _profileController.isEditing.value
+                                  ? SizedBox(
+                                      width: 15,
+                                      height: 15,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : Text(
+                                      'Simpan Perubahan',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                            )),
                       ),
                     ],
                   ),

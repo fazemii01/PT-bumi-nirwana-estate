@@ -1,25 +1,27 @@
-export type Building_Property = {
+import { Property } from "@/types/properties";
+
+export type BuildingProperty = {
   id: string;
   propertyId: string;
   name: string;
-  type: PropertyType;
   land_size: number;
   building_size: number;
   price: number;
   price_unit: PriceUnit;
   specifications?: Specifications;
-  property_images?: File[];
-  property_floor_plans?: File[];
-  images: ImageProperty[];
-  floor_plans: FloorPlan[];
+  building_images?: File[];
+  building_floor_plans?: File[];
+  images: BuildingImage[];
+  floor_plans: BuildingFloorPlans[];
   detail_description: string;
-  status: PropertyStatus;
+  status: BuildingStatus;
   created_at?: Date;
   updated_at?: Date;
   deleted_at?: Date;
+  property?: Property;
 };
 
-export type ImageProperty = {
+export type BuildingImage = {
   id?: string;
   image_url?: string;
   caption: string;
@@ -28,7 +30,7 @@ export type ImageProperty = {
   preview?: string;
 };
 
-export type FloorPlan = {
+export type BuildingFloorPlans = {
   id?: string;
   name: string;
   file_url?: string;
@@ -36,15 +38,7 @@ export type FloorPlan = {
   file?: File;
   preview?: string;
 };
-
-export enum PropertyType {
-  HOUSE = "HOUSE",
-  APARTMENT = "APARTMENT",
-  RUKO = "RUKO",
-  KAVLING = "KAVLING",
-}
-
-export enum PropertyStatus {
+export enum BuildingStatus {
   PRE_LAUNCH = "PRE_LAUNCH",
   AVAILABLE = "AVAILABLE",
   SOLD_OUT = "SOLD_OUT",

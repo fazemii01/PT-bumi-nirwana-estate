@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { Role } from './role.entity';
 import { LoanSimulation } from '@/loan_simulations/entities/loan_simulation.entity';
+import { DeletedAtStatus } from '@/types/deleted_at';
 
 @Entity('users')
 export class User {
@@ -39,6 +40,17 @@ export class User {
 
   @OneToMany(() => LoanSimulation, (loanSimulation) => loanSimulation.user)
   loan_simulations: LoanSimulation[];
+
+  @Column({
+    type: 'enum',
+    enum: DeletedAtStatus,
+    default: DeletedAtStatus.NOT_DELETED,
+    nullable: true,
+  })
+  status_delete: DeletedAtStatus | null;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  deleted_at: Date | null;
 
   @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

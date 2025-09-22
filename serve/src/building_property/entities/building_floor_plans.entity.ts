@@ -1,3 +1,4 @@
+import { BuildingProperty } from '@/building_property/entities/building_property.entity';
 import { Property } from '@/properties/entities/property.entity';
 import {
   Entity,
@@ -7,18 +8,18 @@ import {
   JoinColumn,
 } from 'typeorm';
 
-@Entity('property_floor_plans')
-export class PropertyFloorPlan {
+@Entity('building_floor_plans')
+export class BuildingFloorPlans {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Property, (property) => property.floor_plans, {
+  @ManyToOne(() => BuildingProperty, (building) => building.floor_plans, {
     onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'propertyId' })
-  property: Property;
+  @JoinColumn({ name: 'building_propertyId' })
+  building_property: BuildingProperty;
 
-  @Column({ type: 'varchar', length: 255, nullable: false })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   name: string;
 
   @Column({ type: 'text', nullable: false })

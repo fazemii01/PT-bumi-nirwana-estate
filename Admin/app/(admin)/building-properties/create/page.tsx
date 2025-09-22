@@ -1,11 +1,11 @@
 import { getProperties } from "@/api/property";
-import PropertyCreateForm from "@/components/properties/create/create-form";
+import BuildingCreateForm from "@/components/building-properties/create/create-form";
 
-export default async function CreatePropertyPage() {
+export default async function CreateBuildingPropertyPage() {
   const [properties] = await Promise.all([getProperties()]);
   return (
     <div className="p-6">
-      <PropertyCreateForm properties={properties.data || []} />
+      <BuildingCreateForm property={properties.data || []} />
     </div>
   );
 }

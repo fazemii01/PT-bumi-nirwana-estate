@@ -6,6 +6,7 @@ import 'package:mobile_nirwana/data/models/property/property.dart';
 import 'package:mobile_nirwana/helper/price.dart';
 import 'package:mobile_nirwana/views/layout.dart';
 import 'package:mobile_nirwana/views/profile/profile_controller.dart';
+import 'package:mobile_nirwana/views/profile/widgets/update_password.dart';
 import 'package:mobile_nirwana/views/profile/widgets/update_profile.dart';
 import 'package:mobile_nirwana/widgets/error.dart';
 import 'package:mobile_nirwana/widgets/simmer.dart';
@@ -222,14 +223,19 @@ class ProfilePage extends StatelessWidget {
                         onTap: () {
                           _profileController.toggleProfileExpansion();
                         },
+                        expandedChild: _buildProfileInfoSection(),
                       ),
                       _buildDivider(),
                       _buildModernMenuItem(
-                        icon: Icons.security_rounded,
-                        title: 'Keamanan',
-                        subtitle: 'Password & keamanan akun',
-                        onTap: () => print('Security tapped'),
-                      ),
+                          icon: Icons.security_rounded,
+                          title: 'Keamanan',
+                          subtitle: 'Password & keamanan akun',
+                          isExpandable: true,
+                          isExpanded:
+                              _profileController.isSecurityExpanded.value,
+                          onTap: () =>
+                              {_profileController.toggleSecurityExpansion()},
+                          expandedChild: _buildSecuritiSection()),
                       _buildDivider(),
                       _buildModernMenuItem(
                         icon: Icons.help_outline_rounded,
@@ -334,6 +340,7 @@ class ProfilePage extends StatelessWidget {
     required VoidCallback onTap,
     bool isExpandable = false,
     bool isExpanded = false,
+    Widget? expandedChild,
   }) {
     return Column(
       children: [
@@ -386,7 +393,7 @@ class ProfilePage extends StatelessWidget {
                       ? (isExpanded
                           ? Icons.keyboard_arrow_down_rounded
                           : Icons.arrow_forward_ios_rounded)
-                      : Icons.arrow_forward_ios_rounded,
+                      : null,
                   size: isExpandable ? 16 : 16,
                   color: Colors.grey[400],
                 ),
@@ -394,7 +401,7 @@ class ProfilePage extends StatelessWidget {
             ),
           ),
         ),
-        if (isExpandable && isExpanded) _buildProfileInfoSection(),
+        if (isExpandable && isExpanded && expandedChild != null) expandedChild,
       ],
     );
   }
@@ -1013,9 +1020,162 @@ class ProfilePage extends StatelessWidget {
 
                       // Field Email
                       _buildInfoField(
+                        label: 'No Handphone',
+                        value:
+                            _profileController.currentUser.value.phone_number ??
+                                '_',
+                        icon: Icons.phone,
+                      ),
+
+                      // Button Perbarui
+                    ],
+                  ),
+      ),
+    );
+  }
+
+  Widget _buildSecuritiSection() {
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+      padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
+      child: Container(
+        padding: EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: Colors.grey[200]!,
+            width: 1,
+          ),
+        ),
+        child: _profileController.isLoadUser.value
+            ? Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 32,
+                    height: 32,
+                    alignment: Alignment.center,
+                    child: const Simmer(
+                        width: 16,
+                        height: 16,
+                        borderRadius: BorderRadius.all(Radius.circular(8))),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        Simmer(width: 80, height: 10), // label shimmer
+                        SizedBox(height: 4),
+                        Simmer(
+                            width: double.infinity,
+                            height: 12), // value shimmer
+                      ],
+                    ),
+                  ),
+                ],
+              )
+            : _profileController.errorLoadUser.value.isNotEmpty
+                ? Container(
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.red[50],
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: Colors.red[100]!,
+                        width: 1,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.info_outline,
+                          color: Colors.red[700],
+                          size: 20,
+                        ),
+                        SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            'Terjadi kesalahan saat memuat konten',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.red[800],
+                              height: 1.4,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      InkWell(
+                        onTap: () {},
+                        child: Padding(
+                          padding: EdgeInsets.all(5),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Informasi Keamanan',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              TextButton(
+                                style: TextButton.styleFrom(
+                                  backgroundColor: Color(0xFFDBB837),
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 4),
+                                  minimumSize: Size(0, 0),
+                                  tapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    side: BorderSide(
+                                      color: Colors.grey[200]!,
+                                      width: 1,
+                                    ),
+                                  ),
+                                ),
+                                onPressed: () {
+                                  _profileController.isAuthenticated.value
+                                      ? _showUpdatePasswordDialog()
+                                      : _profileController
+                                          .authenticateAndChangePassword();
+                                },
+                                child: Text(
+                                  'Change Password',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 16),
+
+                      _buildInfoField(
                         label: 'Email',
                         value: _profileController.currentUser.value.email,
                         icon: Icons.email_outlined,
+                      ),
+
+                      SizedBox(height: 12),
+
+                      // Field Email
+                      _buildInfoField(
+                        label: 'Password',
+                        value: '********',
+                        icon: Icons.security_outlined,
                       ),
 
                       // Button Perbarui
@@ -1076,11 +1236,13 @@ class ProfilePage extends StatelessWidget {
     UpdateProfileBottomSheet.show(
       context: Get.context!,
       initialName: _profileController.currentUser.value.full_name,
-      isLoading: _profileController.isEditing.value,
-      onUpdate: (String name) {
-        _profileController.editProfile(
-            _profileController.currentUser.value.id!, name);
-      },
+      initialPhone: _profileController.currentUser.value.phone_number ?? '_',
+    );
+  }
+
+  void _showUpdatePasswordDialog() {
+    UpdatePassword.show(
+      context: Get.context!,
     );
   }
 }

@@ -267,7 +267,7 @@ class _RegisterPageState extends State<RegisterPage>
                                         _registerController.emailController,
                                     label: "Email",
                                     hint: "Masukkan email ",
-                                    icon: Icons.person_outline,
+                                    icon: Icons.email_outlined,
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
                                         return 'Email tidak boleh kosong';
@@ -288,7 +288,7 @@ class _RegisterPageState extends State<RegisterPage>
                                         _registerController.phoneController,
                                     label: 'Nomor Telepon (Opsional)',
                                     hint: 'Masukkan nomor telepon Anda',
-                                    icon: Icons.person_outline,
+                                    icon: Icons.phone,
                                     validator: (value) {
                                       if (value != null && value.isNotEmpty) {
                                         if (value.length < 10 ||
@@ -312,7 +312,7 @@ class _RegisterPageState extends State<RegisterPage>
                                         _registerController.passwordController,
                                     label: 'Password',
                                     hint: 'Minimal 8 karakter',
-                                    icon: Icons.person_outline,
+                                    icon: Icons.lock_outline,
                                     isObscure: _registerController
                                         .obscurePassword.value,
                                     onToggle: () {
@@ -346,7 +346,7 @@ class _RegisterPageState extends State<RegisterPage>
                                         .confirmPasswordController,
                                     label: 'Konfirmasi Password',
                                     hint: 'Masukkan ulang password',
-                                    icon: Icons.person_outline,
+                                    icon: Icons.lock_outline_sharp,
                                     isObscure: _registerController
                                         .obscureConfirmPassword.value,
                                     onToggle: () {

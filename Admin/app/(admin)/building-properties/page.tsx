@@ -9,9 +9,9 @@ import { Button } from "@/components/ui/button";
 import { IconPlus } from "@tabler/icons-react";
 import Link from "next/link";
 
-const PER_PAGE = 10; // Define the number of items per page
+const PER_PAGE = 10;
 
-export default async function PropertiesPage({
+export default async function BuildingPropertiesPage({
   searchParams,
 }: {
   searchParams: { page?: string };

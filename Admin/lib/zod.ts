@@ -1,3 +1,4 @@
+import { Building } from "lucide-react";
 import {
   object,
   string,
@@ -8,7 +9,11 @@ import {
   tuple,
   z,
 } from "zod";
-import { PropertyStatus, PriceUnit, PropertyType } from "../types/properties";
+import { PropertyStatus, PriceUnit, PropertyType } from "@/types/properties";
+import {
+  BuildingStatus,
+  PriceUnit as BuildingPriceUnit,
+} from "@/types/building-properties";
 import { description } from "@/components/chart-area-interactive";
 
 const emptyToUndef = z
@@ -157,6 +162,29 @@ export const UpdatePropertyZod = z.object({
   property_floor_plans: z.array(z.object({})).optional(),
   images: z.array(ImagePropertyZod).optional(),
   floor_plans: z.array(FloorPlanZod).optional(),
+});
+
+export const BuildingPropertyZod = object({
+  id: string().optional(),
+  propertyId: string().min(1, "Property wajib diisi"),
+  name: string().min(1, "Nama Bangunan wajib diisi"),
+  status: nativeEnum(BuildingStatus),
+  price: z.coerce.number().min(0, "Harga wajib diisi"),
+  price_unit: nativeEnum(BuildingPriceUnit),
+  description: string().optional(),
+  land_size: z.coerce.number().min(0, "Luas tanah wajib diisi"),
+  building_size: z.coerce.number().min(0, "Luas bangunan wajib diisi"),
+  detail_description: string().optional(),
+  specifications: SpecificationsZod.optional(),
+  building_images: array(z.instanceof(File), {
+    message: "Gambar bangunan harus berupa file",
+  }).optional(),
+
+  building_floor_plans: array(z.instanceof(File), {
+    message: "Denah bangunan harus berupa file",
+  }).optional(),
+  images: array(ImagePropertyZod).optional(),
+  floor_plans: array(FloorPlanZod).optional(),
 });
 
 export const BankZod = z.object({

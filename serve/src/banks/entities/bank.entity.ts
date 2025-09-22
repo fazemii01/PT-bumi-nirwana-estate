@@ -1,4 +1,5 @@
 import { LoanSimulation } from '@/loan_simulations/entities/loan_simulation.entity';
+import { DeletedAtStatus } from '@/types/deleted_at';
 import {
   Column,
   CreateDateColumn,
@@ -24,6 +25,17 @@ export class Bank {
 
   @Column({ type: 'varchar', length: 255, nullable: false })
   logo: string;
+
+  @Column({
+    type: 'enum',
+    enum: DeletedAtStatus,
+    default: DeletedAtStatus.NOT_DELETED,
+    nullable: true,
+  })
+  status_delete: DeletedAtStatus | null;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  deleted_at: Date | null;
 
   @OneToMany(() => LoanSimulation, (loanSimulation) => loanSimulation.bank)
   loan_simulations: LoanSimulation[];

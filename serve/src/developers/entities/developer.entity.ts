@@ -1,4 +1,5 @@
 import { Property } from '@/properties/entities/property.entity';
+import { DeletedAtStatus } from '@/types/deleted_at';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -21,6 +22,17 @@ export class Developer {
 
   @Column({ type: 'text', nullable: true })
   website_url: string;
+
+  @Column({
+    type: 'enum',
+    enum: DeletedAtStatus,
+    default: DeletedAtStatus.NOT_DELETED,
+    nullable: true,
+  })
+  status_delete: DeletedAtStatus | null;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  deleted_at: Date | null;
 
   @OneToMany(() => Property, (property) => property.developer)
   property: Property[];

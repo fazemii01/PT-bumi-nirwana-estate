@@ -13,7 +13,7 @@ import { MoreHorizontal } from "lucide-react";
 import { IconInfoCircle, IconPencil, IconTrash } from "@tabler/icons-react";
 import ConfirmMessage from "@/components/confirm-message";
 import { showToastError, showToastSuccess } from "../toast";
-import { Building_Property } from "@/types/building-properties";
+import { BuildingProperty } from "@/types/building-properties";
 import Link from "next/link";
 import { deleteProperty } from "@/actions/property";
 import { useRouter } from "next/navigation";
@@ -21,7 +21,7 @@ import { useRouter } from "next/navigation";
 const ActionPropertyCell = ({
   buildingProperty,
 }: {
-  buildingProperty: Building_Property;
+  buildingProperty: BuildingProperty;
 }) => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);

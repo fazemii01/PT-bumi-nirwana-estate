@@ -4,9 +4,9 @@ import { UpdateLoanSimulationDto } from './dto/update-loan_simulation.dto';
 import { Repository } from 'typeorm';
 import { LoanSimulation } from '@/loan_simulations/entities/loan_simulation.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Property } from '@/properties/entities/property.entity';
 import { Bank } from '@/banks/entities/bank.entity';
 import { User } from '@/users/entities/user.entity';
+import { BuildingProperty } from '@/building_property/entities/building_property.entity';
 
 type Installment = {
   month: number;
@@ -22,8 +22,8 @@ export class LoanSimulationsService {
     @InjectRepository(LoanSimulation)
     private readonly loanSimulationRepository: Repository<LoanSimulation>,
 
-    @InjectRepository(Property)
-    private readonly propertyRepository: Repository<Property>,
+    @InjectRepository(BuildingProperty)
+    private readonly buildingPropertyRepository: Repository<BuildingProperty>,
 
     @InjectRepository(Bank)
     private readonly bankRepository: Repository<Bank>,
@@ -38,10 +38,10 @@ export class LoanSimulationsService {
 
     if (!user) throw new NotFoundException('User not found');
 
-    const property = await this.propertyRepository.findOneBy({
-      id: createLoanSimulationDto.propertyId,
+    const building = await this.buildingPropertyRepository.findOneBy({
+      id: createLoanSimulationDto.buildingPropertyId,
     });
-    if (!property) throw new NotFoundException('Property not found');
+    if (!building) throw new NotFoundException('Property not found');
 
     const bank = await this.bankRepository.findOneBy({
       id: createLoanSimulationDto.bankId,
@@ -54,9 +54,9 @@ export class LoanSimulationsService {
       createLoanSimulationDto.down_payment !== undefined &&
       createLoanSimulationDto.down_payment !== 0
     ) {
-      loanAmount = property.price - createLoanSimulationDto.down_payment;
+      loanAmount = building.price - createLoanSimulationDto.down_payment;
     } else {
-      loanAmount = property.price;
+      loanAmount = building.price;
     }
 
     const breakdown: Installment[] = this.getInstallmentBreakdown(
@@ -79,7 +79,7 @@ export class LoanSimulationsService {
     const loanSimulation = new LoanSimulation();
     loanSimulation.user = user;
     loanSimulation.bank = bank;
-    loanSimulation.property = property;
+    loanSimulation.building_property = building;
     loanSimulation.loan_amount = loanAmount;
     loanSimulation.down_payment = createLoanSimulationDto.down_payment;
     loanSimulation.total_payment = total_payment;
@@ -109,9 +109,9 @@ export class LoanSimulationsService {
     const simulation = await this.loanSimulationRepository.find({
       where: { user: { id: user.id } },
       relations: [
-        'property',
-        'property.images',
-        'property.floor_plans',
+        'building_property',
+        'building_property.images',
+        'building_property.floor_plans',
         'user',
         'bank',
       ],
@@ -127,9 +127,9 @@ export class LoanSimulationsService {
     const loan = await this.loanSimulationRepository.findOne({
       where: { id: id },
       relations: [
-        'property',
-        'property.images',
-        'property.floor_plans',
+        'building_property',
+        'building_property.images',
+        'building_property.floor_plans',
         'user',
         'bank',
       ],

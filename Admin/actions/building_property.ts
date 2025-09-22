@@ -4,7 +4,7 @@ import {
   addBuildingProperty,
   getBuildingPropertyById,
 } from "@/api/building_property";
-import { Building_Property } from "@/types/building-properties";
+import { BuildingProperty } from "@/types/building-properties";
 
 export async function getById({ id }: { id: string }) {
   try {
@@ -25,7 +25,7 @@ export async function getById({ id }: { id: string }) {
 export async function submitCreateBuildingProperty({
   buildingProperty,
 }: {
-  buildingProperty: Building_Property;
+  buildingProperty: BuildingProperty;
 }) {
   try {
     const res = await addBuildingProperty({ buildingProperty });

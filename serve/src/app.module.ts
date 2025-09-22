@@ -20,6 +20,7 @@ import { LoanSimulationsModule } from './loan_simulations/loan_simulations.modul
 import { NewsCategoryModule } from './news_category/news_category.module';
 import { NewsModule } from './news/news.module';
 import { DeviceTokenModule } from './device-token/device-token.module';
+import { BuildingPropertyModule } from './building_property/building_property.module';
 @Module({
   imports: [
     ServeStaticModule.forRoot({
@@ -35,7 +36,7 @@ import { DeviceTokenModule } from './device-token/device-token.module';
         type: 'postgres',
         url: configService.get<string>('DATABASE_URL'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: false, // Shouldn't be used in production
+        synchronize: true, // Shouldn't be used in production
         ssl: {
           rejectUnauthorized: false,
         },
@@ -54,6 +55,7 @@ import { DeviceTokenModule } from './device-token/device-token.module';
     NewsCategoryModule,
     NewsModule,
     DeviceTokenModule,
+    BuildingPropertyModule,
   ],
 
   controllers: [AppController],

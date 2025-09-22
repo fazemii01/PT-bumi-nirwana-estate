@@ -1,12 +1,12 @@
 "use server";
 import { apiFetch } from "@/service/api";
 import { ApiResponse } from "@/types/api-response";
-import { Building_Property } from "@/types/building-properties";
+import { BuildingProperty } from "@/types/building-properties";
 
 export async function getBuildingProperties(): Promise<
-  ApiResponse<Building_Property[]>
+  ApiResponse<BuildingProperty[]>
 > {
-  return apiFetch<Building_Property[]>("/building_properties", {
+  return apiFetch<BuildingProperty[]>("/building-property", {
     method: "GET",
   });
 }
@@ -15,8 +15,8 @@ export async function getBuildingPropertyById({
   id,
 }: {
   id: string;
-}): Promise<ApiResponse<Building_Property | null>> {
-  return apiFetch<Building_Property | null>(`/building_properties/${id}`, {
+}): Promise<ApiResponse<BuildingProperty | null>> {
+  return apiFetch<BuildingProperty | null>(`/building-property/${id}`, {
     method: "GET",
   });
 }
@@ -24,7 +24,7 @@ export async function getBuildingPropertyById({
 export async function getBuildingPropertyPaged(
   page = 1,
   limit = 10
-): Promise<{ data: Building_Property[]; total: number }> {
+): Promise<{ data: BuildingProperty[]; total: number }> {
   const res = await getBuildingProperties();
   const all = res.data ?? [];
   const total = all.length;
@@ -38,12 +38,11 @@ export async function getBuildingPropertyPaged(
 export async function addBuildingProperty({
   buildingProperty,
 }: {
-  buildingProperty: Building_Property;
-}): Promise<ApiResponse<Building_Property>> {
+  buildingProperty: BuildingProperty;
+}): Promise<ApiResponse<BuildingProperty>> {
   const data = new FormData();
   data.append("propertyId", buildingProperty.propertyId);
   data.append("name", buildingProperty.name);
-  data.append("type", buildingProperty.type);
   data.append("status", buildingProperty.status);
   data.append("price", buildingProperty.price.toString());
   data.append("price_unit", buildingProperty.price_unit);
@@ -57,14 +56,14 @@ export async function addBuildingProperty({
       JSON.stringify(buildingProperty.specifications)
     );
   }
-  if (buildingProperty.property_images) {
-    buildingProperty.property_images.forEach((file) => {
-      data.append(`property_images`, file);
+  if (buildingProperty.building_images) {
+    buildingProperty.building_images.forEach((file) => {
+      data.append(`building_images`, file);
     });
   }
-  if (buildingProperty.property_floor_plans) {
-    buildingProperty.property_floor_plans.forEach((file) => {
-      data.append(`property_floor_plans`, file);
+  if (buildingProperty.building_floor_plans) {
+    buildingProperty.building_floor_plans.forEach((file) => {
+      data.append(`building_floor_plans`, file);
     });
   }
   if (buildingProperty.images) {
@@ -90,7 +89,7 @@ export async function addBuildingProperty({
     });
   }
 
-  return apiFetch<Building_Property>("/building-properties", {
+  return apiFetch<BuildingProperty>("/building-property", {
     method: "POST",
     body: data,
   });

@@ -1,11 +1,11 @@
 "use client";
 
-import { Building_Property } from "@/types/building-properties";
+import { BuildingProperty } from "@/types/building-properties";
 import { ColumnDef } from "@tanstack/react-table";
 import ActionPropertyCell from "@/components/building-properties/action-cell";
 import { formatCurrency } from "@/lib/utils";
 
-export const columns: ColumnDef<Building_Property>[] = [
+export const columns: ColumnDef<BuildingProperty>[] = [
   {
     id: "no",
     header: "No",
@@ -14,6 +14,10 @@ export const columns: ColumnDef<Building_Property>[] = [
   {
     accessorKey: "name",
     header: "Name",
+  },
+  {
+    accessorKey: "property.name",
+    header: "Property",
   },
   {
     accessorKey: "status",
