@@ -7,7 +7,7 @@ export type Property = {
   agentId: string;
   name: string;
   slug?: string;
-  type: PropertyType;
+  type: string;
   description: string;
   detail_description: string;
   location?: {
@@ -52,8 +52,3 @@ export type Address = {
   province?: string;
   postal_code?: string;
 };
-
-export enum PropertyType {
-  SUBSIDI = "SUBSIDI",
-  KOMERSIL = "KOMERSIL",
-}

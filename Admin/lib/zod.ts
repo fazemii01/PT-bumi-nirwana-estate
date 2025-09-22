@@ -1,6 +1,11 @@
+import { Property } from "./../types/properties";
 import { object, string, number, array, nativeEnum, literal, tuple, z } from "zod";
-import { PropertyType } from "../types/properties";
 import { description } from "@/components/chart-area-interactive";
+
+export enum PropertyType {
+  SUBSIDI = "SUBSIDI",
+  KOMERSIL = "KOMERSIL",
+}
 
 const emptyToUndef = z
   .string()
@@ -56,7 +61,9 @@ export const PropertyZod = object({
   developerId: string().min(1, "Developer wajib diisi"),
   agentId: string().min(1, "Agent wajib diisi"),
   name: string().min(1, "Nama properti wajib diisi"),
-  type: nativeEnum(PropertyType),
+  type: z.union([z.nativeEnum(PropertyType), z.literal("")]).refine((val) => val !== "", {
+    message: "Tipe properti wajib dipilih",
+  }),
   description: string().optional(),
   detail_description: string().optional(),
   location: object({

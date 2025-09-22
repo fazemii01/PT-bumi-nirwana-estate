@@ -14,14 +14,14 @@ type MediaFormProps = {
   updateImageCaption: (index: number, caption: string) => void;
   removeImage: (index: number) => void;
 
-  handleSingleFloorPlanUpload: (file: File) => void;
-  updateFloorPlanName: (index: number, name: string) => void;
-  removeFloorPlan: (index: number) => void;
+  handleSingleSitePlanUpload: (file: File) => void;
+  updateSitePlanName: (index: number, name: string) => void;
+  removeSitePlan: (index: number) => void;
 
   error?: { [key: string]: string };
 };
 
-export default function MediaForm({ formData, handleSingleImageUpload, updateImageCaption, removeImage, handleSingleFloorPlanUpload, updateFloorPlanName, removeFloorPlan, error = {} }: MediaFormProps) {
+export default function MediaForm({ formData, handleSingleImageUpload, updateImageCaption, removeImage, handleSingleSitePlanUpload, updateSitePlanName, removeSitePlan, error = {} }: MediaFormProps) {
   const [open, setOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
@@ -113,21 +113,21 @@ export default function MediaForm({ formData, handleSingleImageUpload, updateIma
                     accept="image/*,.pdf"
                     onChange={(e) => {
                       if (e.target.files![0]) {
-                        handleSingleFloorPlanUpload(e.target.files![0]);
+                        handleSingleSitePlanUpload(e.target.files![0]);
                         e.target.value = ""; // Reset input
                       }
                     }}
                     className="hidden"
-                    id="floorplan-upload"
+                    id="siteplan-upload"
                   />
-                  <Button type="button" variant="outline" className="cursor-pointer" onClick={() => document.getElementById("floorplan-upload")!.click()}>
+                  <Button type="button" variant="outline" className="cursor-pointer" onClick={() => document.getElementById("siteplan-upload")!.click()}>
                     <Plus className="w-4 h-4 mr-2" />
                     Tambah Denah
                   </Button>
                 </div>
                 {error.property_site_plans && <span className="text-red-500 text-xs">{error.property_site_plans}</span>}
 
-                {/* Floor Plans List - Scrollable Container */}
+                {/* Site Plans List - Scrollable Container */}
                 {formData.site_plans.length > 0 && (
                   <div className="space-y-4">
                     <h4 className="font-medium text-sm text-gray-700">Denah yang diupload ({formData.site_plans.length})</h4>
@@ -147,7 +147,7 @@ export default function MediaForm({ formData, handleSingleImageUpload, updateIma
                               )}
                             </div>
                             <div className="absolute -top-2 -right-2">
-                              <Button type="button" variant="destructive" size="sm" className="h-6 w-6 p-0 rounded-full cursor-pointer" onClick={() => removeFloorPlan(index)}>
+                              <Button type="button" variant="destructive" size="sm" className="h-6 w-6 p-0 rounded-full cursor-pointer" onClick={() => removeSitePlan(index)}>
                                 <Trash2 className="w-3 h-3" />
                               </Button>
                             </div>
@@ -158,7 +158,7 @@ export default function MediaForm({ formData, handleSingleImageUpload, updateIma
                             <div className="text-sm text-gray-600">File: {site.file!.name}</div>
                             <div className="space-y-1">
                               <Label className="text-xs">Nama Denah</Label>
-                              <Input placeholder="Masukkan nama denah (contoh: Lantai 1, Tipe A)" value={site.name} onChange={(e) => updateFloorPlanName(index, e.target.value)} className="text-sm" />
+                              <Input placeholder="Masukkan nama denah (contoh: Lantai 1, Tipe A)" value={site.name} onChange={(e) => updateSitePlanName(index, e.target.value)} className="text-sm" />
                               {error[`site_plans.${index}.name`] && <span className="text-red-500 text-xs">{error[`site_plans.${index}.name`]}</span>}
                             </div>
                             <div className="text-xs text-gray-500">Urutan: {index + 1}</div>

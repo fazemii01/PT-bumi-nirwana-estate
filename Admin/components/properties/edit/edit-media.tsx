@@ -8,46 +8,24 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Upload, Plus, Trash2, Camera } from "lucide-react";
 import PreviewImage from "@/components/preview-image";
-import { SitePlan, ImageProperty } from "@/types/properties";
+import { SitePlan, ImageProperty, Property } from "@/types/properties";
 import { getImageUrl } from "@/service/imageUrl";
 
-export default function EditMediaForm({
-  // media lama
-  originalImages,
-  originalSitePlans,
-  // antrian file baru
-  newImageFiles,
-  setNewImageFiles,
-  newSiteFiles,
-  setNewSiteFiles,
-  // meta untuk file baru (sejajar index file)
-  imagesMeta,
-  setImagesMeta,
-  sitePlansMeta,
-  setSitePlansMeta,
-  // optional error map dari zod/FE
-  error = {},
-  // optional delete per item lama (kalau mau support hapus item tunggal)
-  onDeleteOldImage,
-  onDeleteOldFloorPlan,
-  // opsional untuk resolve path -> URL (misal prepend baseURL)
-  resolveUrl,
-}: {
+type MediaEdit = {
   originalImages?: ImageProperty[];
   originalSitePlans?: SitePlan[];
   newImageFiles: File[];
   setNewImageFiles: React.Dispatch<React.SetStateAction<File[]>>;
+  imagesMeta: { caption?: string }[];
+  setImagesMeta: React.Dispatch<React.SetStateAction<{ caption?: string }[]>>;
   newSiteFiles: File[];
   setNewSiteFiles: React.Dispatch<React.SetStateAction<File[]>>;
-  imagesMeta: Array<{ caption?: string; sort_order?: number }>;
-  setImagesMeta: React.Dispatch<React.SetStateAction<Array<{ caption?: string; sort_order?: number }>>>;
-  sitePlansMeta: Array<{ name?: string; sort_order?: number }>;
-  setSitePlansMeta: React.Dispatch<React.SetStateAction<Array<{ name?: string; sort_order?: number }>>>;
+  sitePlansMeta: { name?: string; sort_order?: number }[];
+  setSitePlansMeta: React.Dispatch<React.SetStateAction<{ name?: string; sort_order?: number }[]>>;
   error?: Record<string, string>;
-  onDeleteOldImage?: (id: string) => Promise<void>;
-  onDeleteOldFloorPlan?: (id: string) => Promise<void>;
-  resolveUrl?: (pathOrUrl?: string) => string;
-}) {
+};
+
+export default function EditMediaForm({ originalImages, originalSitePlans, newImageFiles, setNewImageFiles, imagesMeta, setImagesMeta, newSiteFiles, setNewSiteFiles, sitePlansMeta, setSitePlansMeta, error = {} }: MediaEdit) {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewSrc, setPreviewSrc] = useState<string | null>(null);
   const imgUrl = (path: string) => getImageUrl(path);
@@ -98,11 +76,6 @@ export default function EditMediaForm({
                               )}
                             </div>
                             <div className="text-xs text-muted-foreground truncate">{img.caption ?? "—"}</div>
-                            {onDeleteOldImage && img.id && (
-                              <Button type="button" variant="outline" size="sm" className="w-full" onClick={() => onDeleteOldImage(img.id!)}>
-                                Hapus
-                              </Button>
-                            )}
                           </div>
                         );
                       })}
@@ -123,14 +96,11 @@ export default function EditMediaForm({
                     onChange={(e) => {
                       const files = Array.from(e.target.files ?? []);
                       if (!files.length) return;
+
                       setNewImageFiles((prev) => [...prev, ...files]);
-                      setImagesMeta((prev) => [
-                        ...prev,
-                        ...files.map((_, k) => ({
-                          caption: "",
-                          sort_order: prev.length + k,
-                        })),
-                      ]);
+
+                      setImagesMeta((prev) => [...prev, ...files.map(() => ({ caption: "" }))]);
+
                       e.currentTarget.value = "";
                     }}
                     className="hidden"
@@ -175,7 +145,7 @@ export default function EditMediaForm({
                             {/* Meta */}
                             <div className="flex-1 space-y-2">
                               <div className="text-sm text-gray-600">File: {file.name}</div>
-                              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                              <div className="grid grid-cols-1 gap-3 ">
                                 <div className="space-y-1">
                                   <Label className="text-xs">Caption (Opsional)</Label>
                                   <Input
@@ -187,23 +157,6 @@ export default function EditMediaForm({
                                         next[index] = {
                                           ...(next[index] ?? {}),
                                           caption: e.target.value,
-                                        };
-                                        return next;
-                                      })
-                                    }
-                                  />
-                                </div>
-                                <div className="space-y-1">
-                                  <Label className="text-xs">Urutan (Integer)</Label>
-                                  <Input
-                                    type="number"
-                                    value={imagesMeta[index]?.sort_order ?? index}
-                                    onChange={(e) =>
-                                      setImagesMeta((prev) => {
-                                        const next = [...prev];
-                                        next[index] = {
-                                          ...(next[index] ?? {}),
-                                          sort_order: Number(e.target.value),
                                         };
                                         return next;
                                       })
@@ -258,11 +211,6 @@ export default function EditMediaForm({
                               )}
                             </div>
                             <div className="text-xs text-muted-foreground truncate">{fp.name ?? "—"}</div>
-                            {onDeleteOldFloorPlan && fp.id && (
-                              <Button type="button" variant="outline" size="sm" className="w-full" onClick={() => onDeleteOldFloorPlan(fp.id!)}>
-                                Hapus
-                              </Button>
-                            )}
                           </div>
                         );
                       })}
@@ -283,14 +231,11 @@ export default function EditMediaForm({
                     onChange={(e) => {
                       const files = Array.from(e.target.files ?? []);
                       if (!files.length) return;
+
                       setNewSiteFiles((prev) => [...prev, ...files]);
-                      setSitePlansMeta((prev) => [
-                        ...prev,
-                        ...files.map((_, k) => ({
-                          name: `Site Plan ${prev.length + k + 1}`,
-                          sort_order: prev.length + k,
-                        })),
-                      ]);
+
+                      setSitePlansMeta((prev) => [...prev, ...files.map(() => ({ name: "" }))]);
+
                       e.currentTarget.value = "";
                     }}
                     className="hidden"
@@ -345,12 +290,12 @@ export default function EditMediaForm({
                             {/* Meta */}
                             <div className="flex-1 space-y-2">
                               <div className="text-sm text-gray-600">File: {file.name}</div>
-                              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                              <div className="grid grid-cols-1 gap-3 ">
                                 <div className="space-y-1">
                                   <Label className="text-xs">Nama Denah</Label>
                                   <Input
                                     placeholder="Nama denah (Lantai 1, Tipe A)"
-                                    value={sitePlansMeta[index]?.name ?? `Floor Plan ${index + 1}`}
+                                    value={sitePlansMeta[index]?.name}
                                     onChange={(e) =>
                                       setSitePlansMeta((prev) => {
                                         const next = [...prev];
@@ -362,23 +307,7 @@ export default function EditMediaForm({
                                       })
                                     }
                                   />
-                                </div>
-                                <div className="space-y-1">
-                                  <Label className="text-xs">Urutan (Integer)</Label>
-                                  <Input
-                                    type="number"
-                                    value={sitePlansMeta[index]?.sort_order ?? index}
-                                    onChange={(e) =>
-                                      setSitePlansMeta((prev) => {
-                                        const next = [...prev];
-                                        next[index] = {
-                                          ...(next[index] ?? {}),
-                                          sort_order: Number(e.target.value),
-                                        };
-                                        return next;
-                                      })
-                                    }
-                                  />
+                                  {error[`site_plans.${index}.name`] && <span className="text-red-500 text-xs">{error[`site_plans.${index}.name`]}</span>}
                                 </div>
                               </div>
                             </div>

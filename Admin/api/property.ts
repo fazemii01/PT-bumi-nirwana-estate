@@ -75,11 +75,6 @@ export async function addProperty({ property }: { property: Property }): Promise
 }
 
 export async function updateProperty({ data, originalData }: { data: Property; originalData: Property }): Promise<ApiResponse<Property>> {
-  const newImageFiles = (data.property_images as File[] | undefined)?.filter(Boolean) ?? [];
-  const newSiteFiles = (data.property_site_plans as File[] | undefined)?.filter(Boolean) ?? [];
-  const hasNewImages = newImageFiles.length > 0;
-  const hasNewSite = newSiteFiles.length > 0;
-
   const toGeoJson = (loc?: Property["location"]) => {
     if (!loc?.coordinates) return undefined;
     const [lng, lat] = loc.coordinates as [number, number];
@@ -106,21 +101,34 @@ export async function updateProperty({ data, originalData }: { data: Property; o
     formData.append("address", JSON.stringify(data.address));
   }
 
-  if (hasNewImages) {
-    newImageFiles.forEach((file) => formData.append("property_images", file));
-    (data.images ?? []).forEach((img, idx) => {
-      if (img?.caption != null) formData.append(`images[${idx}][caption]`, String(img.caption ?? ""));
-      if (img?.sort_order != null) formData.append(`images[${idx}][sort_order]`, String(img.sort_order));
+  if (data.property_images) {
+    data.property_images.forEach((file) => {
+      formData.append(`property_images`, file);
+    });
+  }
+  if (data.property_site_plans) {
+    data.property_site_plans.forEach((file) => {
+      formData.append(`property_site_plans`, file);
     });
   }
 
-  if (hasNewSite) {
-    newSiteFiles.forEach((file) => formData.append("property_site_plans", file));
-    (data.site_plans ?? []).forEach((fp, idx) => {
-      formData.append(`site_plans[${idx}][name]`, fp?.name ?? `Site Plan ${idx + 1}`);
-      if (fp?.sort_order != null) formData.append(`site_plans[${idx}][sort_order]`, String(fp.sort_order));
+  if (data.images) {
+    data.images.forEach((image, index) => {
+      formData.append(`images[${index}][caption]`, image.caption);
+      if (image.sort_order !== undefined) {
+        formData.append(`images[${index}][sort_order]`, image.sort_order.toString());
+      }
     });
   }
+  if (data.site_plans) {
+    data.site_plans.forEach((plan, index) => {
+      formData.append(`site_plans[${index}][name]`, plan.name);
+      if (plan.sort_order !== undefined) {
+        formData.append(`site_plans[${index}][sort_order]`, plan.sort_order.toString());
+      }
+    });
+  }
+
   return apiFetch<Property>(`/properties/${data.id}`, {
     method: "PATCH",
     body: formData,

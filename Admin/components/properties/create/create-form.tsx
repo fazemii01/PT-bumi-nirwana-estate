@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Agent } from "@/types/agent";
 import { Developer } from "@/types/developer";
-import { Property, PropertyType } from "@/types/properties";
+import { Property } from "@/types/properties";
 
 import { Camera, Info, MapPin, Settings } from "lucide-react";
 import { PropertyZod } from "@/lib/zod";
@@ -24,7 +24,7 @@ const PropertyCreateForm = ({ agents, developers }: { agents: Agent[]; developer
     developerId: "",
     agentId: "",
     name: "",
-    type: PropertyType.SUBSIDI,
+    type: "",
     description: "",
     detail_description: "",
     location: {
@@ -120,7 +120,7 @@ const PropertyCreateForm = ({ agents, developers }: { agents: Agent[]; developer
   };
 
   // Tambah site plan
-  const handleSingleFloorPlanUpload = (file: File) => {
+  const handleSingleSitePlanUpload = (file: File) => {
     const preview = file.type.startsWith("image/") ? URL.createObjectURL(file) : undefined;
     setFormData((prev) => ({
       ...prev,
@@ -130,7 +130,7 @@ const PropertyCreateForm = ({ agents, developers }: { agents: Agent[]; developer
   };
 
   // Update nama site plan
-  const updateFloorPlanName = (index: number, name: string) => {
+  const updateSitePlanName = (index: number, name: string) => {
     setFormData((prev) => {
       const updated = [...prev.site_plans];
       updated[index].name = name;
@@ -138,8 +138,8 @@ const PropertyCreateForm = ({ agents, developers }: { agents: Agent[]; developer
     });
   };
 
-  // Hapus floor plan
-  const removeFloorPlan = (index: number) => {
+  // Hapus Site plan
+  const removeSitePlan = (index: number) => {
     setFormData((prev) => {
       const updatedPlans = prev.site_plans.filter((_, i) => i !== index);
       const updatedFiles = (prev.property_site_plans || []).filter((_, i) => i !== index);
@@ -222,10 +222,10 @@ const PropertyCreateForm = ({ agents, developers }: { agents: Agent[]; developer
               <MediaForm
                 formData={formData}
                 handleSingleImageUpload={handleSingleImageUpload}
-                handleSingleFloorPlanUpload={handleSingleFloorPlanUpload}
+                handleSingleSitePlanUpload={handleSingleSitePlanUpload}
                 updateImageCaption={updateImageCaption}
-                updateFloorPlanName={updateFloorPlanName}
-                removeFloorPlan={removeFloorPlan}
+                updateSitePlanName={updateSitePlanName}
+                removeSitePlan={removeSitePlan}
                 removeImage={removeImage}
                 error={error}
               />

@@ -113,7 +113,7 @@ const DetailTab = ({ property }: { property: Property }) => {
                         Download
                       </Button>
                     </div>
-                    <img src={imgUrl(`property/property_floor_plans/${sitePlan.file_url!}`)} alt={sitePlan.name} className="w-full h-48 object-cover rounded-lg border" />
+                    <img src={imgUrl(`property/property_site_plans/${sitePlan.file_url!}`)} alt={sitePlan.name} className="w-full h-48 object-cover rounded-lg border" />
                   </div>
                 ))}
               </div>
