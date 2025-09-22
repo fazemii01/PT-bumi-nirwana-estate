@@ -1,5 +1,6 @@
 import { BuildingFloorPlans } from '@/building_property/entities/building_floor_plans.entity';
 import { BuildingImages } from '@/building_property/entities/building_images.entity';
+import { BuildingKprRules } from '@/building_property/entities/building_kpr_rules.entity';
 import { LoanSimulation } from '@/loan_simulations/entities/loan_simulation.entity';
 import { Property } from '@/properties/entities/property.entity';
 import { DeletedAtStatus } from '@/types/deleted_at';
@@ -79,6 +80,12 @@ export class BuildingProperty {
     },
   )
   loan_simulations: LoanSimulation[];
+
+  @OneToMany(() => BuildingKprRules, (rules) => rules.building_property, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
+  building_kpr_rules: BuildingKprRules[];
 
   @OneToMany(() => BuildingImages, (images) => images.building_property, {
     cascade: true,

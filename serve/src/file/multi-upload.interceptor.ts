@@ -10,6 +10,7 @@ export function UseMultipleFileUploadInterceptor(folder: string) {
     property_site_plans: 'property_site_plans',
     building_images: 'building_images',
     building_floor_plans: 'building_floor_plans',
+    building_kpr_rules: 'building_kpr_rules',
     news_images: 'news_images',
   };
 
@@ -21,6 +22,7 @@ export function UseMultipleFileUploadInterceptor(folder: string) {
           { name: 'property_site_plans', maxCount: 10 },
           { name: 'building_images', maxCount: 10 },
           { name: 'building_floor_plans', maxCount: 10 },
+          { name: 'building_kpr_rules', maxCount: 10 },
           { name: 'news_images', maxCount: 10 },
         ],
         {

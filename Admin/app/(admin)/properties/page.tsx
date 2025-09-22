@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { IconPlus } from "@tabler/icons-react";
 import Link from "next/link";
 
-const PER_PAGE = 10; // Define the number of items per page
+const PER_PAGE = 10;
 
 export default async function PropertiesPage({
   searchParams,
@@ -15,7 +15,7 @@ export default async function PropertiesPage({
 }) {
   const params = await searchParams;
   const page = Math.max(1, Number(params.page ?? 1));
-  const { data, total } = await getPropertyPaged(page, PER_PAGE); // Adjust this to fetch paginated data if needed
+  const { data, total } = await getPropertyPaged(page, PER_PAGE);
 
   return (
     <div className="px-4 py-4 space-y-4">
