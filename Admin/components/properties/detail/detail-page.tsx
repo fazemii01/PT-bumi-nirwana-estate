@@ -5,8 +5,10 @@ import BasicInfoDetail from "@/components/properties/detail/basic-info-detail";
 import SidebarInformation from "@/components/properties/detail/sidebar-information";
 import { Property } from "@/types/properties";
 import MediaPlans from "@/components/properties/detail/media-plans";
+import { BuildingProperty } from "@/types/building-properties";
+import PropertyBuilding from "@/components/properties/detail/property-building";
 
-const PropertyDetailView = ({ property }: { property: Property }) => {
+const PropertyDetailView = ({ property, building }: { property: Property; building: BuildingProperty[] }) => {
   return (
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
@@ -37,7 +39,7 @@ const PropertyDetailView = ({ property }: { property: Property }) => {
         </TabsContent>
 
         {/* Buildings Tab */}
-        {/* <PropertyBuilding/> */}
+        <PropertyBuilding buildings={building} nameProperty={property.name} />
 
         {/* Media & Plans Tab */}
         <MediaPlans property={property} />

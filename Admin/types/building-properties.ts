@@ -6,6 +6,7 @@ export type BuildingProperty = {
   name: string;
   land_size: number;
   building_size: number;
+  total_units: string;
   price: number;
   price_unit: PriceUnit;
   specifications?: Specifications;

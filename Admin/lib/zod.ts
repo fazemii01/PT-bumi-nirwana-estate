@@ -8,8 +8,10 @@ import {
   tuple,
   z,
 } from "zod";
-import { description } from "@/components/chart-area-interactive";
-import { BuildingStatus, PriceUnit } from "@/types/building-properties";
+import {
+  BuildingStatus,
+  PriceUnit as BuildingPriceUnit,
+} from "@/types/building-properties";
 
 export enum PropertyType {
   SUBSIDI = "SUBSIDI",
@@ -36,7 +38,6 @@ export const DeveloperSchema = object({
     .url("Please enter a valid URL"),
 });
 
-// Lokasi [lng, lat]
 const LocationZod = z.object({
   type: z.literal("Point"),
   coordinates: z
@@ -193,7 +194,7 @@ export const BuildingPropertyZod = object({
   name: string().min(1, "Nama Bangunan wajib diisi"),
   status: nativeEnum(BuildingStatus),
   price: z.coerce.number().min(0, "Harga wajib diisi"),
-  price_unit: nativeEnum(PriceUnit),
+  price_unit: nativeEnum(BuildingPriceUnit),
   land_size: z.coerce.number().min(0, "Luas tanah wajib diisi"),
   building_size: z.coerce.number().min(0, "Luas bangunan wajib diisi"),
   detail_description: string().optional(),
@@ -201,7 +202,6 @@ export const BuildingPropertyZod = object({
   building_images: array(z.instanceof(File), {
     message: "Gambar bangunan harus berupa file",
   }).optional(),
-
   building_floor_plans: array(z.instanceof(File), {
     message: "Denah bangunan harus berupa file",
   }).optional(),
