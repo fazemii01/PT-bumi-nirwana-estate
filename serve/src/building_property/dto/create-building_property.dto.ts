@@ -24,6 +24,9 @@ export class CreateBuildingPropertyDto {
   name: string;
 
   @IsString()
+  total_units: string;
+
+  @IsString()
   description: string;
 
   @IsEnum(BuildingStatus)

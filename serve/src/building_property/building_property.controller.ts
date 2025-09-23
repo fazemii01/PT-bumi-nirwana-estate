@@ -56,6 +56,12 @@ export class BuildingPropertyController {
     return await this.buildingPropertyService.findOne(id);
   }
 
+  @Public()
+  @Get('property/:id')
+  async findByPropertyId(@Param('id') id: string) {
+    return await this.buildingPropertyService.findByProperty(id);
+  }
+
   @Roles('ADMIN')
   @Patch(':id')
   @UseMultipleFileUploadInterceptor('building_property')

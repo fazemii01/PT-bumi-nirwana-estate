@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import { BuildingFloorPlans } from '@/building_property/entities/building_floor_plans.entity';
 import { BuildingImages } from '@/building_property/entities/building_images.entity';
 import { BuildingKprRules } from '@/building_property/entities/building_kpr_rules.entity';
@@ -41,6 +42,9 @@ export class BuildingProperty {
 
   @Column({ type: 'varchar', length: 255, nullable: false })
   name: string;
+
+  @Column({ type: 'varchar', length: 11, nullable: false })
+  total_units: string;
 
   @Column({
     type: 'enum',

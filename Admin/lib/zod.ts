@@ -192,6 +192,7 @@ export const BuildingPropertyZod = object({
   id: string().optional(),
   propertyId: string().min(1, "Property wajib diisi"),
   name: string().min(1, "Nama Bangunan wajib diisi"),
+  total_units: string().min(1, "Jumlah Units wajib diisi"),
   status: nativeEnum(BuildingStatus),
   price: z.coerce.number().min(0, "Harga wajib diisi"),
   price_unit: nativeEnum(BuildingPriceUnit),

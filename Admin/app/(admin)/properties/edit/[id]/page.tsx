@@ -12,7 +12,7 @@ export default async function EditPropertyPage({ params }: { params: { id: strin
   const [propertyData, agents, developers] = await Promise.all([getPropertyById({ id }), getAgent(), getDeveloper()]);
 
   if (!propertyData) {
-    notFound();
+    return notFound();
   }
 
   return (

@@ -29,6 +29,7 @@ const BuildingCreateForm = ({ property }: { property: Property[] }) => {
     price: 0,
     price_unit: PriceUnit.TOTAL,
     building_size: 0,
+    total_units: "",
     land_size: 0,
     detail_description: "",
     specifications: {},
