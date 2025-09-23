@@ -1,25 +1,5 @@
-<<<<<<< HEAD
-import { Building } from "lucide-react";
-import {
-  object,
-  string,
-  number,
-  array,
-  nativeEnum,
-  literal,
-  tuple,
-  z,
-} from "zod";
-import { PropertyStatus, PriceUnit, PropertyType } from "@/types/properties";
-import {
-  BuildingStatus,
-  PriceUnit as BuildingPriceUnit,
-} from "@/types/building-properties";
-=======
-import { Property } from "./../types/properties";
 import { object, string, number, array, nativeEnum, literal, tuple, z } from "zod";
->>>>>>> e1df5c20eca135f353ceafb68c727aabd073ed98
-import { description } from "@/components/chart-area-interactive";
+import { BuildingStatus, PriceUnit as BuildingPriceUnit } from "@/types/building-properties";
 
 export enum PropertyType {
   SUBSIDI = "SUBSIDI",
@@ -42,7 +22,6 @@ export const DeveloperSchema = object({
   website_url: string().min(1, "Website URL is required").url("Please enter a valid URL"),
 });
 
-// Lokasi [lng, lat]
 const LocationZod = z.object({
   type: z.literal("Point"),
   coordinates: z.tuple([z.number(), z.number()]).refine(([lng, lat]) => typeof lng === "number" && typeof lat === "number" && !isNaN(lng) && !isNaN(lat), { message: "Koordinat lokasi wajib diisi" }),
@@ -114,6 +93,37 @@ export const UpdatePropertyZod = z.object({
   site_plans: z.array(SitePlanZod).optional(),
 });
 
+export const SpecificationsZod = object({
+  bedrooms: number().int().min(0).optional(),
+  bathrooms: number().int().min(0).optional(),
+  family_room: number().int().min(0).optional(),
+  kitchen: number().int().min(0).optional(),
+  landSize: number().min(0).optional(),
+  buildingSize: number().min(0).optional(),
+  garage: number().int().min(0).optional(),
+  floors: number().int().min(0).optional(),
+  structure: string().optional(),
+  floor: string().optional(),
+  walls: string().optional(),
+  roof: string().optional(),
+  doors: string().optional(),
+  windows: string().optional(),
+  electricity: string().optional(),
+  water_source: string().optional(),
+  internet: string().optional(),
+  security: string().optional(),
+  facilities: string().optional(),
+});
+
+export const FloorPlanZod = object({
+  id: string().optional(),
+  name: string().min(1, "Nama wajib diisi"),
+  file_url: string().url().optional(),
+  sort_order: number().int().optional(),
+  file: object({}).optional(),
+  preview: string().optional(),
+});
+
 export const BuildingPropertyZod = object({
   id: string().optional(),
   propertyId: string().min(1, "Property wajib diisi"),
@@ -129,7 +139,6 @@ export const BuildingPropertyZod = object({
   building_images: array(z.instanceof(File), {
     message: "Gambar bangunan harus berupa file",
   }).optional(),
-
   building_floor_plans: array(z.instanceof(File), {
     message: "Denah bangunan harus berupa file",
   }).optional(),
