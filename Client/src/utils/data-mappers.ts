@@ -1,7 +1,6 @@
 import { ICatalogData, IImage, ICatalogTable, ITransVersion } from '../types/data';
 
 export function transformPropertyToCatalogData(property: any): ICatalogData {
-  // Parse address dan specifications dari string JSON
   const parsedAddress: ITransVersion =
     typeof property.address === 'string' ? JSON.parse(property.address) : property.address;
 

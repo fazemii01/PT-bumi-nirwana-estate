@@ -47,7 +47,7 @@ src/cek_eligibility/
 src/fcm/
 src/ollama/
 src/news/
-app.module.ts
+src/app.module.ts
 # temp directory
 .temp
 .tmp

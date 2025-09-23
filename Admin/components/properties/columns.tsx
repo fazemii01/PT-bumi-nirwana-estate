@@ -3,7 +3,9 @@
 import { Property } from "@/types/properties";
 import { ColumnDef } from "@tanstack/react-table";
 import ActionPropertyCell from "@/components/properties/action-cell";
-import { formatCurrency } from "@/lib/utils";
+import { formatAddress, formatCurrency } from "@/lib/utils";
+// This type is used to define the shape of our data.
+// You can use a Zod schema here if you want.
 
 export const columns: ColumnDef<Property>[] = [
   {
@@ -16,17 +18,13 @@ export const columns: ColumnDef<Property>[] = [
     header: "Name",
   },
   {
-    accessorKey: "status",
-    header: "Status",
+    accessorKey: "type",
+    header: "Tipe Properti",
   },
   {
-    accessorKey: "price",
-    header: "Price",
-    cell: ({ row }) => formatCurrency(row.original.price),
-  },
-  {
-    accessorKey: "price_unit",
-    header: "Price Unit",
+    accessorKey: "address",
+    header: "Alamat",
+    cell: ({ row }) => formatAddress(row.original.address),
   },
   {
     id: "actions",

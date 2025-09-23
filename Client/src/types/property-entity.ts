@@ -55,4 +55,15 @@ export interface Property {
   created_at: string;
   updated_at: string;
   type: string;
+  
 }
+// export interface BuildingProperty {
+//   id: string;
+//   name: string;
+//   price: string;
+ 
+//   property: {
+//     id: string; 
+ 
+//   };
+// }

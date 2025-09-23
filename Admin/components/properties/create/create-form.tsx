@@ -4,12 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Agent } from "@/types/agent";
 import { Developer } from "@/types/developer";
-import {
-  PriceUnit,
-  Property,
-  PropertyStatus,
-  PropertyType,
-} from "@/types/properties";
+import { Property } from "@/types/properties";
 
 import { Camera, Info, MapPin, Settings } from "lucide-react";
 import { PropertyZod } from "@/lib/zod";
@@ -17,7 +12,6 @@ import { showToastError, showToastSuccess } from "@/components/toast";
 import BasicInfoForm from "@/components/properties/create/basic-info-form";
 import LocationForm from "@/components/properties/create/location-form";
 import MediaForm from "@/components/properties/create/media-form";
-import SpecificationsForm from "@/components/properties/create/specifications-form";
 
 import { submitCreateProperty } from "@/actions/property";
 
@@ -36,12 +30,7 @@ const PropertyCreateForm = ({
     developerId: "",
     agentId: "",
     name: "",
-    type: PropertyType.HOUSE,
-    status: PropertyStatus.AVAILABLE,
-    price: 0,
-    price_unit: PriceUnit.TOTAL,
-    land_size: 0,
-    building_size: 0,
+    type: "",
     description: "",
     detail_description: "",
     location: {
@@ -49,11 +38,10 @@ const PropertyCreateForm = ({
       coordinates: [0, 0],
     },
     address: {},
-    specifications: {},
     property_images: [],
-    property_floor_plans: [],
+    property_site_plans: [],
     images: [],
-    floor_plans: [],
+    site_plans: [],
   });
 
   const [activeTab, setActiveTab] = useState("basic");
@@ -120,31 +108,6 @@ const PropertyCreateForm = ({
     }));
   };
 
-  const handleSpecificationChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      specifications: {
-        ...prev.specifications,
-        [name]: e.target.type === "number" ? Number(value) : value,
-      },
-    }));
-  };
-
-  const handleTextAreaSpecificationChange = (
-    e: React.ChangeEvent<HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      specifications: {
-        ...prev.specifications,
-        [name]: value,
-      },
-    }));
-  };
   // Tambah gambar property
   const handleSingleImageUpload = (file: File) => {
     const preview = URL.createObjectURL(file);
@@ -175,46 +138,44 @@ const PropertyCreateForm = ({
     });
   };
 
-  // Tambah floor plan
-  const handleSingleFloorPlanUpload = (file: File) => {
+  // Tambah site plan
+  const handleSingleSitePlanUpload = (file: File) => {
     const preview = file.type.startsWith("image/")
       ? URL.createObjectURL(file)
       : undefined;
     setFormData((prev) => ({
       ...prev,
-      floor_plans: [...prev.floor_plans, { file, preview, name: "" }],
-      property_floor_plans: [...(prev.property_floor_plans || []), file],
+      site_plans: [...prev.site_plans, { file, preview, name: "" }],
+      property_site_plans: [...(prev.property_site_plans || []), file],
     }));
   };
 
-  // Update nama floor plan
-  const updateFloorPlanName = (index: number, name: string) => {
+  // Update nama site plan
+  const updateSitePlanName = (index: number, name: string) => {
     setFormData((prev) => {
-      const updated = [...prev.floor_plans];
+      const updated = [...prev.site_plans];
       updated[index].name = name;
-      return { ...prev, floor_plans: updated };
+      return { ...prev, site_plans: updated };
     });
   };
 
-  // Hapus floor plan
-  const removeFloorPlan = (index: number) => {
+  // Hapus Site plan
+  const removeSitePlan = (index: number) => {
     setFormData((prev) => {
-      const updatedPlans = prev.floor_plans.filter((_, i) => i !== index);
-      const updatedFiles = (prev.property_floor_plans || []).filter(
+      const updatedPlans = prev.site_plans.filter((_, i) => i !== index);
+      const updatedFiles = (prev.property_site_plans || []).filter(
         (_, i) => i !== index
       );
       return {
         ...prev,
-        floor_plans: updatedPlans,
-        property_floor_plans: updatedFiles,
+        site_plans: updatedPlans,
+        property_site_plans: updatedFiles,
       };
     });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("handleSubmit terpanggil 🚀");
-    console.log("Data form:", formData);
     const result = PropertyZod.safeParse(formData);
     if (!result.success) {
       const firstError = result.error.errors[0];
@@ -222,10 +183,8 @@ const PropertyCreateForm = ({
       let tab = "basic";
       if (path.includes("location")) {
         tab = "location";
-      } else if (path.includes("images") || path.includes("floor_plans")) {
+      } else if (path.includes("images") || path.includes("site_plans")) {
         tab = "media";
-      } else if (path.includes("specifications")) {
-        tab = "specs";
       }
       setActiveTab(tab);
 
@@ -286,13 +245,6 @@ const PropertyCreateForm = ({
                 <Camera className="w-4 h-4 sm:hidden" />
                 <span className="hidden sm:inline">Media</span>
               </TabsTrigger>
-              <TabsTrigger
-                value="specs"
-                className="flex items-center justify-center py-2 cursor-pointer"
-              >
-                <Settings className="w-4 h-4 sm:hidden" />
-                <span className="hidden sm:inline">Spesifikasi</span>
-              </TabsTrigger>
             </TabsList>
 
             {/* Basic Information Tab */}
@@ -321,23 +273,11 @@ const PropertyCreateForm = ({
               <MediaForm
                 formData={formData}
                 handleSingleImageUpload={handleSingleImageUpload}
-                handleSingleFloorPlanUpload={handleSingleFloorPlanUpload}
+                handleSingleSitePlanUpload={handleSingleSitePlanUpload}
                 updateImageCaption={updateImageCaption}
-                updateFloorPlanName={updateFloorPlanName}
-                removeFloorPlan={removeFloorPlan}
+                updateSitePlanName={updateSitePlanName}
+                removeSitePlan={removeSitePlan}
                 removeImage={removeImage}
-                error={error}
-              />
-            )}
-
-            {/* Specifications Tab */}
-            {activeTab === "specs" && (
-              <SpecificationsForm
-                formData={formData}
-                handleSpecificationChange={handleSpecificationChange}
-                handleTextAreaSpecificationChange={
-                  handleTextAreaSpecificationChange
-                }
                 error={error}
               />
             )}
