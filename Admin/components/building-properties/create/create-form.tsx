@@ -34,8 +34,10 @@ const BuildingCreateForm = ({ property }: { property: Property[] }) => {
     specifications: {},
     images: [],
     floor_plans: [],
+    building_kpr_file: [],
     building_images: [],
     building_floor_plans: [],
+    building_kpr_rules: [],
   });
 
   const [activeTab, setActiveTab] = useState<string>("basic");
@@ -96,7 +98,16 @@ const BuildingCreateForm = ({ property }: { property: Property[] }) => {
     setFormData((prev) => ({
       ...prev,
       images: [...prev.images, { file, preview, caption: "" }],
-      property_images: [...(prev.building_images || []), file],
+      building_images: [...(prev.building_images || []), file],
+    }));
+  };
+
+  const handleSingleKPRUpload = (file: File) => {
+    const preview = URL.createObjectURL(file);
+    setFormData((prev) => ({
+      ...prev,
+      building_kpr_rules: [...prev.building_kpr_rules, { file, preview }],
+      building_kpr_file: [...(prev.building_kpr_file || []), file],
     }));
   };
 
@@ -125,7 +136,7 @@ const BuildingCreateForm = ({ property }: { property: Property[] }) => {
     setFormData((prev) => ({
       ...prev,
       floor_plans: [...prev.floor_plans, { file, preview, name: "" }],
-      property_floor_plans: [...(prev.building_floor_plans || []), file],
+      building_floor_plans: [...(prev.building_floor_plans || []), file],
     }));
   };
 

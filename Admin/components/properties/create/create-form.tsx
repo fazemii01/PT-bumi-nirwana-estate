@@ -145,7 +145,6 @@ const PropertyCreateForm = ({
       },
     }));
   };
-
   // Tambah gambar property
   const handleSingleImageUpload = (file: File) => {
     const preview = URL.createObjectURL(file);

@@ -11,8 +11,10 @@ export type BuildingProperty = {
   specifications?: Specifications;
   building_images?: File[];
   building_floor_plans?: File[];
+  building_kpr_file?: File[];
   images: BuildingImage[];
   floor_plans: BuildingFloorPlans[];
+  building_kpr_rules: BuildingKprRules[];
   detail_description: string;
   status: BuildingStatus;
   created_at?: Date;
@@ -35,6 +37,12 @@ export type BuildingFloorPlans = {
   name: string;
   file_url?: string;
   sort_order?: number;
+  file?: File;
+  preview?: string;
+};
+export type BuildingKprRules = {
+  id?: string;
+  file_url?: string;
   file?: File;
   preview?: string;
 };

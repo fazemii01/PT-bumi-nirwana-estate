@@ -15,10 +15,10 @@ import ConfirmMessage from "@/components/confirm-message";
 import { showToastError, showToastSuccess } from "../toast";
 import { BuildingProperty } from "@/types/building-properties";
 import Link from "next/link";
-import { deleteProperty } from "@/actions/property";
 import { useRouter } from "next/navigation";
+import { deleteBuildingProperty } from "@/actions/building_property";
 
-const ActionPropertyCell = ({
+const ActionBuildingPropertyCell = ({
   buildingProperty,
 }: {
   buildingProperty: BuildingProperty;
@@ -28,7 +28,7 @@ const ActionPropertyCell = ({
   const [open, setOpen] = useState(false);
   const handleDelete = async (id: string) => {
     setIsLoading(true);
-    const res = await deleteProperty({ id: id });
+    const res = await deleteBuildingProperty({ id: id });
     if (!res.success) {
       setIsLoading(false);
       showToastError(res.message || "failed delete data");
@@ -36,7 +36,7 @@ const ActionPropertyCell = ({
     }
     setIsLoading(false);
     setOpen(false);
-    showToastSuccess("Delete property successfull");
+    showToastSuccess("Delete building successfull");
     router.refresh();
   };
 
@@ -87,4 +87,4 @@ const ActionPropertyCell = ({
   );
 };
 
-export default ActionPropertyCell;
+export default ActionBuildingPropertyCell;

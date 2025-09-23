@@ -48,7 +48,6 @@ export async function addBuildingProperty({
   data.append("price_unit", buildingProperty.price_unit);
   data.append("land_size", buildingProperty.land_size.toString());
   data.append("building_size", buildingProperty.building_size.toString());
-  data.append("description", buildingProperty.detail_description);
   data.append("detail_description", buildingProperty.detail_description);
   if (buildingProperty.specifications) {
     data.append(
@@ -66,6 +65,12 @@ export async function addBuildingProperty({
       data.append(`building_floor_plans`, file);
     });
   }
+  // if (buildingProperty.building_kpr_file) {
+  //   buildingProperty.building_kpr_file.forEach((file) => {
+  //     data.append(`building_kpr_file`, file);
+  //   });
+  // }
+
   if (buildingProperty.images) {
     buildingProperty.images.forEach((image, index) => {
       data.append(`images[${index}][caption]`, image.caption);
@@ -88,9 +93,28 @@ export async function addBuildingProperty({
       }
     });
   }
+  // if (buildingProperty.building_kpr_rules) {
+  //   buildingProperty.building_kpr_rules.forEach((plan, index) => {
+  //     data.append(`building_kpr_rules[${index}][name]`, plan.name);
+  //     if (plan.sort_order !== undefined) {
+  //       data.append(
+  //         `building_kpr_rules[${index}][sort_order]`,
+  //         plan.sort_order.toString()
+  //       );
+  //     }
+  //   });
+  // }
 
   return apiFetch<BuildingProperty>("/building-property", {
     method: "POST",
     body: data,
+  });
+}
+
+export async function deleteBuildingPropertyById(
+  id: string
+): Promise<ApiResponse<BuildingProperty | null>> {
+  return await apiFetch<BuildingProperty | null>(`/building-property/${id}`, {
+    method: "DELETE",
   });
 }

@@ -2,6 +2,7 @@
 
 import {
   addBuildingProperty,
+  deleteBuildingPropertyById,
   getBuildingPropertyById,
 } from "@/api/building_property";
 import { BuildingProperty } from "@/types/building-properties";
@@ -38,6 +39,22 @@ export async function submitCreateBuildingProperty({
       return {
         success: false,
         message: res.error || "Gagal menambahkan Building property.",
+      };
+    }
+  } catch (error) {
+    return { success: false, message: "Terjadi error pada server." };
+  }
+}
+
+export async function deleteBuildingProperty({ id }: { id: string }) {
+  try {
+    const res = await deleteBuildingPropertyById(id);
+    if (res.success) {
+      return { success: true, message: "Building Property berhasil dihapus!" };
+    } else {
+      return {
+        success: false,
+        message: res.error || "Gagal menghapus Building Property.",
       };
     }
   } catch (error) {
