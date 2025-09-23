@@ -1,10 +1,14 @@
 {
   "app": {
-<<<<<<< HEAD
-    "[project]/app/(admin)/building-properties/page": [
-=======
     "[project]/app/(admin)/agent/page": [
->>>>>>> e1df5c20eca135f353ceafb68c727aabd073ed98
+      "static/media/b0a57561b6cb5495-s.p.1a6fa3e1.woff2",
+      "static/media/8ee3a1ba4ed5baee-s.p.be19f591.woff2"
+    ],
+    "[project]/app/(admin)/building-properties/create/page": [
+      "static/media/b0a57561b6cb5495-s.p.1a6fa3e1.woff2",
+      "static/media/8ee3a1ba4ed5baee-s.p.be19f591.woff2"
+    ],
+    "[project]/app/(admin)/building-properties/page": [
       "static/media/b0a57561b6cb5495-s.p.1a6fa3e1.woff2",
       "static/media/8ee3a1ba4ed5baee-s.p.be19f591.woff2"
     ],
@@ -12,27 +16,15 @@
       "static/media/b0a57561b6cb5495-s.p.1a6fa3e1.woff2",
       "static/media/8ee3a1ba4ed5baee-s.p.be19f591.woff2"
     ],
-<<<<<<< HEAD
-    "[project]/app/(admin)/properties/edit/[id]/page": [
-=======
     "[project]/app/(admin)/developer/page": [
       "static/media/b0a57561b6cb5495-s.p.1a6fa3e1.woff2",
       "static/media/8ee3a1ba4ed5baee-s.p.be19f591.woff2"
     ],
-    "[project]/app/(admin)/properties/create/page": [
->>>>>>> e1df5c20eca135f353ceafb68c727aabd073ed98
-      "static/media/b0a57561b6cb5495-s.p.1a6fa3e1.woff2",
-      "static/media/8ee3a1ba4ed5baee-s.p.be19f591.woff2"
-    ],
-    "[project]/app/(admin)/properties/detail/[id]/page": [
-      "static/media/b0a57561b6cb5495-s.p.1a6fa3e1.woff2",
-      "static/media/8ee3a1ba4ed5baee-s.p.be19f591.woff2"
-    ],
-    "[project]/app/(admin)/properties/edit/[id]/page": [
-      "static/media/b0a57561b6cb5495-s.p.1a6fa3e1.woff2",
-      "static/media/8ee3a1ba4ed5baee-s.p.be19f591.woff2"
-    ],
     "[project]/app/(admin)/properties/page": [
+      "static/media/b0a57561b6cb5495-s.p.1a6fa3e1.woff2",
+      "static/media/8ee3a1ba4ed5baee-s.p.be19f591.woff2"
+    ],
+    "[project]/app/(auth)/login/page": [
       "static/media/b0a57561b6cb5495-s.p.1a6fa3e1.woff2",
       "static/media/8ee3a1ba4ed5baee-s.p.be19f591.woff2"
     ],
