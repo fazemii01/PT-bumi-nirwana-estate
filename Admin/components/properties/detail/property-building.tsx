@@ -3,8 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { TabsContent } from "@/components/ui/tabs";
+import { formatCurrency } from "@/lib/utils";
 import { BuildingProperty, BuildingStatus } from "@/types/building-properties";
 import { Edit, Eye, Plus, Trash2 } from "lucide-react";
+import Link from "next/link";
 import React from "react";
 
 const PropertyBuilding = ({ buildings, nameProperty }: { buildings: BuildingProperty[]; nameProperty: string }) => {
@@ -30,10 +32,12 @@ const PropertyBuilding = ({ buildings, nameProperty }: { buildings: BuildingProp
             <CardTitle>Bangunan Properti {nameProperty}</CardTitle>
             <CardDescription>Kelola bangunan dalam pengembangan properti ini</CardDescription>
           </div>
-          <Button>
-            <Plus className="w-4 h-4 mr-2" />
-            Tambah Bangunan
-          </Button>
+          <Link href="/properties/building-properties/create">
+            <Button className="cursor-pointer">
+              <Plus className="w-4 h-4 mr-2" />
+              Tambah Bangunan
+            </Button>
+          </Link>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -53,7 +57,7 @@ const PropertyBuilding = ({ buildings, nameProperty }: { buildings: BuildingProp
                     <div className="grid grid-cols-2 gap-3 text-sm">
                       <div>
                         <span className="text-gray-500">Luas Bangunan</span>
-                        <p className="font-medium">{building.building_size}</p>
+                        <p className="font-medium">{building.building_size ?? 0} m²</p>
                       </div>
                       <div>
                         <span className="text-gray-500">Tingkat Lantai</span>
@@ -61,13 +65,11 @@ const PropertyBuilding = ({ buildings, nameProperty }: { buildings: BuildingProp
                       </div>
                       <div>
                         <span className="text-gray-500">Units</span>
-                        <p className="font-medium">{building.total_units}</p>
+                        <p className="font-medium">{building.total_units ?? "_"}</p>
                       </div>
                       <div>
                         <span className="text-gray-500">Harga</span>
-                        <p className="font-medium">
-                          {building.price} / {building.price_unit}
-                        </p>
+                        <p className="font-medium">{formatCurrency(building.price) ?? "_"}</p>
                       </div>
                     </div>
 
