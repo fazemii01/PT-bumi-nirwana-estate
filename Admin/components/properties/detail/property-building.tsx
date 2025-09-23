@@ -25,8 +25,8 @@ const PropertyBuilding = ({ buildings, nameProperty }: { buildings: BuildingProp
   return (
     <TabsContent value="buildings">
       <Card>
-        <CardHeader className="flex flex-row  justify-between">
-          <div>
+        <CardHeader className="flex flex-row justify-between">
+          <div className="space-y-1.5">
             <CardTitle>Bangunan Properti {nameProperty}</CardTitle>
             <CardDescription>Kelola bangunan dalam pengembangan properti ini</CardDescription>
           </div>
@@ -36,57 +36,72 @@ const PropertyBuilding = ({ buildings, nameProperty }: { buildings: BuildingProp
           </Button>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {buildings.map((building) => (
-              <Card key={building.id} className="relative">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <CardTitle className="text-lg">{building.name}</CardTitle>
-                    <Badge className={getStatusColor(building.status)} variant="secondary">
-                      {building.status}
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div>
-                      <span className="text-gray-500">Luas Bangunan:</span>
-                      <p className="font-medium">{building.building_size}</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {buildings.length ? (
+              buildings.map((building) => (
+                <Card key={building.id} className="relative rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-100">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between">
+                      <CardTitle className="text-lg font-semibold">{building.name}</CardTitle>
+                      <Badge className={`${getStatusColor(building.status)} rounded-full px-3 py-1 text-xs font-medium`} variant="secondary">
+                        {building.status}
+                      </Badge>
                     </div>
-                    <div>
-                      <span className="text-gray-500">Tingkat Lantai:</span>
-                      <p className="font-medium">{building.specifications?.floors ?? "_"}</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">Units:</span>
-                      <p className="font-medium">{building.total_units}</p>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">Harga:</span>
-                      <p className="font-medium">
-                        {building.price} / {building.price_unit}
-                      </p>
-                    </div>
-                  </div>
+                  </CardHeader>
 
-                  <Separator />
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <span className="text-gray-500">Luas Bangunan</span>
+                        <p className="font-medium">{building.building_size}</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Tingkat Lantai</span>
+                        <p className="font-medium">{building.specifications?.floors ?? "_"}</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Units</span>
+                        <p className="font-medium">{building.total_units}</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Harga</span>
+                        <p className="font-medium">
+                          {building.price} / {building.price_unit}
+                        </p>
+                      </div>
+                    </div>
 
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" className="flex-1">
-                      <Edit className="w-3 h-3 mr-2" />
-                      Edit
-                    </Button>
-                    <Button variant="outline" size="sm" className="flex-1">
-                      <Eye className="w-3 h-3 mr-2" />
-                      View
-                    </Button>
-                    <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700">
-                      <Trash2 className="w-3 h-3" />
-                    </Button>
+                    <Separator className="my-2" />
+
+                    <div className="flex items-center gap-2">
+                      <Button variant="outline" size="sm" className="flex-1 rounded-lg hover:bg-gray-50">
+                        <Edit className="w-4 h-4 mr-2" />
+                        Edit
+                      </Button>
+                      <Button variant="outline" size="sm" className="flex-1 rounded-lg hover:bg-gray-50">
+                        <Eye className="w-4 h-4 mr-2" />
+                        View
+                      </Button>
+                      <Button variant="ghost" size="sm" className="p-2 rounded-lg text-red-600 hover:bg-red-50 hover:text-red-700">
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <Card className="col-span-full text-center py-12 rounded-2xl border border-dashed border-gray-300 shadow-sm">
+                <CardContent className="flex flex-col items-center space-y-3">
+                  <div className="p-4 bg-gray-100 rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7l9 6 9-6M4 21h16" />
+                    </svg>
                   </div>
+                  <h3 className="text-lg font-semibold text-gray-700">Belum ada bangunan</h3>
+                  <p className="text-gray-500 text-sm">Tambahkan bangunan baru untuk properti ini</p>
                 </CardContent>
               </Card>
-            ))}
+            )}
           </div>
         </CardContent>
       </Card>
