@@ -16,6 +16,8 @@ import { Roles } from '@/auths/role.decorator';
 import { Property } from '@/properties/entities/property.entity';
 import { Public } from '@/auths/public.decorator';
 import * as fs from 'fs';
+import { CreatePropertyImageDto } from '@/properties/dto/create-property-image.dto';
+import { PropertyImage } from '@/properties/entities/property_images.entity';
 
 @Controller('properties')
 export class PropertiesController {
@@ -52,6 +54,36 @@ export class PropertiesController {
       for (const site_file of property_site_plans) {
         try {
           await fs.promises.unlink(site_file.path);
+        } catch (error) {
+          console.log(error);
+        }
+      }
+      throw error;
+    }
+  }
+
+  @Roles('ADMIN')
+  @Post('create-images/:id')
+  @UseMultipleFileUploadInterceptor('property')
+  async createImagesProperty(
+    @Param('id') id: string,
+    @Body() createPropertyImageDto: CreatePropertyImageDto[],
+    @UploadedFiles()
+    files: {
+      property_images?: Express.Multer.File[];
+    },
+  ): Promise<PropertyImage[]> {
+    const property_images = files.property_images || [];
+    try {
+      return await this.propertiesService.createImageProperty(
+        id,
+        property_images,
+        createPropertyImageDto,
+      );
+    } catch (error) {
+      for (const images_file of property_images) {
+        try {
+          await fs.promises.unlink(images_file.path);
         } catch (error) {
           console.log(error);
         }

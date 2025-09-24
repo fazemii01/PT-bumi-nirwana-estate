@@ -221,3 +221,7 @@ export const NewsZodUpdate = z.object({
     })
     .min(1, "Kategori berita wajib dipilih"),
 });
+
+export const CreateImagesPropertyZod = z.object({
+  property_images: array(object({})).min(1, "Minimal 1 gambar property wajib diupload"),
+});

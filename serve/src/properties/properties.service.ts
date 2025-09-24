@@ -18,6 +18,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { DeletedAtStatus, nowUtc } from '@/types/deleted_at';
 import { PropertySitePlan } from '@/properties/entities/property_site_plans.entity';
+import { CreatePropertyImageDto } from '@/properties/dto/create-property-image.dto';
 
 @Injectable()
 export class PropertiesService {
@@ -149,6 +150,36 @@ export class PropertiesService {
         description: `error yang terjadi ${error}`,
       });
     }
+  }
+
+  async createImageProperty(
+    propertyId: string,
+    property_images: Express.Multer.File[],
+    images: CreatePropertyImageDto[],
+  ): Promise<PropertyImage[]> {
+    const property = await this.propertyRepository.findOne({
+      where: { id: propertyId },
+      relations: ['developer', 'agent', 'images', 'site_plans'],
+    });
+
+    if (!property) {
+      throw new NotFoundException(`Property not found`);
+    }
+
+    const imageEntities = property_images.map((file, index) => {
+      const metadata = images?.[index] ?? {};
+
+      return this.propertyImageRepository.create({
+        image_url: file.filename,
+        caption: metadata.caption || '',
+        sort_order: metadata.sort_order ?? index,
+        property: property,
+      });
+    });
+
+    const savedImages = await this.propertyImageRepository.save(imageEntities);
+
+    return savedImages;
   }
 
   async findAll(): Promise<Property[]> {

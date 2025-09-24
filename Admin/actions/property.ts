@@ -1,7 +1,7 @@
 "use server";
 
-import { addProperty, deletePropertyById, getPropertyById, updateProperty } from "@/api/property";
-import { Property } from "@/types/properties";
+import { addImages, addProperty, deletePropertyById, getPropertyById, updateProperty } from "@/api/property";
+import { CreateImageProperty, ImageProperty, Property } from "@/types/properties";
 
 export async function getById({ id }: { id: string }) {
   try {
@@ -19,6 +19,18 @@ export async function getById({ id }: { id: string }) {
 export async function submitCreateProperty({ property }: { property: Property }) {
   try {
     const res = await addProperty({ property });
+    if (res.success) {
+      return { success: true, message: "Property berhasil ditambahkan!" };
+    } else {
+      return { success: false, message: res.error || "Gagal menambahkan property." };
+    }
+  } catch (error) {
+    return { success: false, message: "Terjadi error pada server." };
+  }
+}
+export async function submitCreateImages({ images, propertyId }: { images: CreateImageProperty; propertyId: string }) {
+  try {
+    const res = await addImages({ images, propertyId });
     if (res.success) {
       return { success: true, message: "Property berhasil ditambahkan!" };
     } else {

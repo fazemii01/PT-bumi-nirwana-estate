@@ -1,4 +1,5 @@
 import PreviewImage from "@/components/preview-image";
+import CreateImagedModal from "@/components/properties/create-in-detail/create-images-modal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -10,12 +11,17 @@ import { useState } from "react";
 
 const MediaPlans = ({ property }: { property: Property }) => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [show, setShow] = useState(false);
   const [open, setOpen] = useState(false);
   const handleImagePreview = (imageUrl: string) => {
     setSelectedImage(imageUrl);
-    setOpen(true);
+    setShow(true);
   };
   const imgUrl = (path: string) => getImageUrl(path);
+
+  const handleModalOpen = () => {
+    setOpen(true);
+  };
 
   return (
     <>
@@ -31,7 +37,7 @@ const MediaPlans = ({ property }: { property: Property }) => {
                 </CardTitle>
                 <CardDescription>{property.images.length} images uploaded</CardDescription>
               </div>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={() => handleModalOpen()}>
                 <Plus className="w-4 h-4 mr-2" />
                 Add Image
               </Button>
@@ -96,7 +102,8 @@ const MediaPlans = ({ property }: { property: Property }) => {
           </Card>
         </div>
       </TabsContent>
-      <PreviewImage open={open} setOpen={setOpen} image={selectedImage} />
+      <CreateImagedModal open={open} setOpen={setOpen} propertyId={property.id} name={property.name} />
+      <PreviewImage open={show} setOpen={setShow} image={selectedImage} />
     </>
   );
 };

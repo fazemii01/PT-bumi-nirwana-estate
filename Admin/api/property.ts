@@ -1,7 +1,7 @@
 "use server";
 import { apiFetch } from "@/service/api";
 import { ApiResponse } from "@/types/api-response";
-import { Property } from "@/types/properties";
+import { CreateImageProperty, ImageProperty, Property } from "@/types/properties";
 
 export async function getProperties(): Promise<ApiResponse<Property[]>> {
   return apiFetch<Property[]>("/properties", {
@@ -71,6 +71,28 @@ export async function addProperty({ property }: { property: Property }): Promise
   return apiFetch<Property>("/properties", {
     method: "POST",
     body: data,
+  });
+}
+
+export async function addImages({ images, propertyId }: { images: CreateImageProperty; propertyId: string }): Promise<ApiResponse<CreateImageProperty>> {
+  const formData = new FormData();
+  if (images.property_images) {
+    images.property_images.forEach((file) => {
+      formData.append(`property_images`, file);
+    });
+  }
+  if (images.images) {
+    images.images.forEach((image, index) => {
+      formData.append(`images[${index}][caption]`, image.caption);
+      if (image.sort_order !== undefined) {
+        formData.append(`images[${index}][sort_order]`, image.sort_order.toString());
+      }
+    });
+  }
+
+  return apiFetch<CreateImageProperty>(`/properties/create-images/${propertyId}`, {
+    method: "POST",
+    body: formData,
   });
 }
 
