@@ -7,6 +7,7 @@ import { NewsCategory } from '@/news_category/entities/news_category.entity';
 import { Property } from '@/properties/entities/property.entity';
 import { NewsImages } from '@/news/entities/news_images.entity';
 import { DeviceToken } from '@/device-token/entities/device-token.entity';
+import { FcmModule } from '@/fcm/fcm.module';
 
 @Module({
   imports: [

@@ -94,13 +94,13 @@ export class NewsService {
     //   const allTokens = await this.tokenRepository.find();
     //   const tokenStrings = allTokens.map((t) => t.token);
 
-    //   this.fcmService.sendNotification(
-    //     tokenStrings,
-    //     saveNews.title,
-    //     `Kategori: ${newsCategory.name}. Ketuk untuk membaca.`,
-    //     { newsId: saveNews.id },
-    //   );
-    // }
+      this.fcmService.sendNotification(
+        tokenStrings,
+        saveNews.title,
+        `Kategori: ${newsCategory.name}. Ketuk untuk membaca.`,
+        { newsId: saveNews.id },
+      );
+    }
 
     return saveNews;
   }
