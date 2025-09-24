@@ -53,7 +53,7 @@ const useDataFetching = () => {
 
     const fetchOptions = {
       signal,
-      cache: 'no-store' as RequestCache 
+      cache: 'no-store' as RequestCache
     };
 
     const fetchParentProperties = fetch(`${BACKEND_LOCALHOST}/properties`, fetchOptions).then((res) => res.json());
@@ -77,6 +77,10 @@ const useDataFetching = () => {
             ...parentData,
             ...unit,
             id: unit.id,
+            images: [
+              ...(parentData?.images || []), 
+              ...(unit.images || []),       
+            ],
           };
         });
 
@@ -95,7 +99,9 @@ const useDataFetching = () => {
 
   const sortData = (data: Property[]) => {
     const result = data.map((property: Property) => {
-      const address = typeof property.address === 'string' ? JSON.parse(property.address) : property.address || {};
+      const address = typeof property.address === 'string'
+        ? JSON.parse(property.address)
+        : property.address || {};
       const specifications = typeof property.specifications === 'string' ? JSON.parse(property.specifications) : property.specifications || {};
 
       const location: ITransVersion = {

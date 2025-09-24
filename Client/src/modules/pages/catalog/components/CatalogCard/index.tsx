@@ -77,6 +77,7 @@ const CatalogCard: FC<{
 						src={`${BACKEND_LOCALHOST}/uploads/property/property_images/${mainImage.image_url}`}
 						alt={mainImage.caption || `Image of ${name}`}
 					/>
+					
 				) : (
 					<DefaultPoster className={s.image} />
 				)}
@@ -94,10 +95,10 @@ const CatalogCard: FC<{
 					<address className={s.address}>{`${description}, ${fullAddress}, ${itemCity}`}</address>
 					<ul className={s.description}>
 
-						<li>
+						{/* <li>
 							{currencyRate &&
 								formatToPrefixAndPrice(i18n.language, price, currencyRate)}
-						</li>
+						</li> */}
 						{land_size && (
 							<li title={tCatalog('TABLE.TOTALAREA')}>
 								<IconRuler />
