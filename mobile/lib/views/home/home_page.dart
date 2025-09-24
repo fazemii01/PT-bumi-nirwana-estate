@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:mobile_nirwana/core/routes/app_routes.dart';
 import 'package:mobile_nirwana/core/utils/api.dart';
 import 'package:mobile_nirwana/data/models/news/news.dart';
@@ -60,6 +61,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    const Color primaryYellow = Color(0xFFDBB837);
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: _buildAppBar(),
@@ -154,9 +156,7 @@ class _HomePageState extends State<HomePage> {
             color: Colors.grey[50],
           ),
           child: IconButton(
-            onPressed: () {
-              // Handle notification tap
-            },
+            onPressed: () {},
             icon: Stack(
               children: [
                 Icon(
@@ -237,7 +237,7 @@ class _HomePageState extends State<HomePage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Properti Rekomendasi',
+                            'Properti Terbaru',
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -484,7 +484,7 @@ class _HomePageState extends State<HomePage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Properti Rekomendasi',
+              'Properti Terbaru',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -495,6 +495,9 @@ class _HomePageState extends State<HomePage> {
               onPressed: () {
                 _layoutController.changeTabIndex(1);
               },
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFFDBB837),
+              ),
               child: Text(
                 'Lihat Semua',
                 style: TextStyle(
@@ -518,7 +521,10 @@ class _HomePageState extends State<HomePage> {
               final property = _homeController.properties[index];
               return GestureDetector(
                 onTap: () {
-                  Get.toNamed(Routes.DETAIL_PROPERTIES, arguments: property.id);
+                  Get.toNamed(
+                    Routes.DETAIL_PROPERTIES,
+                    arguments: property,
+                  );
                 },
                 child: _buildPropertyCard(property),
               );
@@ -583,7 +589,6 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-              // fav
               FavoriteIcon(
                 propertyId: property.id,
                 isLoggedIn: _layoutController.isLoggedIn.value,
@@ -714,7 +719,12 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             TextButton(
-              onPressed: () {},
+              onPressed: () {
+                Get.toNamed(Routes.NEWS);
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFFDBB837),
+              ),
               child: Text(
                 'Lihat Semua',
                 style: TextStyle(
@@ -737,7 +747,7 @@ class _HomePageState extends State<HomePage> {
             final news = _homeController.news[index];
             return GestureDetector(
               onTap: () {
-                Get.toNamed(Routes.DETAIL_NEWS, arguments: news.id);
+                Get.toNamed(Routes.DETAIL_NEWS, arguments: news);
               },
               child: _buildNewsCard(news),
             );
@@ -748,72 +758,111 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildNewsCard(News news) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey[200]!),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 100,
-            height: 100,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.network(
-                Imgurl.get('news/news_images/${_getNewsImage(news)}'),
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      color: Colors.grey[200],
-                    ),
-                    child: Center(
-                      child: Icon(
-                        Icons.article_outlined,
-                        size: 40,
-                        color: Colors.grey[400],
+    final primaryColor = Color(0xFFDBB837);
+
+    return GestureDetector(
+      onTap: () {
+        Get.toNamed(Routes.DETAIL_NEWS, arguments: news);
+      },
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.grey[200]!),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 100,
+              height: 100,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.network(
+                  Imgurl.get('news/news_images/${_getNewsImage(news)}'),
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        color: Colors.grey[200],
                       ),
-                    ),
-                  );
-                },
+                      child: Center(
+                        child: Icon(
+                          Icons.article_outlined,
+                          size: 40,
+                          color: Colors.grey[400],
+                        ),
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
-          ),
-          SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  news.title,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+            const SizedBox(width: 16),
+            // Teks di Kanan
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // FIX: Chip Kategori ditambahkan di sini
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: primaryColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      news.newsCategory.name,
+                      style: TextStyle(
+                        color: primaryColor, // Warna teks kuning
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                SizedBox(height: 8),
-                Text(
-                  news.description,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                    height: 1.4,
+                  const SizedBox(height: 8), // Jarak antara chip dan judul
+
+                  Text(
+                    news.title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+                  SizedBox(height: 8),
+
+                  Text(
+                    news.description,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                      height: 1.4,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+
+                  SizedBox(height: 8),
+
+                  Text(
+                    DateFormat('d MMMM yyyy').format(news.createdAt),
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

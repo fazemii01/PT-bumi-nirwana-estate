@@ -55,13 +55,20 @@ export class NewsController {
     return this.newsService.findOne(id);
   }
 
-  @Get('/category/:categoryId')
+  @Get('category/:categoryName')
   @Public()
-  async findOneBySlug(
-    @Param('categoryId') categoryId: string,
+  async findAllByCategory(
+    @Param('categoryName') categoryName: string,
   ): Promise<News[]> {
-    return await this.newsService.findOneByCatgoryId(categoryId);
+    return await this.newsService.findAllByCategory(categoryName);
   }
+  // @Get('/category/:categoryId')
+  // @Public()
+  // async findOneBySlug(
+  //   @Param('categoryId') categoryId: string,
+  // ): Promise<News[]> {
+  //   return await this.newsService.findOneByCatgoryId(categoryId);
+  // }
 
   @Patch(':id')
   @Roles('ADMIN')

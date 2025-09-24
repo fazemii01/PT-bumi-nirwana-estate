@@ -88,18 +88,18 @@ export class NewsService {
       await this.newsImagesRepository.save(images);
     }
 
-    if (saveNews) {
-      console.log('Berita berhasil disimpan, mengirim notifikasi...');
+    // if (saveNews) {
+    //   console.log('Berita berhasil disimpan, mengirim notifikasi...');
 
-      const allTokens = await this.tokenRepository.find();
-      const tokenStrings = allTokens.map((t) => t.token);
+    //   const allTokens = await this.tokenRepository.find();
+    //   const tokenStrings = allTokens.map((t) => t.token);
 
-      // this.fcmService.sendNotification(
-      //   tokenStrings,
-      //   saveNews.title,
-      //   `Kategori: ${newsCategory.name}. Ketuk untuk membaca.`,
-      //   { newsId: saveNews.id },
-      // );
+      this.fcmService.sendNotification(
+        tokenStrings,
+        saveNews.title,
+        `Kategori: ${newsCategory.name}. Ketuk untuk membaca.`,
+        { newsId: saveNews.id },
+      );
     }
 
     return saveNews;
@@ -113,6 +113,8 @@ export class NewsService {
         'property',
         'property.images',
         'property.floor_plans',
+        'property.developer',
+        'property.agent',
       ],
     });
   }
@@ -126,24 +128,40 @@ export class NewsService {
         'property',
         'property.images',
         'property.floor_plans',
+        'property.developer',
+        'property.agent',
       ],
     });
   }
 
-  async findOneByCatgoryId(categoryId: string): Promise<News[]> {
-    const news = await this.newsRepository.find({
-      where: { newsCategory: { id: categoryId } },
-      relations: [
-        'newsCategory',
-        'newsImages',
-        'property',
-        'property.images',
-        'property.floor_plans',
-      ],
+  async findAllByCategory(categoryName: string): Promise<News[]> {
+    const category = await this.newsCategoryRepository.findOneBy({
+      name: categoryName,
     });
 
+    if (!category) {
+      return [];
+    }
+
+    const news = await this.newsRepository.find({
+      where: { newsCategory: { id: category.id } },
+    });
     return news;
   }
+  // async findOneByCatgoryId(categoryId: string): Promise<News[]> {
+  //   const news = await this.newsRepository.find({
+  //     where: { newsCategory: { id: categoryId } },
+  //     relations: [
+  //       'newsCategory',
+  //       'newsImages',
+  //       'property',
+  //       'property.images',
+  //       'property.floor_plans',
+  //     ],
+  //   });
+
+  //   return news;
+  // }
 
   async update(
     id: string,

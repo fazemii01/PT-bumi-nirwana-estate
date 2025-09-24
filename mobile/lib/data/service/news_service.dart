@@ -3,6 +3,8 @@ import 'package:mobile_nirwana/data/models/news/news.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:mobile_nirwana/data/models/news/news_category.dart';
+
 class NewsService extends Api {
   Future<List<News>> getAllNews() async {
     try {
@@ -41,20 +43,38 @@ class NewsService extends Api {
     }
   }
 
-  Future<News?> getLatestNewsInfo() async {
+  Future<List<NewsCategory>> getAllNewsCategories() async {
     try {
-      final res = await http.get(Uri.parse('$baseUrl/news/latest'));
+      final uri = Uri.parse('$baseUrl/news-category');
+      final response = await http.get(uri);
 
-      if (res.statusCode == 200) {
-        return News.fromJson(jsonDecode(res.body));
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data.map((json) => NewsCategory.fromJson(json)).toList();
       } else {
-        print(
-            'Failed to load latest news info. Status code : ${res.statusCode}');
-        return null;
+        throw Exception('Gagal memuat kategori berita');
       }
     } catch (e) {
-      print('Error fetching latest news info: $e');
-      return null;
+      print('Error di getAllNewsCategories: $e');
+      throw Exception('Terjadi kesalahan: $e');
+    }
+  }
+
+  Future<List<News>> getNewsByCategory(String categoryName) async {
+    try {
+      final String encodedCategory = Uri.encodeComponent(categoryName);
+      final uri = Uri.parse('$baseUrl/news/category/$encodedCategory');
+      final response = await http.get(uri);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data.map((json) => News.fromJson(json)).toList();
+      } else {
+        throw Exception('Gagal memuat berita berdasarkan kategori');
+      }
+    } catch (e) {
+      print('Error di getNewsByCategory: $e');
+      throw Exception('Terjadi kesalahan: $e');
     }
   }
 }

@@ -6,6 +6,9 @@ import 'package:mobile_nirwana/core/routes/app_routes.dart';
 import 'package:mobile_nirwana/core/utils/api.dart';
 import 'package:mobile_nirwana/data/models/property/property.dart';
 import 'package:mobile_nirwana/helper/address.dart';
+import 'package:mobile_nirwana/helper/price.dart';
+import 'package:mobile_nirwana/views/properties/detail/widget/property_favorite_user_detail.dart';
+import 'package:mobile_nirwana/views/layout_controller.dart';
 import 'package:mobile_nirwana/views/properties/properties_controller.dart';
 import 'package:mobile_nirwana/widgets/skeleton_property_card.dart';
 
@@ -22,6 +25,7 @@ class _PropertyCatalogPageState extends State<PropertiesPage> {
       Get.put(PropertiesController());
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  final LayoutController _layoutController = Get.put(LayoutController());
 
   // State Management
   String _selectedFilter = 'All';
@@ -75,19 +79,6 @@ class _PropertyCatalogPageState extends State<PropertiesPage> {
     super.dispose();
   }
 
-  String _formatPrice(double price) {
-    if (price >= 1000000000) {
-      return 'Rp ${(price / 1000000000).toStringAsFixed(1)}M';
-    }
-    if (price >= 1000000) {
-      return 'Rp ${(price / 1000000).toStringAsFixed(1)}JT';
-    }
-    if (price >= 1000) {
-      return 'Rp ${(price / 1000).toStringAsFixed(0)}RB';
-    }
-    return 'Rp ${price.toStringAsFixed(0)}';
-  }
-
   String? _getPropertyImage(Property property) {
     if (property.images.isNotEmpty && property.images.first.image_url != null) {
       return property.images.first.image_url;
@@ -103,7 +94,6 @@ class _PropertyCatalogPageState extends State<PropertiesPage> {
     return 'https://via.placeholder.com/400x300.png?text=No+Image';
   }
 
-  // Logic & Handlers
   void _scrollToTop() {
     _scrollController.animateTo(
       0,
@@ -459,7 +449,10 @@ class _PropertyCatalogPageState extends State<PropertiesPage> {
   Widget _buildPropertyCard(Property property, ThemeData theme) {
     return GestureDetector(
       onTap: () {
-        Get.toNamed(Routes.DETAIL_PROPERTIES, arguments: property.id);
+        Get.toNamed(
+          Routes.DETAIL_PROPERTIES,
+          arguments: property,
+        );
       },
       child: AspectRatio(
         aspectRatio: 1.1,
@@ -509,6 +502,10 @@ class _PropertyCatalogPageState extends State<PropertiesPage> {
                                 color: Colors.white),
                           ),
                         ),
+                      ),
+                      FavoriteIcon(
+                        propertyId: property.id,
+                        isLoggedIn: _layoutController.isLoggedIn.value,
                       ),
                     ],
                   ),
@@ -563,7 +560,7 @@ class _PropertyCatalogPageState extends State<PropertiesPage> {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Text(
-                                _formatPrice(property.price),
+                                formatPrice(property.price),
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w700,

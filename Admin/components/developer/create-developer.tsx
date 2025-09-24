@@ -104,7 +104,6 @@ const CreateDeveloper = ({
       website_url: "",
       logo_url: "",
     });
-    console.log("kilik ancok");
     setSelectedFile(null);
     setPreviewUrl(null);
     setOpen(false);

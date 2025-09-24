@@ -31,9 +31,9 @@ class ProfilePage extends StatelessWidget {
       onRefresh: () async {
         _profileController.loadPage();
       },
+      color: Color(0xFFDBB837),
       child: CustomScrollView(
         slivers: [
-          // === HEADER ===
           SliverLayoutBuilder(
             builder: (context, constraints) {
               final isCollapsed = constraints.scrollOffset > 200;
@@ -41,6 +41,7 @@ class ProfilePage extends StatelessWidget {
               return SliverAppBar(
                 expandedHeight: 320,
                 pinned: true,
+                surfaceTintColor: Colors.white,
                 elevation: 0,
                 backgroundColor: Colors.white,
                 title: isCollapsed
@@ -97,8 +98,6 @@ class ProfilePage extends StatelessWidget {
                       SafeArea(
                         child: Column(
                           children: [
-                            const SizedBox(height: 20),
-
                             // Header email
                             Padding(
                               padding:

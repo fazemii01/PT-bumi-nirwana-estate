@@ -33,6 +33,30 @@ class _SimulationFormState extends State<SimulationForm> {
   String? _tenureError;
   String? _propertyError;
 
+  @override
+  void initState() {
+    super.initState();
+
+    if (Get.arguments != null && Get.arguments is String) {
+      final String propertyId = Get.arguments;
+
+      once(_simulationFormController.properties,
+          (List<Property> propertiesList) {
+        final selectedProp =
+            propertiesList.firstWhereOrNull((p) => p.id == propertyId);
+
+        if (selectedProp != null) {
+          setState(() {
+            _simulationFormController.selectedProperty = selectedProp;
+            _simulationFormController.propertyId.value = selectedProp.id;
+            _simulationFormController.propertyPriceController.text =
+                'Rp ${formatPrice(selectedProp.price)}';
+          });
+        }
+      });
+    }
+  }
+
   void _showBankSelectionModal() {
     showModalBottomSheet(
       context: context,

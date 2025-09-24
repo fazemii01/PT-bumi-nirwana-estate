@@ -45,6 +45,7 @@ export class BuildingPropertyService {
     try {
       const building = new BuildingProperty();
       building.name = createBuildingPropertyDto.name;
+      building.total_units = createBuildingPropertyDto.total_units;
       building.status = createBuildingPropertyDto.status;
       building.status = createBuildingPropertyDto.status;
       building.price = createBuildingPropertyDto.price;
@@ -133,6 +134,13 @@ export class BuildingPropertyService {
   async findOne(id: string): Promise<BuildingProperty | null> {
     return await this.buildingPropertyRepository.findOne({
       where: { id },
+      relations: ['property', 'images', 'floor_plans', 'building_kpr_rules'],
+    });
+  }
+
+  async findByProperty(propertyId: string): Promise<BuildingProperty[]> {
+    return await this.buildingPropertyRepository.find({
+      where: { property: { id: propertyId } },
       relations: ['property', 'images', 'floor_plans', 'building_kpr_rules'],
     });
   }

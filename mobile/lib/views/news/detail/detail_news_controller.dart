@@ -7,7 +7,7 @@ class NewsDetailController extends GetxController {
 
   final Rx<News?> news = Rx<News?>(null);
 
-  var isLoading = true.obs;
+  var isLoading = false.obs;
   var errorMessage = ''.obs;
 
   Future<void> fetchDetail(String id) async {

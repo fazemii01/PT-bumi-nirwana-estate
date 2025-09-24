@@ -27,6 +27,7 @@ class PropertiesController extends GetxController {
       } else {
         propertyList = await _propertyService.getPropertiesByType(type.value);
       }
+      propertyList.sort((a, b) => b.createdAt.compareTo(a.createdAt));
       properties.value = propertyList;
     } catch (e) {
       errorMessage.value = 'Failed to load property';

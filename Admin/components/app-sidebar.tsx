@@ -1,32 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import {
-  Sidebar,
-  SidebarHeader,
-  SidebarContent,
-  SidebarFooter,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-} from "@/components/ui/sidebar";
+import { Sidebar, SidebarHeader, SidebarContent, SidebarFooter, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 import { NavMain } from "@/components/nav-main";
 import { NavSecondary } from "@/components/nav-secondary";
 import { NavUser } from "@/components/nav-user";
 
-import {
-  IconDashboard,
-  IconListDetails,
-  IconUser,
-  IconBuildingSkyscraper,
-  IconCashBanknote,
-  IconBuilding,
-  IconSettings,
-  IconHelp,
-  IconSearch,
-  IconNews,
-  IconNewsOff,
-} from "@tabler/icons-react";
+import { IconDashboard, IconListDetails, IconUser, IconBuildingSkyscraper, IconCashBanknote, IconBuilding, IconSettings, IconHelp, IconSearch, IconNews, IconNewsOff } from "@tabler/icons-react";
 import { User } from "@/types/user";
 import { title } from "process";
 
@@ -71,19 +51,10 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5"
-            >
-              <a
-                href="/dashboard"
-                aria-label="Go to Dashboard"
-                className="flex items-center gap-2"
-              >
+            <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:!p-1.5">
+              <a href="/dashboard" aria-label="Go to Dashboard" className="flex items-center gap-2">
                 <Image src="/logo_bar.svg" width={28} height={28} alt="Logo" />
-                <span className="text-sm font-semibold leading-none">
-                  Bumi Nirwana
-                </span>
+                <span className="text-sm font-semibold leading-none">Bumi Nirwana</span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>

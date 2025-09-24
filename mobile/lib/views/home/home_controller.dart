@@ -35,7 +35,8 @@ class HomeController extends GetxController {
       errorMessage.value = '';
 
       List<Property> propertyList = await _propertyService.getAllProperty();
-      properties.value = propertyList;
+      propertyList.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      properties.value = propertyList.take(5).toList();
 
       isLoading.value = false;
     } catch (e) {
@@ -52,7 +53,9 @@ class HomeController extends GetxController {
       errorMessage.value = '';
 
       List<News> newsList = await _newsService.getAllNews();
-      news.value = newsList;
+
+      newsList.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      news.value = newsList.take(5).toList();
 
       isLoading.value = false;
     } catch (e) {

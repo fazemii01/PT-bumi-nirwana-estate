@@ -14,6 +14,12 @@ export function HeadingSiteHeader() {
         linkTo: "/properties",
       };
     }
+    if (pathname.startsWith("/building-properties")) {
+      return {
+        pageTitle: "Data Building",
+        linkTo: "/building-properties",
+      };
+    }
     if (pathname.startsWith("/agent")) {
       return {
         pageTitle: "Data Agents",

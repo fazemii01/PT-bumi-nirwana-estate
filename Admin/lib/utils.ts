@@ -39,3 +39,15 @@ export function formatAddress(address: string | Address | undefined): string {
 
   return [addressObj?.street, addressObj?.village, addressObj?.district, addressObj?.city ?? "Lumajang", addressObj?.province ?? "Jawa Timur", addressObj?.postal_code].filter((part) => part && part.trim() !== "").join(", ");
 }
+
+export function formatDate(dateString: string | Date | null | undefined, locale: string = "id-ID", options?: Intl.DateTimeFormatOptions) {
+  if (!dateString) return "";
+
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleDateString(locale, options);
+  } catch (error) {
+    console.error("Format Date Error:", error);
+    return "";
+  }
+}
