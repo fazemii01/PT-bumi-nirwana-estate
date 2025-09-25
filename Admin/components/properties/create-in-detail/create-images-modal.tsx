@@ -12,7 +12,7 @@ import { Image, Plus, Trash2, Upload } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useState, useTransition } from "react";
 
-const CreateImagedModal = ({ open, setOpen, propertyId, name }: { open: boolean; setOpen: (value: boolean) => void; propertyId: string; name: string }) => {
+const CreateImagesModal = ({ open, setOpen, propertyId, name }: { open: boolean; setOpen: (value: boolean) => void; propertyId: string; name: string }) => {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<{ [key: string]: string }>({});
@@ -55,13 +55,20 @@ const CreateImagedModal = ({ open, setOpen, propertyId, name }: { open: boolean;
 
   const handleCancel = () => {
     setOpen(false);
+    setError({});
+    setFormData({
+      images: [],
+      property_images: [],
+    });
   };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const result = CreateImagesPropertyZod.safeParse(formData);
     if (!result.success) {
       const firstError = result.error.errors[0];
-
+      setError({
+        [firstError.path[0]]: firstError.message,
+      });
       return;
     }
     setError({});
@@ -70,12 +77,13 @@ const CreateImagedModal = ({ open, setOpen, propertyId, name }: { open: boolean;
       const res = await submitCreateImages({ images: formData, propertyId: propertyId });
 
       if (!res.success) {
-        showToastError(res.message || "Failed new data property");
+        showToastError(res.message || "Failed new data image");
+        return;
       }
 
-      router.push("/properties");
       setTimeout(() => {
-        showToastSuccess(res.message || "Property created successfully!");
+        setOpen(false);
+        showToastSuccess(res.message || "Image created successfully!");
         router.refresh();
       }, 1000);
     });
@@ -112,6 +120,8 @@ const CreateImagedModal = ({ open, setOpen, propertyId, name }: { open: boolean;
                   Tambah Gambar
                 </Button>
               </div>
+
+              {error.property_images && <span className="text-red-500 text-xs">{error.property_images}</span>}
             </div>
           </div>
           {formData.images.length > 0 && (
@@ -129,7 +139,6 @@ const CreateImagedModal = ({ open, setOpen, propertyId, name }: { open: boolean;
                         </Button>
                       </div>
                     </div>
-                    {error.property_images && <span className="text-red-500 text-xs">{error.property_images}</span>}
 
                     {/* Image Info */}
                     <div className="flex-1 space-y-2">
@@ -165,4 +174,4 @@ const CreateImagedModal = ({ open, setOpen, propertyId, name }: { open: boolean;
   );
 };
 
-export default CreateImagedModal;
+export default CreateImagesModal;

@@ -26,7 +26,7 @@ import { NewsModule } from './news/news.module';
 // import { OllamaModule } from './ollama/ollama.module';
 // import { FcmService } from './fcm/fcm.service';
 // import { FcmModule } from './fcm/fcm.module';
-import { DeviceTokenModule } from './device-token/device-token.module';
+// import { DeviceTokenModule } from './device-token/device-token.module';
 import { BuildingPropertyModule } from './building_property/building_property.module';
 @Module({
   imports: [
@@ -65,7 +65,7 @@ import { BuildingPropertyModule } from './building_property/building_property.mo
     // AiModule,
     // OllamaModule,
     // FcmModule,
-    DeviceTokenModule,
+    // DeviceTokenModule,
     BuildingPropertyModule,
   ],
 

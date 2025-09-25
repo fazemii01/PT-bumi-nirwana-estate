@@ -57,3 +57,8 @@ export type CreateImageProperty = {
   images: ImageProperty[];
   property_images: File[];
 };
+
+export type CreateSitePlanProperty = {
+  site_plans: SitePlan[];
+  property_site_plans: File[];
+};

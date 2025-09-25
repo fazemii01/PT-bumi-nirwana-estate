@@ -24,6 +24,14 @@ export const columns: ColumnDef<Bank>[] = [
     },
   },
   {
+    accessorKey: "min_tenure",
+    header: "Min Tenor",
+    cell: ({ row }) => {
+      const tenure = row.original.min_tenure;
+      return `${tenure} tahun`;
+    },
+  },
+  {
     accessorKey: "max_tenure",
     header: "Maks Tenor",
     cell: ({ row }) => {
