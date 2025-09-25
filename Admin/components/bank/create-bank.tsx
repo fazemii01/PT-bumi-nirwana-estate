@@ -21,6 +21,7 @@ const CreateBank = ({ open, setOpen }: { open: boolean; setOpen: (value: boolean
     id: "",
     name: "",
     interest_rate: "",
+    min_tenure: "",
     max_tenure: "",
     logo: "",
     file: undefined,
@@ -80,6 +81,7 @@ const CreateBank = ({ open, setOpen }: { open: boolean; setOpen: (value: boolean
       id: "",
       name: "",
       interest_rate: "",
+      min_tenure: "",
       max_tenure: "",
       logo: "",
       file: undefined,
@@ -128,6 +130,7 @@ const CreateBank = ({ open, setOpen }: { open: boolean; setOpen: (value: boolean
         id: "",
         name: "",
         interest_rate: "",
+        min_tenure: "",
         max_tenure: "",
         logo: "",
       });
@@ -175,6 +178,15 @@ const CreateBank = ({ open, setOpen }: { open: boolean; setOpen: (value: boolean
             </div>
 
             {/* Max Tenure */}
+            <div className="space-y-1.5">
+              <Label htmlFor="min_tenure" className="flex items-center gap-2">
+                <IconCalendarTime className="size-4" />
+                Min Tenure
+              </Label>
+              <Input id="min_tenure" name="min_tenure" type="number" value={form.min_tenure} onChange={handleChange} placeholder="Masukkan min tenure" />
+              {errors.min_tenure && <p className="text-sm text-red-500">{errors.min_tenure}</p>}
+            </div>
+
             <div className="space-y-1.5">
               <Label htmlFor="max_tenure" className="flex items-center gap-2">
                 <IconCalendarTime className="size-4" />

@@ -11,5 +11,8 @@ export class CreateBankDto {
 
   @Transform(({ value }) => Number(value))
   @IsNumber()
+  min_tenure: number;
+  @Transform(({ value }) => Number(value))
+  @IsNumber()
   max_tenure: number;
 }

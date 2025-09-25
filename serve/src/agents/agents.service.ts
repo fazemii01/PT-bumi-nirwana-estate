@@ -100,10 +100,25 @@ export class AgentsService {
   }
 
   async remove(id: string) {
+    const agent = await this.agentRepository.findOneBy({ id });
+    if (!agent) throw new NotFoundException();
+    const filePath = path.join(
+      __dirname,
+      '..',
+      '..',
+      'uploads/agent',
+      agent.avatar_url,
+    );
+    try {
+      fs.unlinkSync(filePath);
+    } catch (fs) {
+      console.error('Failed to delete old avatar:', fs.message);
+    }
     await this.agentRepository.update(
       { id },
       { status_delete: DeletedAtStatus.DELETED, deleted_at: nowUtc() },
     );
+
     return { message: 'delete successful' };
   }
 }

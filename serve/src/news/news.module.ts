@@ -18,7 +18,7 @@ import { FcmModule } from '@/fcm/fcm.module';
       NewsImages,
       DeviceToken,
     ]),
-    // FcmModule,
+    FcmModule,
   ],
   controllers: [NewsController],
   providers: [NewsService],

@@ -19,6 +19,7 @@ import * as fs from 'fs';
 import { DeletedAtStatus, nowUtc } from '@/types/deleted_at';
 import { PropertySitePlan } from '@/properties/entities/property_site_plans.entity';
 import { CreatePropertyImageDto } from '@/properties/dto/create-property-image.dto';
+import { CreatePropertySitePlansDto } from '@/properties/dto/create-property-site-plans.dto';
 
 @Injectable()
 export class PropertiesService {
@@ -113,7 +114,7 @@ export class PropertiesService {
             const metadata = createPropertyDto.images?.[index] ?? {};
             return this.propertyImageRepository.create({
               image_url: file.filename,
-              caption: metadata.caption || '',
+              caption: metadata.caption ?? '_',
               sort_order: metadata.sort_order || index,
               property: saveProperty,
             });
@@ -171,7 +172,7 @@ export class PropertiesService {
 
       return this.propertyImageRepository.create({
         image_url: file.filename,
-        caption: metadata.caption || '',
+        caption: metadata.caption ?? '_',
         sort_order: metadata.sort_order ?? index,
         property: property,
       });
@@ -180,6 +181,40 @@ export class PropertiesService {
     const savedImages = await this.propertyImageRepository.save(imageEntities);
 
     return savedImages;
+  }
+
+  async createSitePlanProperty(
+    propertyId: string,
+    property_site_plans: Express.Multer.File[],
+    site_plans: CreatePropertySitePlansDto[],
+  ): Promise<PropertySitePlan[]> {
+    console.log(site_plans);
+
+    const property = await this.propertyRepository.findOne({
+      where: { id: propertyId },
+      relations: ['developer', 'agent', 'images', 'site_plans'],
+    });
+
+    if (!property) {
+      throw new NotFoundException(`Property not found`);
+    }
+
+    const sitePlanEntities = property_site_plans.map((file, index) => {
+      const metadata = site_plans?.[index] ?? {};
+      console.log(metadata);
+
+      return this.propertySitePlanRepository.create({
+        name: metadata.name ?? '_',
+        file_url: file.filename,
+        sort_order: metadata.sort_order || index,
+        property: property,
+      });
+    });
+
+    const saveSitePlan =
+      await this.propertySitePlanRepository.save(sitePlanEntities);
+
+    return saveSitePlan;
   }
 
   async findAll(): Promise<Property[]> {
@@ -382,6 +417,22 @@ export class PropertiesService {
       { status_delete: DeletedAtStatus.DELETED, deleted_at: nowUtc() },
     );
     return { message: 'Delete successful' };
+  }
+
+  async deleteImageProperty(id: string) {
+    const img = await this.propertyImageRepository.findOneBy({ id });
+    if (!img) throw new NotFoundException();
+    this.deleteFileFromUploads('property_images', img.image_url);
+    await this.propertyImageRepository.delete(id);
+    return { message: 'Successfull' };
+  }
+
+  async deleteSiteProperty(id: string) {
+    const img = await this.propertySitePlanRepository.findOneBy({ id });
+    if (!img) throw new NotFoundException();
+    this.deleteFileFromUploads('property_site_plans', img.file_url);
+    await this.propertySitePlanRepository.delete(id);
+    return { message: 'Successfull' };
   }
 
   private async deleteFileFromUploads(subFolder: string, filename: string) {

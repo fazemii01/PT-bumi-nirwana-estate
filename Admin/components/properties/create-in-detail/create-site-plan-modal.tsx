@@ -1,69 +1,64 @@
-import { submitCreateImages } from "@/actions/property";
+import { submitCreateImages, submitCreateSitePlan } from "@/actions/property";
 import { showToastError, showToastSuccess } from "@/components/toast";
 import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
-import { CreateImagesPropertyZod } from "@/lib/zod";
-import { CreateImageProperty, ImageProperty } from "@/types/properties";
-import { IconImageInPicture, IconUpload } from "@tabler/icons-react";
+import { CreateImagesPropertyZod, CreateSitePlanPropertyZod } from "@/lib/zod";
+import { CreateSitePlanProperty } from "@/types/properties";
 import { Image, Plus, Trash2, Upload } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useState, useTransition } from "react";
+import { set } from "zod";
 
-const CreateImagesModal = ({ open, setOpen, propertyId, name }: { open: boolean; setOpen: (value: boolean) => void; propertyId: string; name: string }) => {
+const CreateSitePlanModal = ({ open, setOpen, propertyId, name }: { open: boolean; setOpen: (value: boolean) => void; propertyId: string; name: string }) => {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<{ [key: string]: string }>({});
-  const [formData, setFormData] = useState<CreateImageProperty>({
-    images: [],
-    property_images: [],
+  const [formData, setFormData] = useState<CreateSitePlanProperty>({
+    site_plans: [],
+    property_site_plans: [],
   });
 
   const handleMultipleImageUpload = (files: FileList | File[]) => {
     const fileArray = Array.from(files);
 
-    const newImages = fileArray.map((file) => ({
+    const newSitePlan = fileArray.map((file) => ({
       file,
       preview: URL.createObjectURL(file),
-      caption: "",
+      name: "",
     }));
 
     setFormData((prev) => ({
       ...prev,
-      images: [...prev.images, ...newImages],
-      property_images: [...prev.property_images, ...fileArray],
+      site_plans: [...prev.site_plans, ...newSitePlan],
+      property_site_plans: [...prev.property_site_plans, ...fileArray],
     }));
   };
 
-  const updateImageCaption = (index: number, caption: string) => {
+  const updateImageCaption = (index: number, name: string) => {
     setFormData((prev) => {
-      const updated = [...prev.images];
-      updated[index].caption = caption;
-      return { ...prev, images: updated };
+      const updated = [...prev.site_plans];
+      updated[index].name = name;
+      return { ...prev, site_plans: updated };
     });
   };
 
   const removeImage = (index: number) => {
     setFormData((prev) => {
-      const updatedImages = prev.images.filter((_, i) => i !== index);
-      const updatedFiles = (prev.property_images || []).filter((_, i) => i !== index);
-      return { ...prev, images: updatedImages, property_images: updatedFiles };
+      const updatedSitePlans = prev.site_plans.filter((_, i) => i !== index);
+      const updatedFiles = (prev.property_site_plans || []).filter((_, i) => i !== index);
+      return { ...prev, site_plans: updatedSitePlans, property_images: updatedFiles };
     });
   };
 
   const handleCancel = () => {
     setOpen(false);
-    setError({});
-    setFormData({
-      images: [],
-      property_images: [],
-    });
   };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const result = CreateImagesPropertyZod.safeParse(formData);
+    const result = CreateSitePlanPropertyZod.safeParse(formData);
     if (!result.success) {
       const firstError = result.error.errors[0];
       setError({
@@ -74,16 +69,15 @@ const CreateImagesModal = ({ open, setOpen, propertyId, name }: { open: boolean;
     setError({});
 
     startTransition(async () => {
-      const res = await submitCreateImages({ images: formData, propertyId: propertyId });
+      const res = await submitCreateSitePlan({ site: formData, propertyId: propertyId });
 
       if (!res.success) {
-        showToastError(res.message || "Failed new data image");
+        showToastError(res.message || "Failed new data site plan");
         return;
       }
-
       setTimeout(() => {
         setOpen(false);
-        showToastSuccess(res.message || "Image created successfully!");
+        showToastSuccess(res.message || "Site plan created successfully!");
         router.refresh();
       }, 1000);
     });
@@ -100,7 +94,7 @@ const CreateImagesModal = ({ open, setOpen, propertyId, name }: { open: boolean;
               </div>
               Properti {name}
             </AlertDialogTitle>
-            <AlertDialogDescription>Isi informasi di bawah ini untuk menambahkan gambar baru.</AlertDialogDescription>
+            <AlertDialogDescription>Isi informasi di bawah ini untuk menambahkan denah lokasi baru.</AlertDialogDescription>
           </AlertDialogHeader>
 
           <div className="space-y-5">
@@ -108,7 +102,7 @@ const CreateImagesModal = ({ open, setOpen, propertyId, name }: { open: boolean;
             <div className="space-y-2">
               <Label className="text-sm font-medium flex items-center gap-2">
                 <Image className="size-4" />
-                Gambar Properti
+                Gambar Denah Lokasi
               </Label>
 
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center h-[200px] flex flex-col items-center justify-center">
@@ -120,19 +114,18 @@ const CreateImagesModal = ({ open, setOpen, propertyId, name }: { open: boolean;
                   Tambah Gambar
                 </Button>
               </div>
-
-              {error.property_images && <span className="text-red-500 text-xs">{error.property_images}</span>}
+              {error.property_site_plans && <span className="text-red-500 text-xs">{error.property_site_plans}</span>}
             </div>
           </div>
-          {formData.images.length > 0 && (
+          {formData.site_plans.length > 0 && (
             <div className="space-y-4">
-              <h4 className="font-medium text-sm text-gray-700">Gambar yang diupload ({formData.images.length})</h4>
+              <h4 className="font-medium text-sm text-gray-700">Gambar yang diupload ({formData.site_plans.length})</h4>
               <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
-                {formData.images.map((image, index) => (
+                {formData.site_plans.map((site, index) => (
                   <div key={index} className="flex items-start gap-4 p-4 border rounded-lg bg-gray-50">
-                    {/* Image Preview */}
+                    {/* site Preview */}
                     <div className="flex-shrink-0 relative">
-                      <img src={image.preview} alt={`Preview ${index + 1}`} className="w-20 h-20 object-cover rounded border cursor-pointer" />
+                      <img src={site.preview} alt={`Preview ${index + 1}`} className="w-20 h-20 object-cover rounded border cursor-pointer" />
                       <div className="absolute -top-2 -right-2 ">
                         <Button type="button" variant="destructive" size="sm" className="h-6 w-6 p-0 rounded-full cursor-pointer" onClick={() => removeImage(index)}>
                           <Trash2 className="w-3 h-3" />
@@ -142,11 +135,14 @@ const CreateImagesModal = ({ open, setOpen, propertyId, name }: { open: boolean;
 
                     {/* Image Info */}
                     <div className="flex-1 space-y-2">
-                      <div className="text-sm text-gray-600">File: {image.file!.name}</div>
+                      <div className="text-sm text-gray-600">File: {site.file!.name}</div>
                       <div className="space-y-1">
-                        <Label className="text-xs">Caption (Opsional)</Label>
-                        <Input placeholder="Masukkan caption untuk gambar ini" value={image.caption} onChange={(e) => updateImageCaption(index, e.target.value)} className="text-sm" />
+                        <Label className="text-xs">
+                          Nama <span className="text-red-600">*</span>
+                        </Label>
+                        <Input placeholder="Masukkan caption untuk gambar ini" value={site.name} onChange={(e) => updateImageCaption(index, e.target.value)} className="text-sm" />
                       </div>
+                      {error.site_plans && <span className="text-red-500 text-xs">{error.site_plans}</span>}
                       <div className="text-xs text-gray-500">Urutan: {index + 1}</div>
                     </div>
                   </div>
@@ -174,4 +170,4 @@ const CreateImagesModal = ({ open, setOpen, propertyId, name }: { open: boolean;
   );
 };
 
-export default CreateImagesModal;
+export default CreateSitePlanModal;

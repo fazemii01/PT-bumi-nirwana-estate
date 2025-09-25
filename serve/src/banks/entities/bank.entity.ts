@@ -21,6 +21,9 @@ export class Bank {
   interest_rate: number;
 
   @Column({ type: 'integer', nullable: false })
+  min_tenure: number;
+
+  @Column({ type: 'integer', nullable: false })
   max_tenure: number;
 
   @Column({ type: 'varchar', length: 255, nullable: false })

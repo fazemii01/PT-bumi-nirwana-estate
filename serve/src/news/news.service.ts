@@ -15,7 +15,7 @@ import slugify from 'slugify';
 import * as path from 'path';
 import * as fs from 'fs';
 import { DeviceToken } from '@/device-token/entities/device-token.entity';
-// import { FcmService } from '@/fcm/fcm.service';
+import { FcmService } from '@/fcm/fcm.service';
 
 @Injectable()
 export class NewsService {
@@ -34,7 +34,7 @@ export class NewsService {
 
     @InjectRepository(DeviceToken)
     private readonly tokenRepository: Repository<DeviceToken>,
-    // private readonly fcmService: FcmService,
+    private readonly fcmService: FcmService,
   ) {}
 
   async create(
@@ -88,11 +88,11 @@ export class NewsService {
       await this.newsImagesRepository.save(images);
     }
 
-    // if (saveNews) {
-    //   console.log('Berita berhasil disimpan, mengirim notifikasi...');
+    if (saveNews) {
+      console.log('Berita berhasil disimpan, mengirim notifikasi...');
 
-    //   const allTokens = await this.tokenRepository.find();
-    //   const tokenStrings = allTokens.map((t) => t.token);
+      const allTokens = await this.tokenRepository.find();
+      const tokenStrings = allTokens.map((t) => t.token);
 
       this.fcmService.sendNotification(
         tokenStrings,

@@ -18,6 +18,8 @@ import { Public } from '@/auths/public.decorator';
 import * as fs from 'fs';
 import { CreatePropertyImageDto } from '@/properties/dto/create-property-image.dto';
 import { PropertyImage } from '@/properties/entities/property_images.entity';
+import { CreatePropertySitePlansDto } from '@/properties/dto/create-property-site-plans.dto';
+import { PropertySitePlan } from '@/properties/entities/property_site_plans.entity';
 
 @Controller('properties')
 export class PropertiesController {
@@ -67,7 +69,7 @@ export class PropertiesController {
   @UseMultipleFileUploadInterceptor('property')
   async createImagesProperty(
     @Param('id') id: string,
-    @Body() createPropertyImageDto: CreatePropertyImageDto[],
+    @Body('images') createPropertyImageDto: CreatePropertyImageDto[],
     @UploadedFiles()
     files: {
       property_images?: Express.Multer.File[];
@@ -84,6 +86,37 @@ export class PropertiesController {
       for (const images_file of property_images) {
         try {
           await fs.promises.unlink(images_file.path);
+        } catch (error) {
+          console.log(error);
+        }
+      }
+      throw error;
+    }
+  }
+
+  @Roles('ADMIN')
+  @Post('property-site-plan/:id')
+  @UseMultipleFileUploadInterceptor('property')
+  async createSitePlanProperty(
+    @Param('id') id: string,
+    @Body('site_plans')
+    createPropertySitePlansDto: CreatePropertySitePlansDto[],
+    @UploadedFiles()
+    files: {
+      property_site_plans?: Express.Multer.File[];
+    },
+  ): Promise<PropertySitePlan[]> {
+    const property_site_plans = files.property_site_plans || [];
+    try {
+      return await this.propertiesService.createSitePlanProperty(
+        id,
+        property_site_plans,
+        createPropertySitePlansDto,
+      );
+    } catch (error) {
+      for (const site_plan of property_site_plans) {
+        try {
+          await fs.promises.unlink(site_plan.path);
         } catch (error) {
           console.log(error);
         }
@@ -151,8 +184,21 @@ export class PropertiesController {
     }
   }
 
+  @Roles('ADMIN')
   @Delete(':id')
   async remove(@Param('id') id: string) {
     return this.propertiesService.remove(id);
+  }
+
+  @Roles('ADMIN')
+  @Delete('property-images/:id')
+  async removeImages(@Param('id') id: string) {
+    return this.propertiesService.deleteImageProperty(id);
+  }
+
+  @Roles('ADMIN')
+  @Delete('property-site-plan/:id')
+  async removeSitePlan(@Param('id') id: string) {
+    return this.propertiesService.deleteSiteProperty(id);
   }
 }

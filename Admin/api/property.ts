@@ -1,7 +1,7 @@
 "use server";
 import { apiFetch } from "@/service/api";
 import { ApiResponse } from "@/types/api-response";
-import { CreateImageProperty, ImageProperty, Property } from "@/types/properties";
+import { CreateImageProperty, CreateSitePlanProperty, ImageProperty, Property, SitePlan } from "@/types/properties";
 
 export async function getProperties(): Promise<ApiResponse<Property[]>> {
   return apiFetch<Property[]>("/properties", {
@@ -96,6 +96,28 @@ export async function addImages({ images, propertyId }: { images: CreateImagePro
   });
 }
 
+export async function addSitePlan({ site, propertyId }: { site: CreateSitePlanProperty; propertyId: string }): Promise<ApiResponse<CreateSitePlanProperty>> {
+  const formData = new FormData();
+  if (site.property_site_plans) {
+    site.property_site_plans.forEach((file) => {
+      formData.append(`property_site_plans`, file);
+    });
+  }
+  if (site.site_plans) {
+    site.site_plans.forEach((plan, index) => {
+      formData.append(`site_plans[${index}][name]`, plan.name);
+      if (plan.sort_order !== undefined) {
+        formData.append(`site_plans[${index}][sort_order]`, plan.sort_order.toString());
+      }
+    });
+  }
+
+  return apiFetch<CreateSitePlanProperty>(`/properties/property-site-plan/${propertyId}`, {
+    method: "POST",
+    body: formData,
+  });
+}
+
 export async function updateProperty({ data, originalData }: { data: Property; originalData: Property }): Promise<ApiResponse<Property>> {
   const toGeoJson = (loc?: Property["location"]) => {
     if (!loc?.coordinates) return undefined;
@@ -159,6 +181,18 @@ export async function updateProperty({ data, originalData }: { data: Property; o
 
 export async function deletePropertyById(id: string): Promise<ApiResponse<Property | null>> {
   return await apiFetch<Property | null>(`/properties/${id}`, {
+    method: "DELETE",
+  });
+}
+
+export async function deletePropertyImagesById(id: string): Promise<ApiResponse<ImageProperty | null>> {
+  return await apiFetch<ImageProperty | null>(`/properties/property-images/${id}`, {
+    method: "DELETE",
+  });
+}
+
+export async function deletePropertySiteById(id: string): Promise<ApiResponse<SitePlan | null>> {
+  return await apiFetch<SitePlan | null>(`/properties/property-site-plan/${id}`, {
     method: "DELETE",
   });
 }

@@ -22,6 +22,7 @@ export class BanksService {
     const bank = new Bank();
     bank.name = createBankDto.name;
     bank.interest_rate = createBankDto.interest_rate;
+    bank.min_tenure = createBankDto.min_tenure;
     bank.max_tenure = createBankDto.max_tenure;
     bank.logo = logo.filename;
     return await this.bankRepository.save(bank);
