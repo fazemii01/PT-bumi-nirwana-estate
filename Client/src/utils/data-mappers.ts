@@ -30,6 +30,11 @@ export function transformPropertyToCatalogData(property: any): ICatalogData {
     floor_plans: property.floor_plans || [],
     status: property.current_status || 'available', 
     name: property.name,
-    type: property.type
+    type: property.type,
+    street: parsedAddress?.street || '',
+    province: parsedAddress?.province || '',
+    postal_code: parsedAddress?.postal_code || '',
+    village: parsedAddress?.village || '',
+
   };
 }
