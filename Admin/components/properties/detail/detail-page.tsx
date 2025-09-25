@@ -7,8 +7,17 @@ import { Property } from "@/types/properties";
 import MediaPlans from "@/components/properties/detail/media-plans";
 import { BuildingProperty } from "@/types/building-properties";
 import PropertyBuilding from "@/components/properties/detail/property-building";
+import { useSearchParams } from "next/navigation";
 
-const PropertyDetailView = ({ property, building }: { property: Property; building: BuildingProperty[] }) => {
+const PropertyDetailView = ({
+  property,
+  building,
+}: {
+  property: Property;
+  building: BuildingProperty[];
+}) => {
+  const searchParams = useSearchParams();
+  const activeTab = searchParams.get("tab") || "details";
   return (
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
@@ -20,7 +29,7 @@ const PropertyDetailView = ({ property, building }: { property: Property; buildi
       </div>
 
       {/* Main Content */}
-      <Tabs defaultValue="details" className="space-y-4">
+      <Tabs defaultValue={activeTab} className="space-y-4">
         <TabsList>
           <TabsTrigger value="details">Property Details</TabsTrigger>
           <TabsTrigger value="buildings">Buildings</TabsTrigger>

@@ -140,7 +140,10 @@ export class BuildingPropertyService {
 
   async findByProperty(propertyId: string): Promise<BuildingProperty[]> {
     return await this.buildingPropertyRepository.find({
-      where: { property: { id: propertyId } },
+      where: {
+        property: { id: propertyId },
+        status_delete: DeletedAtStatus.NOT_DELETED,
+      },
       relations: ['property', 'images', 'floor_plans', 'building_kpr_rules'],
     });
   }

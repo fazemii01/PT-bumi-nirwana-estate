@@ -36,6 +36,10 @@ export class BuildingPropertyController {
     const building_images = files.building_images || [];
     const building_floor_plans = files.building_floor_plans || [];
     const building_kpr_rules = files.building_kpr_rules || [];
+    console.log('files', building_kpr_rules);
+
+    // console.log(createBuildingPropertyDto);
+
     return await this.buildingPropertyService.create(
       createBuildingPropertyDto,
       building_images,

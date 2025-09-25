@@ -1,7 +1,15 @@
 {
-  "/(admin)/building-properties/create/page": "app/(admin)/building-properties/create/page.js",
-  "/(admin)/building-properties/page": "app/(admin)/building-properties/page.js",
+  "/(admin)/agent/page": "app/(admin)/agent/page.js",
+  "/(admin)/bank/page": "app/(admin)/bank/page.js",
   "/(admin)/dashboard/page": "app/(admin)/dashboard/page.js",
+  "/(admin)/developer/page": "app/(admin)/developer/page.js",
+  "/(admin)/properties/building-properties/create/page": "app/(admin)/properties/building-properties/create/page.js",
+  "/(admin)/properties/building-properties/edit/[id]/page": "app/(admin)/properties/building-properties/edit/[id]/page.js",
+  "/(admin)/properties/detail/[id]/page": "app/(admin)/properties/detail/[id]/page.js",
+  "/(admin)/properties/edit/[id]/page": "app/(admin)/properties/edit/[id]/page.js",
   "/(admin)/properties/page": "app/(admin)/properties/page.js",
-  "/favicon.ico/route": "app/favicon.ico/route.js"
+  "/(auth)/login/page": "app/(auth)/login/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/page": "app/page.js"
 }

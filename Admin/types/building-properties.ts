@@ -16,7 +16,7 @@ export type BuildingProperty = {
   images: BuildingImage[];
   floor_plans: BuildingFloorPlans[];
   building_kpr_rules: BuildingKprRules[];
-  detail_description: string;
+  description: string;
   status: BuildingStatus;
   created_at?: Date;
   updated_at?: Date;

@@ -9,13 +9,20 @@ export async function getProperties(): Promise<ApiResponse<Property[]>> {
   });
 }
 
-export async function getPropertyById({ id }: { id: string }): Promise<ApiResponse<Property | null>> {
+export async function getPropertyById({
+  id,
+}: {
+  id: string;
+}): Promise<ApiResponse<Property | null>> {
   return apiFetch<Property | null>(`/properties/${id}`, {
     method: "GET",
   });
 }
 
-export async function getPropertyPaged(page = 1, limit = 10): Promise<{ data: Property[]; total: number }> {
+export async function getPropertyPaged(
+  page = 1,
+  limit = 10
+): Promise<{ data: Property[]; total: number }> {
   const res = await getProperties();
   const all = res.data ?? [];
   const total = all.length;
@@ -26,7 +33,11 @@ export async function getPropertyPaged(page = 1, limit = 10): Promise<{ data: Pr
   };
 }
 
-export async function addProperty({ property }: { property: Property }): Promise<ApiResponse<Property>> {
+export async function addProperty({
+  property,
+}: {
+  property: Property;
+}): Promise<ApiResponse<Property>> {
   const data = new FormData();
   data.append("developerId", property.developerId);
   data.append("agentId", property.agentId);
@@ -55,7 +66,10 @@ export async function addProperty({ property }: { property: Property }): Promise
     property.images.forEach((image, index) => {
       data.append(`images[${index}][caption]`, image.caption);
       if (image.sort_order !== undefined) {
-        data.append(`images[${index}][sort_order]`, image.sort_order.toString());
+        data.append(
+          `images[${index}][sort_order]`,
+          image.sort_order.toString()
+        );
       }
     });
   }
@@ -63,7 +77,10 @@ export async function addProperty({ property }: { property: Property }): Promise
     property.site_plans.forEach((plan, index) => {
       data.append(`site_plans[${index}][name]`, plan.name);
       if (plan.sort_order !== undefined) {
-        data.append(`site_plans[${index}][sort_order]`, plan.sort_order.toString());
+        data.append(
+          `site_plans[${index}][sort_order]`,
+          plan.sort_order.toString()
+        );
       }
     });
   }
@@ -74,7 +91,13 @@ export async function addProperty({ property }: { property: Property }): Promise
   });
 }
 
-export async function updateProperty({ data, originalData }: { data: Property; originalData: Property }): Promise<ApiResponse<Property>> {
+export async function updateProperty({
+  data,
+  originalData,
+}: {
+  data: Property;
+  originalData: Property;
+}): Promise<ApiResponse<Property>> {
   const toGeoJson = (loc?: Property["location"]) => {
     if (!loc?.coordinates) return undefined;
     const [lng, lat] = loc.coordinates as [number, number];
@@ -82,13 +105,17 @@ export async function updateProperty({ data, originalData }: { data: Property; o
   };
   const formData = new FormData();
 
-  if (data.developerId !== originalData.developerId && data.developerId) formData.append("developerId", data.developerId);
-  if (data.agentId !== originalData.agentId && data.agentId) formData.append("agentId", data.agentId);
+  if (data.developerId !== originalData.developerId && data.developerId)
+    formData.append("developerId", data.developerId);
+  if (data.agentId !== originalData.agentId && data.agentId)
+    formData.append("agentId", data.agentId);
   if (data.name !== originalData.name) formData.append("name", data.name);
   if (data.type !== originalData.type) formData.append("type", data.type);
 
-  if (data.description !== originalData.description) formData.append("description", data.description ?? "");
-  if (data.detail_description !== originalData.detail_description) formData.append("detail_description", data.detail_description ?? "");
+  if (data.description !== originalData.description)
+    formData.append("description", data.description ?? "");
+  if (data.detail_description !== originalData.detail_description)
+    formData.append("detail_description", data.detail_description ?? "");
 
   {
     const geo = toGeoJson(data.location);
@@ -97,7 +124,10 @@ export async function updateProperty({ data, originalData }: { data: Property; o
       formData.append("location", JSON.stringify(geo));
     }
   }
-  if (data.address && JSON.stringify(data.address) !== JSON.stringify(originalData.address)) {
+  if (
+    data.address &&
+    JSON.stringify(data.address) !== JSON.stringify(originalData.address)
+  ) {
     formData.append("address", JSON.stringify(data.address));
   }
 
@@ -116,7 +146,10 @@ export async function updateProperty({ data, originalData }: { data: Property; o
     data.images.forEach((image, index) => {
       formData.append(`images[${index}][caption]`, image.caption);
       if (image.sort_order !== undefined) {
-        formData.append(`images[${index}][sort_order]`, image.sort_order.toString());
+        formData.append(
+          `images[${index}][sort_order]`,
+          image.sort_order.toString()
+        );
       }
     });
   }
@@ -124,7 +157,10 @@ export async function updateProperty({ data, originalData }: { data: Property; o
     data.site_plans.forEach((plan, index) => {
       formData.append(`site_plans[${index}][name]`, plan.name);
       if (plan.sort_order !== undefined) {
-        formData.append(`site_plans[${index}][sort_order]`, plan.sort_order.toString());
+        formData.append(
+          `site_plans[${index}][sort_order]`,
+          plan.sort_order.toString()
+        );
       }
     });
   }
@@ -135,7 +171,9 @@ export async function updateProperty({ data, originalData }: { data: Property; o
   });
 }
 
-export async function deletePropertyById(id: string): Promise<ApiResponse<Property | null>> {
+export async function deletePropertyById(
+  id: string
+): Promise<ApiResponse<Property | null>> {
   return await apiFetch<Property | null>(`/properties/${id}`, {
     method: "DELETE",
   });

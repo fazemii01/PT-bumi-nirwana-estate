@@ -291,24 +291,21 @@ export default function BasicInfoForm({
 
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label
-                  htmlFor="detail_description"
-                  className="text-sm font-medium"
-                >
+                <Label htmlFor="description" className="text-sm font-medium">
                   Deskripsi Detail
                 </Label>
                 <Textarea
-                  id="detail_description"
-                  name="detail_description"
-                  value={formData.detail_description}
+                  id="description"
+                  name="description"
+                  value={formData.description}
                   onChange={handleTextAreaChange}
                   placeholder="Deskripsi lengkap property termasuk fasilitas, akses, dan keunggulan lainnya"
                   rows={5}
                   className="w-full resize-none"
                 />
-                {error["detail_description"] && (
+                {error["description"] && (
                   <span className="text-red-500 text-xs">
-                    {error["detail_description"]}
+                    {error["description"]}
                   </span>
                 )}
                 <p className="text-xs text-gray-500">

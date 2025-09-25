@@ -31,7 +31,7 @@ const BuildingCreateForm = ({ property }: { property: Property[] }) => {
     building_size: 0,
     total_units: "",
     land_size: 0,
-    detail_description: "",
+    description: "",
     specifications: {},
     images: [],
     floor_plans: [],
@@ -224,7 +224,7 @@ const BuildingCreateForm = ({ property }: { property: Property[] }) => {
         showToastError(res.message || "Failed new data building property.");
       }
 
-      router.push("/building-properties");
+      router.push(`/properties/detail/${res.propertyId}?tab=buildings`);
       setTimeout(() => {
         showToastSuccess(res.message || "Property created successfully!");
         router.refresh();
@@ -235,7 +235,7 @@ const BuildingCreateForm = ({ property }: { property: Property[] }) => {
   return (
     <div className=" mx-auto  space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Create New Property</h1>
+        <h1 className="text-3xl font-bold">Create Building Property</h1>
       </div>
 
       <form onSubmit={handleSubmit}>
