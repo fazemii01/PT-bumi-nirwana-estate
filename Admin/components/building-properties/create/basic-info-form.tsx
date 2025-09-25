@@ -53,7 +53,7 @@ export default function BasicInfoForm({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="developer" className="text-sm font-medium">
-                  Properti
+                  Properti <span className="text-red-500">*</span>
                 </Label>
                 <Select
                   value={formData.propertyId ?? ""} // ⬅️ fallback
@@ -80,6 +80,30 @@ export default function BasicInfoForm({
                   </span>
                 )}
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="total_units" className="text-sm font-medium">
+                  Total Units <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="total_units"
+                  name="total_units"
+                  type="number"
+                  value={formData.total_units}
+                  onChange={handleInputChange}
+                  placeholder="1"
+                  className="w-full"
+                  required
+                  autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="off"
+                  spellCheck={false}
+                />
+                {error["total_units"] && (
+                  <span className="text-red-500 text-xs">
+                    {error["total_units"]}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 
@@ -87,7 +111,7 @@ export default function BasicInfoForm({
           <div className="space-y-4">
             <h4 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
               <Tag className="w-4 h-4" />
-              Informasi Bangunan Properti
+              Informasi Blok Bangunan Properti
             </h4>
 
             <div className="space-y-2">
@@ -99,7 +123,7 @@ export default function BasicInfoForm({
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
-                placeholder="Masukkan nama bangunan"
+                placeholder="Masukkan nama blok bangunan"
                 className="w-full"
                 required
                 autoComplete="off"
@@ -267,24 +291,21 @@ export default function BasicInfoForm({
 
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label
-                  htmlFor="detail_description"
-                  className="text-sm font-medium"
-                >
+                <Label htmlFor="description" className="text-sm font-medium">
                   Deskripsi Detail
                 </Label>
                 <Textarea
-                  id="detail_description"
-                  name="detail_description"
-                  value={formData.detail_description}
+                  id="description"
+                  name="description"
+                  value={formData.description}
                   onChange={handleTextAreaChange}
                   placeholder="Deskripsi lengkap property termasuk fasilitas, akses, dan keunggulan lainnya"
                   rows={5}
                   className="w-full resize-none"
                 />
-                {error["detail_description"] && (
+                {error["description"] && (
                   <span className="text-red-500 text-xs">
-                    {error["detail_description"]}
+                    {error["description"]}
                   </span>
                 )}
                 <p className="text-xs text-gray-500">

@@ -1,7 +1,13 @@
 "use server";
 import { apiFetch } from "@/service/api";
 import { ApiResponse } from "@/types/api-response";
-import { CreateImageProperty, CreateSitePlanProperty, ImageProperty, Property, SitePlan } from "@/types/properties";
+import {
+  CreateImageProperty,
+  CreateSitePlanProperty,
+  ImageProperty,
+  Property,
+  SitePlan,
+} from "@/types/properties";
 
 export async function getProperties(): Promise<ApiResponse<Property[]>> {
   return apiFetch<Property[]>("/properties", {
@@ -9,13 +15,20 @@ export async function getProperties(): Promise<ApiResponse<Property[]>> {
   });
 }
 
-export async function getPropertyById({ id }: { id: string }): Promise<ApiResponse<Property | null>> {
+export async function getPropertyById({
+  id,
+}: {
+  id: string;
+}): Promise<ApiResponse<Property | null>> {
   return apiFetch<Property | null>(`/properties/${id}`, {
     method: "GET",
   });
 }
 
-export async function getPropertyPaged(page = 1, limit = 10): Promise<{ data: Property[]; total: number }> {
+export async function getPropertyPaged(
+  page = 1,
+  limit = 10
+): Promise<{ data: Property[]; total: number }> {
   const res = await getProperties();
   const all = res.data ?? [];
   const total = all.length;
@@ -26,7 +39,11 @@ export async function getPropertyPaged(page = 1, limit = 10): Promise<{ data: Pr
   };
 }
 
-export async function addProperty({ property }: { property: Property }): Promise<ApiResponse<Property>> {
+export async function addProperty({
+  property,
+}: {
+  property: Property;
+}): Promise<ApiResponse<Property>> {
   const data = new FormData();
   data.append("developerId", property.developerId);
   data.append("agentId", property.agentId);
@@ -55,7 +72,10 @@ export async function addProperty({ property }: { property: Property }): Promise
     property.images.forEach((image, index) => {
       data.append(`images[${index}][caption]`, image.caption);
       if (image.sort_order !== undefined) {
-        data.append(`images[${index}][sort_order]`, image.sort_order.toString());
+        data.append(
+          `images[${index}][sort_order]`,
+          image.sort_order.toString()
+        );
       }
     });
   }
@@ -63,7 +83,10 @@ export async function addProperty({ property }: { property: Property }): Promise
     property.site_plans.forEach((plan, index) => {
       data.append(`site_plans[${index}][name]`, plan.name);
       if (plan.sort_order !== undefined) {
-        data.append(`site_plans[${index}][sort_order]`, plan.sort_order.toString());
+        data.append(
+          `site_plans[${index}][sort_order]`,
+          plan.sort_order.toString()
+        );
       }
     });
   }
@@ -74,7 +97,13 @@ export async function addProperty({ property }: { property: Property }): Promise
   });
 }
 
-export async function addImages({ images, propertyId }: { images: CreateImageProperty; propertyId: string }): Promise<ApiResponse<CreateImageProperty>> {
+export async function addImages({
+  images,
+  propertyId,
+}: {
+  images: CreateImageProperty;
+  propertyId: string;
+}): Promise<ApiResponse<CreateImageProperty>> {
   const formData = new FormData();
   if (images.property_images) {
     images.property_images.forEach((file) => {
@@ -85,18 +114,30 @@ export async function addImages({ images, propertyId }: { images: CreateImagePro
     images.images.forEach((image, index) => {
       formData.append(`images[${index}][caption]`, image.caption);
       if (image.sort_order !== undefined) {
-        formData.append(`images[${index}][sort_order]`, image.sort_order.toString());
+        formData.append(
+          `images[${index}][sort_order]`,
+          image.sort_order.toString()
+        );
       }
     });
   }
 
-  return apiFetch<CreateImageProperty>(`/properties/create-images/${propertyId}`, {
-    method: "POST",
-    body: formData,
-  });
+  return apiFetch<CreateImageProperty>(
+    `/properties/create-images/${propertyId}`,
+    {
+      method: "POST",
+      body: formData,
+    }
+  );
 }
 
-export async function addSitePlan({ site, propertyId }: { site: CreateSitePlanProperty; propertyId: string }): Promise<ApiResponse<CreateSitePlanProperty>> {
+export async function addSitePlan({
+  site,
+  propertyId,
+}: {
+  site: CreateSitePlanProperty;
+  propertyId: string;
+}): Promise<ApiResponse<CreateSitePlanProperty>> {
   const formData = new FormData();
   if (site.property_site_plans) {
     site.property_site_plans.forEach((file) => {
@@ -107,18 +148,30 @@ export async function addSitePlan({ site, propertyId }: { site: CreateSitePlanPr
     site.site_plans.forEach((plan, index) => {
       formData.append(`site_plans[${index}][name]`, plan.name);
       if (plan.sort_order !== undefined) {
-        formData.append(`site_plans[${index}][sort_order]`, plan.sort_order.toString());
+        formData.append(
+          `site_plans[${index}][sort_order]`,
+          plan.sort_order.toString()
+        );
       }
     });
   }
 
-  return apiFetch<CreateSitePlanProperty>(`/properties/property-site-plan/${propertyId}`, {
-    method: "POST",
-    body: formData,
-  });
+  return apiFetch<CreateSitePlanProperty>(
+    `/properties/property-site-plan/${propertyId}`,
+    {
+      method: "POST",
+      body: formData,
+    }
+  );
 }
 
-export async function updateProperty({ data, originalData }: { data: Property; originalData: Property }): Promise<ApiResponse<Property>> {
+export async function updateProperty({
+  data,
+  originalData,
+}: {
+  data: Property;
+  originalData: Property;
+}): Promise<ApiResponse<Property>> {
   const toGeoJson = (loc?: Property["location"]) => {
     if (!loc?.coordinates) return undefined;
     const [lng, lat] = loc.coordinates as [number, number];
@@ -126,13 +179,17 @@ export async function updateProperty({ data, originalData }: { data: Property; o
   };
   const formData = new FormData();
 
-  if (data.developerId !== originalData.developerId && data.developerId) formData.append("developerId", data.developerId);
-  if (data.agentId !== originalData.agentId && data.agentId) formData.append("agentId", data.agentId);
+  if (data.developerId !== originalData.developerId && data.developerId)
+    formData.append("developerId", data.developerId);
+  if (data.agentId !== originalData.agentId && data.agentId)
+    formData.append("agentId", data.agentId);
   if (data.name !== originalData.name) formData.append("name", data.name);
   if (data.type !== originalData.type) formData.append("type", data.type);
 
-  if (data.description !== originalData.description) formData.append("description", data.description ?? "");
-  if (data.detail_description !== originalData.detail_description) formData.append("detail_description", data.detail_description ?? "");
+  if (data.description !== originalData.description)
+    formData.append("description", data.description ?? "");
+  if (data.detail_description !== originalData.detail_description)
+    formData.append("detail_description", data.detail_description ?? "");
 
   {
     const geo = toGeoJson(data.location);
@@ -141,7 +198,10 @@ export async function updateProperty({ data, originalData }: { data: Property; o
       formData.append("location", JSON.stringify(geo));
     }
   }
-  if (data.address && JSON.stringify(data.address) !== JSON.stringify(originalData.address)) {
+  if (
+    data.address &&
+    JSON.stringify(data.address) !== JSON.stringify(originalData.address)
+  ) {
     formData.append("address", JSON.stringify(data.address));
   }
 
@@ -160,7 +220,10 @@ export async function updateProperty({ data, originalData }: { data: Property; o
     data.images.forEach((image, index) => {
       formData.append(`images[${index}][caption]`, image.caption);
       if (image.sort_order !== undefined) {
-        formData.append(`images[${index}][sort_order]`, image.sort_order.toString());
+        formData.append(
+          `images[${index}][sort_order]`,
+          image.sort_order.toString()
+        );
       }
     });
   }
@@ -168,7 +231,10 @@ export async function updateProperty({ data, originalData }: { data: Property; o
     data.site_plans.forEach((plan, index) => {
       formData.append(`site_plans[${index}][name]`, plan.name);
       if (plan.sort_order !== undefined) {
-        formData.append(`site_plans[${index}][sort_order]`, plan.sort_order.toString());
+        formData.append(
+          `site_plans[${index}][sort_order]`,
+          plan.sort_order.toString()
+        );
       }
     });
   }
@@ -179,20 +245,32 @@ export async function updateProperty({ data, originalData }: { data: Property; o
   });
 }
 
-export async function deletePropertyById(id: string): Promise<ApiResponse<Property | null>> {
+export async function deletePropertyById(
+  id: string
+): Promise<ApiResponse<Property | null>> {
   return await apiFetch<Property | null>(`/properties/${id}`, {
     method: "DELETE",
   });
 }
 
-export async function deletePropertyImagesById(id: string): Promise<ApiResponse<ImageProperty | null>> {
-  return await apiFetch<ImageProperty | null>(`/properties/property-images/${id}`, {
-    method: "DELETE",
-  });
+export async function deletePropertyImagesById(
+  id: string
+): Promise<ApiResponse<ImageProperty | null>> {
+  return await apiFetch<ImageProperty | null>(
+    `/properties/property-images/${id}`,
+    {
+      method: "DELETE",
+    }
+  );
 }
 
-export async function deletePropertySiteById(id: string): Promise<ApiResponse<SitePlan | null>> {
-  return await apiFetch<SitePlan | null>(`/properties/property-site-plan/${id}`, {
-    method: "DELETE",
-  });
+export async function deletePropertySiteById(
+  id: string
+): Promise<ApiResponse<SitePlan | null>> {
+  return await apiFetch<SitePlan | null>(
+    `/properties/property-site-plan/${id}`,
+    {
+      method: "DELETE",
+    }
+  );
 }

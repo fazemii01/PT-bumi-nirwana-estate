@@ -17,7 +17,7 @@ import {
 } from 'class-validator';
 
 export class CreateBuildingPropertyDto {
-  @IsUUID()
+  @IsString()
   propertyId: string;
 
   @IsString()

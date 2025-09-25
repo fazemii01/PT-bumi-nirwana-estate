@@ -18,6 +18,9 @@ type MediaFormBuilds = {
   updateFloorPlanName: (index: number, name: string) => void;
   removeFloorPlan: (index: number) => void;
 
+  handleSingleKPRUpload: (file: File) => void;
+  removeKPRRules: (index: number) => void;
+
   error?: { [key: string]: string };
 };
 
@@ -29,6 +32,8 @@ export default function MediaForm({
   handleSingleFloorPlanUpload,
   updateFloorPlanName,
   removeFloorPlan,
+  handleSingleKPRUpload,
+  removeKPRRules,
   error = {},
 }: MediaFormBuilds) {
   const [open, setOpen] = useState(false);
@@ -262,6 +267,110 @@ export default function MediaForm({
                           </div>
                         </div>
                       ))}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Rules Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Peraturan KPR</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Upload Area - Fixed Height */}
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center h-[200px] flex flex-col items-center justify-center">
+                  <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                  <p className="text-sm text-gray-600 mb-2">Upload Peraturan</p>
+                  <input
+                    type="file"
+                    accept="image/*,.pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                    disabled={formData.building_kpr_rules.length >= 1}
+                    onChange={(e) => {
+                      if (e.target.files?.[0]) {
+                        handleSingleKPRUpload(e.target.files[0]);
+                        e.target.value = "";
+                      }
+                    }}
+                    className="hidden"
+                    id="kprrules-upload"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={formData.building_kpr_rules.length >= 1}
+                    onClick={() =>
+                      document.getElementById("kprrules-upload")!.click()
+                    }
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Tambah File
+                  </Button>
+                </div>
+                {error.building_kpr_rules && (
+                  <span className="text-red-500 text-xs">
+                    {error.building_kpr_rules}
+                  </span>
+                )}
+                {formData.building_kpr_rules.length >= 1 && (
+                  <p className="text-xs text-center text-gray-500 mt-2">
+                    Anda hanya dapat meng-upload satu file peraturan KPR.
+                  </p>
+                )}
+
+                {/* Floor Plans List - Scrollable Container */}
+                {formData.building_kpr_rules.length > 0 && (
+                  <div className="space-y-4">
+                    <h4 className="font-medium text-sm text-gray-700">
+                      Peraturan yang diupload (
+                      {formData.building_kpr_rules.length})
+                    </h4>
+                    <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
+                      {formData.building_kpr_rules.map(
+                        (building_kpr_rules, index) => (
+                          <div
+                            key={index}
+                            className="flex items-start gap-4 p-4 border rounded-lg bg-gray-50"
+                          >
+                            {/* File Preview */}
+                            <div className="flex-shrink-0 relative">
+                              <div className="w-20 h-20 bg-gray-100 rounded border flex items-center justify-center">
+                                {building_kpr_rules.file!.type.startsWith(
+                                  "image/"
+                                ) ? (
+                                  <img
+                                    src={building_kpr_rules.preview}
+                                    alt="KPR rules"
+                                    className="w-full h-full object-cover rounded cursor-pointer"
+                                    onClick={() =>
+                                      handleImagePreview(
+                                        building_kpr_rules.preview!
+                                      )
+                                    }
+                                  />
+                                ) : (
+                                  <div className="text-xs text-gray-500 text-center">
+                                    <div>PDF</div>
+                                    <div className="font-medium">📄</div>
+                                  </div>
+                                )}
+                              </div>
+                              <div className="absolute -top-2 -right-2">
+                                <Button
+                                  type="button"
+                                  variant="destructive"
+                                  size="sm"
+                                  className="h-6 w-6 p-0 rounded-full cursor-pointer"
+                                  onClick={() => removeKPRRules(index)}
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        )
+                      )}
                     </div>
                   </div>
                 )}

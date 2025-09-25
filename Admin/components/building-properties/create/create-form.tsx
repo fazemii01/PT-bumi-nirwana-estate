@@ -29,8 +29,9 @@ const BuildingCreateForm = ({ property }: { property: Property[] }) => {
     price: 0,
     price_unit: PriceUnit.TOTAL,
     building_size: 0,
+    total_units: "",
     land_size: 0,
-    detail_description: "",
+    description: "",
     specifications: {},
     images: [],
     floor_plans: [],
@@ -103,11 +104,20 @@ const BuildingCreateForm = ({ property }: { property: Property[] }) => {
   };
 
   const handleSingleKPRUpload = (file: File) => {
-    const preview = URL.createObjectURL(file);
+    const newKprFileObject = {
+      file: file,
+      preview: URL.createObjectURL(file),
+    };
+
     setFormData((prev) => ({
       ...prev,
-      building_kpr_rules: [...prev.building_kpr_rules, { file, preview }],
-      building_kpr_file: [...(prev.building_kpr_file || []), file],
+      // Langsung ganti array lama dengan array baru
+      // yang HANYA berisi satu file ini.
+      // Bukan: [...prev.building_kpr_rules, newKprFileObject]
+      building_kpr_rules: [newKprFileObject],
+
+      // Properti 'building_kpr_file' bisa dihapus dari state Anda
+      // karena datanya sudah ada di dalam 'building_kpr_rules'
     }));
   };
 
@@ -162,6 +172,22 @@ const BuildingCreateForm = ({ property }: { property: Property[] }) => {
     });
   };
 
+  const removeKPRRules = (index: number) => {
+    setFormData((prev) => {
+      const updatedRules = prev.building_kpr_rules.filter(
+        (_, i) => i !== index
+      );
+      const updatedFiles = (prev.building_kpr_file || []).filter(
+        (_, i) => i !== index
+      );
+      return {
+        ...prev,
+        building_kpr_rules: updatedRules,
+        building_kpr_file: updatedFiles,
+      };
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log("handleSubmit terpanggil 🚀");
@@ -171,7 +197,11 @@ const BuildingCreateForm = ({ property }: { property: Property[] }) => {
       const firstError = result.error.errors[0];
       const path = firstError.path;
       let tab = "basic";
-      if (path.includes("images") || path.includes("floor_plans")) {
+      if (
+        path.includes("images") ||
+        path.includes("floor_plans") ||
+        path.includes("building_kpr_rules")
+      ) {
         tab = "media";
       } else if (path.includes("specifications")) {
         tab = "specs";
@@ -194,7 +224,7 @@ const BuildingCreateForm = ({ property }: { property: Property[] }) => {
         showToastError(res.message || "Failed new data building property.");
       }
 
-      router.push("/building-properties");
+      router.push(`/properties/detail/${res.propertyId}?tab=buildings`);
       setTimeout(() => {
         showToastSuccess(res.message || "Property created successfully!");
         router.refresh();
@@ -205,7 +235,7 @@ const BuildingCreateForm = ({ property }: { property: Property[] }) => {
   return (
     <div className=" mx-auto  space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Create New Property</h1>
+        <h1 className="text-3xl font-bold">Create Building Property</h1>
       </div>
 
       <form onSubmit={handleSubmit}>
@@ -255,10 +285,12 @@ const BuildingCreateForm = ({ property }: { property: Property[] }) => {
                 formData={formData}
                 handleSingleImageUpload={handleSingleImageUpload}
                 handleSingleFloorPlanUpload={handleSingleFloorPlanUpload}
+                handleSingleKPRUpload={handleSingleKPRUpload}
                 updateImageCaption={updateImageCaption}
                 updateFloorPlanName={updateFloorPlanName}
                 removeFloorPlan={removeFloorPlan}
                 removeImage={removeImage}
+                removeKPRRules={removeKPRRules}
                 error={error}
               />
             )}
