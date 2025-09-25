@@ -5,12 +5,8 @@ export enum PropertyStatus {
   RESERVED = 'RESERVED',
 }
 
-export interface Address {
-  street?: string;
-  city?: string;
-}
-
 export interface Location {
+  type: string;
   coordinates: [number, number];
 }
 
@@ -27,7 +23,7 @@ export interface Property {
   luas: string;
   land_size: string;
   location: Location;
-  address: Address;
+  address: string;
   specifications: {
     kamar: number;
     kamar_mandi: number;
@@ -52,6 +48,8 @@ export interface Property {
   }[];
   developer: { name: string } | null;
   agent: { name: string } | null;
+  status_delete: number;
+  deleted_at: Date | null;
   created_at: string;
   updated_at: string;
   type: string;

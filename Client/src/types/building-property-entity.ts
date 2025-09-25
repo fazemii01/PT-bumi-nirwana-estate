@@ -1,5 +1,11 @@
-import { Property } from './property-entity';
+import { Property, Location } from './property-entity';
 
+export enum PropertyStatus {
+  PRE_LAUNCH = 'PRE_LAUNCH',
+  AVAILABLE = 'AVAILABLE',
+  SOLD_OUT = 'SOLD_OUT',
+  RESERVED = 'RESERVED',
+}
 
 export interface IImage {
   id: string;
@@ -7,29 +13,31 @@ export interface IImage {
   caption: string | null;
   sort_order: number;
 }
-
-export interface IBuildingProperty {
+export interface IFloorPlan {
   id: string;
   name: string;
-  status: string;
-  price: string; 
+  file_url: string;
+  sort_order: number;
+}
+export interface IBuildingProperty {
+  id: string;
+  property: Property;
+  name: string;
+  total_units: string;
+  status: PropertyStatus;
+  price: string;
   price_unit: string;
   land_size: string;
   building_size: string;
   description: string;
-  
-
   specifications: string; 
-
-  building_kpr_rules: any[]; 
+  building_kpr_rules: any[];
   images: IImage[];
-  floor_plans: any[];
-
- 
-  property: Property;
-
+  floor_plans: IFloorPlan[];
   status_delete: number;
   deleted_at: Date | null;
-  created_at: string; 
+  created_at: string;
   updated_at: string;
+  address: string; // Added as direct field as per user request
+  location: Location; // Added as direct field as per user request
 }

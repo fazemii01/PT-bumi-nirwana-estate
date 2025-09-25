@@ -35,6 +35,8 @@ const CatalogCard: FC<{
 		contractType,
 		propertyType,
 		city,
+		street,
+		province,
 		price,
 		address,
 		description,
@@ -44,7 +46,9 @@ const CatalogCard: FC<{
 		images,
 		luas,
 		land_size,
-		name
+		name,
+		village,
+		postal_code
 	} = props;
 
 	const { i18n, t: tCommon } = useTranslation('common');
@@ -65,7 +69,7 @@ const CatalogCard: FC<{
 	// const itemTotalArea = Number(table.totalArea).toFixed();
 
 	const totalRooms = Number(table.bedrooms) + Number(table.bathrooms);
-
+	
 	return (
 		<li className={cn('yellow-shadow', s.container)}>
 			<Link className={s.inner} href={`/${CATALOG_NAME}/${id}`}>
@@ -77,7 +81,7 @@ const CatalogCard: FC<{
 						src={`${BACKEND_LOCALHOST}/uploads/property/property_images/${mainImage.image_url}`}
 						alt={mainImage.caption || `Image of ${name}`}
 					/>
-					
+
 				) : (
 					<DefaultPoster className={s.image} />
 				)}
@@ -92,13 +96,17 @@ const CatalogCard: FC<{
 								)}
 					</ul>
 					<h3 className={s.name}>{NameProperty}</h3>
-					<address className={s.address}>{`${description}, ${fullAddress}, ${itemCity}`}</address>
+					<address className={s.address}>{`${village}${street}, ${itemCity}, ${province}, ${postal_code}`} <h5 className={s.description}>{description[i18n.language]}</h5></address>
+					{/* <p className={s.description}>{description[i18n.language]}</p> */}
 					<ul className={s.description}>
 
 						{/* <li>
 							{currencyRate &&
 								formatToPrefixAndPrice(i18n.language, price, currencyRate)}
 						</li> */}
+						{/* {description && <p>{description[i18n.language]}</p>} */}
+
+						
 						{land_size && (
 							<li title={tCatalog('TABLE.TOTALAREA')}>
 								<IconRuler />
