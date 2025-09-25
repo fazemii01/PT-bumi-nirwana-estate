@@ -15,8 +15,6 @@ import slugify from 'slugify';
 import * as path from 'path';
 import * as fs from 'fs';
 import { DeviceToken } from '@/device-token/entities/device-token.entity';
-// import { FcmService } from '@/fcm/fcm.service';
-
 @Injectable()
 export class NewsService {
   constructor(
@@ -34,7 +32,6 @@ export class NewsService {
 
     @InjectRepository(DeviceToken)
     private readonly tokenRepository: Repository<DeviceToken>,
-    // private readonly fcmService: FcmService,
   ) {}
 
   async create(
@@ -88,19 +85,12 @@ export class NewsService {
       await this.newsImagesRepository.save(images);
     }
 
-    // if (saveNews) {
-    //   console.log('Berita berhasil disimpan, mengirim notifikasi...');
+    if (saveNews) {
+      console.log('Berita berhasil disimpan, mengirim notifikasi...');
 
-    //   const allTokens = await this.tokenRepository.find();
-    //   const tokenStrings = allTokens.map((t) => t.token);
-
-    //   this.fcmService.sendNotification(
-    //     tokenStrings,
-    //     saveNews.title,
-    //     `Kategori: ${newsCategory.name}. Ketuk untuk membaca.`,
-    //     { newsId: saveNews.id },
-    //   );
-    // }
+      const allTokens = await this.tokenRepository.find();
+      const tokenStrings = allTokens.map((t) => t.token);
+    }
 
     return saveNews;
   }
@@ -148,20 +138,20 @@ export class NewsService {
     });
     return news;
   }
-  // async findOneByCatgoryId(categoryId: string): Promise<News[]> {
-  //   const news = await this.newsRepository.find({
-  //     where: { newsCategory: { id: categoryId } },
-  //     relations: [
-  //       'newsCategory',
-  //       'newsImages',
-  //       'property',
-  //       'property.images',
-  //       'property.floor_plans',
-  //     ],
-  //   });
+  async findOneByCatgoryId(categoryId: string): Promise<News[]> {
+    const news = await this.newsRepository.find({
+      where: { newsCategory: { id: categoryId } },
+      relations: [
+        'newsCategory',
+        'newsImages',
+        'property',
+        'property.images',
+        'property.floor_plans',
+      ],
+    });
 
-  //   return news;
-  // }
+    return news;
+  }
 
   async update(
     id: string,

@@ -236,23 +236,33 @@ export const updateBuildingPropertyZod = object({
   floor_plans: array(FloorPlanZod).optional(),
 });
 
-export const BankZod = z.object({
-  interest_rate: z.coerce
-    .number({
-      required_error: "Bunga tahunan wajib diisi",
-      invalid_type_error: "Bunga tahunan harus berupa angka",
-    })
-    .refine((val) => val >= 0, { message: "Minimum nilai bunga adalah 0" }),
+export const BankZod = z
+  .object({
+    interest_rate: z.coerce
+      .number({
+        required_error: "Bunga tahunan wajib diisi",
+        invalid_type_error: "Bunga tahunan harus berupa angka",
+      })
+      .refine((val) => val >= 0, { message: "Minimum nilai bunga adalah 0" }),
 
-  max_tenure: z.coerce
-    .number({
-      required_error: "Maks tenor wajib diisi",
-      invalid_type_error: "Maks tenor harus berupa angka",
-    })
-    .refine((val) => val >= 1, { message: "Minimum tenor adalah 1 tahun" }),
+    min_tenure: z.coerce
+      .number({
+        required_error: "Min tenor wajib diisi",
+        invalid_type_error: "Min tenor harus berupa angka",
+      })
+      .refine((val) => val >= 1, { message: "Minimum tenor adalah 1 tahun" }),
 
-  file: z.instanceof(File, { message: "Logo wajib diisi" }),
-});
+    max_tenure: z.coerce.number({
+      required_error: "Max tenor wajib diisi",
+      invalid_type_error: "Max tenor harus berupa angka",
+    }),
+
+    file: z.instanceof(File, { message: "Logo wajib diisi" }),
+  })
+  .refine((data) => data.max_tenure >= data.min_tenure, {
+    path: ["max_tenure"],
+    message: "Max tenor tidak boleh lebih kecil dari Min tenor",
+  });
 
 export const BankZodEdit = z.object({
   interest_rate: z.coerce
@@ -310,4 +320,13 @@ export const NewsZodUpdate = z.object({
       required_error: "Kategori berita wajib dipilih",
     })
     .min(1, "Kategori berita wajib dipilih"),
+});
+
+export const CreateImagesPropertyZod = z.object({
+  property_images: array(object({})).min(1, "Minimal 1 gambar property wajib diupload"),
+});
+
+export const CreateSitePlanPropertyZod = z.object({
+  property_site_plans: array(object({})).min(1, "Minimal 1 gambar site plans wajib diupload"),
+  site_plans: array(SitePlanZod),
 });

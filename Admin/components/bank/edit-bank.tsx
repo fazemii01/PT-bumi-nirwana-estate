@@ -24,6 +24,7 @@ const EditBank = ({ open, setOpen, bank }: { open: boolean; setOpen: (value: boo
     id: bank.id,
     name: bank.name,
     interest_rate: bank.interest_rate,
+    min_tenure: bank.min_tenure,
     max_tenure: bank.max_tenure,
     logo: bank.logo,
     file: undefined,
@@ -158,6 +159,15 @@ const EditBank = ({ open, setOpen, bank }: { open: boolean; setOpen: (value: boo
             </div>
 
             {/* Max Tenure */}
+            <div className="space-y-1.5">
+              <Label htmlFor="min_tenure" className="flex items-center gap-2">
+                <IconCalendarTime className="size-4" />
+                Min Tenure
+              </Label>
+              <Input id="min_tenure" name="min_tenure" type="number" value={form.min_tenure} onChange={handleChange} placeholder="Masukkan max tenure" />
+              {errors.min_tenure && <p className="text-sm text-red-500">{errors.min_tenure}</p>}
+            </div>
+
             <div className="space-y-1.5">
               <Label htmlFor="max_tenure" className="flex items-center gap-2">
                 <IconCalendarTime className="size-4" />

@@ -1,0 +1,98 @@
+import { useEffect, useState } from 'react';
+import { BACKEND_LOCALHOST } from '@utils/const';
+import type { IBuildingProperty } from '../types/building-property-entity';
+import type { ICatalogData, ITransVersion } from '../types/data';
+
+
+function formatBuildingUnitsForCatalog(units: IBuildingProperty[]): ICatalogData[] {
+  if (!units) return [];
+
+  return units.map((unit) => {
+    const address = typeof unit.address === 'string'
+      ? JSON.parse(unit.address)
+      : unit.address || {};
+    
+    let specifications: any = {};
+    try {
+      if (typeof unit.specifications === 'string' && unit.specifications.trim() !== '') {
+        specifications = JSON.parse(unit.specifications);
+      }
+    } catch (error) {
+      console.error('Failed to parse specifications JSON:', error);
+      specifications = {}; 
+    }
+    
+    const location: ITransVersion = {
+      lat: unit.location?.coordinates?.[1]?.toString() || null,
+      lng: unit.location?.coordinates?.[0]?.toString() || null,
+    };
+
+    return {
+      id: unit.id,
+      name: unit.name,
+      price: unit.price?.toString() || '0',
+      visibility: unit.status === 'AVAILABLE',
+      address: {
+        en: address.street || '',
+        id: address.street || '',
+      },
+      location,
+      table: {
+      
+        bedrooms: specifications.general?.bedrooms || specifications.bedrooms || 0,
+        bathrooms: specifications.general?.bathrooms || specifications.bathrooms || 0,
+      },
+      description: { en: unit.description || '', id: unit.description || '' },
+      jenis: { en: unit.property?.jenis || '', id: unit.property?.jenis || '' },
+      luas: unit.building_size, 
+      type: unit.property?.type || '',
+      land_size: unit.land_size,
+      detail_description: unit.property?.detail_description || '',
+      status: unit.status,
+      contractType: specifications.contractType || '',
+      propertyType: specifications.propertyType || '',
+      realEstateType: specifications.realEstateType || '',
+      city: address.city || '',
+      street: address.street || '',
+      province: address.province || '',
+      postal_code: address.postal_code || '',
+      village: address.village || '',
+      station: {},
+      images: unit.images || [],
+      floor_plans: unit.floor_plans || [],
+    };
+  });
+}
+
+
+const useBuildingUnitsFetching = () => {
+  const [data, setData] = useState<ICatalogData[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    fetch(`${BACKEND_LOCALHOST}/building-property`, {
+      signal: controller.signal,
+    })
+      .then((response) => response.json())
+      .then((units: IBuildingProperty[]) => {
+        const formattedData = formatBuildingUnitsForCatalog(units);
+        setData(formattedData);
+      })
+      .catch((error) => {
+        if (error.name !== 'AbortError') {
+          console.error('Error fetching building units:', error);
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+
+    return () => controller.abort();
+  }, []);
+
+  return { data, loading };
+};
+
+export default useBuildingUnitsFetching;

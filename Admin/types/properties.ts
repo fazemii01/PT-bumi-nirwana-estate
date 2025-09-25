@@ -52,3 +52,13 @@ export type Address = {
   province?: string;
   postal_code?: string;
 };
+
+export type CreateImageProperty = {
+  images: ImageProperty[];
+  property_images: File[];
+};
+
+export type CreateSitePlanProperty = {
+  site_plans: SitePlan[];
+  property_site_plans: File[];
+};

@@ -1,7 +1,7 @@
 "use server";
 
-import { addProperty, deletePropertyById, getPropertyById, updateProperty } from "@/api/property";
-import { Property } from "@/types/properties";
+import { addImages, addProperty, addSitePlan, deletePropertyById, deletePropertyImagesById, deletePropertySiteById, getPropertyById, updateProperty } from "@/api/property";
+import { CreateImageProperty, CreateSitePlanProperty, ImageProperty, Property } from "@/types/properties";
 
 export async function getById({ id }: { id: string }) {
   try {
@@ -29,6 +29,32 @@ export async function submitCreateProperty({ property }: { property: Property })
   }
 }
 
+export async function submitCreateImages({ images, propertyId }: { images: CreateImageProperty; propertyId: string }) {
+  try {
+    const res = await addImages({ images, propertyId });
+    if (res.success) {
+      return { success: true, message: "Gambar berhasil ditambahkan!" };
+    } else {
+      return { success: false, message: res.error || "Gagal menambahkan gambar." };
+    }
+  } catch (error) {
+    return { success: false, message: "Terjadi error pada server." };
+  }
+}
+
+export async function submitCreateSitePlan({ site, propertyId }: { site: CreateSitePlanProperty; propertyId: string }) {
+  try {
+    const res = await addSitePlan({ site, propertyId });
+    if (res.success) {
+      return { success: true, message: "Site Plan berhasil ditambahkan!" };
+    } else {
+      return { success: false, message: res.error || "Gagal menambahkan site plan." };
+    }
+  } catch (error) {
+    return { success: false, message: "Terjadi error pada server." };
+  }
+}
+
 export async function submitUpdateProperty({ data, originalData }: { data: Property; originalData: Property }) {
   try {
     const res = await updateProperty({ data, originalData });
@@ -50,6 +76,32 @@ export async function deleteProperty({ id }: { id: string }) {
       return { success: true, message: "Property berhasil dihapus!" };
     } else {
       return { success: false, message: res.error || "Gagal menghapus property." };
+    }
+  } catch (error) {
+    return { success: false, message: "Terjadi error pada server." };
+  }
+}
+
+export async function deletePropertyImages({ id }: { id: string }) {
+  try {
+    const res = await deletePropertyImagesById(id);
+    if (res.success) {
+      return { success: true, message: "Gambar berhasil dihapus!" };
+    } else {
+      return { success: false, message: res.error || "Gagal menghapus gambar." };
+    }
+  } catch (error) {
+    return { success: false, message: "Terjadi error pada server." };
+  }
+}
+
+export async function deletePropertySitePlan({ id }: { id: string }) {
+  try {
+    const res = await deletePropertySiteById(id);
+    if (res.success) {
+      return { success: true, message: "Site plan berhasil dihapus!" };
+    } else {
+      return { success: false, message: res.error || "Gagal menghapus site plan." };
     }
   } catch (error) {
     return { success: false, message: "Terjadi error pada server." };

@@ -1,162 +1,89 @@
-import { useEffect, useMemo, useState } from 'react';
-
+import { useEffect, useState } from 'react';
 import { BACKEND_LOCALHOST } from '@utils/const';
-
-import type { ICatalogData, ITransVersion, ICatalogTable } from '../types/data';
 import type { Property } from '../types/property-entity';
-import type { IBuildingProperty } from '../types/building-property-entity';
-const useDataFetching = () => {
-  const initialData: ICatalogData = {
-    city: '',
-    contractType: '',
-    id: '',
-    price: '',
-    propertyType: '',
-    realEstateType: '',
-    station: {},
-    visibility: false,
-    description: {},
-    status: '',
-    detail_description: '',
-    address: {},
-    location: {},
-    table: {},
-    images: [],
-    floor_plans: [],
-    luas: '',
-    jenis: {},
-    land_size: '',
-    name: '',
-    type: '',
-  };
+import type { ICatalogData, ITransVersion } from '../types/data';
+import { add } from 'cheerio/lib/api/traversing';
 
-  const [data, setData] = useState<ICatalogData[]>([initialData]);
+
+function formatPropertiesForCatalog(properties: Property[]): ICatalogData[] {
+  if (!properties) return [];
+
+  return properties.map((property) => {
+    const address = typeof property.address === 'string'
+      ? JSON.parse(property.address)
+      : property.address || {};
+    const specifications = property.specifications || {};
+
+    const location: ITransVersion = {
+      lat: property.location?.coordinates?.[1]?.toString() || null,
+      lng: property.location?.coordinates?.[0]?.toString() || null,
+    };
+
+    return {
+      id: property.id,
+      name: property.name,
+      price: property.price?.toString() || '0',
+      visibility: property.status === 'AVAILABLE',
+      address: {
+        en: address.street || '',
+        id: address.street || '',
+      },
+      location,
+      table: {
+        bedrooms: specifications.kamar || 0,
+        bathrooms: specifications.kamar_mandi || 0,
+      },
+      description: { en: property.description || '', id: property.description || '' },
+      jenis: { en: property.jenis || '', id: property.jenis || '' },
+      luas: property.luas,
+      type: property.type,
+      land_size: property.land_size,
+      detail_description: property.detail_description,
+      status: property.status,
+      contractType: specifications.contractType || '',
+      propertyType: specifications.propertyType || '',
+      realEstateType: specifications.realEstateType || '',
+      city: address.city || '',
+      street: address.street || '',
+      province: address.province || '',
+      postal_code: address.postal_code || '',
+      village: address.village || '',
+      station: {},
+      images: property.images || [],
+      floor_plans: property.floor_plans || [],
+    };
+  });
+}
+
+
+const usePropertiesFetching = () => {
+  const [data, setData] = useState<ICatalogData[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // useEffect(() => {
-  //   const controller = new AbortController();
-
-  //   fetch(`${BACKEND_LOCALHOST}/properties`, {
-  //     signal: controller.signal,
-  //   })
-  //     .then((response) => response.json())
-  //     .then((data: Property[]) => memoizedSortData(data))
-  //     .catch((error) => console.error('Error fetching data:', error));
-
-  //   return () => controller.abort();
-  //   // eslint-disable-next-line
-  // }, []);
 
   useEffect(() => {
     const controller = new AbortController();
-    const { signal } = controller;
 
-    const fetchOptions = {
-      signal,
-      cache: 'no-store' as RequestCache 
-    };
-
-    const fetchParentProperties = fetch(`${BACKEND_LOCALHOST}/properties`, fetchOptions).then((res) => res.json());
-    const fetchIndividualUnits = fetch(`${BACKEND_LOCALHOST}/building-property`, fetchOptions).then((res) => res.json());
-
-
-
-    Promise.all([
-      fetchParentProperties as Promise<Property[]>,
-      fetchIndividualUnits as Promise<IBuildingProperty[]>
-    ])
-      .then(([parentProperties, individualUnits]) => {
-
-
-        const parentPropertiesMap = new Map(parentProperties.map((p: Property) => [p.id, p]));
-
-        const finalCombinedData = individualUnits.map((unit: IBuildingProperty) => {
-          const parentData = parentPropertiesMap.get(unit.property.id);
-
-          return {
-            ...parentData,
-            ...unit,
-            id: unit.id,
-          };
-        });
-
-
-        memoizedSortData(finalCombinedData as any[]);
+    fetch(`${BACKEND_LOCALHOST}/properties`, {
+      signal: controller.signal,
+    })
+      .then((response) => response.json())
+      .then((properties: Property[]) => {
+        const formattedData = formatPropertiesForCatalog(properties);
+        setData(formattedData);
       })
       .catch((error) => {
         if (error.name !== 'AbortError') {
-          console.error('Error fetching data:', error);
+          console.error('Error fetching properties:', error);
         }
+      })
+      .finally(() => {
+        setLoading(false);
       });
 
     return () => controller.abort();
-    // eslint-disable-next-line
   }, []);
 
-  const sortData = (data: Property[]) => {
-    const result = data.map((property: Property) => {
-      const address = typeof property.address === 'string' ? JSON.parse(property.address) : property.address || {};
-      const specifications = typeof property.specifications === 'string' ? JSON.parse(property.specifications) : property.specifications || {};
-
-      const location: ITransVersion = {
-        lat: property.location?.coordinates?.[1]?.toString() || null,
-        lng: property.location?.coordinates?.[0]?.toString() || null,
-      };
-
-      return {
-        ...property,
-        price: property.price.toString(),
-        visibility: property.status === 'AVAILABLE',
-        address: {
-          en: address.street || '',
-          id: address.street || '',
-        },
-        location,
-        table: {
-          // rooms: specifications.kamar,
-          bedrooms: specifications.bedrooms,
-          bathrooms: specifications.bathrooms,
-          // offices: specifications.offices,
-        },
-
-        description: property.description || {},
-        jenis: {
-          en: property.jenis || '',
-          id: property.jenis || '',
-        },
-        luas: property.luas,
-        type: property.type,
-        land_size: parseInt(property.land_size, 10).toString(),
-        name: property.name,
-        detail_description: property.detail_description,
-        status: property.status,
-        contractType: (specifications as { contractType?: string }).contractType || '',
-        propertyType: (specifications as { propertyType?: string }).propertyType || '',
-        realEstateType: (specifications as { realEstateType?: string }).realEstateType || '',
-        city: address.city || '',
-        station: {},
-        images: property.images || [],
-      };
-    });
-
-    const sortResult = result
-      .sort((a, b) => (a.id > b.id ? -1 : 1));
-    setData(sortResult);
-    setLoading(false);
-  };
-
-  const memoizedSortData = useMemo(
-    () => sortData,
-    // eslint-disable-next-line
-    [],
-  );
-
-  return {
-    data,
-    loading,
-    initialData,
-  };
+  return { data, loading };
 };
 
-export default useDataFetching;
-
+export default usePropertiesFetching;

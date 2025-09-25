@@ -5,6 +5,10 @@ interface ICatalogStaticData {
 	realEstateType: string;
 	city: string;
 	price: string;
+	street: string;
+	province: string;
+	village: string;
+	postal_code: string;
 }
 
 export interface IDataBaseResponse extends ICatalogStaticData {
@@ -14,7 +18,7 @@ export interface IDataBaseResponse extends ICatalogStaticData {
 export interface IImage {
 	id: string;
 	image_url: string;
-	caption: string;
+	caption: string | null;
 	sort_order: number;
 }
 
