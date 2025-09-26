@@ -3,11 +3,7 @@ import React, { useEffect, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Property } from "@/types/properties";
-import {
-  PriceUnit,
-  BuildingProperty,
-  BuildingStatus,
-} from "@/types/building-properties";
+import { PriceUnit, BuildingProperty, BuildingStatus } from "@/types/building-properties";
 import { Camera, Info, MapPin, Settings } from "lucide-react";
 import { showToastError, showToastSuccess } from "@/components/toast";
 import { BuildingPropertyZod } from "@/lib/zod";
@@ -68,9 +64,7 @@ const BuildingCreateForm = ({ property }: { property: Property[] }) => {
     }));
   };
 
-  const handleSpecificationChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleSpecificationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -81,9 +75,7 @@ const BuildingCreateForm = ({ property }: { property: Property[] }) => {
     }));
   };
 
-  const handleTextAreaSpecificationChange = (
-    e: React.ChangeEvent<HTMLTextAreaElement>
-  ) => {
+  const handleTextAreaSpecificationChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -104,20 +96,12 @@ const BuildingCreateForm = ({ property }: { property: Property[] }) => {
   };
 
   const handleSingleKPRUpload = (file: File) => {
-    const newKprFileObject = {
-      file: file,
-      preview: URL.createObjectURL(file),
-    };
+    const preview = URL.createObjectURL(file);
 
     setFormData((prev) => ({
       ...prev,
-      // Langsung ganti array lama dengan array baru
-      // yang HANYA berisi satu file ini.
-      // Bukan: [...prev.building_kpr_rules, newKprFileObject]
-      building_kpr_rules: [newKprFileObject],
-
-      // Properti 'building_kpr_file' bisa dihapus dari state Anda
-      // karena datanya sudah ada di dalam 'building_kpr_rules'
+      building_kpr_rules: [...prev.building_kpr_rules, { file, preview }],
+      building_kpr_file: [...(prev.building_kpr_file || []), file],
     }));
   };
 
@@ -132,17 +116,13 @@ const BuildingCreateForm = ({ property }: { property: Property[] }) => {
   const removeImage = (index: number) => {
     setFormData((prev) => {
       const updatedImages = prev.images.filter((_, i) => i !== index);
-      const updatedFiles = (prev.building_images || []).filter(
-        (_, i) => i !== index
-      );
+      const updatedFiles = (prev.building_images || []).filter((_, i) => i !== index);
       return { ...prev, images: updatedImages, property_images: updatedFiles };
     });
   };
 
   const handleSingleFloorPlanUpload = (file: File) => {
-    const preview = file.type.startsWith("image/")
-      ? URL.createObjectURL(file)
-      : undefined;
+    const preview = file.type.startsWith("image/") ? URL.createObjectURL(file) : undefined;
     setFormData((prev) => ({
       ...prev,
       floor_plans: [...prev.floor_plans, { file, preview, name: "" }],
@@ -161,9 +141,7 @@ const BuildingCreateForm = ({ property }: { property: Property[] }) => {
   const removeFloorPlan = (index: number) => {
     setFormData((prev) => {
       const updatedPlans = prev.floor_plans.filter((_, i) => i !== index);
-      const updatedFiles = (prev.building_floor_plans || []).filter(
-        (_, i) => i !== index
-      );
+      const updatedFiles = (prev.building_floor_plans || []).filter((_, i) => i !== index);
       return {
         ...prev,
         floor_plans: updatedPlans,
@@ -174,12 +152,8 @@ const BuildingCreateForm = ({ property }: { property: Property[] }) => {
 
   const removeKPRRules = (index: number) => {
     setFormData((prev) => {
-      const updatedRules = prev.building_kpr_rules.filter(
-        (_, i) => i !== index
-      );
-      const updatedFiles = (prev.building_kpr_file || []).filter(
-        (_, i) => i !== index
-      );
+      const updatedRules = prev.building_kpr_rules.filter((_, i) => i !== index);
+      const updatedFiles = (prev.building_kpr_file || []).filter((_, i) => i !== index);
       return {
         ...prev,
         building_kpr_rules: updatedRules,
@@ -190,18 +164,12 @@ const BuildingCreateForm = ({ property }: { property: Property[] }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("handleSubmit terpanggil 🚀");
-    console.log("Data form:", formData);
     const result = BuildingPropertyZod.safeParse(formData);
     if (!result.success) {
       const firstError = result.error.errors[0];
       const path = firstError.path;
       let tab = "basic";
-      if (
-        path.includes("images") ||
-        path.includes("floor_plans") ||
-        path.includes("building_kpr_rules")
-      ) {
+      if (path.includes("images") || path.includes("floor_plans") || path.includes("building_kpr_rules")) {
         tab = "media";
       } else if (path.includes("specifications")) {
         tab = "specs";
@@ -222,6 +190,7 @@ const BuildingCreateForm = ({ property }: { property: Property[] }) => {
 
       if (!res.success) {
         showToastError(res.message || "Failed new data building property.");
+        return;
       }
 
       router.push(`/properties/detail/${res.propertyId}?tab=buildings`);
@@ -240,44 +209,24 @@ const BuildingCreateForm = ({ property }: { property: Property[] }) => {
 
       <form onSubmit={handleSubmit}>
         <div>
-          <Tabs
-            value={activeTab}
-            onValueChange={setActiveTab}
-            className="space-y-6"
-          >
-            <TabsList className="grid grid-cols-4 w-full h-auto">
-              <TabsTrigger
-                value="basic"
-                className="flex items-center justify-center py-2 cursor-pointer"
-              >
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+            <TabsList className="grid grid-cols-3 w-full h-auto">
+              <TabsTrigger value="basic" className="flex items-center justify-center py-2 cursor-pointer">
                 <Info className="w-4 h-4 sm:hidden" />
                 <span className="hidden sm:inline">Info Dasar</span>
               </TabsTrigger>
-              <TabsTrigger
-                value="media"
-                className="flex items-center justify-center py-2 cursor-pointer"
-              >
+              <TabsTrigger value="media" className="flex items-center justify-center py-2 cursor-pointer">
                 <Camera className="w-4 h-4 sm:hidden" />
                 <span className="hidden sm:inline">Media</span>
               </TabsTrigger>
-              <TabsTrigger
-                value="specs"
-                className="flex items-center justify-center py-2 cursor-pointer"
-              >
+              <TabsTrigger value="specs" className="flex items-center justify-center py-2 cursor-pointer">
                 <Settings className="w-4 h-4 sm:hidden" />
                 <span className="hidden sm:inline">Spesifikasi</span>
               </TabsTrigger>
             </TabsList>
 
             {/* Basic Information Tab */}
-            <BasicInfoForm
-              formData={formData}
-              handleSelectChange={handleSelectChange}
-              handleInputChange={handleInputChange}
-              handleTextAreaChange={handleTextAreaChange}
-              property={property}
-              error={error}
-            />
+            <BasicInfoForm formData={formData} handleSelectChange={handleSelectChange} handleInputChange={handleInputChange} handleTextAreaChange={handleTextAreaChange} property={property} error={error} />
 
             {/* Media Tab */}
             {activeTab === "media" && (
@@ -296,23 +245,11 @@ const BuildingCreateForm = ({ property }: { property: Property[] }) => {
             )}
 
             {/* Specifications Tab */}
-            {activeTab === "specs" && (
-              <SpecificationsForm
-                formData={formData}
-                handleSpecificationChange={handleSpecificationChange}
-                handleTextAreaSpecificationChange={
-                  handleTextAreaSpecificationChange
-                }
-                error={error}
-              />
-            )}
+            {activeTab === "specs" && <SpecificationsForm formData={formData} handleSpecificationChange={handleSpecificationChange} handleTextAreaSpecificationChange={handleTextAreaSpecificationChange} error={error} />}
           </Tabs>
 
           <div className="flex justify-end gap-4 pt-6 border-t">
-            <Button
-              type="submit"
-              className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
-            >
+            <Button type="submit" className="bg-blue-600 hover:bg-blue-700 cursor-pointer">
               {pending ? "Loading..." : "Publish Property"}
             </Button>
           </div>

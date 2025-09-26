@@ -6,7 +6,7 @@ import { Agent } from "@/types/agent";
 import { Developer } from "@/types/developer";
 import { Property } from "@/types/properties";
 
-import { Camera, Info, MapPin, Settings } from "lucide-react";
+import { ArrowLeft, Camera, Info, MapPin, Save, Settings } from "lucide-react";
 import { PropertyZod } from "@/lib/zod";
 import { showToastError, showToastSuccess } from "@/components/toast";
 import BasicInfoForm from "@/components/properties/create/basic-info-form";
@@ -16,14 +16,10 @@ import MediaForm from "@/components/properties/create/media-form";
 import { submitCreateProperty } from "@/actions/property";
 
 import { useRouter } from "next/navigation";
+import { Spinner } from "@/components/ui/spinner";
+import Link from "next/link";
 
-const PropertyCreateForm = ({
-  agents,
-  developers,
-}: {
-  agents: Agent[];
-  developers: Developer[];
-}) => {
+const PropertyCreateForm = ({ agents, developers }: { agents: Agent[]; developers: Developer[] }) => {
   const router = useRouter();
   const [formData, setFormData] = useState<Property>({
     id: "",
@@ -71,11 +67,7 @@ const PropertyCreateForm = ({
     }));
   };
 
-  const handleLocationChange = (
-    e:
-      | React.ChangeEvent<HTMLInputElement>
-      | { target: { name: string; value: string } }
-  ) => {
+  const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement> | { target: { name: string; value: string } }) => {
     const { name, value } = e.target;
     const numValue = parseFloat(value) || 0;
     console.log(numValue);
@@ -85,19 +77,12 @@ const PropertyCreateForm = ({
       location: {
         ...prev.location,
         type: "Point",
-        coordinates:
-          name === "lng"
-            ? [numValue, prev.location!.coordinates[1]]
-            : [prev.location!.coordinates[0], numValue],
+        coordinates: name === "lng" ? [numValue, prev.location!.coordinates[1]] : [prev.location!.coordinates[0], numValue],
       },
     }));
   };
 
-  const handleAddressChange = (
-    e:
-      | React.ChangeEvent<HTMLInputElement>
-      | { target: { name: string; value: string } }
-  ) => {
+  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement> | { target: { name: string; value: string } }) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -131,18 +116,14 @@ const PropertyCreateForm = ({
   const removeImage = (index: number) => {
     setFormData((prev) => {
       const updatedImages = prev.images.filter((_, i) => i !== index);
-      const updatedFiles = (prev.property_images || []).filter(
-        (_, i) => i !== index
-      );
+      const updatedFiles = (prev.property_images || []).filter((_, i) => i !== index);
       return { ...prev, images: updatedImages, property_images: updatedFiles };
     });
   };
 
   // Tambah site plan
   const handleSingleSitePlanUpload = (file: File) => {
-    const preview = file.type.startsWith("image/")
-      ? URL.createObjectURL(file)
-      : undefined;
+    const preview = file.type.startsWith("image/") ? URL.createObjectURL(file) : undefined;
     setFormData((prev) => ({
       ...prev,
       site_plans: [...prev.site_plans, { file, preview, name: "" }],
@@ -163,9 +144,7 @@ const PropertyCreateForm = ({
   const removeSitePlan = (index: number) => {
     setFormData((prev) => {
       const updatedPlans = prev.site_plans.filter((_, i) => i !== index);
-      const updatedFiles = (prev.property_site_plans || []).filter(
-        (_, i) => i !== index
-      );
+      const updatedFiles = (prev.property_site_plans || []).filter((_, i) => i !== index);
       return {
         ...prev,
         site_plans: updatedPlans,
@@ -200,6 +179,7 @@ const PropertyCreateForm = ({
 
       if (!res.success) {
         showToastError(res.message || "Failed new data property");
+        return;
       }
 
       router.push("/properties");
@@ -218,55 +198,27 @@ const PropertyCreateForm = ({
 
       <form onSubmit={handleSubmit}>
         <div>
-          <Tabs
-            value={activeTab}
-            onValueChange={setActiveTab}
-            className="space-y-6"
-          >
-            <TabsList className="grid grid-cols-4 w-full h-auto">
-              <TabsTrigger
-                value="basic"
-                className="flex items-center justify-center py-2 cursor-pointer"
-              >
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+            <TabsList className="grid grid-cols-3 w-full h-auto">
+              <TabsTrigger value="basic" className="flex items-center justify-center py-2 cursor-pointer">
                 <Info className="w-4 h-4 sm:hidden" />
                 <span className="hidden sm:inline">Info Dasar</span>
               </TabsTrigger>
-              <TabsTrigger
-                value="location"
-                className="flex items-center justify-center py-2 cursor-pointer"
-              >
+              <TabsTrigger value="location" className="flex items-center justify-center py-2 cursor-pointer">
                 <MapPin className="w-4 h-4 sm:hidden" />
                 <span className="hidden sm:inline">Lokasi</span>
               </TabsTrigger>
-              <TabsTrigger
-                value="media"
-                className="flex items-center justify-center py-2 cursor-pointer"
-              >
+              <TabsTrigger value="media" className="flex items-center justify-center py-2 cursor-pointer">
                 <Camera className="w-4 h-4 sm:hidden" />
                 <span className="hidden sm:inline">Media</span>
               </TabsTrigger>
             </TabsList>
 
             {/* Basic Information Tab */}
-            <BasicInfoForm
-              formData={formData}
-              handleSelectChange={handleSelectChange}
-              handleInputChange={handleInputChange}
-              handleTextAreaChange={handleTextAreaChange}
-              developers={developers}
-              agents={agents}
-              error={error}
-            />
+            <BasicInfoForm formData={formData} handleSelectChange={handleSelectChange} handleInputChange={handleInputChange} handleTextAreaChange={handleTextAreaChange} developers={developers} agents={agents} error={error} />
 
             {/* Location Tab */}
-            {activeTab === "location" && (
-              <LocationForm
-                formData={formData}
-                handleAddressChange={handleAddressChange}
-                handleLocationChange={handleLocationChange}
-                error={error}
-              />
-            )}
+            {activeTab === "location" && <LocationForm formData={formData} handleAddressChange={handleAddressChange} handleLocationChange={handleLocationChange} error={error} />}
 
             {/* Media Tab */}
             {activeTab === "media" && (
@@ -283,12 +235,16 @@ const PropertyCreateForm = ({
             )}
           </Tabs>
 
-          <div className="flex justify-end gap-4 pt-6 border-t">
-            <Button
-              type="submit"
-              className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
-            >
-              {pending ? "Loading..." : "Publish Property"}
+          <div className="flex justify-between gap-4 pt-6 border-t">
+            <Link href="/properties">
+              <Button variant="outline" className="flex items-center gap-2">
+                <ArrowLeft className="w-4 h-4" />
+                <span className="hidden sm:inline">Back to Properties</span>
+              </Button>
+            </Link>
+            <Button type="submit" className="bg-blue-600 hover:bg-blue-700 cursor-pointer">
+              <Save className="w-4 h-4" />
+              {pending ? <Spinner className="w-5 h-5 text-white" /> : "Publish Property"}
             </Button>
           </div>
         </div>

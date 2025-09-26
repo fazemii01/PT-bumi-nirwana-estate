@@ -19,14 +19,14 @@ import { BanksModule } from './banks/banks.module';
 import { LoanSimulationsModule } from './loan_simulations/loan_simulations.module';
 import { NewsCategoryModule } from './news_category/news_category.module';
 import { NewsModule } from './news/news.module';
-// import { CekEligibilityModule } from './cek_eligibility/cek_eligibility.module';
-// import { OllamaService } from '@/ollama/ollama.service';
-// import { AiService } from './ai/ai.service';
-// import { AiModule } from './ai/ai.module';
-// import { OllamaModule } from './ollama/ollama.module';
-// import { FcmService } from './fcm/fcm.service';
-// import { FcmModule } from './fcm/fcm.module';
-// import { DeviceTokenModule } from './device-token/device-token.module';
+import { CekEligibilityModule } from './cek_eligibility/cek_eligibility.module';
+import { OllamaService } from '@/ollama/ollama.service';
+import { AiService } from './ai/ai.service';
+import { AiModule } from './ai/ai.module';
+import { OllamaModule } from './ollama/ollama.module';
+import { FcmService } from './fcm/fcm.service';
+import { FcmModule } from './fcm/fcm.module';
+import { DeviceTokenModule } from './device-token/device-token.module';
 import { BuildingPropertyModule } from './building_property/building_property.module';
 @Module({
   imports: [
@@ -61,11 +61,11 @@ import { BuildingPropertyModule } from './building_property/building_property.mo
     LoanSimulationsModule,
     NewsCategoryModule,
     NewsModule,
-    // CekEligibilityModule,
-    // AiModule,
-    // OllamaModule,
-    // FcmModule,
-    // DeviceTokenModule,
+    CekEligibilityModule,
+    AiModule,
+    OllamaModule,
+    FcmModule,
+    DeviceTokenModule,
     BuildingPropertyModule,
   ],
 
@@ -84,8 +84,8 @@ import { BuildingPropertyModule } from './building_property/building_property.mo
       provide: APP_PIPE,
       useClass: ValidationPipe,
     },
-    // AiService,
-    // FcmService,
+    AiService,
+    FcmService,
   ],
 })
 export class AppModule {}
