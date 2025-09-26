@@ -7,7 +7,7 @@ import { add } from 'cheerio/lib/api/traversing';
 
 function formatPropertiesForCatalog(properties: Property[]): ICatalogData[] {
   if (!properties) return [];
-
+  
   return properties.map((property) => {
     const address = typeof property.address === 'string'
       ? JSON.parse(property.address)

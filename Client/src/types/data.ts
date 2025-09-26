@@ -2,13 +2,9 @@ interface ICatalogStaticData {
 	id: string;
 	contractType: string;
 	propertyType: string;
-	realEstateType: string;
-	city: string;
+	// realEstateType: string;
 	price: string;
-	street: string;
-	province: string;
-	village: string;
-	postal_code: string;
+	
 }
 
 export interface IDataBaseResponse extends ICatalogStaticData {
@@ -18,7 +14,7 @@ export interface IDataBaseResponse extends ICatalogStaticData {
 export interface IImage {
 	id: string;
 	image_url: string;
-	caption: string | null;
+	caption: string;
 	sort_order: number;
 }
 
@@ -33,6 +29,7 @@ export interface ICatalogData extends ICatalogStaticData {
 	visibility: boolean;
 	table: ICatalogTable;
 	description: ITransVersion;
+	realEstateType: string;
 	jenis: ITransVersion;
 	detail_description: string;
 	location: ITransVersion;
@@ -45,6 +42,11 @@ export interface ICatalogData extends ICatalogStaticData {
 	status: string;
 	name: string;
 	type: string;
+	street: string;
+	province: string;
+	village: string;
+	postal_code: string;
+	city: string;
 }
 
 export interface ITransVersion {
