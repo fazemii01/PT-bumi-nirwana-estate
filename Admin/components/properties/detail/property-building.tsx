@@ -177,14 +177,18 @@ const PropertyBuilding = ({
                             Edit
                           </Button>
                         </Link>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="flex-1 rounded-lg hover:bg-gray-50"
+                        <Link
+                          href={`/properties/building-properties/detail/${building.id}`}
                         >
-                          <Eye className="w-4 h-4 mr-2" />
-                          View
-                        </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex-1 rounded-lg hover:bg-gray-50"
+                          >
+                            <Eye className="w-4 h-4 mr-2" />
+                            View
+                          </Button>
+                        </Link>
                         <Button
                           variant="ghost"
                           size="sm"

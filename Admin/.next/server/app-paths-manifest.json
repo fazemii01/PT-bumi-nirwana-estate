@@ -1,4 +1,6 @@
 {
-  "/(admin)/properties/building-properties/edit/[id]/page": "app/(admin)/properties/building-properties/edit/[id]/page.js",
-  "/(admin)/properties/page": "app/(admin)/properties/page.js"
+  "/(admin)/properties/building-properties/detail/[id]/page": "app/(admin)/properties/building-properties/detail/[id]/page.js",
+  "/(admin)/properties/detail/[id]/page": "app/(admin)/properties/detail/[id]/page.js",
+  "/(admin)/properties/page": "app/(admin)/properties/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js"
 }
