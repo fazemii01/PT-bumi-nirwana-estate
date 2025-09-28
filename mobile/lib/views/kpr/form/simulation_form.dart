@@ -3,13 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:mobile_nirwana/core/utils/api.dart';
 import 'package:mobile_nirwana/data/models/bank.dart';
-import 'package:mobile_nirwana/data/models/property/property.dart';
+import 'package:mobile_nirwana/data/models/building_property/building_property.dart';
 import 'package:mobile_nirwana/helper/address.dart';
 import 'package:mobile_nirwana/helper/price.dart';
 import 'package:mobile_nirwana/views/kpr/form/widgets/bank_simulation.dart';
 
 import 'package:mobile_nirwana/views/kpr/form/simulation_form_controller.dart';
-import 'package:mobile_nirwana/views/kpr/form/widgets/property_selection.dart';
+import 'package:mobile_nirwana/views/kpr/form/widgets/building_property_selection.dart';
 import 'package:mobile_nirwana/views/kpr/form/widgets/tenure_selection_modal.dart';
 import 'package:mobile_nirwana/widgets/currency_input_formater.dart';
 
@@ -38,18 +38,18 @@ class _SimulationFormState extends State<SimulationForm> {
     super.initState();
 
     if (Get.arguments != null && Get.arguments is String) {
-      final String propertyId = Get.arguments;
+      final String buildingId = Get.arguments;
 
-      once(_simulationFormController.properties,
-          (List<Property> propertiesList) {
+      once(_simulationFormController.building,
+          (List<BuildingProperty> buildingList) {
         final selectedProp =
-            propertiesList.firstWhereOrNull((p) => p.id == propertyId);
+            buildingList.firstWhereOrNull((b) => b.id == buildingId);
 
         if (selectedProp != null) {
           setState(() {
-            _simulationFormController.selectedProperty = selectedProp;
-            _simulationFormController.propertyId.value = selectedProp.id;
-            _simulationFormController.propertyPriceController.text =
+            _simulationFormController.selectedBuildingProperty = selectedProp;
+            _simulationFormController.buildingId.value = selectedProp.id;
+            _simulationFormController.buildingPriceController.text =
                 'Rp ${formatPrice(selectedProp.price)}';
           });
         }
@@ -97,19 +97,20 @@ class _SimulationFormState extends State<SimulationForm> {
     );
   }
 
-  void _showPropertySelectionModal() {
+  void _showBuildingSelectionModal() {
     showDialog(
       context: context,
       barrierDismissible: true,
-      builder: (context) => PropertySelectionModal(
+      builder: (context) => BuildingPropertySelection(
         properties: _simulationFormController.properties,
-        selectedProperty: _simulationFormController.selectedProperty,
-        onPropertySelected: (Property property) {
+        selectedBuildingProperty:
+            _simulationFormController.selectedBuildingProperty,
+        onBuildingPropertySelected: (BuildingProperty building) {
           setState(() {
-            _simulationFormController.selectedProperty = property;
-            _simulationFormController.propertyId.value = property.id;
-            _simulationFormController.propertyPriceController.text =
-                'Rp ${formatPrice(property.price)}';
+            _simulationFormController.selectedBuildingProperty = building;
+            _simulationFormController.buildingId.value = building.id;
+            _simulationFormController.buildingPriceController.text =
+                'Rp ${formatPrice(building.price)}';
           });
           Navigator.pop(context);
         },
@@ -118,7 +119,7 @@ class _SimulationFormState extends State<SimulationForm> {
   }
 
   void _calculateKPR() {
-    if (_simulationFormController.selectedProperty == null) {
+    if (_simulationFormController.selectedBuildingProperty == null) {
       setState(() {
         _propertyError = "Silahkan pilih property dahulu";
       });
@@ -276,10 +277,10 @@ class _SimulationFormState extends State<SimulationForm> {
           _buildPropertySelector(),
           const SizedBox(height: 20),
 
-          if (_simulationFormController.selectedProperty != null) ...[
+          if (_simulationFormController.selectedBuildingProperty != null) ...[
             _buildLabel('Harga Properti'),
             _buildCurrencyField(
-              controller: _simulationFormController.propertyPriceController,
+              controller: _simulationFormController.buildingPriceController,
               hintText: 'Masukkan harga properti',
               enable: false,
               validator: (value) {
@@ -626,7 +627,7 @@ class _SimulationFormState extends State<SimulationForm> {
       children: [
         GestureDetector(
           onTap: () {
-            _showPropertySelectionModal();
+            _showBuildingSelectionModal();
             setState(() {
               _propertyError = null;
             });
@@ -644,13 +645,14 @@ class _SimulationFormState extends State<SimulationForm> {
             ),
             child: Row(
               children: [
-                if (_simulationFormController.selectedProperty?.images !=
+                if (_simulationFormController
+                        .selectedBuildingProperty?.images !=
                     null) ...[
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: Image.network(
                       Imgurl.get(
-                          'property/property_images/${_getPropertyImage(_simulationFormController.selectedProperty!)}'),
+                          'building_property/building_images/${_getBuildingImage(_simulationFormController.selectedBuildingProperty!)}'),
                       width: 40,
                       height: 40,
                       fit: BoxFit.cover,
@@ -679,23 +681,25 @@ class _SimulationFormState extends State<SimulationForm> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        _simulationFormController.selectedProperty?.name ??
+                        _simulationFormController
+                                .selectedBuildingProperty?.name ??
                             'Pilih Properti',
                         style: TextStyle(
-                          color:
-                              _simulationFormController.selectedProperty != null
-                                  ? Colors.black87
-                                  : Colors.grey[500],
+                          color: _simulationFormController
+                                      .selectedBuildingProperty !=
+                                  null
+                              ? Colors.black87
+                              : Colors.grey[500],
                           fontSize: 16,
                           fontWeight: FontWeight.w400,
                         ),
                       ),
-                      if (_simulationFormController.selectedProperty !=
+                      if (_simulationFormController.selectedBuildingProperty !=
                           null) ...[
                         const SizedBox(height: 2),
                         Text(
                           AreaHelper.formatSingleLine(_simulationFormController
-                              .selectedProperty!.address),
+                              .selectedBuildingProperty!.property!.address),
                           style: TextStyle(
                             color: Colors.grey[600],
                             fontSize: 12,
@@ -727,9 +731,9 @@ class _SimulationFormState extends State<SimulationForm> {
   }
 }
 
-String _getPropertyImage(Property property) {
-  if (property.images.isNotEmpty && property.images[0].image_url != null) {
-    return property.images[0].image_url!;
+String _getBuildingImage(BuildingProperty building) {
+  if (building.images.isNotEmpty && building.images[0].image_url != null) {
+    return building.images[0].image_url!;
   }
   return "";
 }

@@ -1,13 +1,13 @@
-class PropertyFloorPlan {
+class PropertySitePlan {
   final String id;
   final String name;
   final String file_url;
 
-  PropertyFloorPlan(
+  PropertySitePlan(
       {required this.id, required this.name, required this.file_url});
 
-  factory PropertyFloorPlan.fromJson(Map<String, dynamic> json) {
-    return PropertyFloorPlan(
+  factory PropertySitePlan.fromJson(Map<String, dynamic> json) {
+    return PropertySitePlan(
         id: json['id'], name: json['name'], file_url: json['file_url']);
   }
 

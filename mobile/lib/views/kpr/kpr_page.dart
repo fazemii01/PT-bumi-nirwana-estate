@@ -213,13 +213,13 @@ class _KprPageState extends State<KprPage> {
                             overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 4),
-                          Text(
-                            'Harga: ${formatPrice(simulation.property?.price ?? 0.0)}',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[600],
-                            ),
-                          ),
+                          // Text(
+                          //   'Harga: ${formatPrice(simulation.property?.price ?? 0.0)}',
+                          //   style: TextStyle(
+                          //     fontSize: 12,
+                          //     color: Colors.grey[600],
+                          //   ),
+                          // ),
                           const SizedBox(height: 8),
                           Row(
                             children: [

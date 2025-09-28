@@ -126,7 +126,10 @@ export class BuildingPropertyService {
 
   async findAll(): Promise<BuildingProperty[]> {
     return await this.buildingPropertyRepository.find({
-      where: { status_delete: DeletedAtStatus.NOT_DELETED },
+      where: {
+        status_delete: DeletedAtStatus.NOT_DELETED,
+        property: { status_delete: DeletedAtStatus.NOT_DELETED },
+      },
       relations: ['property', 'images', 'floor_plans', 'building_kpr_rules'],
     });
   }

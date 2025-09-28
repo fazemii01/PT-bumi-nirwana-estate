@@ -121,6 +121,8 @@ const BuildingPropertyEditForm = ({ initialData, properties }: { initialData: Bu
       const firstError = result.error.errors[0];
       const path = firstError.path;
 
+      console.log(firstError.path, firstError.message);
+
       let tab = "basic";
       if (path.includes("images") || path.includes("floor_plans") || path.includes("building_kpr_rules")) {
         tab = "media";

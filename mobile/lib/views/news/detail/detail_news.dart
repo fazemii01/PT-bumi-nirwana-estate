@@ -456,14 +456,14 @@ class _NewsDetailPageState extends State<NewsDetailPage> {
                             ],
                           ),
                           const SizedBox(height: 8),
-                          Text(
-                            formatPrice(property.price),
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFFDBB837),
-                            ),
-                          ),
+                          // Text(
+                          //   formatPrice(property.price),
+                          //   style: const TextStyle(
+                          //     fontSize: 16,
+                          //     fontWeight: FontWeight.bold,
+                          //     color: Color(0xFFDBB837),
+                          //   ),
+                          // ),
                         ],
                       ),
                     ),
