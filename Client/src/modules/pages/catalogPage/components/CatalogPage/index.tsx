@@ -1,6 +1,6 @@
-import {FC, useEffect, useState} from 'react';
-import {useTranslation} from 'react-i18next';
-import {useRouter} from 'next/router';
+import { FC, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useRouter } from 'next/router';
 
 import Loader from '@modules/common/components/Loader';
 import Meta from '@modules/common/components/Meta';
@@ -27,14 +27,14 @@ import {
 	useDataFetchingBuilding,
 	useMediaQuery,
 } from '@hooks/index';
-import {CATALOG_NAME, LAPTOP_BREAKPOINT} from '@utils/const';
+import { CATALOG_NAME, LAPTOP_BREAKPOINT } from '@utils/const';
 import {
 	formatCatalogTranslation,
 	formatCityTranslation,
 	formatTranslation,
 } from '@utils/formatters';
 
-import type {ICatalogData} from '@t-types/data';
+import type { ICatalogData } from '@t-types/data';
 
 import s from './CatalogPage.module.scss';
 import Page404 from "@modules/pages/page404/components/Page404";
@@ -48,31 +48,31 @@ const CatalogPage: FC = () => {
 	// const isLaptop = useMediaQuery(LAPTOP_BREAKPOINT);
 	// const currentPageId = catalog;
 	// const [pageData, setPageData] = useState<ICatalogData>(initialData);
-	
+
 	const router = useRouter();
-    const {catalog: currentPageId} = router.query;
-    const {data, loading} = useDataFetching(); 
-    const {i18n, t: tCommon} = useTranslation('common');
-    const {t: tCatalog} = useTranslation('catalog');
-    const isLaptop = useMediaQuery(LAPTOP_BREAKPOINT);
-    const [pageData, setPageData] = useState<ICatalogData | null>(null);
+	const { catalog: currentPageId } = router.query;
+	const { data, loading } = useDataFetching();
+	const { i18n, t: tCommon } = useTranslation('common');
+	const { t: tCatalog } = useTranslation('catalog');
+	const isLaptop = useMediaQuery(LAPTOP_BREAKPOINT);
+	const [pageData, setPageData] = useState<ICatalogData | null>(null);
 
 	// const itemLocationAndAddress = useCatalogItemFullAddress(
-    //     pageData?.realEstateType,
-    //     pageData?.location,
-    //     pageData?.address,
-    // );
+	//     pageData?.realEstateType,
+	//     pageData?.location,
+	//     pageData?.address,
+	// );
 	const itemLocationAndAddress = useCatalogItemFullAddress(
-        pageData?.realEstateType ?? '',
-        pageData?.location ?? {},       
-        pageData?.address ?? {},     
+		pageData?.realEstateType ?? '',
+		pageData?.location ?? {},
+		pageData?.address ?? {},
 		pageData?.city ?? '',
 		pageData?.street ?? '',
 		pageData?.province ?? '',
 		pageData?.village ?? '',
 		pageData?.postal_code ?? '',
-		   
-    );
+
+	);
 
 	useEffect(() => {
 		if (!router.isReady || loading) return;
@@ -80,16 +80,21 @@ const CatalogPage: FC = () => {
 		setPageData(foundItem || null);
 
 	}, [data, currentPageId, router.isReady, loading]);
-	
-    if (loading) {
-        return <Loader type="fullscreen"/>;
-    }
-    if (!pageData) {
-        return <Page404/>
-    }
+
+	if (loading) {
+		return <Loader type="fullscreen" />;
+	}
+	if (!pageData) {
+		return <Page404 />
+	}
 	const {
 		address,
 		city,
+		province,
+		village,
+		street,
+		postal_code,
+
 		description,
 		detail_description,
 		id,
@@ -109,7 +114,7 @@ const CatalogPage: FC = () => {
 		type
 	} = pageData;
 
-	
+
 	// useEffect(() => {
 	// 	if (!router.isReady) return;
 	// 	data.map((value: ICatalogData) => {
@@ -126,6 +131,9 @@ const CatalogPage: FC = () => {
 	);
 
 	const itemTags = [propertyType, realEstateType];
+	const itemD = [city, street, province, village, postal_code]
+    .filter(Boolean) 
+    .join(', ');     
 	const itemAddress = formatTranslation(i18n.language, address);
 	const itemStation = formatTranslation(i18n.language, station);
 	const itemLocation = formatTranslation(i18n.language, location);
@@ -138,6 +146,7 @@ const CatalogPage: FC = () => {
 	const itemRealEstateTypeAndAddress = `${realEstateTranslation} ${tCommon(
 		'ON',
 	)} ${itemAddress}`;
+	
 
 	// const itemLocationAndAddress = useCatalogItemFullAddress(
 	// 	realEstateType,
@@ -152,27 +161,33 @@ const CatalogPage: FC = () => {
 	);
 
 	if (loading) {
-		return <Loader type="fullscreen"/>;
+		return <Loader type="fullscreen" />;
 	}
 
 	if (pageData.id === '0' || !pageData.id) {
-		return <Page404/>
+		return <Page404 />
 	}
 
 	return (
 		<>
-			<Meta title={itemLocationAndAddress} desc={pageMetaDescription}/>
+			<Meta title={itemLocationAndAddress} desc={pageMetaDescription} />
 
-			<CatalogPageCrumbs address={itemRealEstateTypeAndAddress}/>
+			<CatalogPageCrumbs address={itemRealEstateTypeAndAddress} />
 			<CatalogPageHeader
 				city={itemCity}
 				address={itemLocationAndAddress}
 				// price={price}
+				makau={itemD}
 				tags={itemTags}
-				images={images} province={''} village={''} postal_code={''} street={''}/>
+				images={images} 
+				province={''} 
+				village={''} 
+				postal_code={''} 
+				street={''} 
+				/>
 			<section className={s.container}>
 				<div>
-					{id && <CatalogPageCarousel images={images} floorPlans={floor_plans}/>}
+					{id && <CatalogPageCarousel images={images} floorPlans={floor_plans} />}
 					<CatalogPageInformation
 						contractType={contractType}
 						realEstateType={realEstateType}
@@ -198,12 +213,12 @@ const CatalogPage: FC = () => {
 						<p className={s.feedbackDescription}>
 							{tCatalog('FEEDBACK.IF_YOU_LIKE_THIS_PROPERTY')}
 						</p>
-						<FeedbackForm isColumnType message={itemLocationAndAddress}/>
+						<FeedbackForm isColumnType message={itemLocationAndAddress} />
 					</div>
 				</aside>
 			</section>
 
-			{isLaptop && <CatalogPageNotice/>}
+			{isLaptop && <CatalogPageNotice />}
 		</>
 	);
 };

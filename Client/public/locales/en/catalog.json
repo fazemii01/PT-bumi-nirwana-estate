@@ -10,6 +10,8 @@
   "INFORMATION": "Information",
   "VIDEO": "Video",
   "OBJECT_ID": "Object ID:",
+  "ORANG": "Agent",
+  "DEVEP": "Developer",
   "OBJECTS": "objects",
   "STATUS" : "Status",
   "HELLO_I_AM_INTERESTED": "Hello, I am interested",

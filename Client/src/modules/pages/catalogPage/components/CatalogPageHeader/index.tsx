@@ -23,12 +23,13 @@ const CatalogPageHeader: FC<{
 	address: string;
 	// price: string;
 	tags: string[];
+	makau: string;
 	images: ImageType[];
 	province: string;
 	village: string;
 	postal_code: string;
 	street: string;
-}> = ({ city, address, tags, images, province, village, postal_code, street}) => {
+}> = ({ city, images, makau}) => {
 	const { t, i18n } = useTranslation('common');
 	const { currencyRate } = useCurrencyFetching();
 
@@ -39,7 +40,7 @@ const CatalogPageHeader: FC<{
 	return (
 		<>
 			<article className={s.heading}>
-				<h1 className={s.address}>{`${address}, ${province}, ${village}, ${postal_code}, ${street}`}</h1>
+				<h1 className={s.address}>{makau}</h1>
 				{/* <p className={s.price}>{finalPrice}</p> */}
 			</article>
 

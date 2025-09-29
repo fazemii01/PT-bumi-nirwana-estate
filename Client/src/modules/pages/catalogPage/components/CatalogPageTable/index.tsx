@@ -13,6 +13,7 @@ import {
 } from '../../utils/formatters';
 import s from './CatalogPageTable.module.scss';
 
+
 const CatalogPageTable: FC<{
 	tableInfo: ICatalogTable;
 	contractType: string;
@@ -22,11 +23,11 @@ const CatalogPageTable: FC<{
 	jenis: string;
 	luas: string;
 	status: string;
-	
-}> = ({ tableInfo, realEstateType, contractType, price, type, luas, status }) => {
+	id: string;
+}> = ({ tableInfo, realEstateType, contractType, price, type, luas, status, id }) => {
 	const { i18n, t: tCommon } = useTranslation('common');
 	const { t: tCatalog } = useTranslation('catalog');
-
+	// const {t} = useTranslation('catalog');
 
 	tableInfo.totalCost = price;
 	const table = Object.entries(tableInfo)
@@ -109,8 +110,29 @@ const CatalogPageTable: FC<{
 						);
 					}
 				})}
+
+				<br />
+				<br />
+				{/* <hr className={s.line}/> */}
+				<div className={s.infoHeading}>
+					<p>
+						{tCatalog('INFORMATION')} <span className={s.id}>{tCatalog('DEVEP')}</span>
+					</p>
+				</div>
+				<tr>														
+					<td>{tCatalog('PRICE')}</td>	
+					<td>{price}</td>
+				</tr>
+				<tr>														
+					<td>{tCatalog('PRICE')}</td>	
+					<td>{price}</td>
+				</tr>
+			</tbody>
+			<br />
+			<tbody>
 			</tbody>
 		</table>
+				
 	);
 };
 

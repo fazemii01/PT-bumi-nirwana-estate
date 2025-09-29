@@ -9,6 +9,21 @@
     margin-left: -8px;
   }
 
+  .info {
+    &Heading {
+      @include flex-justify-align(space-between, center);
+      margin-bottom: 24px;
+
+      @include media-tablet {
+        margin-bottom: 16px;
+      }
+    }
+
+    .id {
+      font-weight: 500;
+    }
+  }
+
   tr:nth-child(odd) {
     background-color: var(--nude);
   }
