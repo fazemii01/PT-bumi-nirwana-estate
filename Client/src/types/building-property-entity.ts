@@ -10,7 +10,7 @@ export enum PropertyStatus {
 export interface IImage {
   id: string;
   image_url: string;
-  caption: string | null;
+  caption: string;
   sort_order: number;
 }
 export interface IFloorPlan {

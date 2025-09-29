@@ -24,6 +24,7 @@ import {
 import {
 	useCatalogItemFullAddress,
 	useDataFetching,
+	useDataFetchingBuilding,
 	useMediaQuery,
 } from '@hooks/index';
 import {CATALOG_NAME, LAPTOP_BREAKPOINT} from '@utils/const';
@@ -39,15 +40,53 @@ import s from './CatalogPage.module.scss';
 import Page404 from "@modules/pages/page404/components/Page404";
 
 const CatalogPage: FC = () => {
+	// const router = useRouter();
+	// const {catalog} = router.query;
+	// const {data, loading, initialData} = useDataFetching();
+	// const {i18n, t: tCommon} = useTranslation('common');
+	// const {t: tCatalog} = useTranslation('catalog');
+	// const isLaptop = useMediaQuery(LAPTOP_BREAKPOINT);
+	// const currentPageId = catalog;
+	// const [pageData, setPageData] = useState<ICatalogData>(initialData);
+	
 	const router = useRouter();
-	const {catalog} = router.query;
-	const {data, loading, initialData} = useDataFetching();
-	const {i18n, t: tCommon} = useTranslation('common');
-	const {t: tCatalog} = useTranslation('catalog');
-	const isLaptop = useMediaQuery(LAPTOP_BREAKPOINT);
-	const currentPageId = catalog;
+    const {catalog: currentPageId} = router.query;
+    const {data, loading} = useDataFetching(); 
+    const {i18n, t: tCommon} = useTranslation('common');
+    const {t: tCatalog} = useTranslation('catalog');
+    const isLaptop = useMediaQuery(LAPTOP_BREAKPOINT);
+    const [pageData, setPageData] = useState<ICatalogData | null>(null);
 
-	const [pageData, setPageData] = useState<ICatalogData>(initialData);
+	// const itemLocationAndAddress = useCatalogItemFullAddress(
+    //     pageData?.realEstateType,
+    //     pageData?.location,
+    //     pageData?.address,
+    // );
+	const itemLocationAndAddress = useCatalogItemFullAddress(
+        pageData?.realEstateType ?? '',
+        pageData?.location ?? {},       
+        pageData?.address ?? {},     
+		pageData?.city ?? '',
+		pageData?.street ?? '',
+		pageData?.province ?? '',
+		pageData?.village ?? '',
+		pageData?.postal_code ?? '',
+		   
+    );
+
+	useEffect(() => {
+		if (!router.isReady || loading) return;
+		const foundItem = data.find((value: ICatalogData) => value.id === currentPageId);
+		setPageData(foundItem || null);
+
+	}, [data, currentPageId, router.isReady, loading]);
+	
+    if (loading) {
+        return <Loader type="fullscreen"/>;
+    }
+    if (!pageData) {
+        return <Page404/>
+    }
 	const {
 		address,
 		city,
@@ -70,16 +109,17 @@ const CatalogPage: FC = () => {
 		type
 	} = pageData;
 
-	useEffect(() => {
-		if (!router.isReady) return;
-		data.map((value: ICatalogData) => {
-			if (value.id === currentPageId) {
-				setPageData(value);
-			}
-		});
+	
+	// useEffect(() => {
+	// 	if (!router.isReady) return;
+	// 	data.map((value: ICatalogData) => {
+	// 		if (value.id === currentPageId) {
+	// 			setPageData(value);
+	// 		}
+	// 	});
 
-		// eslint-disable-next-line
-	}, [data, router.query.catalog, router.isReady]);
+	// 	// eslint-disable-next-line
+	// }, [data, router.query.catalog, router.isReady]);
 
 	const realEstateTranslation = tCommon(
 		formatCatalogTranslation(realEstateType),
@@ -92,18 +132,18 @@ const CatalogPage: FC = () => {
 	const itemDescription = detail_description;
 	const itemJenis = formatTranslation(i18n.language, jenis);
 	const itemCity = tCommon(formatCityTranslation(city));
-	const itemLuas = luas;
+	// const itemLuas = luas;
 	const itemOriginalFullAddress = `${city}, ${location.ua}, ${address.ua}`;
 	const itemCityWithLocationAndAddress = `${itemCity}, ${itemLocation}, ${itemAddress}`;
 	const itemRealEstateTypeAndAddress = `${realEstateTranslation} ${tCommon(
 		'ON',
 	)} ${itemAddress}`;
 
-	const itemLocationAndAddress = useCatalogItemFullAddress(
-		realEstateType,
-		location,
-		address,
-	);
+	// const itemLocationAndAddress = useCatalogItemFullAddress(
+	// 	realEstateType,
+	// 	location,
+	// 	address,
+	// );
 
 	const pageMetaDescription = formatMetaForCatalogPage(
 		city,
@@ -127,10 +167,9 @@ const CatalogPage: FC = () => {
 			<CatalogPageHeader
 				city={itemCity}
 				address={itemLocationAndAddress}
-				price={price}
+				// price={price}
 				tags={itemTags}
-				images={images}
-			/>
+				images={images} province={''} village={''} postal_code={''} street={''}/>
 			<section className={s.container}>
 				<div>
 					{id && <CatalogPageCarousel images={images} floorPlans={floor_plans}/>}

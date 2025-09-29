@@ -1,17 +1,7 @@
-import {
-  PriceUnit,
-  BuildingProperty,
-  BuildingStatus,
-} from "@/types/building-properties";
+import { PriceUnit, BuildingProperty, BuildingStatus } from "@/types/building-properties";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -26,14 +16,7 @@ type BasicInfoFormBuilds = {
   error?: { [key: string]: string };
 };
 
-export default function BasicInfoForm({
-  formData,
-  handleSelectChange,
-  handleInputChange,
-  handleTextAreaChange,
-  property,
-  error = {},
-}: BasicInfoFormBuilds) {
+export default function BasicInfoForm({ formData, handleSelectChange, handleInputChange, handleTextAreaChange, property, error = {} }: BasicInfoFormBuilds) {
   return (
     <TabsContent value="basic">
       <Card>
@@ -57,9 +40,7 @@ export default function BasicInfoForm({
                 </Label>
                 <Select
                   value={formData.propertyId ?? ""} // ⬅️ fallback
-                  onValueChange={(value) =>
-                    handleSelectChange("propertyId", value)
-                  }
+                  onValueChange={(value) => handleSelectChange("propertyId", value)}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Pilih Property" />
@@ -74,11 +55,7 @@ export default function BasicInfoForm({
                     ))}
                   </SelectContent>
                 </Select>
-                {error["propertyId"] && (
-                  <span className="text-red-500 text-xs">
-                    {error["propertyId"]}
-                  </span>
-                )}
+                {error["propertyId"] && <span className="text-red-500 text-xs">{error["propertyId"]}</span>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="total_units" className="text-sm font-medium">
@@ -98,11 +75,7 @@ export default function BasicInfoForm({
                   autoCapitalize="off"
                   spellCheck={false}
                 />
-                {error["total_units"] && (
-                  <span className="text-red-500 text-xs">
-                    {error["total_units"]}
-                  </span>
-                )}
+                {error["total_units"] && <span className="text-red-500 text-xs">{error["total_units"]}</span>}
               </div>
             </div>
           </div>
@@ -114,60 +87,42 @@ export default function BasicInfoForm({
               Informasi Blok Bangunan Properti
             </h4>
 
-            <div className="space-y-2">
-              <Label htmlFor="name" className="text-sm font-medium">
-                Nama <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                placeholder="Masukkan nama blok bangunan"
-                className="w-full"
-                required
-                autoComplete="off"
-                autoCorrect="off"
-                autoCapitalize="off"
-                spellCheck={false}
-              />
-              {error["name"] && (
-                <span className="text-red-500 text-xs">{error["name"]}</span>
-              )}
-            </div>
-
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="name" className="text-sm font-medium">
+                  Nama <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  placeholder="Masukkan nama blok bangunan"
+                  className="w-full"
+                  required
+                  autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="off"
+                  spellCheck={false}
+                />
+                {error["name"] && <span className="text-red-500 text-xs">{error["name"]}</span>}
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="status" className="text-sm font-medium">
                   Status
                 </Label>
-                <Select
-                  value={formData.status}
-                  onValueChange={(value) => handleSelectChange("status", value)}
-                >
+                <Select value={formData.status} onValueChange={(value) => handleSelectChange("status", value)}>
                   <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value={BuildingStatus.PRE_LAUNCH}>
-                      Pre Launch
-                    </SelectItem>
-                    <SelectItem value={BuildingStatus.AVAILABLE}>
-                      Available
-                    </SelectItem>
-                    <SelectItem value={BuildingStatus.SOLD_OUT}>
-                      Sold Out
-                    </SelectItem>
-                    <SelectItem value={BuildingStatus.RESERVED}>
-                      Reserved
-                    </SelectItem>
+                    <SelectItem value={BuildingStatus.PRE_LAUNCH}>Pre Launch</SelectItem>
+                    <SelectItem value={BuildingStatus.AVAILABLE}>Available</SelectItem>
+                    <SelectItem value={BuildingStatus.SOLD_OUT}>Sold Out</SelectItem>
+                    <SelectItem value={BuildingStatus.RESERVED}>Reserved</SelectItem>
                   </SelectContent>
                 </Select>
-                {error["status"] && (
-                  <span className="text-red-500 text-xs">
-                    {error["status"]}
-                  </span>
-                )}
+                {error["status"] && <span className="text-red-500 text-xs">{error["status"]}</span>}
               </div>
             </div>
           </div>
@@ -198,37 +153,24 @@ export default function BasicInfoForm({
                   autoCapitalize="off"
                   spellCheck={false}
                 />
-                {error["price"] && (
-                  <span className="text-red-500 text-xs">{error["price"]}</span>
-                )}
+                {error["price"] && <span className="text-red-500 text-xs">{error["price"]}</span>}
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="price_unit" className="text-sm font-medium">
                   Satuan Harga
                 </Label>
-                <Select
-                  value={formData.price_unit}
-                  onValueChange={(value) =>
-                    handleSelectChange("price_unit", value)
-                  }
-                >
+                <Select value={formData.price_unit} onValueChange={(value) => handleSelectChange("price_unit", value)}>
                   <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value={PriceUnit.TOTAL}>Total</SelectItem>
-                    <SelectItem value={PriceUnit.PER_MONTH}>
-                      Per Bulan
-                    </SelectItem>
+                    <SelectItem value={PriceUnit.PER_MONTH}>Per Bulan</SelectItem>
                     <SelectItem value={PriceUnit.PER_SQM}>Per M²</SelectItem>
                   </SelectContent>
                 </Select>
-                {error["price_unit"] && (
-                  <span className="text-red-500 text-xs">
-                    {error["price_unit"]}
-                  </span>
-                )}
+                {error["price_unit"] && <span className="text-red-500 text-xs">{error["price_unit"]}</span>}
               </div>
 
               <div className="space-y-2">
@@ -249,11 +191,7 @@ export default function BasicInfoForm({
                   autoCapitalize="off"
                   spellCheck={false}
                 />
-                {error["land_size"] && (
-                  <span className="text-red-500 text-xs">
-                    {error["land_size"]}
-                  </span>
-                )}
+                {error["land_size"] && <span className="text-red-500 text-xs">{error["land_size"]}</span>}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="building_size" className="text-sm font-medium">
@@ -273,11 +211,7 @@ export default function BasicInfoForm({
                   autoCapitalize="off"
                   spellCheck={false}
                 />
-                {error["building_size"] && (
-                  <span className="text-red-500 text-xs">
-                    {error["building_size"]}
-                  </span>
-                )}
+                {error["building_size"] && <span className="text-red-500 text-xs">{error["building_size"]}</span>}
               </div>
             </div>
           </div>
@@ -303,14 +237,8 @@ export default function BasicInfoForm({
                   rows={5}
                   className="w-full resize-none"
                 />
-                {error["description"] && (
-                  <span className="text-red-500 text-xs">
-                    {error["description"]}
-                  </span>
-                )}
-                <p className="text-xs text-gray-500">
-                  Deskripsi lengkap untuk halaman detail property.
-                </p>
+                {error["description"] && <span className="text-red-500 text-xs">{error["description"]}</span>}
+                <p className="text-xs text-gray-500">Deskripsi lengkap untuk halaman detail property.</p>
               </div>
             </div>
           </div>

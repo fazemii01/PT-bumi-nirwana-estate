@@ -3,8 +3,13 @@
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useMemo } from "react";
+import { cn } from "@/lib/utils";
 
-export function HeadingSiteHeader() {
+interface HeadingSiteHeaderProps {
+  className?: string;
+}
+
+export function HeadingSiteHeader({ className }: HeadingSiteHeaderProps) {
   const pathname = usePathname();
 
   const { pageTitle, linkTo } = useMemo(() => {
@@ -58,15 +63,24 @@ export function HeadingSiteHeader() {
     const segments = afterBase.split("/");
     subPath = segments.slice(0, 1).join(" ").replace(/-/g, " ");
   }
+
   return (
-    <h1 className="text-base font-medium flex gap-2 items-center">
+    <h1 className={cn("text-base font-medium flex gap-2 items-center", className)}>
       {isSubPage ? (
         <>
-          <Link href={linkTo} className="text-blue-600 hover:underline">
-            {pageTitle}
-          </Link>
-          <span>|</span>
-          <span className="capitalize">{subPath}</span>
+          {/* Desktop: Show full breadcrumb */}
+          <div className="hidden sm:flex items-center gap-2">
+            <Link href={linkTo} className="text-blue-600 hover:underline">
+              {pageTitle}
+            </Link>
+            <span>|</span>
+            <span className="capitalize">{subPath}</span>
+          </div>
+
+          {/* Mobile: Show only subPath */}
+          <div className="block sm:hidden">
+            <span className="capitalize">{subPath}</span>
+          </div>
         </>
       ) : (
         pageTitle

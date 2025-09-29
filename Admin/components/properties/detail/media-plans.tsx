@@ -67,7 +67,7 @@ const MediaPlans = ({ property }: { property: Property }) => {
                 </CardTitle>
                 <CardDescription>{property.images.length} images uploaded</CardDescription>
               </div>
-              <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
+              <Button size="sm" onClick={() => setOpen(true)}>
                 <Plus className="w-4 h-4 mr-2" />
                 Add Image
               </Button>
@@ -121,7 +121,7 @@ const MediaPlans = ({ property }: { property: Property }) => {
                 </CardTitle>
                 <CardDescription>{property.site_plans.length} plans uploaded</CardDescription>
               </div>
-              <Button variant="outline" size="sm" onClick={() => setSite(true)}>
+              <Button size="sm" onClick={() => setSite(true)}>
                 <Plus className="w-4 h-4 mr-2" />
                 Add Site Plan
               </Button>

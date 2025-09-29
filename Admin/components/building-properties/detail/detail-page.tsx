@@ -1,13 +1,13 @@
 "use client";
 import BasicInfo from "@/components/building-properties/detail/basic-info";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import { BuildingProperty } from "@/types/building-properties";
-import { useSearchParams } from "next/navigation";
+
 import SideBarInfo from "./side-bar-info";
+import PropertyGallery from "./media-gallery";
+import SpecificationsInfo from "./spesification-info";
 
 const BuildingDetailView = ({ building }: { building: BuildingProperty }) => {
-  const searchParams = useSearchParams();
-  const activeTab = searchParams.get("tab") || "details";
   return (
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
@@ -17,24 +17,21 @@ const BuildingDetailView = ({ building }: { building: BuildingProperty }) => {
         </div>
       </div>
 
-      {/* Main Content */}
-      <Tabs defaultValue={activeTab} className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="details">Building Details</TabsTrigger>
-          <TabsTrigger value="media">Media</TabsTrigger>
-        </TabsList>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Kolom Kiri: berisi semua informasi detail properti */}
+        <div className="lg:col-span-8 space-y-6">
+          <PropertyGallery building={building} />
+          <BasicInfo building={building} />
+          {/* Komponen Spesifikasi dipindahkan ke sini */}
+          <SpecificationsInfo building={building} />
+        </div>
 
-        {/* Property Details Tab */}
-        <TabsContent value="details">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Basic Information */}
-            <BasicInfo building={building} />
-
-            {/* Sidebar Information */}
-            <SideBarInfo building={building} />
-          </div>
-        </TabsContent>
-      </Tabs>
+        {/* Kolom Kanan: berisi sidebar */}
+        <div className="lg:col-span-4">
+          <SideBarInfo building={building} />
+        </div>
+      </div>
+      {/* ====================================================================== */}
     </div>
   );
 };

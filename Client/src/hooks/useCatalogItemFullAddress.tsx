@@ -8,6 +8,11 @@ const useCatalogItemFullAddress = (
 	realEstate: string,
 	location: ITransVersion,
 	address: ITransVersion,
+	street: string,
+	province: string,
+	village: string,
+	postal_code: string,
+	city: string,
 ) => {
 	const { i18n, t } = useTranslation('common');
 	const itemLocation = formatTranslation(i18n.language, location);

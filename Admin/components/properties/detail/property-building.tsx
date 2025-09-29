@@ -101,8 +101,8 @@ const PropertyBuilding = ({
           </div>
           <Link href="/properties/building-properties/create">
             <Button className="cursor-pointer">
-              <Plus className="w-4 h-4 mr-2" />
-              Tambah Bangunan
+              <Plus className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Tambah Bangunan</span>
             </Button>
           </Link>
         </CardHeader>
@@ -166,15 +166,14 @@ const PropertyBuilding = ({
                       <div className="flex items-center gap-2">
                         <Link
                           href={`/properties/building-properties/edit/${building.id}`}
-                          className="flex-1"
                         >
                           <Button
                             variant="outline"
-                            size="sm"
-                            className="flex-1 rounded-lg hover:bg-gray-50"
+                            size="lg"
+                            className="cursor-pointer flex-1 w-full h-9 rounded-lg flex items-center justify-center border bg-gray-200  text-sm font-medium  hover:border-gray-300 transition-colors"
                           >
-                            <Edit className="w-4 h-4 mr-2" />
-                            Edit
+                            <Edit className="w-4 h-4 sm:mr-2" />
+                            <span className="hidden sm:inline">Edit</span>
                           </Button>
                         </Link>
                         <Link
@@ -183,22 +182,24 @@ const PropertyBuilding = ({
                           <Button
                             variant="outline"
                             size="sm"
-                            className="flex-1 rounded-lg hover:bg-gray-50"
+                            className="cursor-pointer flex-1 w-full h-9 rounded-lg flex items-center justify-center border  bg-gray-200 text-sm font-medium  hover:border-gray-300 transition-colors"
                           >
-                            <Eye className="w-4 h-4 mr-2" />
-                            View
+                            <Eye className="w-4 h-4 sm:mr-2" />
+                            <span className="hidden sm:inline">View</span>
                           </Button>
                         </Link>
+
                         <Button
-                          variant="ghost"
+                          variant="outline"
                           size="sm"
-                          className="p-2 rounded-lg text-red-600 hover:bg-red-50 hover:text-red-700"
+                          className="cursor-pointer flex-1 h-9 rounded-lg text-red-600 hover:bg-red-50 hover:text-red-700 flex items-center justify-center"
                           onClick={() => {
                             setSelectedId(building.id);
                             setOpen(true);
                           }}
                         >
                           <Trash2 className="w-4 h-4" />
+                          <span className="hidden sm:inline">Delete</span>
                         </Button>
                       </div>
                     </CardContent>

@@ -1,11 +1,6 @@
 "use server";
 
-import {
-  addBuildingProperty,
-  deleteBuildingPropertyById,
-  getBuildingPropertyById,
-  updateBuildingProperty,
-} from "@/api/building_property";
+import { addBuildingProperty, deleteBuildingPropertyById, getBuildingPropertyById, updateBuildingProperty } from "@/api/building_property";
 import { BuildingProperty } from "@/types/building-properties";
 import { revalidatePath } from "next/cache";
 
@@ -25,11 +20,7 @@ export async function getById({ id }: { id: string }) {
   }
 }
 
-export async function submitCreateBuildingProperty({
-  buildingProperty,
-}: {
-  buildingProperty: BuildingProperty;
-}) {
+export async function submitCreateBuildingProperty({ buildingProperty }: { buildingProperty: BuildingProperty }) {
   try {
     const res = await addBuildingProperty({ buildingProperty });
     if (res.success) {
@@ -50,13 +41,7 @@ export async function submitCreateBuildingProperty({
   }
 }
 
-export async function submitUpdateBuildingProperty({
-  data,
-  originalData,
-}: {
-  data: BuildingProperty;
-  originalData: BuildingProperty;
-}) {
+export async function submitUpdateBuildingProperty({ data, originalData }: { data: BuildingProperty; originalData: BuildingProperty }) {
   try {
     const res = await updateBuildingProperty({ data, originalData });
 
