@@ -1,5 +1,5 @@
 import 'package:mobile_nirwana/data/models/bank.dart';
-import 'package:mobile_nirwana/data/models/property/property.dart';
+import 'package:mobile_nirwana/data/models/building_property/building_property.dart';
 import 'package:mobile_nirwana/data/models/user.dart';
 import 'package:mobile_nirwana/helper/parse-int-double.dart';
 
@@ -7,7 +7,7 @@ class LoanSimulation {
   final String? id;
   final String? userId;
   final String? bankId;
-  final String? propertyId;
+  final String? buildingPropertyId;
   final double? loanAmount;
   final double? downPayment;
   final int? tenure;
@@ -21,13 +21,13 @@ class LoanSimulation {
 
   final User? user;
   final Bank? bank;
-  final Property? property;
+  final BuildingProperty? buildingProperty;
 
   LoanSimulation({
     this.id,
     this.userId,
     this.bankId,
-    this.propertyId,
+    this.buildingPropertyId,
     this.loanAmount,
     this.downPayment,
     this.tenure,
@@ -40,7 +40,7 @@ class LoanSimulation {
     this.updatedAt,
     this.user,
     this.bank,
-    this.property,
+    this.buildingProperty,
   });
 
   factory LoanSimulation.fromJson(Map<String, dynamic> json) {
@@ -48,7 +48,7 @@ class LoanSimulation {
       id: json['id'],
       userId: json['userId'] ?? '',
       bankId: json['bankId'] ?? '',
-      propertyId: json['propertyId'] ?? '',
+      buildingPropertyId: json['buildingPropertyId'] ?? '',
       loanAmount: parseDouble(json['loan_amount']),
       downPayment: parseDouble(json['down_payment']),
       tenure: parseInt(json['tenure']),
@@ -69,8 +69,9 @@ class LoanSimulation {
           : null,
       user: json['user'] != null ? User.fromJson(json['user']) : null,
       bank: json['bank'] != null ? Bank.fromJson(json['bank']) : null,
-      property:
-          json['property'] != null ? Property.fromJson(json['property']) : null,
+      buildingProperty: json['building_property'] != null
+          ? BuildingProperty.fromJson(json['building_property'])
+          : null,
     );
   }
 
@@ -78,7 +79,7 @@ class LoanSimulation {
     return {
       "userId": userId,
       "bankId": bankId,
-      "propertyId": propertyId,
+      "buildingPropertyId": buildingPropertyId,
       "loan_amount": loanAmount,
       "down_payment": downPayment,
       "tenure": tenure,

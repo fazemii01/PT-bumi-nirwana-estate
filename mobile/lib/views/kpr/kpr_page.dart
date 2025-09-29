@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mobile_nirwana/core/routes/app_routes.dart';
 import 'package:mobile_nirwana/core/utils/api.dart';
+import 'package:mobile_nirwana/data/models/building_property/building_property.dart';
 import 'package:mobile_nirwana/data/models/loan-simulation.dart';
-import 'package:mobile_nirwana/data/models/property/property.dart';
 import 'package:mobile_nirwana/helper/price.dart';
 import 'package:mobile_nirwana/views/kpr/kpr_controller.dart';
 import 'package:mobile_nirwana/views/layout_controller.dart';
@@ -21,6 +21,8 @@ class _KprPageState extends State<KprPage> {
   final KprController _kprController = Get.put(KprController());
   final LayoutController _layoutController = Get.put(LayoutController());
   bool _isSearching = false;
+  bool _isSelectionMode = false;
+  LoanSimulation? _selectedSimulation;
   TextEditingController _searchController = TextEditingController();
 
   @override
@@ -35,63 +37,98 @@ class _KprPageState extends State<KprPage> {
     super.dispose();
   }
 
+  void _exitSelectionMode() {
+    setState(() {
+      _isSelectionMode = false;
+      _selectedSimulation = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Colors.grey[50],
         appBar: AppBar(
-          title: _isSearching
-              ? TextField(
-                  controller: _searchController,
-                  autofocus: true,
-                  decoration: InputDecoration(
-                    hintText: 'Cari histori simulasi...',
-                    hintStyle: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 16,
-                    ),
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(vertical: 15),
-                  ),
-                  style: TextStyle(
-                    color: Color(0xFF1A1A1A),
-                    fontSize: 16,
-                    fontWeight: FontWeight.w400,
-                  ),
-                  onSubmitted: (value) {
-                    // Handle search logic here
-                    print('Search query: $value');
-                  },
+          leading: _isSelectionMode
+              ? IconButton(
+                  icon: const Icon(Icons.close, color: Colors.black),
+                  onPressed: _exitSelectionMode,
                 )
-              : const Text(
-                  'Histori Simulasi KPR',
+              : null,
+          title: _isSelectionMode
+              ? Text(
+                  '1 dipilih',
                   style: TextStyle(
                     color: Color(0xFF1A1A1A),
                     fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.3,
+                    fontWeight: FontWeight.w600,
                   ),
-                ),
+                )
+              : _isSearching
+                  ? TextField(
+                      controller: _searchController,
+                      autofocus: true,
+                      decoration: InputDecoration(
+                        hintText: 'Cari histori simulasi...',
+                        hintStyle: TextStyle(
+                          color: Colors.grey[600],
+                          fontSize: 16,
+                        ),
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(vertical: 15),
+                      ),
+                      style: TextStyle(
+                        color: Color(0xFF1A1A1A),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                      ),
+                      onSubmitted: (value) {
+                        print('Search query: $value');
+                      },
+                    )
+                  : const Text(
+                      'Histori Simulasi KPR',
+                      style: TextStyle(
+                        color: Color(0xFF1A1A1A),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.3,
+                      ),
+                    ),
           backgroundColor: Colors.white,
           scrolledUnderElevation: 0,
           surfaceTintColor: Colors.transparent,
           elevation: 0,
-          actions: [
-            IconButton(
-              icon: Icon(
-                _isSearching ? Icons.close : Icons.search,
-                color: Colors.black,
-              ),
-              onPressed: () {
-                setState(() {
-                  _isSearching = !_isSearching;
-                  if (!_isSearching) {
-                    _searchController.clear();
-                  }
-                });
-              },
-            ),
-          ],
+          actions: _isSelectionMode
+              ? [
+                  IconButton(
+                    icon: const Icon(
+                      Icons.delete_outline,
+                      color: Colors.red,
+                    ),
+                    onPressed: () {
+                      if (_selectedSimulation != null) {
+                        _showDeleteDialog(_selectedSimulation!);
+                      }
+                    },
+                  ),
+                ]
+              : [
+                  IconButton(
+                    icon: Icon(
+                      _isSearching ? Icons.close : Icons.search,
+                      color: Colors.black,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _isSearching = !_isSearching;
+                        if (!_isSearching) {
+                          _searchController.clear();
+                        }
+                      });
+                    },
+                  ),
+                ],
         ),
         body: Obx(
           () => !_layoutController.isLoggedIn.value
@@ -116,34 +153,43 @@ class _KprPageState extends State<KprPage> {
                         )
                       : _kprController.simulationByUser.isEmpty
                           ? _buildEmptyState()
-                          : Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    child: ListView.builder(
-                                      itemCount: _kprController
-                                          .simulationByUser.length,
-                                      itemBuilder: (context, index) {
-                                        final simulation = _kprController
-                                            .simulationByUser[index];
-                                        return _buildSimulationCard(simulation);
-                                      },
-                                    ),
-                                  ),
-                                ],
+                          : RefreshIndicator(
+                              onRefresh: () async {
+                                await _kprController.loadData();
+                              },
+                              color: Color(0xFFDBB837),
+                              backgroundColor: Colors.white,
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: ListView.builder(
+                                  physics:
+                                      const AlwaysScrollableScrollPhysics(),
+                                  itemCount:
+                                      _kprController.simulationByUser.length,
+                                  itemBuilder: (context, index) {
+                                    final simulation =
+                                        _kprController.simulationByUser[index];
+                                    return _buildSimulationCard(simulation);
+                                  },
+                                ),
                               ),
                             ),
         ));
   }
 
   Widget _buildSimulationCard(LoanSimulation simulation) {
+    final isSelected =
+        _isSelectionMode && _selectedSimulation?.id == simulation.id;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isSelected ? Color(0xFFDBB837).withOpacity(0.1) : Colors.white,
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isSelected ? Color(0xFFDBB837) : Colors.grey.withOpacity(0.2),
+          width: isSelected ? 2 : 1,
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.1),
@@ -153,128 +199,200 @@ class _KprPageState extends State<KprPage> {
           ),
         ],
       ),
-      child: InkWell(
-        onTap: () => Get.toNamed(
-          Routes.HASIL_SIMULATION,
-          arguments: {
-            "breakdown": simulation.breakdown!.take(12).toList(),
-            "loanSimulation": simulation,
-            "hasil": false
-          },
-        ),
-        borderRadius: BorderRadius.circular(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: IntrinsicHeight(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Container(
-                        width: 85,
-                        height: 85,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                        ),
-                        child: Image.network(
-                          Imgurl.get(
-                              'property/property_images/${_getPropertyImage(simulation.property!)}'),
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              color: Colors.grey[300],
-                              child: const Icon(
-                                Icons.home,
-                                size: 30,
-                                color: Colors.grey,
+      child: Stack(
+        children: [
+          // Main Content
+          InkWell(
+            onTap: () {
+              if (_isSelectionMode) {
+                setState(() {
+                  if (_selectedSimulation?.id == simulation.id) {
+                    _exitSelectionMode();
+                  } else {
+                    _selectedSimulation = simulation;
+                  }
+                });
+              } else {
+                Get.toNamed(
+                  Routes.HASIL_SIMULATION,
+                  arguments: {
+                    "breakdown": simulation.breakdown!.take(12).toList(),
+                    "loanSimulation": simulation,
+                    "hasil": false
+                  },
+                );
+              }
+            },
+            onLongPress: () {
+              setState(() {
+                _isSelectionMode = true;
+                _selectedSimulation = simulation;
+              });
+            },
+            borderRadius: BorderRadius.circular(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Selection Checkbox (when in selection mode)
+                        if (_isSelectionMode)
+                          Padding(
+                            padding: const EdgeInsets.only(right: 12),
+                            child: Container(
+                              width: 24,
+                              height: 24,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: isSelected
+                                    ? Color(0xFFDBB837)
+                                    : Colors.transparent,
+                                border: Border.all(
+                                  color: isSelected
+                                      ? Color(0xFFDBB837)
+                                      : Colors.grey[400]!,
+                                  width: 2,
+                                ),
                               ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    // Property Details
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            simulation.property?.name ?? "-",
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                              child: isSelected
+                                  ? Icon(
+                                      Icons.check,
+                                      size: 16,
+                                      color: Colors.white,
+                                    )
+                                  : null,
                             ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
                           ),
-                          const SizedBox(height: 4),
-                          // Text(
-                          //   'Harga: ${formatPrice(simulation.property?.price ?? 0.0)}',
-                          //   style: TextStyle(
-                          //     fontSize: 12,
-                          //     color: Colors.grey[600],
-                          //   ),
-                          // ),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: _buildDetailItem(
-                                  'Waktu',
-                                  '${simulation.tenure} Tahun',
-                                  Colors.green[700]!,
-                                ),
-                              ),
-                              Expanded(
-                                child: _buildDetailItem(
-                                  'Bunga',
-                                  '${simulation.interestRate}%',
-                                  Colors.orange[700]!,
-                                ),
-                              ),
-                              Expanded(
-                                child: _buildDetailItem(
-                                  'Cicilan',
-                                  formatPrice(simulation.monthlyInstallment!),
-                                  Colors.blue[700]!,
-                                ),
-                              ),
-                            ],
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Container(
+                            width: 85,
+                            height: 85,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                            ),
+                            child: Image.network(
+                              Imgurl.get(
+                                  'building_property/building_images/${_getBuildingPropertyImage(simulation.buildingProperty!)}'),
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  color: Colors.grey[300],
+                                  child: const Icon(
+                                    Icons.home,
+                                    size: 30,
+                                    color: Colors.grey,
+                                  ),
+                                );
+                              },
+                            ),
                           ),
-                        ],
-                      ),
-                    ),
-                    // Action Button
-                    PopupMenuButton(
-                      color: Colors.white,
-                      icon: Icon(Icons.more_vert, color: Colors.grey[600]),
-                      itemBuilder: (context) => [
-                        const PopupMenuItem(
-                          value: 'delete',
-                          child: Row(
+                        ),
+                        const SizedBox(width: 12),
+                        // Property Details
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Icon(Icons.delete, size: 18, color: Colors.red),
-                              SizedBox(width: 8),
-                              Text('Hapus',
-                                  style: TextStyle(color: Colors.red)),
+                              Text(
+                                simulation.buildingProperty?.property?.name ??
+                                    'Property',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.grey[500],
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                simulation.buildingProperty?.name ?? "-",
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Harga: ${formatPrice(simulation.buildingProperty?.price ?? 0.0)}',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildDetailItem(
+                                      'Waktu',
+                                      '${simulation.tenure} Tahun',
+                                      Colors.green[700]!,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: _buildDetailItem(
+                                      'Bunga',
+                                      '${simulation.interestRate}%',
+                                      Colors.orange[700]!,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: _buildDetailItem(
+                                      'Cicilan',
+                                      formatPrice(
+                                          simulation.monthlyInstallment!),
+                                      Colors.blue[700]!,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ],
                           ),
                         ),
                       ],
-                      onSelected: (value) =>
-                          _handleMenuAction(value, simulation),
                     ),
-                  ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Type Badge - Only show when NOT in selection mode
+          if (!_isSelectionMode)
+            Positioned(
+              top: 0,
+              right: 0,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.grey[700],
+                  borderRadius: const BorderRadius.only(
+                    topRight: Radius.circular(10),
+                    bottomLeft: Radius.circular(12),
+                  ),
+                ),
+                child: Text(
+                  simulation.buildingProperty?.property?.type ?? 'Type',
+                  style: const TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),
-          ],
-        ),
+        ],
       ),
     );
   }
@@ -309,7 +427,6 @@ class _KprPageState extends State<KprPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Modern icon with gradient background
             Container(
               width: 90,
               height: 90,
@@ -331,8 +448,6 @@ class _KprPageState extends State<KprPage> {
               ),
             ),
             const SizedBox(height: 32),
-
-            // Main title with modern typography
             Text(
               'Belum ada simulasi KPR',
               style: TextStyle(
@@ -344,8 +459,6 @@ class _KprPageState extends State<KprPage> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),
-
-            // Subtitle with better spacing
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
@@ -360,8 +473,6 @@ class _KprPageState extends State<KprPage> {
               ),
             ),
             const SizedBox(height: 30),
-
-            // Modern elevated button with custom styling
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
@@ -394,14 +505,9 @@ class _KprPageState extends State<KprPage> {
                     maximumSize: Size(150, 50)),
               ),
             ),
-
             const SizedBox(height: 16),
-
-            // Secondary action (optional)
             TextButton(
-              onPressed: () {
-                // Handle secondary action like "Pelajari lebih lanjut"
-              },
+              onPressed: () {},
               child: Text(
                 'Pelajari tentang simulasi KPR',
                 style: TextStyle(
@@ -426,7 +532,6 @@ class _KprPageState extends State<KprPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Modern icon with gradient background
             Container(
               width: 120,
               height: 120,
@@ -448,8 +553,6 @@ class _KprPageState extends State<KprPage> {
               ),
             ),
             const SizedBox(height: 32),
-
-            // Main title with modern typography
             Text(
               'Login Diperlukan',
               style: TextStyle(
@@ -461,8 +564,6 @@ class _KprPageState extends State<KprPage> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),
-
-            // Subtitle with better spacing
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
@@ -477,8 +578,6 @@ class _KprPageState extends State<KprPage> {
               ),
             ),
             const SizedBox(height: 40),
-
-            // Primary login button
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
@@ -491,10 +590,7 @@ class _KprPageState extends State<KprPage> {
                 ],
               ),
               child: ElevatedButton.icon(
-                onPressed: () {
-                  // Navigate to login page
-                  // _navigateToLogin();
-                },
+                onPressed: () {},
                 icon: Container(
                   padding: EdgeInsets.all(2),
                   child: Icon(
@@ -522,15 +618,9 @@ class _KprPageState extends State<KprPage> {
                 ),
               ),
             ),
-
             const SizedBox(height: 16),
-
-            // Secondary register button
             OutlinedButton.icon(
-              onPressed: () {
-                // Navigate to register page
-                // _navigateToRegister();
-              },
+              onPressed: () {},
               icon: Icon(
                 Icons.person_add_outlined,
                 size: 18,
@@ -557,10 +647,7 @@ class _KprPageState extends State<KprPage> {
                 minimumSize: Size(160, 44),
               ),
             ),
-
             const SizedBox(height: 24),
-
-            // Additional info
             Container(
               padding: EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -596,10 +683,6 @@ class _KprPageState extends State<KprPage> {
         ),
       ),
     );
-  }
-
-  void _handleMenuAction(String action, LoanSimulation simulation) {
-    _showDeleteDialog(simulation);
   }
 
   void _showDeleteDialog(LoanSimulation simulation) {
@@ -643,7 +726,7 @@ class _KprPageState extends State<KprPage> {
           content: Padding(
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: Text(
-              'Apakah Anda yakin ingin menghapus simulasi "${simulation.property?.name}"?',
+              'Apakah Anda yakin ingin menghapus simulasi "${simulation.buildingProperty?.name}"?',
               style: TextStyle(
                 fontSize: 16,
                 color: Colors.grey.shade700,
@@ -654,7 +737,10 @@ class _KprPageState extends State<KprPage> {
           actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () {
+                Navigator.of(context).pop();
+                _exitSelectionMode();
+              },
               style: TextButton.styleFrom(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -678,7 +764,10 @@ class _KprPageState extends State<KprPage> {
               () => ElevatedButton(
                 onPressed: _kprController.isDelete.value
                     ? null
-                    : () => _kprController.remove(simulation.id!, context),
+                    : () {
+                        _kprController.remove(simulation.id!, context);
+                        _exitSelectionMode();
+                      },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _kprController.isDelete.value
                       ? Colors.red.shade200
@@ -733,9 +822,9 @@ class _KprPageState extends State<KprPage> {
   }
 }
 
-String _getPropertyImage(Property property) {
-  if (property.images.isNotEmpty && property.images[0].image_url != null) {
-    final url = property.images[0].image_url!;
+String _getBuildingPropertyImage(BuildingProperty building) {
+  if (building.images.isNotEmpty && building.images[0].image_url != null) {
+    final url = building.images[0].image_url!;
     return url;
   }
   return "";

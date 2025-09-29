@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Bank } from '@/banks/entities/bank.entity';
 import { User } from '@/users/entities/user.entity';
 import { BuildingProperty } from '@/building_property/entities/building_property.entity';
+import { PropertyType } from '@/properties/entities/property.entity';
 
 type Installment = {
   month: number;
@@ -38,8 +39,9 @@ export class LoanSimulationsService {
 
     if (!user) throw new NotFoundException('User not found');
 
-    const building = await this.buildingPropertyRepository.findOneBy({
-      id: createLoanSimulationDto.buildingPropertyId,
+    const building = await this.buildingPropertyRepository.findOne({
+      where: { id: createLoanSimulationDto.buildingPropertyId },
+      relations: ['property'],
     });
     if (!building) throw new NotFoundException('Property not found');
 
@@ -59,17 +61,19 @@ export class LoanSimulationsService {
       loanAmount = building.price;
     }
 
+    const monthly_installment = this.calculateMonthlyInstallment(
+      loanAmount,
+      bank.interest_rate,
+      createLoanSimulationDto.tenure,
+      building.property.type,
+    );
+
     const breakdown: Installment[] = this.getInstallmentBreakdown(
       loanAmount,
       bank.interest_rate,
       createLoanSimulationDto.tenure,
       12,
-    );
-
-    const monthly_installment = this.calculateMonthlyInstallment(
-      loanAmount,
-      bank.interest_rate,
-      createLoanSimulationDto.tenure,
+      building.property.type,
     );
 
     const totalMonths = createLoanSimulationDto.tenure * 12;
@@ -112,6 +116,7 @@ export class LoanSimulationsService {
         'building_property',
         'building_property.images',
         'building_property.floor_plans',
+        'building_property.property',
         'user',
         'bank',
       ],
@@ -145,12 +150,23 @@ export class LoanSimulationsService {
     loanAmount: number,
     interestRate: number,
     tenure: number,
+    type: PropertyType,
   ): number {
     const monthlyInterestRate = interestRate / 100 / 12;
     const numberOfPayments = tenure * 12;
-    const monthlyInstallment =
-      (loanAmount * monthlyInterestRate) /
-      (1 - Math.pow(1 + monthlyInterestRate, -numberOfPayments));
+
+    let monthlyInstallment = 0;
+
+    if (type === PropertyType.KOMERSIL) {
+      monthlyInstallment =
+        (loanAmount * monthlyInterestRate) /
+        (1 - Math.pow(1 + monthlyInterestRate, -numberOfPayments));
+    } else if (type === PropertyType.SUBSIDI) {
+      const principalPerMonth = loanAmount / numberOfPayments;
+      const interestPerMonth = (loanAmount * (interestRate / 100)) / 12;
+      monthlyInstallment = principalPerMonth + interestPerMonth;
+    }
+
     return monthlyInstallment;
   }
 
@@ -159,29 +175,52 @@ export class LoanSimulationsService {
     interestRate: number,
     tenure: number,
     monthsToShow: number,
+    type: PropertyType,
   ): Installment[] {
     const monthlyInstallment = this.calculateMonthlyInstallment(
       loanAmount,
       interestRate,
       tenure,
+      type,
     );
-    const monthlyInterestRate = interestRate / 100 / 12;
-    let balance = loanAmount;
 
+    const monthlyInterestRate = interestRate / 100 / 12;
+    const numberOfPayments = tenure * 12;
+
+    let balance = loanAmount;
     const breakdown: Installment[] = [];
 
-    for (let month = 1; month <= monthsToShow; month++) {
-      const interest = balance * monthlyInterestRate;
-      const principal = monthlyInstallment - interest;
-      balance -= principal;
+    if (type === PropertyType.KOMERSIL) {
+      for (let month = 1; month <= monthsToShow; month++) {
+        const interest = balance * monthlyInterestRate;
+        const principal = monthlyInstallment - interest;
+        balance -= principal;
 
-      breakdown.push({
-        month,
-        principal: parseFloat(principal.toFixed(2)),
-        interest: parseFloat(interest.toFixed(2)),
-        installment: parseFloat(monthlyInstallment.toFixed(2)),
-        remainingBalance: parseFloat(balance.toFixed(2)),
-      });
+        breakdown.push({
+          month,
+          principal: parseFloat(principal.toFixed(2)),
+          interest: parseFloat(interest.toFixed(2)),
+          installment: parseFloat(monthlyInstallment.toFixed(2)),
+          remainingBalance: parseFloat(balance.toFixed(2)),
+        });
+      }
+    } else if (type === PropertyType.SUBSIDI) {
+      const principalPerMonth = loanAmount / numberOfPayments;
+      const interestPerMonth = (loanAmount * (interestRate / 100)) / 12;
+
+      for (let month = 1; month <= monthsToShow; month++) {
+        const principal = principalPerMonth;
+        const interest = interestPerMonth;
+        balance -= principal;
+
+        breakdown.push({
+          month,
+          principal: parseFloat(principal.toFixed(2)),
+          interest: parseFloat(interest.toFixed(2)),
+          installment: parseFloat(monthlyInstallment.toFixed(2)),
+          remainingBalance: parseFloat(balance.toFixed(2)),
+        });
+      }
     }
 
     return breakdown;

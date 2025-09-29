@@ -27,6 +27,7 @@ class _SimulationFormState extends State<SimulationForm> {
   final _formKey = GlobalKey<FormState>();
 
   int? _maxTenure;
+  int? _minTenure;
   bool _isCalculated = false;
 
   String? _bankError;
@@ -70,6 +71,7 @@ class _SimulationFormState extends State<SimulationForm> {
             _simulationFormController.bankId.value = bank.id;
             _simulationFormController.selectedBank = bank;
             _maxTenure = bank.max_tenure;
+            _minTenure = bank.min_tenure;
             _simulationFormController.interest_rate.text =
                 bank.interest_rate.toString();
           });
@@ -86,6 +88,7 @@ class _SimulationFormState extends State<SimulationForm> {
       isScrollControlled: true,
       builder: (context) => TenureSelectionModal(
         selectedTenure: _simulationFormController.tenure,
+        minTenure: _minTenure,
         maxTenure: _maxTenure,
         onTenureSelected: (int tenure) {
           setState(() {
@@ -121,7 +124,7 @@ class _SimulationFormState extends State<SimulationForm> {
   void _calculateKPR() {
     if (_simulationFormController.selectedBuildingProperty == null) {
       setState(() {
-        _propertyError = "Silahkan pilih property dahulu";
+        _propertyError = "Silahkan pilih bangunan properti dahulu";
       });
       return;
     }
@@ -273,24 +276,23 @@ class _SimulationFormState extends State<SimulationForm> {
           ),
           const SizedBox(height: 24),
 
-          _buildLabel('Pilih Properti'),
+          _buildLabel('Pilih Bangunan Properti'),
           _buildPropertySelector(),
           const SizedBox(height: 20),
 
           if (_simulationFormController.selectedBuildingProperty != null) ...[
-            _buildLabel('Harga Properti'),
+            _buildLabel('Harga Bangunan Properti'),
             _buildCurrencyField(
               controller: _simulationFormController.buildingPriceController,
-              hintText: 'Masukkan harga properti',
+              hintText: 'Masukkan harga bangunan properti',
               enable: false,
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Harga properti harus diisi';
+                  return 'Harga bangunan properti harus diisi';
                 }
                 return null;
               },
             ),
-            const SizedBox(height: 20),
           ],
           const SizedBox(height: 20),
 
@@ -301,12 +303,12 @@ class _SimulationFormState extends State<SimulationForm> {
             hintText: 'Masukkan uang muka',
             prefixText: 'Rp',
             enable: true,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Uang muka harus diisi';
-              }
-              return null;
-            },
+            // validator: (value) {
+            //   if (value == null || value.isEmpty) {
+            //     return 'Uang muka harus diisi';
+            //   }
+            //   return null;
+            // },
           ),
           const SizedBox(height: 20),
 
@@ -683,7 +685,7 @@ class _SimulationFormState extends State<SimulationForm> {
                       Text(
                         _simulationFormController
                                 .selectedBuildingProperty?.name ??
-                            'Pilih Properti',
+                            'Pilih Bangunan Properti',
                         style: TextStyle(
                           color: _simulationFormController
                                       .selectedBuildingProperty !=
@@ -698,8 +700,8 @@ class _SimulationFormState extends State<SimulationForm> {
                           null) ...[
                         const SizedBox(height: 2),
                         Text(
-                          AreaHelper.formatSingleLine(_simulationFormController
-                              .selectedBuildingProperty!.property!.address),
+                          _simulationFormController
+                              .selectedBuildingProperty!.property!.name,
                           style: TextStyle(
                             color: Colors.grey[600],
                             fontSize: 12,

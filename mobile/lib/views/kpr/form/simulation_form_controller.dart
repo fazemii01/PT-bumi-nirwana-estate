@@ -111,103 +111,132 @@ class SimulationFormController extends GetxController {
   }
 
   void handleCalculateKpr() {
-    // try {
-    //   final rawprice = propertyPriceController.text.trim();
-    //   final cleanedPrice = rawprice.replaceAll(RegExp(r'[^0-9]'), '');
-    //   final propertyPrice =
-    //       cleanedPrice.isEmpty ? 0.0 : double.parse(cleanedPrice);
+    try {
+      final rawprice = buildingPriceController.text.trim();
+      final cleanedPrice = rawprice.replaceAll(RegExp(r'[^0-9]'), '');
+      final propertyPrice =
+          cleanedPrice.isEmpty ? 0.0 : double.parse(cleanedPrice);
 
-    //   final raw = down_payment.text.trim();
-    //   final cleaned = raw.replaceAll(RegExp(r'[^0-9]'), '');
-    //   final payment = cleaned.isEmpty ? 0.0 : double.parse(cleaned);
+      final raw = down_payment.text;
+      final cleaned = raw.replaceAll(RegExp(r'[^0-9]'), '');
+      final payment = cleaned.isEmpty ? 0.0 : double.parse(cleaned);
 
-    //   double interestRate = double.parse(interest_rate.text) / 100;
+      double interestRate = double.parse(interest_rate.text) / 100;
 
-    //   double loanAmount = propertyPrice - payment;
-    //   double monthlyRate = interestRate / 12;
-    //   int totalMonths = tenure! * 12;
+      double loanAmount = propertyPrice - payment;
+      double monthlyRate = interestRate / 12;
+      int totalMonths = tenure! * 12;
 
-    //   double monthlyInstallment = loanAmount *
-    //       (monthlyRate * pow(1 + monthlyRate, totalMonths)) /
-    //       (pow(1 + monthlyRate, totalMonths) - 1);
+      double monthlyInstallment = 0.0;
+      double totalPayment = 0.0;
+      double totalInterest = 0.0;
+      double balance = loanAmount;
+      List<Breakdown> breakdown = [];
 
-    //   double totalPayment = monthlyInstallment * totalMonths;
-    //   double totalInterest = totalPayment - loanAmount;
-    //   double balance = loanAmount;
-    //   List<Breakdown> breakdown = [];
+      if (selectedBuildingProperty!.property!.type == "KOMERSIL") {
+        monthlyInstallment = loanAmount *
+            (monthlyRate * pow(1 + monthlyRate, totalMonths)) /
+            (pow(1 + monthlyRate, totalMonths) - 1);
 
-    //   for (int month = 1; month <= totalMonths; month++) {
-    //     double interest = balance * monthlyRate;
-    //     double principal = monthlyInstallment - interest;
-    //     balance -= principal;
+        totalPayment = monthlyInstallment * totalMonths;
+        totalInterest = totalPayment - loanAmount;
 
-    //     breakdown.add(
-    //       Breakdown(
-    //         month: month,
-    //         principal: double.parse(principal.toStringAsFixed(2)),
-    //         interest: double.parse(interest.toStringAsFixed(2)),
-    //         installment: double.parse(monthlyInstallment.toStringAsFixed(2)),
-    //         remainingBalance: double.parse(balance.toStringAsFixed(2)),
-    //       ),
-    //     );
-    //   }
-    //   final loanSimulation = LoanSimulation(
-    //     bank: selectedBank,
-    //     property: selectedProperty,
-    //     loanAmount: loanAmount,
-    //     downPayment: payment,
-    //     tenure: tenure!,
-    //     monthlyInstallment: double.parse(monthlyInstallment.toStringAsFixed(2)),
-    //     interestRate: interestRate * 100,
-    //     total_payment: double.parse(totalPayment.toStringAsFixed(2)),
-    //     total_interest: double.parse(totalInterest.toStringAsFixed(2)),
-    //     breakdown: breakdown,
-    //   );
-    //   Get.toNamed(
-    //     Routes.HASIL_SIMULATION,
-    //     arguments: {
-    //       "breakdown": breakdown.take(12).toList(),
-    //       "loanSimulation": loanSimulation,
-    //       "hasil": true
-    //     },
-    //   );
-    // } catch (e) {
-    //   print("ERROR handleCalculateKpr $e");
-    // }
+        for (int month = 1; month <= totalMonths; month++) {
+          double interest = balance * monthlyRate;
+          double principal = monthlyInstallment - interest;
+          balance -= principal;
+
+          breakdown.add(
+            Breakdown(
+              month: month,
+              principal: double.parse(principal.toStringAsFixed(2)),
+              interest: double.parse(interest.toStringAsFixed(2)),
+              installment: double.parse(monthlyInstallment.toStringAsFixed(2)),
+              remainingBalance: double.parse(balance.toStringAsFixed(2)),
+            ),
+          );
+        }
+      } else if (selectedBuildingProperty!.property!.type == "SUBSIDI") {
+        double principalPerMonth = loanAmount / totalMonths;
+        double interestPerMonth = loanAmount * interestRate / 12;
+        monthlyInstallment = principalPerMonth + interestPerMonth;
+
+        totalPayment = monthlyInstallment * totalMonths;
+        totalInterest = totalPayment - loanAmount;
+
+        for (int month = 1; month <= totalMonths; month++) {
+          double interest = interestPerMonth;
+          double principal = principalPerMonth;
+          balance -= principal;
+
+          breakdown.add(
+            Breakdown(
+              month: month,
+              principal: double.parse(principal.toStringAsFixed(2)),
+              interest: double.parse(interest.toStringAsFixed(2)),
+              installment: double.parse(monthlyInstallment.toStringAsFixed(2)),
+              remainingBalance: double.parse(balance.toStringAsFixed(2)),
+            ),
+          );
+        }
+      }
+      final loanSimulation = LoanSimulation(
+        bank: selectedBank,
+        buildingProperty: selectedBuildingProperty,
+        loanAmount: loanAmount,
+        downPayment: payment,
+        tenure: tenure!,
+        monthlyInstallment: double.parse(monthlyInstallment.toStringAsFixed(2)),
+        interestRate: interestRate * 100,
+        total_payment: double.parse(totalPayment.toStringAsFixed(2)),
+        total_interest: double.parse(totalInterest.toStringAsFixed(2)),
+        breakdown: breakdown,
+      );
+      Get.toNamed(
+        Routes.HASIL_SIMULATION,
+        arguments: {
+          "breakdown": breakdown.take(12).toList(),
+          "loanSimulation": loanSimulation,
+          "hasil": true
+        },
+      );
+    } catch (e) {
+      print("ERROR handleCalculateKpr $e");
+    }
   }
 
   void handleSubmit() async {
-    // final raw = down_payment.text.trim();
-    // final cleaned = raw.replaceAll(RegExp(r'[^0-9]'), '');
-    // final payment = cleaned.isEmpty ? 0.0 : double.parse(cleaned);
-    // final loanSimulation = LoanSimulation(
-    //   userId: userId.value.trim(),
-    //   bankId: bankId.value.trim(),
-    //   propertyId: propertyId.value.trim(),
-    //   tenure: tenure!,
-    //   downPayment: payment,
-    // );
-    // try {
-    //   isLoading.value = true;
-    //   errorMessage.value = '';
-    //   final response =
-    //       await _loanSimulationService.addLoanSimulation(loanSimulation);
-    //   if (response == null) {
-    //     isLoading.value = false;
-    //     Get.snackbar("Success", "Data simulasi berhasil disimpan.",
-    //         backgroundColor: Colors.green, colorText: Colors.white);
-    //     Get.offAll(() => const Layout(), arguments: 2);
-    //   } else {
-    //     isLoading.value = false;
-    //     Get.snackbar('Error', '$response',
-    //         backgroundColor: Colors.red, colorText: Colors.white);
-    //     print("Error save simulation: $response");
-    //   }
-    // } catch (e) {
-    //   Get.snackbar('Error', '$e',
-    //       backgroundColor: Colors.red, colorText: Colors.white);
-    //   print("Error save simulation: $e");
-    // }
+    final raw = down_payment.text.trim();
+    final cleaned = raw.replaceAll(RegExp(r'[^0-9]'), '');
+    final payment = cleaned.isEmpty ? 0.0 : double.parse(cleaned);
+    final loanSimulation = LoanSimulation(
+      userId: userId.value.trim(),
+      bankId: bankId.value.trim(),
+      buildingPropertyId: buildingId.value.trim(),
+      tenure: tenure!,
+      downPayment: payment,
+    );
+    try {
+      isLoading.value = true;
+      errorMessage.value = '';
+      final response =
+          await _loanSimulationService.addLoanSimulation(loanSimulation);
+      if (response == null) {
+        isLoading.value = false;
+        Get.snackbar("Success", "Data simulasi berhasil disimpan.",
+            backgroundColor: Colors.green, colorText: Colors.white);
+        Get.offAll(() => const Layout(), arguments: 2);
+      } else {
+        isLoading.value = false;
+        Get.snackbar('Error', '$response',
+            backgroundColor: Colors.red, colorText: Colors.white);
+        print("Error save simulation: $response");
+      }
+    } catch (e) {
+      Get.snackbar('Error', '$e',
+          backgroundColor: Colors.red, colorText: Colors.white);
+      print("Error save simulation: $e");
+    }
   }
 }
 
