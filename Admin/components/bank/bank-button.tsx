@@ -9,7 +9,7 @@ const BankButton = () => {
 
   return (
     <div className=" flex justify-end mb-4">
-      <Button variant="outline" size="sm" className="cursor-pointer" onClick={() => setOpen(true)}>
+      <Button size="sm" className="cursor-pointer" onClick={() => setOpen(true)}>
         <IconPlus />
         <span className="hidden lg:inline">Add Bank</span>
       </Button>

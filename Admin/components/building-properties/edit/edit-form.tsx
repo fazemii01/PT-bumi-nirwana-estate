@@ -3,10 +3,7 @@ import React, { useEffect, useMemo, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Property } from "@/types/properties";
-import {
-  BuildingKprRules,
-  BuildingProperty,
-} from "@/types/building-properties";
+import { BuildingKprRules, BuildingProperty } from "@/types/building-properties";
 import { Camera, Info, MapPin, Settings } from "lucide-react";
 import { updateBuildingPropertyZod } from "@/lib/zod";
 import { showToastError, showToastSuccess } from "@/components/toast";
@@ -17,13 +14,7 @@ import EditMediaForm from "@/components/building-properties/edit/edit-media";
 import { set } from "zod";
 import SpecificationsForm from "../create/specifications-form";
 
-const BuildingPropertyEditForm = ({
-  initialData,
-  properties,
-}: {
-  initialData: BuildingProperty;
-  properties: Property[];
-}) => {
+const BuildingPropertyEditForm = ({ initialData, properties }: { initialData: BuildingProperty; properties: Property[] }) => {
   const router = useRouter();
   const [formData, setFormData] = useState<BuildingProperty>({
     id: initialData.id ?? "",
@@ -36,10 +27,7 @@ const BuildingPropertyEditForm = ({
     total_units: initialData.total_units ?? "",
     land_size: initialData.land_size ?? 0,
     description: initialData.description ?? "",
-    specifications:
-      typeof initialData.specifications === "string"
-        ? JSON.parse(initialData.specifications)
-        : initialData.specifications ?? {},
+    specifications: typeof initialData.specifications === "string" ? JSON.parse(initialData.specifications) : initialData.specifications ?? {},
     building_images: initialData.building_images ?? [],
     building_floor_plans: initialData.building_floor_plans ?? [],
     images: initialData.images ?? [],
@@ -55,16 +43,14 @@ const BuildingPropertyEditForm = ({
   const [floorPlansMeta, setFloorPlansMeta] = useState<{ name?: string }[]>([]);
   const [newFloorFiles, setNewFloorFiles] = useState<File[]>([]);
   const [newKprFiles, setNewKprFiles] = useState<File[]>([]);
-  const [kprMeta, setKprMeta] = useState<BuildingKprRules[]>(
-    initialData.building_kpr_rules ?? []
-  );
+  const [kprRulesMeta, setKprRulesMeta] = useState<BuildingKprRules[]>(initialData.building_kpr_rules ?? []);
 
   useEffect(() => {
     setNewImageFiles([]);
     setNewFloorFiles([]);
     setNewKprFiles([]);
     setImagesMeta([]);
-    setKprMeta([]);
+    setKprRulesMeta([]);
     setFloorPlansMeta([]);
   }, [initialData]);
 
@@ -88,9 +74,7 @@ const BuildingPropertyEditForm = ({
     setFormData((prev) => ({ ...prev, [name]: value } as BuildingProperty));
   };
 
-  const handleSpecificationChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleSpecificationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -101,9 +85,7 @@ const BuildingPropertyEditForm = ({
     }));
   };
 
-  const handleTextAreaSpecificationChange = (
-    e: React.ChangeEvent<HTMLTextAreaElement>
-  ) => {
+  const handleTextAreaSpecificationChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -122,12 +104,6 @@ const BuildingPropertyEditForm = ({
       building_images: newImageFiles,
       building_floor_plans: newFloorFiles,
       building_kpr_file: newKprFiles,
-      building_kpr_rules: kprMeta.map((meta, i) => ({
-        file: newKprFiles[i],
-        preview: newKprFiles[i]
-          ? URL.createObjectURL(newKprFiles[i])
-          : meta.file_url,
-      })),
       images: imagesMeta.map((meta, i) => ({
         file: newImageFiles[i],
         preview: URL.createObjectURL(newImageFiles[i]),
@@ -135,9 +111,7 @@ const BuildingPropertyEditForm = ({
       })),
       floor_plans: floorPlansMeta.map((meta, i) => ({
         file: newFloorFiles[i],
-        preview: newFloorFiles[i].type.startsWith("image/")
-          ? URL.createObjectURL(newFloorFiles[i])
-          : undefined,
+        preview: newFloorFiles[i].type.startsWith("image/") ? URL.createObjectURL(newFloorFiles[i]) : undefined,
         name: meta.name ?? "",
       })),
     };
@@ -146,18 +120,18 @@ const BuildingPropertyEditForm = ({
     if (!result.success) {
       const firstError = result.error.errors[0];
       const path = firstError.path;
+
+      console.log(firstError.path, firstError.message);
+
       let tab = "basic";
-      if (
-        path.includes("images") ||
-        path.includes("floor_plans") ||
-        path.includes("building_kpr_rules")
-      ) {
+      if (path.includes("images") || path.includes("floor_plans") || path.includes("building_kpr_rules")) {
         tab = "media";
       } else if (path.includes("specifications")) {
         tab = "specs";
       }
-      setActiveTab(tab);
-      setError({ [path.join(".")]: firstError.message });
+      setError({
+        [path.join(".")]: firstError.message,
+      });
       return;
     }
     setError({});
@@ -169,9 +143,8 @@ const BuildingPropertyEditForm = ({
       });
 
       if (!res.success) {
-        showToastError(
-          res.message || "Failed to update property. Please try again."
-        );
+        showToastError(res.message || "Failed to update property. Please try again.");
+        return;
       }
       router.push(`/properties/detail/${res.propertyId}?tab=buildings`);
       showToastSuccess("Building updated successfully!");
@@ -186,44 +159,24 @@ const BuildingPropertyEditForm = ({
 
       <form onSubmit={handleSubmit}>
         <div>
-          <Tabs
-            value={activeTab}
-            onValueChange={setActiveTab}
-            className="space-y-6"
-          >
-            <TabsList className="grid grid-cols-4 w-full h-auto">
-              <TabsTrigger
-                value="basic"
-                className="flex items-center justify-center py-2 cursor-pointer"
-              >
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+            <TabsList className="grid grid-cols-3 w-full h-auto">
+              <TabsTrigger value="basic" className="flex items-center justify-center py-2 cursor-pointer">
                 <Info className="w-4 h-4 sm:hidden" />
                 <span className="hidden sm:inline">Info Dasar</span>
               </TabsTrigger>
-              <TabsTrigger
-                value="media"
-                className="flex items-center justify-center py-2 cursor-pointer"
-              >
+              <TabsTrigger value="media" className="flex items-center justify-center py-2 cursor-pointer">
                 <Camera className="w-4 h-4 sm:hidden" />
                 <span className="hidden sm:inline">Media</span>
               </TabsTrigger>
-              <TabsTrigger
-                value="specs"
-                className="flex items-center justify-center py-2 cursor-pointer"
-              >
+              <TabsTrigger value="specs" className="flex items-center justify-center py-2 cursor-pointer">
                 <Settings className="w-4 h-4 sm:hidden" />
                 <span className="hidden sm:inline">Spesifikasi</span>
               </TabsTrigger>
             </TabsList>
 
             {/* Basic */}
-            <BasicInfoForm
-              formData={formData}
-              handleSelectChange={handleSelectChange}
-              handleInputChange={handleInputChange}
-              handleTextAreaChange={handleTextAreaChange}
-              property={properties}
-              error={error}
-            />
+            <BasicInfoForm formData={formData} handleSelectChange={handleSelectChange} handleInputChange={handleInputChange} handleTextAreaChange={handleTextAreaChange} property={properties} error={error} />
 
             {/* Media */}
             {activeTab === "media" && (
@@ -241,29 +194,18 @@ const BuildingPropertyEditForm = ({
                 setFloorPlansMeta={setFloorPlansMeta}
                 newKprFiles={newKprFiles}
                 setNewKprFiles={setNewKprFiles}
+                kprRulesMeta={kprRulesMeta}
+                setKprRulesMeta={setKprRulesMeta}
                 error={error}
               />
             )}
 
             {/* Specification */}
-            {activeTab === "specs" && (
-              <SpecificationsForm
-                formData={formData}
-                handleSpecificationChange={handleSpecificationChange}
-                handleTextAreaSpecificationChange={
-                  handleTextAreaSpecificationChange
-                }
-                error={error}
-              />
-            )}
+            {activeTab === "specs" && <SpecificationsForm formData={formData} handleSpecificationChange={handleSpecificationChange} handleTextAreaSpecificationChange={handleTextAreaSpecificationChange} error={error} />}
           </Tabs>
 
           <div className="flex justify-end gap-4 pt-6 border-t">
-            <Button
-              type="submit"
-              className="bg-blue-600 hover:bg-blue-700 cursor-pointer"
-              disabled={pending}
-            >
+            <Button type="submit" className="bg-blue-600 hover:bg-blue-700 cursor-pointer" disabled={pending}>
               {pending ? "Saving..." : "Save Changes"}
             </Button>
           </div>

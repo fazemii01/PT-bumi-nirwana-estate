@@ -6,7 +6,6 @@ import { IconPlus } from "@tabler/icons-react";
 
 const PropertyButton = () => {
   const router = useRouter();
-
   return (
     <div className=" flex justify-end mb-4">
       <Button size="sm" className="cursor-pointer" onClick={() => router.push("/properties/create")}>

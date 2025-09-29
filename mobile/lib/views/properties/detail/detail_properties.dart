@@ -3,12 +3,11 @@ import 'package:mobile_nirwana/core/routes/app_routes.dart';
 import 'package:mobile_nirwana/data/models/agent.dart';
 import 'package:mobile_nirwana/data/models/developer.dart';
 import 'package:mobile_nirwana/data/models/property/property.dart';
-import 'package:mobile_nirwana/data/models/property/property_floor_plan.dart';
+import 'package:mobile_nirwana/data/models/property/property_site_plan.dart';
 import 'package:mobile_nirwana/helper/price.dart';
 import 'package:mobile_nirwana/views/layout_controller.dart';
 import 'package:mobile_nirwana/views/properties/detail/widget/animated_category_chip.dart';
 import 'package:mobile_nirwana/core/utils/api.dart';
-import 'package:mobile_nirwana/data/models/property/specification.dart';
 import 'package:mobile_nirwana/views/properties/detail/detail_properties_controller.dart';
 import 'package:mobile_nirwana/views/properties/detail/floor_plan_viewer_page.dart';
 import 'package:mobile_nirwana/views/properties/detail/poker_image_slider.dart';
@@ -173,11 +172,11 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
                                               CrossAxisAlignment.start,
                                           children: [
                                             const SizedBox(height: 24.0),
-                                            _buildHeader(
-                                                property.name,
-                                                formatPrice(property.price),
-                                                "/${property.price_unit}",
-                                                theme),
+                                            // _buildHeader(
+                                            //     property.name,
+                                            //     formatPrice(property.price),
+                                            //     "/${property.price_unit}",
+                                            //     theme),
                                             const SizedBox(height: 16),
                                             Divider(color: Colors.grey[200]),
                                             const SizedBox(height: 16),
@@ -194,11 +193,11 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
                                     ),
                                   ],
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 24.0, vertical: 24.0),
-                                  child: _buildSpecifications(property),
-                                ),
+                                // Padding(
+                                //   padding: const EdgeInsets.symmetric(
+                                //       horizontal: 24.0, vertical: 24.0),
+                                //   child: _buildSpecifications(property),
+                                // ),
                                 Padding(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 24.0),
@@ -230,43 +229,43 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
                             ),
                             pinned: true,
                           ),
-                          SliverToBoxAdapter(
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 24.0, vertical: 24.0),
-                              child: _tabController.index == 0
-                                  ? _buildRincianFasilitas(
-                                      property.specifications!) // Konten tab 1
-                                  : _buildMaterialTeknis(
-                                      property.specifications!), // Konten tab 2
-                            ),
-                          ),
-                          SliverToBoxAdapter(
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 24.0),
-                              child: Column(
-                                children: [
-                                  _buildFloorPlanSection(
-                                      context, property.floorPlans),
-                                  const SizedBox(height: 24),
-                                  if (property.agent != null) ...[
-                                    _buildAgentCard(theme, property.agent!),
-                                    const SizedBox(height: 24),
-                                  ],
-                                  _buildDivider(),
-                                  const SizedBox(height: 24),
-                                  _buildDescription(
-                                      theme, property.description),
-                                  const SizedBox(height: 24),
-                                  if (property.developer != null)
-                                    _buildDeveloperInfo(property.developer!),
-                                  const SizedBox(
-                                      height: 120), // Padding untuk Tombol CTA
-                                ],
-                              ),
-                            ),
-                          ),
+                          // SliverToBoxAdapter(
+                          //   child: Padding(
+                          //     padding: const EdgeInsets.symmetric(
+                          //         horizontal: 24.0, vertical: 24.0),
+                          //     child: _tabController.index == 0
+                          //         ? _buildRincianFasilitas(
+                          //             property.specifications!) // Konten tab 1
+                          //         : _buildMaterialTeknis(
+                          //             property.specifications!), // Konten tab 2
+                          //   ),
+                          // ),
+                          // SliverToBoxAdapter(
+                          //   child: Padding(
+                          //     padding:
+                          //         const EdgeInsets.symmetric(horizontal: 24.0),
+                          //     child: Column(
+                          //       children: [
+                          //         _buildFloorPlanSection(
+                          //             context, property.floorPlans),
+                          //         const SizedBox(height: 24),
+                          //         if (property.agent != null) ...[
+                          //           _buildAgentCard(theme, property.agent!),
+                          //           const SizedBox(height: 24),
+                          //         ],
+                          //         _buildDivider(),
+                          //         const SizedBox(height: 24),
+                          //         _buildDescription(
+                          //             theme, property.description),
+                          //         const SizedBox(height: 24),
+                          //         if (property.developer != null)
+                          //           _buildDeveloperInfo(property.developer!),
+                          //         const SizedBox(
+                          //             height: 120), // Padding untuk Tombol CTA
+                          //       ],
+                          //     ),
+                          //   ),
+                          // ),
                         ],
                       ),
                       _buildCtaButton(theme, property),
@@ -394,34 +393,34 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
     );
   }
 
-  Widget _buildSpecifications(Property property) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: _buildSpecItem(
-              Icons.bed_outlined,
-              property.specifications?.bedrooms?.toString() ?? '-',
-              "Kamar Tidur"),
-        ),
-        Expanded(
-          child: _buildSpecItem(
-              Icons.bathtub_outlined,
-              property.specifications?.bathrooms?.toString() ?? '-',
-              "Kamar Mandi"),
-        ),
-        Expanded(
-          child: _buildSpecItem(Icons.square_foot_outlined,
-              "${property.buildingSize ?? '-'} m²", "Luas Bangunan"),
-        ),
-        Expanded(
-          // <-- ITEM KEEMPAT DITAMBAHKAN
-          child: _buildSpecItem(Icons.landscape_outlined,
-              "${property.landSize ?? '-'} m²", "Luas Tanah"),
-        ),
-      ],
-    );
-  }
+  // Widget _buildSpecifications(Property property) {
+  //   return Row(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       Expanded(
+  //         child: _buildSpecItem(
+  //             Icons.bed_outlined,
+  //             property.specifications?.bedrooms?.toString() ?? '-',
+  //             "Kamar Tidur"),
+  //       ),
+  //       Expanded(
+  //         child: _buildSpecItem(
+  //             Icons.bathtub_outlined,
+  //             property.specifications?.bathrooms?.toString() ?? '-',
+  //             "Kamar Mandi"),
+  //       ),
+  //       Expanded(
+  //         child: _buildSpecItem(Icons.square_foot_outlined,
+  //             "${property.buildingSize ?? '-'} m²", "Luas Bangunan"),
+  //       ),
+  //       Expanded(
+  //         // <-- ITEM KEEMPAT DITAMBAHKAN
+  //         child: _buildSpecItem(Icons.landscape_outlined,
+  //             "${property.landSize ?? '-'} m²", "Luas Tanah"),
+  //       ),
+  //     ],
+  //   );
+  // }
 
   Widget _buildSpecItem(IconData icon, String value, String label) {
     return Column(
@@ -464,92 +463,92 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
     );
   }
 
-  Widget _buildRincianFasilitas(Specifications specs) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          "Fasilitas & Ruangan",
-          style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF1F2937)),
-        ),
-        const SizedBox(height: 8),
-        _buildSpecRow("Ruang Keluarga", specs.familyRoom?.toString() ?? '-'),
-        _buildSpecRow("Dapur", specs.kitchen?.toString() ?? '-'),
-        _buildSpecRow("Garasi", specs.garage?.toString() ?? '-'),
-        _buildSpecRow("Jumlah Lantai", specs.floors?.toString() ?? '-'),
-      ],
-    );
-  }
+  // Widget _buildRincianFasilitas(Specifications specs) {
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       const Text(
+  //         "Fasilitas & Ruangan",
+  //         style: TextStyle(
+  //             fontSize: 18,
+  //             fontWeight: FontWeight.bold,
+  //             color: Color(0xFF1F2937)),
+  //       ),
+  //       const SizedBox(height: 8),
+  //       _buildSpecRow("Ruang Keluarga", specs.familyRoom?.toString() ?? '-'),
+  //       _buildSpecRow("Dapur", specs.kitchen?.toString() ?? '-'),
+  //       _buildSpecRow("Garasi", specs.garage?.toString() ?? '-'),
+  //       _buildSpecRow("Jumlah Lantai", specs.floors?.toString() ?? '-'),
+  //     ],
+  //   );
+  // }
 
-  Widget _buildMaterialTeknis(Specifications? specs) {
-    if (specs == null) return const Text("Data material tidak tersedia.");
+  // Widget _buildMaterialTeknis(Specifications? specs) {
+  //   if (specs == null) return const Text("Data material tidak tersedia.");
 
-    final allSpecItems = <Widget>[
-      _buildSpecRow("Struktur", specs.structure ?? '-'),
-      _buildSpecRow("Lantai", specs.floor ?? '-'),
-      _buildSpecRow("Dinding", specs.walls ?? '-'),
-      _buildSpecRow("Atap", specs.roof ?? '-'),
-      _buildSpecRow("Pintu", specs.doors ?? '-'),
-      _buildSpecRow("Jendela", specs.windows ?? '-'),
-      _buildSpecRow("Listrik", specs.electricity ?? '-'),
-      _buildSpecRow("Sumber Air", specs.waterSource ?? '-'),
-      _buildSpecRow("Internet", specs.internet ?? '-'),
-      _buildSpecRow("Keamanan", specs.security ?? '-'),
-      _buildSpecRow("Fasilitas Lain", specs.facilities ?? '-'),
-    ];
+  //   final allSpecItems = <Widget>[
+  //     _buildSpecRow("Struktur", specs.structure ?? '-'),
+  //     _buildSpecRow("Lantai", specs.floor ?? '-'),
+  //     _buildSpecRow("Dinding", specs.walls ?? '-'),
+  //     _buildSpecRow("Atap", specs.roof ?? '-'),
+  //     _buildSpecRow("Pintu", specs.doors ?? '-'),
+  //     _buildSpecRow("Jendela", specs.windows ?? '-'),
+  //     _buildSpecRow("Listrik", specs.electricity ?? '-'),
+  //     _buildSpecRow("Sumber Air", specs.waterSource ?? '-'),
+  //     _buildSpecRow("Internet", specs.internet ?? '-'),
+  //     _buildSpecRow("Keamanan", specs.security ?? '-'),
+  //     _buildSpecRow("Fasilitas Lain", specs.facilities ?? '-'),
+  //   ];
 
-    final displayedItems =
-        _isMaterialExpanded ? allSpecItems : allSpecItems.take(4).toList();
+  //   final displayedItems =
+  //       _isMaterialExpanded ? allSpecItems : allSpecItems.take(4).toList();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          "Material & Teknis",
-          style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF1F2937)),
-        ),
-        const SizedBox(height: 8),
-        AnimatedSize(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-          child: Column(
-            children: displayedItems,
-          ),
-        ),
-        if (allSpecItems.length > 4)
-          Align(
-            alignment: Alignment.center,
-            child: Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: TextButton(
-                onPressed: () {
-                  setState(() {
-                    _isMaterialExpanded = !_isMaterialExpanded;
-                  });
-                },
-                style: TextButton.styleFrom(
-                  foregroundColor: const Color(0xFFDBB837),
-                ),
-                child: Text(
-                  _isMaterialExpanded
-                      ? 'Lihat Lebih Sedikit'
-                      : 'Lihat Selengkapnya...',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-          ),
-      ],
-    );
-  }
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       const Text(
+  //         "Material & Teknis",
+  //         style: TextStyle(
+  //             fontSize: 18,
+  //             fontWeight: FontWeight.bold,
+  //             color: Color(0xFF1F2937)),
+  //       ),
+  //       const SizedBox(height: 8),
+  //       AnimatedSize(
+  //         duration: const Duration(milliseconds: 300),
+  //         curve: Curves.easeInOut,
+  //         child: Column(
+  //           children: displayedItems,
+  //         ),
+  //       ),
+  //       if (allSpecItems.length > 4)
+  //         Align(
+  //           alignment: Alignment.center,
+  //           child: Padding(
+  //             padding: const EdgeInsets.only(top: 8.0),
+  //             child: TextButton(
+  //               onPressed: () {
+  //                 setState(() {
+  //                   _isMaterialExpanded = !_isMaterialExpanded;
+  //                 });
+  //               },
+  //               style: TextButton.styleFrom(
+  //                 foregroundColor: const Color(0xFFDBB837),
+  //               ),
+  //               child: Text(
+  //                 _isMaterialExpanded
+  //                     ? 'Lihat Lebih Sedikit'
+  //                     : 'Lihat Selengkapnya...',
+  //                 style: const TextStyle(
+  //                   fontWeight: FontWeight.bold,
+  //                 ),
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //     ],
+  //   );
+  // }
 
   Widget _buildDivider() {
     return Divider(color: Colors.grey[300], thickness: 1);
@@ -620,90 +619,90 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
     );
   }
 
-  Widget _buildFloorPlanSection(
-      BuildContext context, List<PropertyFloorPlan> floorPlans) {
-    if (floorPlans.isEmpty) {
-      return const SizedBox.shrink();
-    }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                "Denah Rumah",
-                style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF1F2937)),
-              ),
-              if (floorPlans.length > 1)
-                Text(
-                  "${floorPlans.length} Denah",
-                  style:
-                      const TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
-                ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-        SizedBox(
-          height: 150,
-          child: ListView.separated(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            scrollDirection: Axis.horizontal,
-            itemCount: floorPlans.length,
-            separatorBuilder: (context, index) => const SizedBox(width: 16),
-            itemBuilder: (context, index) {
-              final floorPlan = floorPlans[index];
-              final String fullUrl = Imgurl.get(
-                  'property/property_floor_plans/${floorPlan.file_url}');
+  // Widget _buildFloorPlanSection(
+  //     BuildContext context, List<PropertyFloorPlan> floorPlans) {
+  //   if (floorPlans.isEmpty) {
+  //     return const SizedBox.shrink();
+  //   }
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       Padding(
+  //         padding: const EdgeInsets.symmetric(horizontal: 24.0),
+  //         child: Row(
+  //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //           children: [
+  //             const Text(
+  //               "Denah Rumah",
+  //               style: TextStyle(
+  //                   fontSize: 18,
+  //                   fontWeight: FontWeight.bold,
+  //                   color: Color(0xFF1F2937)),
+  //             ),
+  //             if (floorPlans.length > 1)
+  //               Text(
+  //                 "${floorPlans.length} Denah",
+  //                 style:
+  //                     const TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
+  //               ),
+  //           ],
+  //         ),
+  //       ),
+  //       const SizedBox(height: 16),
+  //       SizedBox(
+  //         height: 150,
+  //         child: ListView.separated(
+  //           padding: const EdgeInsets.symmetric(horizontal: 24.0),
+  //           scrollDirection: Axis.horizontal,
+  //           itemCount: floorPlans.length,
+  //           separatorBuilder: (context, index) => const SizedBox(width: 16),
+  //           itemBuilder: (context, index) {
+  //             final floorPlan = floorPlans[index];
+  //             final String fullUrl = Imgurl.get(
+  //                 'property/property_floor_plans/${floorPlan.file_url}');
 
-              return GestureDetector(
-                onTap: () {
-                  final List<String> imageUrls = floorPlans
-                      .map((fp) => Imgurl.get(
-                          'property/property_floor_plans/${fp.file_url}'))
-                      .toList();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => FloorPlanViewerPage(
-                        floorPlanImages: imageUrls,
-                        initialIndex: index,
-                      ),
-                    ),
-                  );
-                },
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: CachedNetworkImage(
-                    imageUrl: fullUrl,
-                    fit: BoxFit.cover,
-                    width: 200,
-                    placeholder: (context, url) => Container(
-                      width: 200,
-                      color: Colors.grey[300],
-                      child: const Center(child: CircularProgressIndicator()),
-                    ),
-                    errorWidget: (context, url, error) => Container(
-                      width: 200,
-                      color: Colors.grey[300],
-                      child: const Icon(Icons.broken_image_outlined,
-                          color: Colors.grey, size: 48),
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
+  //             return GestureDetector(
+  //               onTap: () {
+  //                 final List<String> imageUrls = floorPlans
+  //                     .map((fp) => Imgurl.get(
+  //                         'property/property_floor_plans/${fp.file_url}'))
+  //                     .toList();
+  //                 Navigator.push(
+  //                   context,
+  //                   MaterialPageRoute(
+  //                     builder: (_) => FloorPlanViewerPage(
+  //                       floorPlanImages: imageUrls,
+  //                       initialIndex: index,
+  //                     ),
+  //                   ),
+  //                 );
+  //               },
+  //               child: ClipRRect(
+  //                 borderRadius: BorderRadius.circular(12),
+  //                 child: CachedNetworkImage(
+  //                   imageUrl: fullUrl,
+  //                   fit: BoxFit.cover,
+  //                   width: 200,
+  //                   placeholder: (context, url) => Container(
+  //                     width: 200,
+  //                     color: Colors.grey[300],
+  //                     child: const Center(child: CircularProgressIndicator()),
+  //                   ),
+  //                   errorWidget: (context, url, error) => Container(
+  //                     width: 200,
+  //                     color: Colors.grey[300],
+  //                     child: const Icon(Icons.broken_image_outlined,
+  //                         color: Colors.grey, size: 48),
+  //                   ),
+  //                 ),
+  //               ),
+  //             );
+  //           },
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
 
   Widget _buildAgentCard(ThemeData theme, Agent agent) {
     final String fullAvatarUrl = Imgurl.get('agent/${agent.avatar_url}');

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_nirwana/data/models/property/specification.dart';
+import 'package:mobile_nirwana/data/models/building_property/specification.dart';
 
 class SpecificationHelper {
   /// Helper untuk menampilkan spesifikasi utama (bed, bath, garage, dll.)

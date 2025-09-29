@@ -262,8 +262,8 @@ class _HasilSimulationState extends State<HasilSimulation> {
           ),
         ),
         const SizedBox(height: 12),
-        _buildBreakdownItem(
-            'Harga Properti', widget.loanSimulation.property?.price ?? 0.0),
+        // _buildBreakdownItem(
+        //     'Harga Properti', widget.loanSimulation.property?.price ?? 0.0),
         _buildBreakdownItem('Uang Muka', widget.loanSimulation.downPayment!),
         const Divider(height: 24),
         _buildBreakdownItem(
