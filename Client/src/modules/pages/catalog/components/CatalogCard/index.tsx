@@ -61,6 +61,11 @@ const CatalogCard: FC<{
 		realEstateType,
 		location,
 		address,
+		city,
+		street,
+		province,
+		village,
+		postal_code,
 	);
 	const itemCity = tCommon(formatCityTranslation(city));
 	const NameProperty = tCommon(formatCityTranslation(name));
