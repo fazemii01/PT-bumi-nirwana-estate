@@ -19,7 +19,7 @@ class KprPage extends StatefulWidget {
 
 class _KprPageState extends State<KprPage> {
   final KprController _kprController = Get.put(KprController());
-  final LayoutController _layoutController = Get.put(LayoutController());
+  final LayoutController _layoutController = Get.find<LayoutController>();
   bool _isSearching = false;
   bool _isSelectionMode = false;
   LoanSimulation? _selectedSimulation;

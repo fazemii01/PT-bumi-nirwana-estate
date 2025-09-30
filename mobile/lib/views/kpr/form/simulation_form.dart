@@ -293,8 +293,8 @@ class _SimulationFormState extends State<SimulationForm> {
                 return null;
               },
             ),
+            const SizedBox(height: 20),
           ],
-          const SizedBox(height: 20),
 
           // Uang Muka
           _buildLabel('Uang Muka (DP)'),

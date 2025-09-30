@@ -218,8 +218,11 @@ export class PropertiesService {
   }
 
   async findAll(): Promise<Property[]> {
-    return await this.propertyRepository.find({
-      where: { status_delete: DeletedAtStatus.NOT_DELETED },
+    const properties = await this.propertyRepository.find({
+      where: {
+        status_delete: DeletedAtStatus.NOT_DELETED,
+        building_property: { status_delete: DeletedAtStatus.NOT_DELETED },
+      },
       relations: [
         'developer',
         'agent',
@@ -230,10 +233,12 @@ export class PropertiesService {
         'building_property.floor_plans',
       ],
     });
+
+    return this.addFavoritesCount(properties);
   }
 
   async findOne(id: string): Promise<Property | null> {
-    return await this.propertyRepository.findOne({
+    const properties = await this.propertyRepository.findOne({
       where: { id },
       relations: [
         'developer',
@@ -245,9 +250,13 @@ export class PropertiesService {
         'building_property.floor_plans',
       ],
     });
+    if (!properties) return null;
+
+    const [propertyWithCount] = await this.addFavoritesCount([properties]);
+    return propertyWithCount;
   }
 
-  async findOneByType(type: string): Promise<Property[]> {
+  async findByType(type: string): Promise<Property[]> {
     if (!Object.values(PropertyType).includes(type as PropertyType)) {
       throw new BadRequestException(`Invalid property type: ${type}`);
     }
@@ -267,7 +276,7 @@ export class PropertiesService {
     if (!properties || properties.length === 0) {
       throw new NotFoundException(`Property with type ${type} not found`);
     }
-    return properties;
+    return this.addFavoritesCount(properties);
   }
 
   async update(
@@ -489,5 +498,29 @@ export class PropertiesService {
     } catch (err) {
       console.error(`Could not delete file ${filename}:`, err.message);
     }
+  }
+
+  private async addFavoritesCount(properties: Property[]): Promise<any[]> {
+    if (!properties.length) return [];
+
+    const ids = properties.map((p) => p.id);
+
+    const favorites = await this.propertyRepository
+      .createQueryBuilder('property')
+      .leftJoin('property.favorites', 'favorite')
+      .select('property.id', 'id')
+      .addSelect('COUNT(favorite.propertyId)', 'favoritesCount')
+      .where('property.id IN (:...ids)', { ids })
+      .groupBy('property.id')
+      .getRawMany();
+
+    const favoritesMap = new Map(
+      favorites.map((f) => [f.id, Number(f.favoritesCount)]),
+    );
+
+    return properties.map((p) => ({
+      ...p,
+      favoritesCount: favoritesMap.get(p.id) || 0,
+    }));
   }
 }
