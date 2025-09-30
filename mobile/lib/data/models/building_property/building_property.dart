@@ -48,7 +48,7 @@ class BuildingProperty {
     return BuildingProperty(
       id: json['id'],
       name: json['name'],
-      totalUnits: json['total_units'], // baru
+      totalUnits: json['total_units'],
       status: BuildingStatus.values.firstWhere(
         (e) => e.toString().split('.').last == json['status'],
         orElse: () => BuildingStatus.AVAILABLE,

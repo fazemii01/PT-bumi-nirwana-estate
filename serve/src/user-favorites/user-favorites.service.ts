@@ -37,12 +37,7 @@ export class UserFavoritesService {
   async findOneByUserId(userId: string): Promise<UserFavorite[]> {
     return await this.userFavoRepo.find({
       where: { userId },
-      relations: [
-        'user',
-        'property',
-        'property.images',
-        'property.floor_plans',
-      ],
+      relations: ['user', 'property', 'property.images', 'property.site_plans'],
     });
   }
 }

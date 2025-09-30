@@ -27,38 +27,39 @@ class _HasilSimulationState extends State<HasilSimulation> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.white,
-        scrolledUnderElevation: 0,
-        surfaceTintColor: Colors.transparent,
-        title: const Text(
-          'Hasil Simulasi KPR',
-          style: TextStyle(
-            color: Color(0xFF2D3748),
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
+        backgroundColor: const Color(0xFFF5F7FA),
+        appBar: AppBar(
+          elevation: 0,
+          backgroundColor: Colors.white,
+          scrolledUnderElevation: 0,
+          surfaceTintColor: Colors.transparent,
+          title: const Text(
+            'Hasil Simulasi KPR',
+            style: TextStyle(
+              color: Color(0xFF2D3748),
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          centerTitle: true,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Color(0xFF2D3748)),
+            onPressed: () => Navigator.pop(context),
           ),
         ),
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF2D3748)),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildResultCard(),
-            const SizedBox(height: 16),
-            _buildAmortizationCard(),
-          ],
-        ),
-      ),
-    );
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildResultCard(),
+                const SizedBox(height: 16),
+                _buildAmortizationCard(),
+              ],
+            ),
+          ),
+        ));
   }
 
   Widget _buildResultCard() {

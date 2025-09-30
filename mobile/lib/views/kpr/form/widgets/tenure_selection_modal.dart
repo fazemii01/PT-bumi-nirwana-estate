@@ -2,19 +2,28 @@ import 'package:flutter/material.dart';
 
 class TenureSelectionModal extends StatelessWidget {
   final int? selectedTenure;
+  final int? minTenure;
   final int? maxTenure;
   final Function(int) onTenureSelected;
 
   const TenureSelectionModal({
     Key? key,
     this.selectedTenure,
+    this.minTenure,
     this.maxTenure,
     required this.onTenureSelected,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final popularOptions = [
+      {'tenure': 5, 'label': 'Cicilan Tinggi'},
+      {'tenure': 10, 'label': 'Seimbang'},
+      {'tenure': 15, 'label': 'Cicilan Ringan'},
+    ];
+
+    return SafeArea(
+        child: Container(
       height: MediaQuery.of(context).size.height * 0.55,
       decoration: const BoxDecoration(
         color: Colors.white,
@@ -98,9 +107,9 @@ class TenureSelectionModal extends StatelessWidget {
                   mainAxisSpacing: 12,
                   childAspectRatio: 2.2,
                 ),
-                itemCount: maxTenure, // 1 sampai 15 tahun
+                itemCount: ((maxTenure ?? 0) - (minTenure ?? 0)) + 1,
                 itemBuilder: (context, index) {
-                  final tenure = index + 1;
+                  final tenure = (minTenure ?? 0) + index;
                   final isSelected = selectedTenure == tenure;
 
                   return GestureDetector(
@@ -161,11 +170,9 @@ class TenureSelectionModal extends StatelessWidget {
             ),
           ),
 
-          // Popular Options
-
           Container(
             padding: const EdgeInsets.all(24),
-            child: maxTenure! >= 15
+            child: (maxTenure ?? 0) >= (minTenure ?? 0)
                 ? Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -179,62 +186,68 @@ class TenureSelectionModal extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
                       Row(
-                        children: [
-                          _buildPopularOption(context, 5, 'Cicilan Tinggi'),
-                          const SizedBox(width: 8),
-                          _buildPopularOption(context, 10, 'Seimbang'),
-                          const SizedBox(width: 8),
-                          _buildPopularOption(context, 15, 'Cicilan Ringan'),
-                        ],
+                        children: popularOptions
+                            .where((opt) =>
+                                (opt['tenure'] as int) >= (minTenure ?? 0) &&
+                                (opt['tenure'] as int) <= (maxTenure ?? 0))
+                            .map((opt) => Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 4),
+                                    child: _buildPopularOption(
+                                      context,
+                                      opt['tenure'] as int,
+                                      opt['label'] as String,
+                                    ),
+                                  ),
+                                ))
+                            .toList(),
                       ),
                     ],
                   )
                 : null,
-          ),
+          )
         ],
       ),
-    );
+    ));
   }
 
   Widget _buildPopularOption(BuildContext context, int tenure, String label) {
     final isSelected = selectedTenure == tenure;
 
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => onTenureSelected(tenure),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-          decoration: BoxDecoration(
-            color: isSelected ? const Color(0xFFFFF8E7) : Colors.grey[50],
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: isSelected ? const Color(0xFFD4AF37) : Colors.grey[300]!,
-              width: 1,
+    return GestureDetector(
+      onTap: () => onTenureSelected(tenure),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFFFFF8E7) : Colors.grey[50],
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isSelected ? const Color(0xFFD4AF37) : Colors.grey[300]!,
+            width: 1,
+          ),
+        ),
+        child: Column(
+          children: [
+            Text(
+              '$tenure th',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: isSelected
+                    ? const Color(0xFFD4AF37)
+                    : const Color(0xFF2D3748),
+              ),
             ),
-          ),
-          child: Column(
-            children: [
-              Text(
-                '$tenure th',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: isSelected
-                      ? const Color(0xFFD4AF37)
-                      : const Color(0xFF2D3748),
-                ),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 10,
+                color: isSelected ? const Color(0xFFD4AF37) : Colors.grey[600],
               ),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 10,
-                  color:
-                      isSelected ? const Color(0xFFD4AF37) : Colors.grey[600],
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
       ),
     );

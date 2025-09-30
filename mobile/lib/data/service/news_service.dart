@@ -62,13 +62,15 @@ class NewsService extends Api {
 
   Future<List<News>> getNewsByCategory(String categoryName) async {
     try {
-      final String encodedCategory = Uri.encodeComponent(categoryName);
-      final uri = Uri.parse('$baseUrl/news/category/$encodedCategory');
-      final response = await http.get(uri);
+      final response =
+          await http.get(Uri.parse('$baseUrl/news/category/$categoryName'));
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
-        return data.map((json) => News.fromJson(json)).toList();
+        final List<dynamic> jsonData = jsonDecode(response.body);
+        List<News> news =
+            jsonData.map((newsjson) => News.fromJson(newsjson)).toList();
+
+        return news;
       } else {
         throw Exception('Gagal memuat berita berdasarkan kategori');
       }

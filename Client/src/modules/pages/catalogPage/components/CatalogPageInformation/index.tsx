@@ -76,6 +76,7 @@ const CatalogPageInformation: FC<{
 					luas={luas}
 					status={status}
 					type={type}
+					id={id}
 				/>
 
 				<CatalogPageNotice type="short"/>

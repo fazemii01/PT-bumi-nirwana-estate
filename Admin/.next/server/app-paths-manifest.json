@@ -1,9 +1,13 @@
 {
   "/(admin)/dashboard/page": "app/(admin)/dashboard/page.js",
+<<<<<<< HEAD
   "/(admin)/properties/building-properties/create/page": "app/(admin)/properties/building-properties/create/page.js",
   "/(admin)/properties/detail/[id]/page": "app/(admin)/properties/detail/[id]/page.js",
   "/(admin)/properties/edit/[id]/page": "app/(admin)/properties/edit/[id]/page.js",
   "/(admin)/properties/page": "app/(admin)/properties/page.js",
+=======
+  "/(admin)/news/page": "app/(admin)/news/page.js",
+>>>>>>> 3d247244330748b3097633c24dd28ab8ee245803
   "/(auth)/login/page": "app/(auth)/login/page.js",
   "/page": "app/page.js"
 }

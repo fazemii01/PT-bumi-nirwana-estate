@@ -17,7 +17,6 @@ class NewsPage extends StatefulWidget {
 class _NewsPageState extends State<NewsPage> {
   final NewsController _newsController = Get.put(NewsController());
   final TextEditingController _searchController = TextEditingController();
-
   @override
   void initState() {
     super.initState();
@@ -39,16 +38,51 @@ class _NewsPageState extends State<NewsPage> {
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const Text('Berita & Artikel'),
-        titleTextStyle: const TextStyle(
-          fontFamily: 'Inter',
-          color: Colors.black87,
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-        ),
-        centerTitle: true,
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.white,
+        titleSpacing: 0,
+        title: Padding(
+          padding: const EdgeInsets.only(right: 20),
+          child: SizedBox(
+            height: 36,
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Cari berita...',
+                hintStyle: const TextStyle(
+                  fontStyle: FontStyle.italic,
+                  color: Color(0xFF9E9E9E),
+                ),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  borderSide: const BorderSide(
+                    color: Color.fromARGB(255, 227, 227, 227),
+                    width: 0.5,
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: Colors.black87, width: 1),
+                ),
+              ),
+              style: const TextStyle(
+                color: Color(0xFF1A1A1A),
+                fontSize: 16,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+        ),
+        // actions: [
+        //   IconButton(
+        //     icon: const Icon(Icons.search, color: Colors.black87),
+        //     onPressed: () {
+        //       print('Search button tapped: ${_searchController.text}');
+        //     },
+        //   ),
+        // ],
       ),
       body: SafeArea(
         child: Column(
@@ -58,23 +92,8 @@ class _NewsPageState extends State<NewsPage> {
               color: Colors.white,
               child: Column(
                 children: [
-                  TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      hintText: 'Cari berita...',
-                      prefixIcon: const Icon(Icons.search),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12.0),
-                        borderSide: BorderSide.none,
-                      ),
-                      filled: true,
-                      fillColor: Colors.grey[100],
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
                   SizedBox(
-                    height: 40,
+                    height: 30,
                     child: Obx(() => ListView.separated(
                           scrollDirection: Axis.horizontal,
                           itemCount: _newsController.newsCategories.length + 1,
@@ -138,7 +157,11 @@ class _NewsPageState extends State<NewsPage> {
                         const SizedBox(height: 16),
                     itemBuilder: (context, index) {
                       final news = _newsController.filteredNews[index];
-                      return _buildNewsCard(news, primaryYellow);
+                      return GestureDetector(
+                          onTap: () {
+                            Get.toNamed(Routes.DETAIL_NEWS, arguments: news);
+                          },
+                          child: _buildNewsCard(news, primaryYellow));
                     },
                   ),
                 );
@@ -153,16 +176,28 @@ class _NewsPageState extends State<NewsPage> {
   Widget _buildFilterChip(String label, Color primaryColor) {
     return Obx(() {
       final isSelected = _newsController.selectedCategory.value == label;
-      return ActionChip(
-        label: Text(label),
-        onPressed: () => _newsController.changeCategory(label),
-        // FIX 2: Gunakan warna kuning lokal
-        backgroundColor: isSelected ? primaryColor : Colors.grey[200],
-        labelStyle: TextStyle(
-          color: isSelected ? Colors.white : Colors.black87,
-          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+      return GestureDetector(
+        onTap: () => _newsController.changeCategory(label),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: isSelected ? primaryColor : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isSelected ? primaryColor : Colors.grey.shade300,
+              width: isSelected ? 0 : 0.5,
+            ),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              color: isSelected ? Colors.white : Colors.grey.shade700,
+              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+              fontSize: 10,
+            ),
+          ),
         ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       );
     });
   }
@@ -172,108 +207,151 @@ class _NewsPageState extends State<NewsPage> {
       padding: const EdgeInsets.all(16.0),
       itemCount: 5,
       separatorBuilder: (context, index) => const SizedBox(height: 16),
-      itemBuilder: (context, index) =>
-          const SkeletonHomeNews(), // Sesuaikan dengan skeleton Anda
+      itemBuilder: (context, index) => const SkeletonHomeNews(),
     );
   }
 
   Widget _buildNewsCard(News news, Color primaryColor) {
     String getNewsImage(News news) {
-      if (news.newsImages.isNotEmpty && news.newsImages.first.imgUrl != null) {
-        return news.newsImages.first.imgUrl!;
+      if (news.newsImages.isNotEmpty &&
+          news.newsImages.first.imgUrl.isNotEmpty) {
+        return news.newsImages.first.imgUrl;
       }
       return '';
     }
 
-    return InkWell(
-      onTap: () {
-        Get.toNamed(Routes.DETAIL_NEWS, arguments: news);
-      },
-      borderRadius: BorderRadius.circular(16.0),
-      child: Container(
-        padding: const EdgeInsets.all(12.0),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16.0),
-          border: Border.all(color: Colors.grey.shade200),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12.0),
-              child: Image.network(
-                Imgurl.get('news/news_images/${getNewsImage(news)}'),
-                width: 100,
-                height: 100,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                    width: 100,
-                    height: 100,
-                    color: Colors.grey.shade200,
-                    child: Icon(Icons.article_outlined,
-                        color: Colors.grey.shade400, size: 40)),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: SizedBox(
-                height: 150,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: primaryColor.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        news.newsCategory.name,
-                        style: TextStyle(
-                          color: primaryColor,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Stack(
+        children: [
+          // Main Content
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Image
+                Container(
+                  width: 100,
+                  height: 100,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.network(
+                      Imgurl.get('news/news_images/${getNewsImage(news)}'),
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            color: Colors.grey[200],
+                          ),
+                          child: Center(
+                            child: Icon(
+                              Icons.article_outlined,
+                              size: 40,
+                              color: Colors.grey[400],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+
+                const SizedBox(width: 14),
+
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Title
+                      Text(
+                        news.title,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF1a1a1a),
+                          height: 1.3,
+                          letterSpacing: -0.2,
                         ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      news.title,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+
+                      SizedBox(height: 6),
+
+                      // Description
+                      Text(
+                        news.description,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Color(0xFF6B7280),
+                          height: 1.4,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      news.description,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                        height: 1.4,
+
+                      SizedBox(height: 8),
+
+                      // Date - Bottom Right
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(
+                            DateFormat('d MMM yyyy').format(news.createdAt),
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF9CA3AF),
+                              letterSpacing: 0.2,
+                            ),
+                          ),
+                        ],
                       ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      DateFormat('d MMMM yyyy').format(news.createdAt),
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Category Badge - Nempel di Card pojok kiri atas
+          Positioned(
+            top: 0,
+            left: 0,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: primaryColor,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(16),
+                  bottomRight: Radius.circular(12),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 4,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Text(
+                news.newsCategory.name,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 9,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.3,
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

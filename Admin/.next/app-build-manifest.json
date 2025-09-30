@@ -29,7 +29,11 @@
       "static/chunks/_e69f0d32._.js",
       "static/chunks/_01f48b92._.js"
     ],
+<<<<<<< HEAD
     "/(admin)/properties/building-properties/create/page": [
+=======
+    "/(admin)/news/page": [
+>>>>>>> 3d247244330748b3097633c24dd28ab8ee245803
       "static/chunks/node_modules_next_dist_01fcdebf._.js",
       "static/chunks/app_favicon_ico_mjs_c5600bb8._.js",
       "static/chunks/[root-of-the-server]__9d126714._.css",
@@ -43,6 +47,7 @@
       "static/chunks/node_modules_primereact_280622f8._.js",
       "static/chunks/node_modules_0a83699b._.js",
       "static/chunks/app_(admin)_layout_tsx_67a5a1c2._.js",
+<<<<<<< HEAD
       "static/chunks/_26266e34._.js",
       "static/chunks/node_modules_f7f9d1a4._.js",
       "static/chunks/app_(admin)_properties_building-properties_create_page_tsx_1c2bfc8e._.js",
@@ -127,6 +132,11 @@
       "static/chunks/node_modules_a58efcde._.js",
       "static/chunks/_571bbeae._.js",
       "static/chunks/app_(admin)_properties_page_tsx_1c2bfc8e._.js",
+=======
+      "static/chunks/_d5317b72._.js",
+      "static/chunks/node_modules_bf6d9f9e._.js",
+      "static/chunks/app_(admin)_news_page_tsx_6ebce16a._.js",
+>>>>>>> 3d247244330748b3097633c24dd28ab8ee245803
       "static/chunks/[turbopack]_browser_dev_hmr-client_hmr-client_ts_6aaa83c7._.js",
       "static/chunks/node_modules_next_dist_compiled_react-dom_1f56dc06._.js",
       "static/chunks/node_modules_next_dist_compiled_next-devtools_index_d575f738.js",
