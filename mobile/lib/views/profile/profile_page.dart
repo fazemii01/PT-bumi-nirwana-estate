@@ -872,14 +872,14 @@ class ProfilePage extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   SizedBox(height: 2),
-                  Text(
-                    formatPrice(property.price),
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFFDBB837),
-                    ),
-                  ),
+                  // Text(
+                  //   formatPrice(property.price),
+                  //   style: TextStyle(
+                  //     fontSize: 11,
+                  //     fontWeight: FontWeight.w700,
+                  //     color: Color(0xFFDBB837),
+                  //   ),
+                  // ),
                 ],
               ),
             ),

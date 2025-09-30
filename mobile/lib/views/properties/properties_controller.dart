@@ -5,10 +5,10 @@ import 'package:mobile_nirwana/data/service/property_service.dart';
 class PropertiesController extends GetxController {
   final PropertyService _propertyService = PropertyService();
 
-  var properties = <Property>[].obs;
-  var isLoading = false.obs;
-  var errorMessage = ''.obs;
-  var type = ''.obs;
+  final properties = <Property>[].obs;
+  final isLoading = false.obs;
+  final errorMessage = ''.obs;
+  final type = ''.obs;
 
   @override
   void onInit() {

@@ -8,6 +8,7 @@ abstract class Routes {
   static const HASIL_SIMULATION = '/hasil-simulations';
   static const ELIGIBILITAS = '/cek-eligibilitas';
   static const DETAIL_PROPERTIES = '/detail-properties';
+  static const DETAIL_BUILDING = '/detail-building';
   static const NEWS = '/news';
   static const DETAIL_NEWS = '/detail-news';
 }

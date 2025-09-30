@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:mobile_nirwana/data/models/building_property/building_property.dart';
 import 'package:mobile_nirwana/data/models/news/news.dart';
 import 'package:mobile_nirwana/data/models/property/property.dart';
 import 'package:mobile_nirwana/views/auth/login/login_page.dart';
@@ -10,6 +11,7 @@ import 'package:mobile_nirwana/views/kpr/kpr_page.dart';
 import 'package:mobile_nirwana/views/layout.dart';
 import 'package:mobile_nirwana/views/news/detail/detail_news.dart';
 import 'package:mobile_nirwana/views/news/news.dart';
+import 'package:mobile_nirwana/views/properties/detail-building/detail_building.dart';
 import 'package:mobile_nirwana/views/properties/detail/detail_properties.dart';
 
 class AppPages {
@@ -66,6 +68,15 @@ class AppPages {
       page: () {
         final Property property = Get.arguments as Property;
         return PropertyDetailPage(property: property);
+      },
+      transition: Transition.rightToLeft,
+      transitionDuration: Duration(milliseconds: 300),
+    ),
+    GetPage(
+      name: '/detail-building',
+      page: () {
+        final BuildingProperty building = Get.arguments as BuildingProperty;
+        return BuildingPropertyDetailPage(building: building);
       },
       transition: Transition.rightToLeft,
       transitionDuration: Duration(milliseconds: 300),

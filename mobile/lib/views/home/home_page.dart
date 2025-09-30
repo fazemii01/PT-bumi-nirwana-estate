@@ -7,8 +7,6 @@ import 'package:mobile_nirwana/core/utils/api.dart';
 import 'package:mobile_nirwana/data/models/news/news.dart';
 import 'package:mobile_nirwana/data/models/property/property.dart';
 import 'package:mobile_nirwana/helper/address.dart';
-import 'package:mobile_nirwana/helper/price.dart';
-import 'package:mobile_nirwana/helper/specifications.dart';
 import 'package:mobile_nirwana/views/home/home_controller.dart';
 import 'package:mobile_nirwana/views/home/widgets/property_favorite_user.dart';
 import 'package:mobile_nirwana/views/layout_controller.dart';
@@ -653,28 +651,28 @@ class _HomePageState extends State<HomePage> {
                     ],
                   ),
                   Spacer(),
-                  Row(
-                    children: [
-                      ...SpecificationHelper.buildMainSpecs(
-                          property.specifications!)
-                    ],
-                  ),
+                  // Row(
+                  //   children: [
+                  //     ...SpecificationHelper.buildMainSpecs(
+                  //         property.specifications!)
+                  //   ],
+                  // ),
                   Spacer(),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(
-                        child: Text(
-                          '${formatPrice(property.price)}/${property.price_unit}',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFFDBB837),
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
+                      // Expanded(
+                      //   child: Text(
+                      //     '${formatPrice(property.price)}/${property.price_unit}',
+                      //     style: TextStyle(
+                      //       fontSize: 14,
+                      //       fontWeight: FontWeight.bold,
+                      //       color: Color(0xFFDBB837),
+                      //     ),
+                      //     maxLines: 1,
+                      //     overflow: TextOverflow.ellipsis,
+                      //   ),
+                      // ),
                       Row(
                         children: [
                           Icon(

@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
-class FloorPlanViewerPage extends StatelessWidget {
+class SitePlanViewerPage extends StatelessWidget {
   // Anda akan menerima daftar URL gambar denah dari halaman sebelumnya
-  final List<String> floorPlanImages;
+  final List<String> sitePlanImages;
   final int initialIndex;
 
-  const FloorPlanViewerPage({
+  const SitePlanViewerPage({
     super.key,
-    required this.floorPlanImages,
+    required this.sitePlanImages,
     this.initialIndex = 0,
   });
 
@@ -27,11 +27,11 @@ class FloorPlanViewerPage extends StatelessWidget {
         ),
       ),
       body: PhotoViewGallery.builder(
-        itemCount: floorPlanImages.length,
+        itemCount: sitePlanImages.length,
         // Memulai dari gambar yang dipilih
         pageController: PageController(initialPage: initialIndex),
         builder: (context, index) {
-          final imageUrl = floorPlanImages[index];
+          final imageUrl = sitePlanImages[index];
           return PhotoViewGalleryPageOptions(
             imageProvider: NetworkImage(imageUrl),
             // Opsi untuk zoom

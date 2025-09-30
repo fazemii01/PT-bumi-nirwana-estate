@@ -50,7 +50,7 @@ export class PropertiesService {
       const exitingSlug = await this.propertyRepository.findOneBy({ slug });
       if (exitingSlug) {
         throw new ConflictException(
-          `Name property ${createPropertyDto.name} alredy exit`,
+          `Name properti ${createPropertyDto.name} alredy exit`,
         );
       }
 
@@ -219,15 +219,37 @@ export class PropertiesService {
 
   async findAll(): Promise<Property[]> {
     return await this.propertyRepository.find({
-      where: { status_delete: DeletedAtStatus.NOT_DELETED },
-      relations: ['developer', 'agent', 'images', 'site_plans'],
+      where: {
+        status_delete: DeletedAtStatus.NOT_DELETED,
+        building_property: { status_delete: DeletedAtStatus.NOT_DELETED },
+      },
+      relations: [
+        'developer',
+        'agent',
+        'images',
+        'site_plans',
+        'building_property',
+        'building_property.images',
+        'building_property.floor_plans',
+      ],
     });
   }
 
   async findOne(id: string): Promise<Property | null> {
     return await this.propertyRepository.findOne({
-      where: { id },
-      relations: ['developer', 'agent', 'images', 'site_plans'],
+      where: {
+        id,
+        building_property: { status_delete: DeletedAtStatus.NOT_DELETED },
+      },
+      relations: [
+        'developer',
+        'agent',
+        'images',
+        'site_plans',
+        'building_property',
+        'building_property.images',
+        'building_property.floor_plans',
+      ],
     });
   }
 
@@ -238,7 +260,15 @@ export class PropertiesService {
 
     const properties = await this.propertyRepository.find({
       where: { type: type as PropertyType },
-      relations: ['developer', 'agent', 'images', 'site_plans'],
+      relations: [
+        'developer',
+        'agent',
+        'images',
+        'site_plans',
+        'building_property',
+        'building_property.images',
+        'building_property.floor_plans',
+      ],
     });
     if (!properties || properties.length === 0) {
       throw new NotFoundException(`Property with type ${type} not found`);
@@ -255,7 +285,15 @@ export class PropertiesService {
     try {
       const property = await this.propertyRepository.findOne({
         where: { id },
-        relations: ['developer', 'agent', 'images', 'site_plans'],
+        relations: [
+          'developer',
+          'agent',
+          'images',
+          'site_plans',
+          'building_property',
+          'building_property.images',
+          'building_property.floor_plans',
+        ],
       });
       if (!property) throw new NotFoundException(`Property not found`);
 
@@ -395,7 +433,15 @@ export class PropertiesService {
   async remove(id: string) {
     const property = await this.propertyRepository.findOne({
       where: { id },
-      relations: ['developer', 'agent', 'images', 'site_plans'],
+      relations: [
+        'developer',
+        'agent',
+        'images',
+        'site_plans',
+        'building_property',
+        'building_property.images',
+        'building_property.floor_plans',
+      ],
     });
 
     if (!property) throw new NotFoundException('Property not found');

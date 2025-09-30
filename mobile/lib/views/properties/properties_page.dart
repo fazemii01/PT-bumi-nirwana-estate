@@ -34,10 +34,8 @@ class _PropertyCatalogPageState extends State<PropertiesPage> {
 
   final List<FilterOption> _filterOptions = const [
     FilterOption(icon: Icons.grid_view_rounded, label: 'All'),
-    FilterOption(icon: Icons.house_rounded, label: 'House'),
-    FilterOption(icon: Icons.apartment_rounded, label: 'Apartment'),
-    FilterOption(icon: Icons.storefront_rounded, label: 'Ruko'),
-    FilterOption(icon: Icons.landscape_rounded, label: 'Kavling'),
+    FilterOption(icon: Icons.house_rounded, label: 'Subsidi'),
+    FilterOption(icon: Icons.apartment_rounded, label: 'Komersil'),
   ];
 
   late List<GlobalKey> _filterKeys;
@@ -158,8 +156,8 @@ class _PropertyCatalogPageState extends State<PropertiesPage> {
           (p.address?.district?.toLowerCase().contains(search) ?? false) ||
           (p.address?.village?.toLowerCase().contains(search) ?? false);
 
-      final matchesFilter = filter == 'all' ||
-          (p.type != null && p.type!.toLowerCase() == filter);
+      final matchesFilter =
+          filter == 'all' || (p.type != null && p.type.toLowerCase() == filter);
 
       return matchesSearch && matchesFilter;
     }).toList();
@@ -503,9 +501,15 @@ class _PropertyCatalogPageState extends State<PropertiesPage> {
                           ),
                         ),
                       ),
-                      FavoriteIcon(
-                        propertyId: property.id,
-                        isLoggedIn: _layoutController.isLoggedIn.value,
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: FavoriteIcon(
+                          propertyId:
+                              property.id, // Ganti dengan variabel yang benar
+                          isLoggedIn: _layoutController.isLoggedIn
+                              .value, // Ganti dengan variabel yang benar
+                        ),
                       ),
                     ],
                   ),
@@ -559,50 +563,50 @@ class _PropertyCatalogPageState extends State<PropertiesPage> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              Text(
-                                formatPrice(property.price),
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                  color: theme.colorScheme.primary,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                "/${property.price_unit}",
-                                style: const TextStyle(
-                                    fontSize: 12, color: Color(0xFF6B7280)),
-                              ),
+                              // Text(
+                              //   formatPrice(property.price),
+                              //   style: TextStyle(
+                              //     fontSize: 16,
+                              //     fontWeight: FontWeight.w700,
+                              //     color: theme.colorScheme.primary,
+                              //   ),
+                              // ),
+                              // const SizedBox(height: 2),
+                              // Text(
+                              //   "/${property.price_unit}",
+                              //   style: const TextStyle(
+                              //       fontSize: 12, color: Color(0xFF6B7280)),
+                              // ),
                             ],
                           ),
                         ],
                       ),
                       const Spacer(),
-                      Row(
-                        children: [
-                          if (property.specifications?.bedrooms != null)
-                            _buildDetailItem(Icons.bed_rounded,
-                                '${property.specifications!.bedrooms}'),
-                          const SizedBox(width: 16),
-                          if (property.specifications?.bathrooms != null)
-                            _buildDetailItem(Icons.bathtub_rounded,
-                                '${property.specifications!.bathrooms}'),
-                          const SizedBox(width: 16),
-                          if (property.buildingSize != null)
-                            _buildDetailItem(Icons.square_foot_rounded,
-                                '${property.buildingSize!.toInt()}m²'),
-                          const Spacer(),
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: theme.colorScheme.primary.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Icon(Icons.arrow_forward_rounded,
-                                size: 16, color: theme.colorScheme.primary),
-                          ),
-                        ],
-                      ),
+                      // Row(
+                      //   children: [
+                      //     if (property.specifications?.bedrooms != null)
+                      //       _buildDetailItem(Icons.bed_rounded,
+                      //           '${property.specifications!.bedrooms}'),
+                      //     const SizedBox(width: 16),
+                      //     if (property.specifications?.bathrooms != null)
+                      //       _buildDetailItem(Icons.bathtub_rounded,
+                      //           '${property.specifications!.bathrooms}'),
+                      //     const SizedBox(width: 16),
+                      //     if (property.buildingSize != null)
+                      //       _buildDetailItem(Icons.square_foot_rounded,
+                      //           '${property.buildingSize!.toInt()}m²'),
+                      //     const Spacer(),
+                      //     Container(
+                      //       padding: const EdgeInsets.all(8),
+                      //       decoration: BoxDecoration(
+                      //         color: theme.colorScheme.primary.withOpacity(0.1),
+                      //         borderRadius: BorderRadius.circular(8),
+                      //       ),
+                      //       child: Icon(Icons.arrow_forward_rounded,
+                      //           size: 16, color: theme.colorScheme.primary),
+                      //     ),
+                      //   ],
+                      // ),
                     ],
                   ),
                 ),

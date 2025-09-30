@@ -1,22 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_nirwana/core/routes/app_routes.dart';
 import 'package:mobile_nirwana/data/models/agent.dart';
+import 'package:mobile_nirwana/data/models/building_property/building_property.dart';
 import 'package:mobile_nirwana/data/models/developer.dart';
 import 'package:mobile_nirwana/data/models/property/property.dart';
-import 'package:mobile_nirwana/data/models/property/property_floor_plan.dart';
-import 'package:mobile_nirwana/helper/price.dart';
+import 'package:mobile_nirwana/data/models/property/property_site_plan.dart';
 import 'package:mobile_nirwana/views/layout_controller.dart';
+import 'package:mobile_nirwana/views/properties/detail/widget/all_units_bottom_sheet.dart';
 import 'package:mobile_nirwana/views/properties/detail/widget/animated_category_chip.dart';
 import 'package:mobile_nirwana/core/utils/api.dart';
-import 'package:mobile_nirwana/data/models/property/specification.dart';
 import 'package:mobile_nirwana/views/properties/detail/detail_properties_controller.dart';
 import 'package:mobile_nirwana/views/properties/detail/floor_plan_viewer_page.dart';
 import 'package:mobile_nirwana/views/properties/detail/poker_image_slider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/services.dart';
+import 'dart:ui' as ui;
 import 'package:get/get.dart';
 import 'package:mobile_nirwana/views/properties/detail/widget/property_favorite_user_detail.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:intl/intl.dart';
 
 class PropertyDetailPage extends StatefulWidget {
   final Property property;
@@ -26,23 +28,25 @@ class PropertyDetailPage extends StatefulWidget {
   State<PropertyDetailPage> createState() => _PropertyDetailPageState();
 }
 
-class _PropertyDetailPageState extends State<PropertyDetailPage>
-    with SingleTickerProviderStateMixin {
+class _PropertyDetailPageState extends State<PropertyDetailPage> {
   final PropertyDetailController _propertyDetailController =
       Get.put(PropertyDetailController());
   final LayoutController _layoutController = Get.find<LayoutController>();
-  late TabController _tabController;
-  bool _isMaterialExpanded = false;
 
+  bool _isDescriptionExpanded = false; // Untuk melacak status expand/collapse
+  bool _isDescriptionLong = false;
   @override
   void initState() {
     super.initState();
 
-    _tabController = TabController(length: 2, vsync: this);
-    _tabController.addListener(() {
-      setState(() {});
-    });
     _propertyDetailController.property.value = widget.property;
+    const int maxLength = 200; // Atur batas karakter
+
+    if ((widget.property.detailDescription?.length ?? 0) > maxLength) {
+      setState(() {
+        _isDescriptionLong = true;
+      });
+    }
   }
 
   String _formatPhoneNumberForWhatsApp(String phone) {
@@ -54,6 +58,31 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
       return digitsOnly;
     }
     return digitsOnly;
+  }
+
+  String _formatCurrency(double? amount) {
+    if (amount == null) return "Harga tidak tersedia";
+    final formatter = NumberFormat.currency(
+      locale: 'id_ID',
+      symbol: 'Rp ',
+      decimalDigits: 0,
+    );
+    return formatter.format(amount);
+  }
+
+  String _getStatusText(BuildingStatus status) {
+    switch (status) {
+      case BuildingStatus.AVAILABLE:
+        return 'Tersedia';
+      case BuildingStatus.SOLD_OUT:
+        return 'Terjual';
+      case BuildingStatus.RESERVED:
+        return 'Dipesan';
+      case BuildingStatus.PRE_LAUNCH:
+        return 'Segera Hadir';
+      default:
+        return 'Tersedia';
+    }
   }
 
   @override
@@ -173,11 +202,7 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
                                               CrossAxisAlignment.start,
                                           children: [
                                             const SizedBox(height: 24.0),
-                                            _buildHeader(
-                                                property.name,
-                                                formatPrice(property.price),
-                                                "/${property.price_unit}",
-                                                theme),
+                                            _buildHeader(property.name),
                                             const SizedBox(height: 16),
                                             Divider(color: Colors.grey[200]),
                                             const SizedBox(height: 16),
@@ -194,11 +219,7 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
                                     ),
                                   ],
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 24.0, vertical: 24.0),
-                                  child: _buildSpecifications(property),
-                                ),
+                                const SizedBox(height: 24),
                                 Padding(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 24.0),
@@ -207,48 +228,15 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
                               ],
                             ),
                           ),
-                          SliverPersistentHeader(
-                            delegate: _SliverTabBarDelegate(
-                              TabBar(
-                                controller: _tabController,
-                                labelColor: theme.colorScheme.primary,
-                                unselectedLabelColor: Colors.grey,
-                                // Hapus 'indicatorColor', ganti dengan 'indicator'
-                                indicator: UnderlineTabIndicator(
-                                  borderSide: BorderSide(
-                                    width: 2.0, // Atur ketebalan garis
-                                    color: theme.colorScheme
-                                        .primary, // Atur warna garis
-                                  ),
-                                  insets: EdgeInsets.symmetric(horizontal: 0.0),
-                                ),
-                                tabs: const [
-                                  Tab(text: 'Rincian & Fasilitas'),
-                                  Tab(text: 'Spesifikasi Teknis'),
-                                ],
-                              ),
-                            ),
-                            pinned: true,
-                          ),
-                          SliverToBoxAdapter(
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 24.0, vertical: 24.0),
-                              child: _tabController.index == 0
-                                  ? _buildRincianFasilitas(
-                                      property.specifications!) // Konten tab 1
-                                  : _buildMaterialTeknis(
-                                      property.specifications!), // Konten tab 2
-                            ),
-                          ),
                           SliverToBoxAdapter(
                             child: Padding(
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 24.0),
                               child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  _buildFloorPlanSection(
-                                      context, property.floorPlans),
+                                  _buildSitePlanSection(
+                                      context, property.sitePlans),
                                   const SizedBox(height: 24),
                                   if (property.agent != null) ...[
                                     _buildAgentCard(theme, property.agent!),
@@ -257,10 +245,18 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
                                   _buildDivider(),
                                   const SizedBox(height: 24),
                                   _buildDescription(
-                                      theme, property.description),
+                                      theme, property.detailDescription),
                                   const SizedBox(height: 24),
                                   if (property.developer != null)
                                     _buildDeveloperInfo(property.developer!),
+                                  const SizedBox(height: 24),
+
+                                  Obx(() => _buildBuildingPropertyListSection(
+                                        context,
+                                        _propertyDetailController
+                                            .buildingProperty,
+                                      )),
+
                                   const SizedBox(
                                       height: 120), // Padding untuk Tombol CTA
                                 ],
@@ -269,7 +265,6 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
                           ),
                         ],
                       ),
-                      _buildCtaButton(theme, property),
                     ],
                   ),
                 );
@@ -281,7 +276,7 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
     );
   }
 
-  Widget _buildHeader(String name, String price, String unit, ThemeData theme) {
+  Widget _buildHeader(String name) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -295,30 +290,284 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
             ),
           ),
         ),
-        const SizedBox(width: 16),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
+      ],
+    );
+  }
+
+  Widget _buildBuildingPropertyListSection(
+      BuildContext context, List<BuildingProperty> displayedBuildings) {
+    final allBuildings =
+        _propertyDetailController.property.value?.building_property ?? [];
+
+    if (allBuildings.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              price,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: theme.colorScheme.primary,
+            _buildSectionTitle("Daftar Unit"),
+            if (allBuildings.length > 3)
+              TextButton(
+                onPressed: () {
+                  _showAllUnitsModal(context, allBuildings);
+                },
+                child: const Text("Lihat Semua"),
+                style: TextButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                  alignment: Alignment.centerRight,
+                ),
               ),
-            ),
-            Text(
-              unit,
-              style: const TextStyle(
-                fontSize: 12,
-                color: Color(0xFF6B7280),
-              ),
-            ),
           ],
+        ),
+        ListView.separated(
+          physics: const NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          itemCount: displayedBuildings.length,
+          itemBuilder: (context, index) {
+            final building = displayedBuildings[index];
+            return _buildBuildingPropertyCard(context, building);
+          },
+          separatorBuilder: (context, index) => const SizedBox(height: 16),
         ),
       ],
     );
   }
+
+  void _showAllUnitsModal(
+      BuildContext context, List<BuildingProperty> allUnits) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true, // agar modal bisa lebih dari setengah layar
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.6, // Tinggi awal modal (60% layar)
+          minChildSize: 0.3, // Tinggi minimum saat ditarik ke bawah
+          maxChildSize: 0.95, // Tinggi maksimum saat ditarik ke atas
+          builder: (_, scrollController) {
+            // Kita akan buat widget AllUnitsBottomSheet di langkah berikutnya
+            return AllUnitsBottomSheet(
+              scrollController: scrollController,
+              allUnits: allUnits,
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Text(
+      title,
+      style: const TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+        color: Color(0xFF1F2937),
+      ),
+    );
+  }
+
+  Widget _buildBuildingPropertyCard(
+      BuildContext context, BuildingProperty building) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
+          child: InkWell(
+            onTap: () {
+              Get.toNamed(
+                Routes.DETAIL_BUILDING,
+                arguments: building,
+              );
+            },
+            borderRadius: BorderRadius.circular(12),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // BAGIAN KIRI: INFO TEXT
+                Expanded(
+                  flex: 3,
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 16, top: 4),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Nama Unit (Judul) - di atas
+                        Text(
+                          building.name.toUpperCase(),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1F2937),
+                            letterSpacing: 0.3,
+                          ),
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        // Deskripsi singkat
+                        Text(
+                          '${building.totalUnits ?? '-'} unit, ${building.landSize ?? '-'} m²',
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                            height: 1.4,
+                          ),
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        // Harga - di bawah
+                        Text(
+                          _formatCurrency(building.price),
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1F2937),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // BAGIAN KANAN: GAMBAR + STATUS
+                Expanded(
+                  flex: 2,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      // GAMBAR dengan shadow dan rounded corner
+                      Container(
+                        height: 140,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20.0),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.15),
+                              blurRadius: 10,
+                              spreadRadius: 0,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(16.0),
+                          child: Image.network(
+                            Imgurl.get(
+                                'building_property/building_images/${_getPropertyImage(building)}'),
+                            height: 140,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Colors.grey[300]!,
+                                      Colors.grey[100]!
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                ),
+                                child: const Center(
+                                  child: Icon(
+                                    Icons.image_not_supported_outlined,
+                                    color: Colors.grey,
+                                    size: 40,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+
+                      // PILL STATUS - overlay di bawah gambar, sedikit keluar
+                      Positioned(
+                        bottom: -8,
+                        left: 0,
+                        right: 0,
+                        child: Center(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 5),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(30),
+                              border: Border.all(
+                                color: const Color(0xFFDBB837), // Warna hijau
+                                width: 1,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.12),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 3),
+                                )
+                              ],
+                            ),
+                            child: Text(
+                              _getStatusText(building.status),
+                              style: const TextStyle(
+                                color: Color(0xFFDBB837), // Warna hijau
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        // GARIS PUTUS-PUTUS DIVIDER
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: CustomPaint(
+            size: const Size(double.infinity, 1),
+            painter: DashedLinePainter(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Helper method untuk info icon (tidak digunakan lagi tapi tetap ada jika diperlukan)
+  Widget _buildInfoIcon(IconData icon, String text) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 8.0),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: Colors.grey[600]),
+          const SizedBox(width: 4),
+          Text(
+            text,
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey[600],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+// Custom Painter untuk garis putus-putus
 
   Widget _buildAddress(Property property) {
     final String addressText =
@@ -329,7 +578,6 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
 
     if (property.location != null &&
         property.location!.coordinates.length >= 2) {
-      // Standar GeoJSON: [longitude, latitude]
       lng = property.location!.coordinates[0];
       lat = property.location!.coordinates[1];
     }
@@ -394,168 +642,22 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
     );
   }
 
-  Widget _buildSpecifications(Property property) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: _buildSpecItem(
-              Icons.bed_outlined,
-              property.specifications?.bedrooms?.toString() ?? '-',
-              "Kamar Tidur"),
-        ),
-        Expanded(
-          child: _buildSpecItem(
-              Icons.bathtub_outlined,
-              property.specifications?.bathrooms?.toString() ?? '-',
-              "Kamar Mandi"),
-        ),
-        Expanded(
-          child: _buildSpecItem(Icons.square_foot_outlined,
-              "${property.buildingSize ?? '-'} m²", "Luas Bangunan"),
-        ),
-        Expanded(
-          // <-- ITEM KEEMPAT DITAMBAHKAN
-          child: _buildSpecItem(Icons.landscape_outlined,
-              "${property.landSize ?? '-'} m²", "Luas Tanah"),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSpecItem(IconData icon, String value, String label) {
-    return Column(
-      children: [
-        Icon(icon, color: const Color(0xFF6B7280), size: 28),
-        const SizedBox(height: 8),
-        Text(value,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1F2937))),
-        const SizedBox(height: 4),
-        Text(label,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 12, color: Color(0xFF6B7280))),
-      ],
-    );
-  }
-
-  Widget _buildSpecRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(fontSize: 15, color: Color(0xFF6B7280)),
-          ),
-          Text(
-            value,
-            style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1F2937)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRincianFasilitas(Specifications specs) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          "Fasilitas & Ruangan",
-          style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF1F2937)),
-        ),
-        const SizedBox(height: 8),
-        _buildSpecRow("Ruang Keluarga", specs.familyRoom?.toString() ?? '-'),
-        _buildSpecRow("Dapur", specs.kitchen?.toString() ?? '-'),
-        _buildSpecRow("Garasi", specs.garage?.toString() ?? '-'),
-        _buildSpecRow("Jumlah Lantai", specs.floors?.toString() ?? '-'),
-      ],
-    );
-  }
-
-  Widget _buildMaterialTeknis(Specifications? specs) {
-    if (specs == null) return const Text("Data material tidak tersedia.");
-
-    final allSpecItems = <Widget>[
-      _buildSpecRow("Struktur", specs.structure ?? '-'),
-      _buildSpecRow("Lantai", specs.floor ?? '-'),
-      _buildSpecRow("Dinding", specs.walls ?? '-'),
-      _buildSpecRow("Atap", specs.roof ?? '-'),
-      _buildSpecRow("Pintu", specs.doors ?? '-'),
-      _buildSpecRow("Jendela", specs.windows ?? '-'),
-      _buildSpecRow("Listrik", specs.electricity ?? '-'),
-      _buildSpecRow("Sumber Air", specs.waterSource ?? '-'),
-      _buildSpecRow("Internet", specs.internet ?? '-'),
-      _buildSpecRow("Keamanan", specs.security ?? '-'),
-      _buildSpecRow("Fasilitas Lain", specs.facilities ?? '-'),
-    ];
-
-    final displayedItems =
-        _isMaterialExpanded ? allSpecItems : allSpecItems.take(4).toList();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          "Material & Teknis",
-          style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF1F2937)),
-        ),
-        const SizedBox(height: 8),
-        AnimatedSize(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-          child: Column(
-            children: displayedItems,
-          ),
-        ),
-        if (allSpecItems.length > 4)
-          Align(
-            alignment: Alignment.center,
-            child: Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: TextButton(
-                onPressed: () {
-                  setState(() {
-                    _isMaterialExpanded = !_isMaterialExpanded;
-                  });
-                },
-                style: TextButton.styleFrom(
-                  foregroundColor: const Color(0xFFDBB837),
-                ),
-                child: Text(
-                  _isMaterialExpanded
-                      ? 'Lihat Lebih Sedikit'
-                      : 'Lihat Selengkapnya...',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-
   Widget _buildDivider() {
     return Divider(color: Colors.grey[300], thickness: 1);
   }
 
-  Widget _buildDescription(ThemeData theme, String? description) {
+  // detail_building_page.dart
+
+  Widget _buildDescription(ThemeData theme, String? detailDescription) {
+    const int maxLength = 200;
+
+    final String descriptionToShow =
+        detailDescription ?? "Deskripsi tidak tersedia.";
+
+    final String displayedText = _isDescriptionLong && !_isDescriptionExpanded
+        ? '${descriptionToShow.substring(0, maxLength)}...'
+        : descriptionToShow;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -567,62 +669,57 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
               color: Color(0xFF1F2937)),
         ),
         const SizedBox(height: 8),
-        Text(
-          description ?? "Deskripsi tidak tersedia.",
-          style: const TextStyle(
-              fontSize: 15, color: Color(0xFF6B7280), height: 1.5),
+
+        // >> PERUBAHAN UTAMA DI SINI <<
+        // Ganti widget Text biasa dengan Text.rich
+        Text.rich(
+          TextSpan(
+            // Pecah teks berdasarkan karakter baris baru ('\n')
+            children: displayedText.split('\n').map((paragraph) {
+              // Ubah setiap potongan menjadi TextSpan dan tambahkan spasi paragraf
+              return TextSpan(
+                text:
+                    '$paragraph\n\n', // Tambahkan '\n\n' untuk spasi antar paragraf
+                style: const TextStyle(
+                  fontSize: 15,
+                  color: Color(0xFF6B7280),
+                  height: 1.5,
+                ),
+              );
+            }).toList(),
+          ),
+          textAlign: TextAlign.justify,
         ),
+
+        // Tombol "Lihat Selengkapnya" (tidak ada perubahan)
+        if (_isDescriptionLong)
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  _isDescriptionExpanded = !_isDescriptionExpanded;
+                });
+              },
+              child: Text(
+                _isDescriptionExpanded
+                    ? 'Lihat Lebih Sedikit'
+                    : 'Lihat Selengkapnya',
+                style: TextStyle(
+                  color: theme.primaryColor,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                ),
+              ),
+            ),
+          ),
       ],
     );
   }
 
-  Widget _buildCtaButton(ThemeData theme, Property property) {
-    return Align(
-      alignment: Alignment.bottomCenter,
-      child: SafeArea(
-        // FIX: Bungkus dengan SafeArea
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(
-              24, 16, 24, 16), // FIX: Beri padding bawah
-          decoration: BoxDecoration(
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 20,
-                offset: const Offset(0, -10),
-              )
-            ],
-          ),
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: theme.colorScheme.primary,
-              foregroundColor: Colors.white,
-              minimumSize: const Size(double.infinity, 50),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
-            ),
-            onPressed: () {
-              if (_layoutController.isLoggedIn.value) {
-                Get.toNamed(
-                  Routes.SIMULATION_KPR,
-                  arguments: property.id,
-                );
-              } else {
-                Get.toNamed(Routes.LOGIN);
-              }
-            },
-            child: const Text("Simulasi KPR",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFloorPlanSection(
-      BuildContext context, List<PropertyFloorPlan> floorPlans) {
-    if (floorPlans.isEmpty) {
+  Widget _buildSitePlanSection(
+      BuildContext context, List<PropertySitePlan> sitePlans) {
+    if (sitePlans.isEmpty) {
       return const SizedBox.shrink();
     }
     return Column(
@@ -634,15 +731,15 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                "Denah Rumah",
+                "Site Plans",
                 style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF1F2937)),
               ),
-              if (floorPlans.length > 1)
+              if (sitePlans.length > 1)
                 Text(
-                  "${floorPlans.length} Denah",
+                  "${sitePlans.length} Denah",
                   style:
                       const TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
                 ),
@@ -655,24 +752,24 @@ class _PropertyDetailPageState extends State<PropertyDetailPage>
           child: ListView.separated(
             padding: const EdgeInsets.symmetric(horizontal: 24.0),
             scrollDirection: Axis.horizontal,
-            itemCount: floorPlans.length,
+            itemCount: sitePlans.length,
             separatorBuilder: (context, index) => const SizedBox(width: 16),
             itemBuilder: (context, index) {
-              final floorPlan = floorPlans[index];
+              final sitePlan = sitePlans[index];
               final String fullUrl = Imgurl.get(
-                  'property/property_floor_plans/${floorPlan.file_url}');
+                  'property/property_site_plans/${sitePlan.file_url}');
 
               return GestureDetector(
                 onTap: () {
-                  final List<String> imageUrls = floorPlans
+                  final List<String> imageUrls = sitePlans
                       .map((fp) => Imgurl.get(
-                          'property/property_floor_plans/${fp.file_url}'))
+                          'property/property_site_plans/${fp.file_url}'))
                       .toList();
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => FloorPlanViewerPage(
-                        floorPlanImages: imageUrls,
+                      builder: (_) => SitePlanViewerPage(
+                        sitePlanImages: imageUrls,
                         initialIndex: index,
                       ),
                     ),
@@ -943,31 +1040,35 @@ class CollapsingTitle extends StatelessWidget {
   }
 }
 
-class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
-  _SliverTabBarDelegate(this._tabBar);
+String _getPropertyImage(BuildingProperty building) {
+  if (building.images.isNotEmpty && building.images[0].image_url != null) {
+    return building.images[0].image_url!;
+  }
+  return "";
+}
 
-  final TabBar _tabBar;
+class DashedLinePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.grey[300]!
+      ..strokeWidth = 1
+      ..style = PaintingStyle.stroke;
 
-  @override
-  double get minExtent => _tabBar.preferredSize.height;
-  @override
-  double get maxExtent => _tabBar.preferredSize.height;
+    const dashWidth = 5.0;
+    const dashSpace = 5.0;
+    double startX = 0;
 
-  @override
-  Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Container(
-      color: const Color(0xFFFAFAFA),
-      width: 1.0, // Samakan dengan scaffoldBackgroundColor
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0),
-        child: _tabBar,
-      ),
-    );
+    while (startX < size.width) {
+      canvas.drawLine(
+        Offset(startX, 0),
+        Offset(startX + dashWidth, 0),
+        paint,
+      );
+      startX += dashWidth + dashSpace;
+    }
   }
 
   @override
-  bool shouldRebuild(_SliverTabBarDelegate oldDelegate) {
-    return false;
-  }
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }
