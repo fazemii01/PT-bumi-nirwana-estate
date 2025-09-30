@@ -61,10 +61,10 @@ export function ChatWidget({ isOpen, onToggle }: ChatWidgetProps) {
       console.log('Connected to server');
     });
 
-    socket.on('response', (text: string) => { // Corrected: Listen for 'reply'
+    socket.on('response', (text: string) => { 
       const botResponse: Message = {
         id: (Date.now() + 1).toString(),
-        text: text, // The backend sends a simple string
+        text: text, 
         sender: 'bot',
         timestamp: new Date(),
         type: 'text'
