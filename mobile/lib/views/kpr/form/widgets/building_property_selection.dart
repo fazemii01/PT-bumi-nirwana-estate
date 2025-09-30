@@ -5,6 +5,8 @@ import 'package:mobile_nirwana/core/utils/api.dart';
 import 'package:mobile_nirwana/data/models/building_property/building_property.dart';
 import 'package:mobile_nirwana/data/models/property/property.dart';
 import 'package:mobile_nirwana/helper/address.dart';
+import 'package:mobile_nirwana/helper/parse-int-double.dart';
+import 'package:mobile_nirwana/helper/price.dart';
 import 'package:mobile_nirwana/views/kpr/form/simulation_form_controller.dart';
 import 'package:mobile_nirwana/widgets/error.dart';
 import 'package:mobile_nirwana/widgets/simmer.dart';
@@ -124,8 +126,7 @@ class _BuildingPropertySelectionState extends State<BuildingPropertySelection> {
                           onChanged: (value) =>
                               setState(() => _searchQuery = value),
                           decoration: InputDecoration(
-                            hintText:
-                                'Cari nama bangunan atau lokasi properti...',
+                            hintText: 'Cari nama bangunan...',
                             hintStyle: TextStyle(color: Colors.grey[500]),
                             prefixIcon:
                                 Icon(Icons.search, color: Colors.grey[500]),
@@ -173,7 +174,7 @@ class _BuildingPropertySelectionState extends State<BuildingPropertySelection> {
                                 },
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 16, vertical: 8),
+                                      horizontal: 16, vertical: 12),
                                   decoration: BoxDecoration(
                                     color: isSelected
                                         ? const Color(0xFFD4AF37)
@@ -230,7 +231,6 @@ class _BuildingPropertySelectionState extends State<BuildingPropertySelection> {
                                         building.id;
                                 return Container(
                                   margin: const EdgeInsets.only(bottom: 16),
-                                  padding: const EdgeInsets.all(16),
                                   decoration: BoxDecoration(
                                     color: isSelected
                                         ? const Color(0xFFFFF8E7)
@@ -251,71 +251,98 @@ class _BuildingPropertySelectionState extends State<BuildingPropertySelection> {
                                       ),
                                     ],
                                   ),
-                                  child: InkWell(
-                                    onTap: () => widget
-                                        .onBuildingPropertySelected(building),
-                                    borderRadius: BorderRadius.circular(16),
-                                    child: Row(
-                                      children: [
-                                        // Building Image
-                                        Container(
-                                          width: 80,
-                                          height: 80,
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(12),
-                                          ),
-                                          child: ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(12),
-                                            child: Image.network(
-                                              _getBuildingImage(building),
-                                              fit: BoxFit.cover,
-                                              errorBuilder:
-                                                  (context, error, stackTrace) {
-                                                return Container(
-                                                  decoration: BoxDecoration(
-                                                    gradient: LinearGradient(
-                                                      colors: [
-                                                        Colors.blue[100]!,
-                                                        Colors.blue[50]!
-                                                      ],
-                                                      begin: Alignment.topLeft,
-                                                      end:
-                                                          Alignment.bottomRight,
-                                                    ),
-                                                  ),
-                                                  child: Center(
-                                                    child: Icon(
-                                                      Icons.villa,
-                                                      size: 32,
-                                                      color: Colors.blue[300],
-                                                    ),
-                                                  ),
-                                                );
-                                              },
-                                            ),
-                                          ),
-                                        ),
-
-                                        const SizedBox(width: 16),
-
-                                        // Building Info
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+                                  child: Stack(
+                                    children: [
+                                      // Main Content
+                                      InkWell(
+                                        onTap: () =>
+                                            widget.onBuildingPropertySelected(
+                                                building),
+                                        borderRadius: BorderRadius.circular(16),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(16),
+                                          child: Row(
                                             children: [
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  Expanded(
-                                                    child: Text(
+                                              // Building Image
+                                              Container(
+                                                width: 80,
+                                                height: 80,
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                ),
+                                                child: ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                  child: Image.network(
+                                                    _getBuildingImage(building),
+                                                    fit: BoxFit.cover,
+                                                    errorBuilder: (context,
+                                                        error, stackTrace) {
+                                                      return Container(
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          gradient:
+                                                              LinearGradient(
+                                                            colors: [
+                                                              Colors.blue[100]!,
+                                                              Colors.blue[50]!
+                                                            ],
+                                                            begin: Alignment
+                                                                .topLeft,
+                                                            end: Alignment
+                                                                .bottomRight,
+                                                          ),
+                                                        ),
+                                                        child: Center(
+                                                          child: Icon(
+                                                            Icons.villa,
+                                                            size: 32,
+                                                            color: Colors
+                                                                .blue[300],
+                                                          ),
+                                                        ),
+                                                      );
+                                                    },
+                                                  ),
+                                                ),
+                                              ),
+
+                                              const SizedBox(width: 16),
+
+                                              // Building Info
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    // Property Name
+                                                    Text(
+                                                      building.property?.name ??
+                                                          'Property',
+                                                      style: TextStyle(
+                                                        fontSize: 11,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                        color: isSelected
+                                                            ? const Color(
+                                                                    0xFFD4AF37)
+                                                                .withOpacity(
+                                                                    0.8)
+                                                            : Colors.grey[500],
+                                                      ),
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+
+                                                    const SizedBox(height: 4),
+
+                                                    // Building Name
+                                                    Text(
                                                       building.name,
                                                       style: TextStyle(
-                                                        fontSize: 16,
+                                                        fontSize: 15,
                                                         fontWeight:
                                                             FontWeight.bold,
                                                         color: isSelected
@@ -323,55 +350,94 @@ class _BuildingPropertySelectionState extends State<BuildingPropertySelection> {
                                                                 0xFFD4AF37)
                                                             : Colors.black87,
                                                       ),
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
                                                     ),
-                                                  ),
-                                                  if (isSelected)
-                                                    const Icon(
-                                                      Icons.check_circle,
-                                                      color: Color(0xFFD4AF37),
-                                                      size: 20,
-                                                    ),
-                                                ],
-                                              ),
-                                              const SizedBox(height: 8),
-                                              Row(
-                                                children: [
-                                                  Icon(
-                                                    Icons.location_on,
-                                                    size: 14,
-                                                    color: Colors.grey[400],
-                                                  ),
-                                                  const SizedBox(width: 4),
-                                                  Expanded(
-                                                    child: Text(
-                                                      AddressHelper
-                                                          .formatSingleLine(
-                                                              building.property
-                                                                  ?.address),
+                                                    const SizedBox(height: 6),
+
+                                                    Text(
+                                                      '${formatNumber(building.buildingSize ?? 0)}/${formatNumber(building.landSize ?? 0)} m²',
                                                       style: TextStyle(
-                                                        fontSize: 12,
+                                                        fontSize: 11,
                                                         color: Colors.grey[600],
+                                                        fontWeight:
+                                                            FontWeight.w500,
                                                       ),
                                                     ),
-                                                  ),
-                                                ],
-                                              ),
-                                              const SizedBox(height: 8),
-                                              Text(
-                                                'Rp ${building.price.toStringAsFixed(0)} ${building.price_unit}',
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: isSelected
-                                                      ? const Color(0xFFD4AF37)
-                                                      : const Color(0xFFDBB837),
+                                                    const SizedBox(height: 8),
+
+                                                    // Price
+                                                    Text(
+                                                      'Rp ${formatPrice(building.price)}',
+                                                      style: TextStyle(
+                                                        fontSize: 13,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: isSelected
+                                                            ? const Color(
+                                                                0xFFD4AF37)
+                                                            : const Color(
+                                                                0xFFDBB837),
+                                                      ),
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+                                                  ],
                                                 ),
                                               ),
                                             ],
                                           ),
                                         ),
-                                      ],
-                                    ),
+                                      ),
+
+                                      // Type Badge - Positioned at Top Right Corner
+                                      Positioned(
+                                        top: 0,
+                                        right: 0,
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 10,
+                                            vertical: 6,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: isSelected
+                                                ? const Color(0xFFD4AF37)
+                                                : Colors.grey[700],
+                                            borderRadius:
+                                                const BorderRadius.only(
+                                              topRight: Radius.circular(14),
+                                              bottomLeft: Radius.circular(12),
+                                            ),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              if (isSelected)
+                                                const Padding(
+                                                  padding:
+                                                      EdgeInsets.only(right: 4),
+                                                  child: Icon(
+                                                    Icons.check_circle,
+                                                    color: Colors.white,
+                                                    size: 12,
+                                                  ),
+                                                ),
+                                              Text(
+                                                building.property?.type ??
+                                                    'Type',
+                                                style: const TextStyle(
+                                                  fontSize: 10,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 );
                               },
