@@ -107,6 +107,7 @@ const CatalogPage: FC = () => {
 		contractType,
 		images,
 		floor_plans,
+		site_plans,
 		luas,
 		jenis,
 		status,
@@ -187,7 +188,7 @@ const CatalogPage: FC = () => {
 				/>
 			<section className={s.container}>
 				<div>
-					{id && <CatalogPageCarousel images={images} floorPlans={floor_plans} />}
+					{id && <CatalogPageCarousel images={images} sitePlans={site_plans} />}
 					<CatalogPageInformation
 						contractType={contractType}
 						realEstateType={realEstateType}

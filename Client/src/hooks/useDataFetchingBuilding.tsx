@@ -60,6 +60,11 @@ function formatBuildingUnitsForCatalog(units: IBuildingProperty[]): ICatalogData
       station: {},
       images: unit.images || [],
       floor_plans: unit.floor_plans || [],
+      site_plans: unit.site_plans || [],
+      full_name: unit.property?.full_name || '',
+      phone_number: unit.property?.phone_number || '',
+      email: unit.property?.email || '',
+      website: unit.property?.website || '',
     };
   });
 }

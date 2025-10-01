@@ -47,6 +47,10 @@ export interface ICatalogData extends ICatalogStaticData {
 	village: string;
 	postal_code: string;
 	city: string;
+	site_plans: IFloorPlan[];
+	full_name: string;
+	phone_number: string;
+	email: string;
 }
 
 export interface ITransVersion {

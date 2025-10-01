@@ -19,6 +19,12 @@ export interface IFloorPlan {
   file_url: string;
   sort_order: number;
 }
+export interface ISitePlan {
+  id: string;
+  name: string;
+  file_url: string;
+  sort_order: number;
+}
 export interface IBuildingProperty {
   id: string;
   property: Property;
@@ -34,10 +40,11 @@ export interface IBuildingProperty {
   building_kpr_rules: any[];
   images: IImage[];
   floor_plans: IFloorPlan[];
+  site_plans: ISitePlan[];
   status_delete: number;
   deleted_at: Date | null;
   created_at: string;
   updated_at: string;
-  address: string; // Added as direct field as per user request
-  location: Location; // Added as direct field as per user request
+  address: string; 
+  location: Location; 
 }

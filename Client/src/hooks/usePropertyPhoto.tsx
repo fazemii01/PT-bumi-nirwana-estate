@@ -8,7 +8,7 @@ interface PropertyImage {
     sort_order: number;
 }
 
-interface FloorPlan {
+interface SitePlan {
     id: string;
     name: string;
     file_url: string;
@@ -21,14 +21,14 @@ interface IGalleryList {
     video?: string;
 }
 
-const usePropertyPhoto = (images: PropertyImage[] = [], floorPlans: FloorPlan[] = []): IGalleryList[] => {
+const usePropertyPhoto = (images: PropertyImage[] = [], sitePlans: SitePlan[] = []): IGalleryList[] => {
     const getImagePath = (fileName: string) => `${BACKEND_LOCALHOST}/uploads/property/property_images/${fileName}`;
-    const getFloorPlanPath = (fileName: string) => `${BACKEND_LOCALHOST}/uploads/property/property_floor_plans/${fileName}`;
+    const getFloorPlanPath = (fileName: string) => `${BACKEND_LOCALHOST}/uploads/property/property_site_plans/${fileName}`;
 
     const fileList = useMemo(() => {
         const allFiles = [
             ...images.map(img => ({...img, type: 'image'})),
-            ...floorPlans.map(plan => ({...plan, type: 'floor_plan'}))
+            ...sitePlans.map(plan => ({...plan, type: 'site_plan'})),
         ];
 
         allFiles.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
@@ -36,7 +36,7 @@ const usePropertyPhoto = (images: PropertyImage[] = [], floorPlans: FloorPlan[] 
         return allFiles.map(file => {
             const videoRegExp = /(mp4|webm|mov)/;
             const isImage = file.type === 'image';
-            const fileName = isImage ? (file as PropertyImage).image_url : (file as FloorPlan).file_url;
+            const fileName = isImage ? (file as PropertyImage).image_url : (file as SitePlan).file_url;
             const isVideo = videoRegExp.test(fileName);
             const filePath = isImage ? getImagePath(fileName) : getFloorPlanPath(fileName);
 
@@ -46,7 +46,7 @@ const usePropertyPhoto = (images: PropertyImage[] = [], floorPlans: FloorPlan[] 
                 video: isVideo ? filePath : undefined,
             };
         });
-    }, [images, floorPlans]);
+    }, [images, sitePlans]);
 
     return fileList;
 };

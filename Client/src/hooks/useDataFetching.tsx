@@ -51,6 +51,7 @@ function formatPropertiesForCatalog(properties: Property[]): ICatalogData[] {
       station: {},
       images: property.images || [],
       floor_plans: property.floor_plans || [],
+      site_plans: property.site_plans|| [],
     };
   });
 }
