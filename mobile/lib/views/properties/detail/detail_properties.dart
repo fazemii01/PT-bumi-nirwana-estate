@@ -14,7 +14,6 @@ import 'package:mobile_nirwana/views/properties/detail/floor_plan_viewer_page.da
 import 'package:mobile_nirwana/views/properties/detail/poker_image_slider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/services.dart';
-import 'dart:ui' as ui;
 import 'package:get/get.dart';
 import 'package:mobile_nirwana/views/properties/detail/widget/property_favorite_user_detail.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -545,29 +544,6 @@ class _PropertyDetailPageState extends State<PropertyDetailPage> {
       ],
     );
   }
-
-  // Helper method untuk info icon (tidak digunakan lagi tapi tetap ada jika diperlukan)
-  Widget _buildInfoIcon(IconData icon, String text) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 8.0),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 14, color: Colors.grey[600]),
-          const SizedBox(width: 4),
-          Text(
-            text,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[600],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-// Custom Painter untuk garis putus-putus
 
   Widget _buildAddress(Property property) {
     final String addressText =

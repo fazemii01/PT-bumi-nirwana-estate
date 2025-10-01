@@ -495,14 +495,14 @@ class _KprPageState extends State<KprPage> {
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFFDBB837),
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    maximumSize: Size(150, 50)),
+                  backgroundColor: Color(0xFFDBB837),
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 16),
@@ -532,149 +532,86 @@ class _KprPageState extends State<KprPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // Animated icon container
             Container(
-              width: 120,
-              height: 120,
+              width: 100,
+              height: 100,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    Color(0xFFDBB837).withOpacity(0.1),
+                    Color(0xFFDBB837).withOpacity(0.15),
                     Color(0xFFDBB837).withOpacity(0.05),
                   ],
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Color(0xFFDBB837).withOpacity(0.1),
+                    blurRadius: 20,
+                    offset: Offset(0, 8),
+                  ),
+                ],
               ),
               child: Icon(
-                Icons.person_outline_rounded,
-                size: 60,
+                Icons.lock_person_rounded,
+                size: 48,
                 color: Color(0xFFDBB837),
               ),
             ),
             const SizedBox(height: 32),
+
+            // Title
             Text(
-              'Login Diperlukan',
+              'Anda Belum Login',
               style: TextStyle(
-                fontSize: 24,
+                fontSize: 22,
                 fontWeight: FontWeight.w700,
                 color: Color(0xFF1A1A1A),
                 letterSpacing: -0.5,
               ),
-              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                'Silakan login terlebih dahulu untuk\nmelihat histori simulasi KPR Anda',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey[600],
-                  height: 1.5,
-                  letterSpacing: 0.1,
-                ),
-                textAlign: TextAlign.center,
+
+            // Subtitle
+            Text(
+              'Silakan login untuk melihat\nhistori simulasi KPR Anda',
+              style: TextStyle(
+                fontSize: 15,
+                color: Colors.grey[600],
+                height: 1.5,
               ),
+              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 40),
+
+            // Feature highlights
             Container(
+              padding: EdgeInsets.all(20),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Color(0xFFDBB837).withOpacity(0.3),
-                    blurRadius: 12,
-                    offset: Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: ElevatedButton.icon(
-                onPressed: () {},
-                icon: Container(
-                  padding: EdgeInsets.all(2),
-                  child: Icon(
-                    Icons.login_rounded,
-                    size: 20,
-                  ),
-                ),
-                label: Text(
-                  'Login Sekarang',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0.3,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFFDBB837),
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  minimumSize: Size(200, 52),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            OutlinedButton.icon(
-              onPressed: () {},
-              icon: Icon(
-                Icons.person_add_outlined,
-                size: 18,
-                color: Color(0xFFDBB837),
-              ),
-              label: Text(
-                'Daftar Akun Baru',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Color(0xFFDBB837),
-                  letterSpacing: 0.2,
-                ),
-              ),
-              style: OutlinedButton.styleFrom(
-                side: BorderSide(
-                  color: Color(0xFFDBB837),
-                  width: 1.5,
-                ),
-                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                minimumSize: Size(160, 44),
-              ),
-            ),
-            const SizedBox(height: 24),
-            Container(
-              padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.blue[50],
-                borderRadius: BorderRadius.circular(8),
+                color: Colors.grey[50],
+                borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: Colors.blue[100]!,
+                  color: Colors.grey[200]!,
                   width: 1,
                 ),
               ),
-              child: Row(
+              child: Column(
                 children: [
-                  Icon(
-                    Icons.info_outline,
-                    color: Colors.blue[700],
-                    size: 20,
+                  _buildFeatureItem(
+                    Icons.history_rounded,
+                    'Lihat riwayat simulasi',
                   ),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      'Dengan login, Anda dapat menyimpan dan mengelola semua simulasi KPR Anda',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.blue[800],
-                        height: 1.4,
-                      ),
-                    ),
+                  SizedBox(height: 12),
+                  _buildFeatureItem(
+                    Icons.bookmark_outline_rounded,
+                    'Simpan simulasi favorit',
+                  ),
+                  SizedBox(height: 12),
+                  _buildFeatureItem(
+                    Icons.analytics_outlined,
+                    'Bandingkan hasil simulasi',
                   ),
                 ],
               ),
@@ -682,6 +619,34 @@ class _KprPageState extends State<KprPage> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildFeatureItem(IconData icon, String text) {
+    return Row(
+      children: [
+        Container(
+          padding: EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Color(0xFFDBB837).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(
+            icon,
+            size: 18,
+            color: Color(0xFFDBB837),
+          ),
+        ),
+        SizedBox(width: 12),
+        Text(
+          text,
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.grey[700],
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
     );
   }
 

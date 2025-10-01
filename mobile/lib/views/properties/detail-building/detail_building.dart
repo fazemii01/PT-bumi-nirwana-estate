@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile_nirwana/core/routes/app_routes.dart';
-
 import 'package:mobile_nirwana/data/models/building_property/building_floor_plan.dart';
 import 'package:mobile_nirwana/data/models/building_property/building_property.dart';
 import 'package:mobile_nirwana/data/models/building_property/specification.dart';
 import 'package:mobile_nirwana/views/layout_controller.dart';
 import 'package:mobile_nirwana/views/properties/detail-building/detail_building_controller.dart';
 import 'package:mobile_nirwana/views/properties/detail-building/widget/floor_plans_viewer.dart';
-
 import 'package:mobile_nirwana/core/utils/api.dart';
 import 'package:mobile_nirwana/views/properties/detail-building/widget/poker_image_slider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -112,18 +110,18 @@ class _PropertyDetailPageState extends State<BuildingPropertyDetailPage>
                                 ),
                               ),
                             ),
-                            actions: [
-                              SafeArea(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: FavoriteIcon(
-                                    propertyId: building.id,
-                                    isLoggedIn:
-                                        _layoutController.isLoggedIn.value,
-                                  ),
-                                ),
-                              ),
-                            ],
+                            // actions: [
+                            //   SafeArea(
+                            //     child: Padding(
+                            //       padding: const EdgeInsets.all(8.0),
+                            //       child: FavoriteIcon(
+                            //         propertyId: building.id,
+                            //         isLoggedIn:
+                            //             _layoutController.isLoggedIn.value,
+                            //       ),
+                            //     ),
+                            //   ),
+                            // ],
                             flexibleSpace: FlexibleSpaceBar(
                               background: PokerCardImageSlider(
                                 images: building.images,
@@ -139,30 +137,20 @@ class _PropertyDetailPageState extends State<BuildingPropertyDetailPage>
                                     Container(
                                       margin: const EdgeInsets.only(
                                           top: 36.0, left: 24.0, right: 24.0),
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 24.0, vertical: 20.0),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius:
-                                              BorderRadius.circular(16.0),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.black
-                                                  .withOpacity(0.05),
-                                              blurRadius: 20,
-                                              offset: const Offset(0, 4),
-                                            ),
-                                          ],
-                                        ),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            const SizedBox(height: 24.0),
-                                            _buildHeader(building),
-                                            const SizedBox(height: 16),
-                                          ],
+                                      child: CustomPaint(
+                                        painter: TicketPainter(),
+                                        child: Container(
+                                          padding: const EdgeInsets.fromLTRB(
+                                              32.0, 16.0, 24.0, 0.0),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              const SizedBox(height: 24.0),
+                                              _buildHeader(building),
+                                              const SizedBox(height: 16),
+                                            ],
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -217,8 +205,12 @@ class _PropertyDetailPageState extends State<BuildingPropertyDetailPage>
                           ),
                           SliverToBoxAdapter(
                             child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 24.0),
+                              padding: const EdgeInsets.only(
+                                left: 24.0,
+                                right: 24.0,
+                                bottom:
+                                    100.0, // Tambahkan padding bottom untuk ruang button CTA
+                              ),
                               child: Column(
                                 children: [
                                   _buildFloorPlanSection(
@@ -272,43 +264,95 @@ class _PropertyDetailPageState extends State<BuildingPropertyDetailPage>
       }
     }
 
+    // Helper untuk warna status
+    Color _getStatusColor(BuildingStatus status) {
+      switch (status) {
+        case BuildingStatus.AVAILABLE:
+          return const Color(0xFF10B981);
+        case BuildingStatus.SOLD_OUT:
+          return const Color(0xFFEF4444);
+        case BuildingStatus.RESERVED:
+          return const Color(0xFFF59E0B);
+        default:
+          return const Color(0xFF6B7280);
+      }
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Baris Nama & Status
+        // Row untuk Status dan Nama
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Flexible(
+            // Status Badge
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: _getStatusColor(building.status).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
               child: Text(
-                building.name,
-                style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1F2937),
+                _getStatusText(building.status),
+                style: TextStyle(
+                  color: _getStatusColor(building.status),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.5,
                 ),
               ),
             ),
-            const SizedBox(width: 16),
-            Chip(
-              label: Text(
-                _getStatusText(building.status),
-                style: const TextStyle(
-                    color: Colors.white, fontWeight: FontWeight.bold),
-              ),
-              backgroundColor: Theme.of(context).primaryColor,
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-            ),
           ],
         ),
-        const SizedBox(height: 8),
-        // Harga
+        const SizedBox(height: 12),
+        // Nama Building
         Text(
-          '${_formatCurrency(building.price)} / ${building.price_unit}',
-          style: TextStyle(
-            fontSize: 18,
+          building.name,
+          style: const TextStyle(
+            fontSize: 24,
             fontWeight: FontWeight.bold,
-            color: Theme.of(context).primaryColor,
+            color: Color(0xFF1F2937),
+            height: 1.2,
+          ),
+        ),
+        const SizedBox(height: 32),
+        // Harga dengan Background Kuning
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: const Color(0xFFDBB837).withOpacity(0.15),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: const Color(0xFFDBB837).withOpacity(0.3),
+              width: 1.5,
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.payments_rounded,
+                color: Color(0xFFDBB837),
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                '${_formatCurrency(building.price)} ',
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFFDBB837),
+                ),
+              ),
+              Text(
+                '/ ${building.price_unit}',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: const Color(0xFFDBB837).withOpacity(0.8),
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -691,4 +735,98 @@ class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
   bool shouldRebuild(_SliverTabBarDelegate oldDelegate) {
     return false;
   }
+}
+
+class TicketPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.fill;
+
+    final path = Path();
+
+    // Radius untuk sudut dan lekukan
+    const radius = 16.0;
+    const notchRadius = 10.0;
+    const notchPosition = 0.60; // Posisi lekukan di 65% dari tinggi
+
+    // Mulai dari kiri atas
+    path.moveTo(radius, 0);
+
+    // Garis atas
+    path.lineTo(size.width - radius, 0);
+    path.arcToPoint(
+      Offset(size.width, radius),
+      radius: const Radius.circular(radius),
+    );
+
+    // Sisi kanan dengan lekukan
+    final notchY = size.height * notchPosition;
+    path.lineTo(size.width, notchY - notchRadius);
+    path.arcToPoint(
+      Offset(size.width, notchY + notchRadius),
+      radius: const Radius.circular(notchRadius),
+      clockwise: false,
+    );
+
+    // Lanjut ke bawah kanan
+    path.lineTo(size.width, size.height - radius);
+    path.arcToPoint(
+      Offset(size.width - radius, size.height),
+      radius: const Radius.circular(radius),
+    );
+
+    // Garis bawah
+    path.lineTo(radius, size.height);
+    path.arcToPoint(
+      Offset(0, size.height - radius),
+      radius: const Radius.circular(radius),
+    );
+
+    // Sisi kiri dengan lekukan
+    path.lineTo(0, notchY + notchRadius);
+    path.arcToPoint(
+      Offset(0, notchY - notchRadius),
+      radius: const Radius.circular(notchRadius),
+      clockwise: false,
+    );
+
+    // Kembali ke atas kiri
+    path.lineTo(0, radius);
+    path.arcToPoint(
+      Offset(radius, 0),
+      radius: const Radius.circular(radius),
+    );
+
+    path.close();
+
+    // Gambar shadow
+    canvas.drawShadow(path, Colors.black.withOpacity(0.1), 8, false);
+
+    // Gambar shape
+    canvas.drawPath(path, paint);
+
+    // Gambar garis putus-putus di tengah
+    final dashPaint = Paint()
+      ..color = Colors.grey.withOpacity(0.3)
+      ..strokeWidth = 1.5
+      ..style = PaintingStyle.stroke;
+
+    const dashWidth = 5.0;
+    const dashSpace = 5.0;
+    double startX = 20.0;
+
+    while (startX < size.width - 20) {
+      canvas.drawLine(
+        Offset(startX, notchY),
+        Offset(startX + dashWidth, notchY),
+        dashPaint,
+      );
+      startX += dashWidth + dashSpace;
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

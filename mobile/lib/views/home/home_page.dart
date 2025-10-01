@@ -652,15 +652,15 @@ class _HomePageState extends State<HomePage> {
                       padding:
                           EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
-                        color: Color(0xFFF3F4F6),
-                        borderRadius: BorderRadius.circular(8),
+                        color: Color(0xFFDBB837),
+                        borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
                         property.type,
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF667eea),
+                          color: Colors.white,
                           letterSpacing: 0.2,
                         ),
                       ),
@@ -823,7 +823,7 @@ class _HomePageState extends State<HomePage> {
                           color: Color(0xFF6B7280),
                           height: 1.4,
                         ),
-                        maxLines: 3,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
 
