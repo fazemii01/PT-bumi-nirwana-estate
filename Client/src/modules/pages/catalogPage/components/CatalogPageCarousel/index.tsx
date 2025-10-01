@@ -20,7 +20,7 @@ interface PropertyImage {
     sort_order: number;
 }
 
-interface FloorPlan {
+interface SitePlan {
     id: string;
     name: string;
     file_url: string;
@@ -29,10 +29,10 @@ interface FloorPlan {
 
 const CatalogPageCarousel: FC<{
 	images: PropertyImage[];
-	floorPlans: FloorPlan[];
-}> = ({images, floorPlans}) => {
+	sitePlans: SitePlan[];
+}> = ({images, sitePlans}) => {
 	const isTablet = useMediaQuery(TABLET_BREAKPOINT);
-	const postersList = usePropertyPhoto(images, floorPlans);
+	const postersList = usePropertyPhoto(images, sitePlans);
     const [isFullScreenMode, setIsFullScreenMode] = useState<boolean>(false);
 
 	const handleOnScreenChange = (value: boolean) => {

@@ -28,6 +28,7 @@ export function transformPropertyToCatalogData(property: any): ICatalogData {
     jenis: property.jenis_trans || {}, 
     detail_description: property.detail_description || '',
     floor_plans: property.floor_plans || [],
+    site_plans: property.site_plans || [],
     status: property.current_status || 'available', 
     name: property.name,
     type: property.type,
@@ -35,6 +36,10 @@ export function transformPropertyToCatalogData(property: any): ICatalogData {
     province: parsedAddress?.province || '',
     postal_code: parsedAddress?.postal_code || '',
     village: parsedAddress?.village || '',
+    full_name: property.full_name || '',
+    phone_number: property.phone_number || '',
+    email: property.email || '',
+	
 
   };
 }

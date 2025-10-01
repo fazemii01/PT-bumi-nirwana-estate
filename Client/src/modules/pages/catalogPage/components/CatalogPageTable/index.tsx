@@ -127,6 +127,23 @@ const CatalogPageTable: FC<{
 					<td>{tCatalog('PRICE')}</td>	
 					<td>{price}</td>
 				</tr>
+				
+				<br />
+				<br />
+				{/* <hr className={s.line}/> */}
+				<div className={s.infoHeading}>
+					<p>
+						{tCatalog('INFORMATION')} <span className={s.id}>{tCatalog('ORANG')}</span>
+					</p>
+				</div>
+				<tr>														
+					<td>{tCatalog('PRICE')}</td>	
+					<td>{price}</td>
+				</tr>
+				<tr>														
+					<td>{tCatalog('PRICE')}</td>	
+					<td>{price}</td>
+				</tr>
 			</tbody>
 			<br />
 			<tbody>

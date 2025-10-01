@@ -46,6 +46,12 @@ export interface Property {
     file_url: string;
     sort_order: number;
   }[];
+  site_plans: {
+    id: string;
+    name: string;
+    file_url: string;
+    sort_order: number;
+  }[];
   developer: { name: string } | null;
   agent: { name: string } | null;
   status_delete: number;
