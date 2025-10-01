@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:mobile_nirwana/core/routes/app_routes.dart';
 import 'package:mobile_nirwana/core/utils/api.dart';
 import 'package:mobile_nirwana/data/models/property/property.dart';
+import 'package:mobile_nirwana/helper/address.dart';
 import 'package:mobile_nirwana/helper/price.dart';
 import 'package:mobile_nirwana/views/layout.dart';
 import 'package:mobile_nirwana/views/profile/profile_controller.dart';
@@ -872,14 +873,16 @@ class ProfilePage extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   SizedBox(height: 2),
-                  // Text(
-                  //   formatPrice(property.price),
-                  //   style: TextStyle(
-                  //     fontSize: 11,
-                  //     fontWeight: FontWeight.w700,
-                  //     color: Color(0xFFDBB837),
-                  //   ),
-                  // ),
+                  Text(
+                    AddressHelper.formatSingleLine(property.address),
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.grey[400],
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ],
               ),
             ),

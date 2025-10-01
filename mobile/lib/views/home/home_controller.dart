@@ -48,27 +48,27 @@ class HomeController extends GetxController {
   }
 
   Future<void> loadNews() async {
-    // try {
-    //   isLoading.value = true;
-    //   errorMessage.value = '';
+    try {
+      isLoading.value = true;
+      errorMessage.value = '';
 
-    //   List<News> newsList = await _newsService.getAllNews();
+      List<News> newsList = await _newsService.getAllNews();
 
-    //   newsList.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-    //   news.value = newsList.take(5).toList();
+      newsList.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      news.value = newsList.take(5).toList();
 
-    //   isLoading.value = false;
-    // } catch (e) {
-    //   isLoading.value = false;
-    //   errorMessage.value = 'Failed to load home page';
-    // } finally {
-    //   isLoading.value = false;
-    // }
+      isLoading.value = false;
+    } catch (e) {
+      isLoading.value = false;
+      errorMessage.value = 'Failed to load home page';
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   Future<void> refreshAllData() async {
     await loadProperty();
-    // await loadNews();
+    await loadNews();
   }
 
   Future<void> getUserId() async {
@@ -85,16 +85,16 @@ class HomeController extends GetxController {
   }
 
   Future<void> loadFavorites() async {
-    // if (userId.value.isEmpty) return;
-    // try {
-    //   final favorites =
-    //       await _userFavoriteService.getUserFavorities(userId.value);
-    //   userFavorites.value = favorites;
-    //   favoriteIds.value = favorites.map((e) => e.propertyId).toList();
-    // } catch (e) {
-    //   favoriteIds.clear();
-    //   print("Error load favorites: $e");
-    // }
+    if (userId.value.isEmpty) return;
+    try {
+      final favorites =
+          await _userFavoriteService.getUserFavorities(userId.value);
+      userFavorites.value = favorites;
+      favoriteIds.value = favorites.map((e) => e.propertyId).toList();
+    } catch (e) {
+      favoriteIds.clear();
+      print("Error load favorites: $e");
+    }
   }
 
   Future<void> toggleFavorite(String propertyId) async {

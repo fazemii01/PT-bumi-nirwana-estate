@@ -140,7 +140,7 @@ export class PropertiesController {
   @Public()
   @Get('type/:type')
   async findOneByType(@Param('type') type: string): Promise<Property[]> {
-    return this.propertiesService.findOneByType(type);
+    return this.propertiesService.findByType(type);
   }
 
   @Patch(':id')

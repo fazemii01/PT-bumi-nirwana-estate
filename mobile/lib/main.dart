@@ -14,9 +14,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp();
-
   await GetStorage.init();
-
   await NotificationService().initialize();
 
   await PushNotificationService().registerDeviceToken();

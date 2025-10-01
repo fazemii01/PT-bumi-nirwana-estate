@@ -509,12 +509,12 @@ class _HomePageState extends State<HomePage> {
         ),
         SizedBox(height: 16),
         Container(
-          height: 280,
+          height: 250,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             physics: BouncingScrollPhysics(),
             itemCount: _homeController.properties.length,
-            separatorBuilder: (context, index) => SizedBox(width: 16),
+            separatorBuilder: (context, index) => SizedBox(width: 20),
             itemBuilder: (context, index) {
               final property = _homeController.properties[index];
               return GestureDetector(
@@ -528,7 +528,7 @@ class _HomePageState extends State<HomePage> {
               );
             },
           ),
-        ),
+        )
       ],
     );
   }
@@ -541,9 +541,8 @@ class _HomePageState extends State<HomePage> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 0,
-            blurRadius: 10,
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 12,
             offset: Offset(0, 4),
           ),
         ],
@@ -551,150 +550,145 @@ class _HomePageState extends State<HomePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Image Section
           Stack(
             children: [
-              Container(
-                height: 140,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                  child: Image.network(
-                    Imgurl.get(
-                        'property/property_images/${_getPropertyImage(property)}'),
-                    width: double.infinity,
-                    height: 140,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [Colors.grey[300]!, Colors.grey[100]!],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
+              ClipRRect(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                child: Image.network(
+                  Imgurl.get(
+                      'property/property_images/${_getPropertyImage(property)}'),
+                  width: double.infinity,
+                  height: 140,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      height: 140,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Color(0xFF667eea),
+                            Color(0xFF764ba2),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
-                        child: Center(
-                          child: Icon(
-                            _getPropertyIcon(property.type),
-                            size: 40,
-                            color: Colors.grey[400],
-                          ),
+                      ),
+                      child: Center(
+                        child: Icon(
+                          _getPropertyIcon(property.type),
+                          size: 42,
+                          color: Colors.white.withOpacity(0.9),
                         ),
-                      );
-                    },
-                  ),
+                      ),
+                    );
+                  },
                 ),
               ),
+
+              // Favorite Icon
               FavoriteIcon(
                 propertyId: property.id,
                 isLoggedIn: _layoutController.isLoggedIn.value,
               ),
-              Positioned(
-                top: 12,
-                left: 12,
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Color(0xFFDBB837),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    property.type,
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
             ],
           ),
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    property.name,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+
+          // Content Section
+          Padding(
+            padding: EdgeInsets.all(14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Property Name
+                Text(
+                  property.name,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF1a1a1a),
+                    height: 1.3,
+                    letterSpacing: -0.3,
                   ),
-                  SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.location_on,
-                        size: 14,
-                        color: Colors.grey[400],
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+
+                SizedBox(height: 8),
+
+                // Location
+                Row(
+                  children: [
+                    Icon(
+                      Icons.location_on_rounded,
+                      size: 13,
+                      color: Color(0xFF9CA3AF),
+                    ),
+                    SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        AreaHelper.formatSingleLine(property.address),
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Color(0xFF6B7280),
+                          height: 1.3,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      SizedBox(width: 4),
-                      Expanded(
-                        child: Text(
-                          AreaHelper.formatSingleLine(property.address),
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[600],
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+
+                SizedBox(height: 10),
+
+                // Bottom Row: Type Badge & Rating
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Property Type Badge
+                    Container(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: Color(0xFFF3F4F6),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        property.type,
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF667eea),
+                          letterSpacing: 0.2,
                         ),
                       ),
-                    ],
-                  ),
-                  Spacer(),
-                  // Row(
-                  //   children: [
-                  //     ...SpecificationHelper.buildMainSpecs(
-                  //         property.specifications!)
-                  //   ],
-                  // ),
-                  Spacer(),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Expanded(
-                      //   child: Text(
-                      //     '${formatPrice(property.price)}/${property.price_unit}',
-                      //     style: TextStyle(
-                      //       fontSize: 14,
-                      //       fontWeight: FontWeight.bold,
-                      //       color: Color(0xFFDBB837),
-                      //     ),
-                      //     maxLines: 1,
-                      //     overflow: TextOverflow.ellipsis,
-                      //   ),
-                      // ),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.star,
-                            size: 14,
-                            color: Colors.orange,
+                    ),
+
+                    // Rating
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.star_rounded,
+                          size: 15,
+                          color: Color(0xFFFFB800),
+                        ),
+                        SizedBox(width: 3),
+                        Text(
+                          property.favoritesCount.toString(),
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF1a1a1a),
+                            letterSpacing: -0.2,
                           ),
-                          SizedBox(width: 4),
-                          Text(
-                            '5',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black87,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ],
@@ -735,7 +729,6 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
         SizedBox(height: 16),
-        // Tidak ada lagi Obx di sini
         ListView.separated(
           shrinkWrap: true,
           physics: NeverScrollableScrollPhysics(),
@@ -758,109 +751,138 @@ class _HomePageState extends State<HomePage> {
   Widget _buildNewsCard(News news) {
     final primaryColor = Color(0xFFDBB837);
 
-    return GestureDetector(
-      onTap: () {
-        Get.toNamed(Routes.DETAIL_NEWS, arguments: news);
-      },
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey[200]!),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 100,
-              height: 100,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.network(
-                  Imgurl.get('news/news_images/${_getNewsImage(news)}'),
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        color: Colors.grey[200],
-                      ),
-                      child: Center(
-                        child: Icon(
-                          Icons.article_outlined,
-                          size: 40,
-                          color: Colors.grey[400],
-                        ),
-                      ),
-                    );
-                  },
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Stack(
+        children: [
+          // Main Content
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Image
+                Container(
+                  width: 100,
+                  height: 100,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.network(
+                      Imgurl.get('news/news_images/${_getNewsImage(news)}'),
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            color: Colors.grey[200],
+                          ),
+                          child: Center(
+                            child: Icon(
+                              Icons.article_outlined,
+                              size: 40,
+                              color: Colors.grey[400],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            const SizedBox(width: 16),
-            // Teks di Kanan
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // FIX: Chip Kategori ditambahkan di sini
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: primaryColor.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      news.newsCategory.name,
-                      style: TextStyle(
-                        color: primaryColor, // Warna teks kuning
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
+
+                const SizedBox(width: 14),
+
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Title
+                      Text(
+                        news.title,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF1a1a1a),
+                          height: 1.3,
+                          letterSpacing: -0.2,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
+
+                      SizedBox(height: 6),
+
+                      // Description
+                      Text(
+                        news.description,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Color(0xFF6B7280),
+                          height: 1.4,
+                        ),
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+
+                      SizedBox(height: 8),
+
+                      // Date - Bottom Right
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(
+                            DateFormat('d MMM yyyy').format(news.createdAt),
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF9CA3AF),
+                              letterSpacing: 0.2,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 8), // Jarak antara chip dan judul
+                ),
+              ],
+            ),
+          ),
 
-                  Text(
-                    news.title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  SizedBox(height: 8),
-
-                  Text(
-                    news.description,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                      height: 1.4,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-
-                  SizedBox(height: 8),
-
-                  Text(
-                    DateFormat('d MMMM yyyy').format(news.createdAt),
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black54,
-                    ),
+          // Category Badge - Nempel di Card pojok kiri atas
+          Positioned(
+            top: 0,
+            left: 0,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: primaryColor,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(16),
+                  bottomRight: Radius.circular(12),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 4,
+                    offset: Offset(0, 2),
                   ),
                 ],
               ),
+              child: Text(
+                news.newsCategory.name,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 9,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.3,
+                ),
+              ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

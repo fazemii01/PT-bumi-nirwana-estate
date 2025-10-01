@@ -16,6 +16,7 @@ class Property {
   final String? detailDescription;
   final Location? location;
   final Address? address;
+  final int? favoritesCount;
   final List<PropertyImages> images;
   final List<PropertySitePlan> sitePlans;
   final List<BuildingProperty> building_property;
@@ -32,6 +33,7 @@ class Property {
     this.detailDescription,
     this.location,
     this.address,
+    this.favoritesCount,
     this.images = const [],
     this.sitePlans = const [],
     this.building_property = const [],
@@ -52,6 +54,9 @@ class Property {
       detailDescription: json['detail_description'],
       location: Location.fromJson(json['location']),
       address: Address.fromJson(json['address']),
+      favoritesCount: json['favoritesCount'] != null
+          ? int.tryParse(json['favoritesCount'].toString()) ?? 0
+          : 0,
       images: (json['images'] as List<dynamic>?)
               ?.map((e) => PropertyImages.fromJson(e))
               .toList() ??
@@ -81,8 +86,7 @@ class Property {
       'location': location?.toJson(),
       'address': address?.toJson(),
       'images': images.map((e) => e.toJson()).toList(),
-      // 'site_plans': sitePlans.map((e) => e.toJson()).toList(),
-      // 'building_property': building_property.map((e) => e.toJson()).toList(),
+      'site_plans': sitePlans.map((e) => e.toJson()).toList(),
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
     };

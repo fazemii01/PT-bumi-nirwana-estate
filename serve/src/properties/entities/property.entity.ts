@@ -6,6 +6,7 @@ import { News } from '@/news/entities/news.entity';
 import { PropertyImage } from '@/properties/entities/property_images.entity';
 import { PropertySitePlan } from '@/properties/entities/property_site_plans.entity';
 import { DeletedAtStatus } from '@/types/deleted_at';
+import { UserFavorite } from '@/user-favorites/entities/user-favorite.entity';
 
 import {
   Entity,
@@ -96,6 +97,9 @@ export class Property {
     onDelete: 'CASCADE',
   })
   building_property: BuildingProperty[];
+
+  @OneToMany(() => UserFavorite, (favorite) => favorite.property)
+  favorites: UserFavorite[];
 
   @Column({
     type: 'enum',

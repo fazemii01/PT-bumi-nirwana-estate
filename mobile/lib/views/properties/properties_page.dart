@@ -34,10 +34,8 @@ class _PropertyCatalogPageState extends State<PropertiesPage> {
 
   final List<FilterOption> _filterOptions = const [
     FilterOption(icon: Icons.grid_view_rounded, label: 'All'),
-    FilterOption(icon: Icons.house_rounded, label: 'House'),
-    FilterOption(icon: Icons.apartment_rounded, label: 'Apartment'),
-    FilterOption(icon: Icons.storefront_rounded, label: 'Ruko'),
-    FilterOption(icon: Icons.landscape_rounded, label: 'Kavling'),
+    FilterOption(icon: Icons.house_rounded, label: 'Subsidi'),
+    FilterOption(icon: Icons.apartment_rounded, label: 'Komersil'),
   ];
 
   late List<GlobalKey> _filterKeys;
@@ -503,9 +501,15 @@ class _PropertyCatalogPageState extends State<PropertiesPage> {
                           ),
                         ),
                       ),
-                      FavoriteIcon(
-                        propertyId: property.id,
-                        isLoggedIn: _layoutController.isLoggedIn.value,
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: FavoriteIcon(
+                          propertyId:
+                              property.id, // Ganti dengan variabel yang benar
+                          isLoggedIn: _layoutController.isLoggedIn
+                              .value, // Ganti dengan variabel yang benar
+                        ),
                       ),
                     ],
                   ),

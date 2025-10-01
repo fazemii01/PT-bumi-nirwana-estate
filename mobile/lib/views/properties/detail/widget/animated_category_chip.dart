@@ -13,13 +13,10 @@ class _AnimatedCategoryChipState extends State<AnimatedCategoryChip> {
 
   IconData _getCategoryIcon(String categoryType) {
     switch (categoryType.toLowerCase()) {
-      case 'apartment':
+      case 'Komersil':
         return Icons.apartment_rounded;
-      case 'ruko':
-        return Icons.storefront_rounded;
-      case 'kavling':
-        return Icons.landscape_rounded;
-      case 'house':
+      case 'Subsidi':
+        return Icons.house_rounded;
       default:
         return Icons.house_rounded;
     }
@@ -40,7 +37,7 @@ class _AnimatedCategoryChipState extends State<AnimatedCategoryChip> {
         duration: const Duration(milliseconds: 350),
         curve: Curves.fastOutSlowIn,
         height: 50,
-        width: _isExpanded ? 120 : 50,
+        width: _isExpanded ? 130 : 50,
         decoration: BoxDecoration(
           color: theme.colorScheme.primary,
           borderRadius: BorderRadius.circular(25),
@@ -62,7 +59,7 @@ class _AnimatedCategoryChipState extends State<AnimatedCategoryChip> {
               curve: Curves.fastOutSlowIn,
               // Saat terbuka, geser ikon ke kiri. Saat tertutup, posisikan di tengah.
               alignment:
-                  _isExpanded ? const Alignment(-0.6, 0) : Alignment.center,
+                  _isExpanded ? const Alignment(-0.7, 0) : Alignment.center,
               child: Icon(
                 icon,
                 color: Colors.white,
@@ -79,7 +76,7 @@ class _AnimatedCategoryChipState extends State<AnimatedCategoryChip> {
                   _isExpanded ? const Alignment(0.4, 0) : Alignment.center,
               child: AnimatedOpacity(
                 duration: const Duration(milliseconds: 200),
-                opacity: _isExpanded ? 1.0 : 0.0,
+                opacity: _isExpanded ? 1 : 0.0,
                 child: Text(
                   widget.categoryType,
                   style: const TextStyle(

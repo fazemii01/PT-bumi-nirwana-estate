@@ -3,6 +3,7 @@ import 'package:mobile_nirwana/data/models/building_property/building_images.dar
 import 'package:mobile_nirwana/data/models/building_property/specification.dart';
 import 'package:mobile_nirwana/data/models/loan-simulation.dart';
 import 'package:mobile_nirwana/data/models/property/property.dart';
+import 'dart:convert';
 
 enum BuildingStatus { PRE_LAUNCH, AVAILABLE, SOLD_OUT, RESERVED }
 
@@ -47,7 +48,7 @@ class BuildingProperty {
     return BuildingProperty(
       id: json['id'],
       name: json['name'],
-      totalUnits: json['total_units'], // baru
+      totalUnits: json['total_units'],
       status: BuildingStatus.values.firstWhere(
         (e) => e.toString().split('.').last == json['status'],
         orElse: () => BuildingStatus.AVAILABLE,
@@ -63,11 +64,26 @@ class BuildingProperty {
           ? double.tryParse(json['building_size'].toString())
           : null,
       description: json['description'],
-      specifications: json['specifications'] != null &&
-              json['specifications'] is Map<String, dynamic>
-          ? Specifications.fromJson(
-              json['specifications'] as Map<String, dynamic>)
-          : null,
+      specifications: (() {
+        final specData = json['specifications'];
+        if (specData == null) return null;
+
+        if (specData is Map<String, dynamic>) {
+          return Specifications.fromJson(specData);
+        }
+
+        if (specData is String) {
+          try {
+            final decodedData = jsonDecode(specData) as Map<String, dynamic>;
+            return Specifications.fromJson(decodedData);
+          } catch (e) {
+            print("Gagal parse string specifications: $e");
+            return null;
+          }
+        }
+
+        return null;
+      })(),
       images: (json['images'] as List?)
               ?.where((e) => e != null)
               .map((e) => BuildingImages.fromJson(e as Map<String, dynamic>))

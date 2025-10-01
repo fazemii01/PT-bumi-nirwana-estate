@@ -21,6 +21,25 @@ class BuildingPropertyService extends Api {
     }
   }
 
+  Future<BuildingProperty> getBuildingPropertiesById(String id) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/building-property/$id'),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+
+        return BuildingProperty.fromJson(data);
+      } else {
+        throw Exception(
+            'Gagal memuat detail building. Status: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Terjadi kesalahan jaringan: $e');
+    }
+  }
+
   Future<List<BuildingProperty>> getBuildingsByProperty(
       String propertyId) async {
     try {
