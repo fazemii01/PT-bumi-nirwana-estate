@@ -8,8 +8,7 @@ const port = 3000; // Sesuai dengan konfigurasi backend Anda
 const startServer = () => {
     try {
         const whitelist = [
-            'http://localhost:3001', // Frontend saat dev
-            'https://pt-bumi-nirwana-estate.vercel.app', // Frontend saat production
+            'http://localhost:3001', // Frontend saat dev // Frontend saat production
             'https://nest-deploy-lemon.vercel.app'
         ];
 
