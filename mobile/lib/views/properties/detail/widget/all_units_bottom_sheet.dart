@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/utils.dart';
-import 'package:intl/intl.dart'; // Import untuk format harga
+import 'package:intl/intl.dart';
 import 'package:mobile_nirwana/core/routes/app_routes.dart';
-import 'package:mobile_nirwana/core/utils/api.dart'; // Sesuaikan path
+import 'package:mobile_nirwana/core/utils/api.dart';
 import 'package:mobile_nirwana/data/models/building_property/building_property.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -47,14 +46,12 @@ class _AllUnitsBottomSheetState extends State<AllUnitsBottomSheet> {
         _filteredUnits = widget.allUnits;
       } else {
         _filteredUnits = widget.allUnits.where((unit) {
-          // Hanya mencari berdasarkan nama unit
           return unit.name.toLowerCase().contains(query);
         }).toList();
       }
     });
   }
 
-  // Helper untuk mengambil gambar, bisa disesuaikan
   String _getUnitImage(BuildingProperty unit) {
     if (unit.images.isNotEmpty && unit.images[0].image_url != null) {
       return unit.images[0].image_url!;
@@ -62,7 +59,6 @@ class _AllUnitsBottomSheetState extends State<AllUnitsBottomSheet> {
     return "";
   }
 
-  // Helper untuk format harga (kita copy dari halaman detail)
   String _formatCurrency(double? amount) {
     if (amount == null) return "Harga tidak tersedia";
     final formatter = NumberFormat.currency(
@@ -73,11 +69,44 @@ class _AllUnitsBottomSheetState extends State<AllUnitsBottomSheet> {
     return formatter.format(amount);
   }
 
+  // Helper untuk status
+  String _getStatusText(BuildingStatus status) {
+    switch (status) {
+      case BuildingStatus.AVAILABLE:
+        return 'Tersedia';
+      case BuildingStatus.SOLD_OUT:
+        return 'Terjual';
+      case BuildingStatus.RESERVED:
+        return 'Dipesan';
+      default:
+        return 'Segera Hadir';
+    }
+  }
+
+  // Helper untuk ikon
+  Widget _buildInfoIcon(IconData icon, String text) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 14, color: Colors.grey[600]),
+        const SizedBox(width: 4),
+        Flexible(
+          child: Text(
+            text,
+            style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.grey[100], // Ganti warna latar belakang di sini
+        color: Colors.grey[100],
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20.0)),
       ),
       child: Column(
@@ -97,14 +126,14 @@ class _AllUnitsBottomSheetState extends State<AllUnitsBottomSheet> {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: 'Cari nama unit...', // Hint text diubah
+                hintText: 'Cari nama unit...',
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
                 ),
                 filled: true,
-                fillColor: Colors.grey[100],
+                fillColor: Colors.white, // Warna search bar diubah jadi putih
               ),
             ),
           ),
@@ -112,7 +141,7 @@ class _AllUnitsBottomSheetState extends State<AllUnitsBottomSheet> {
             child: ListView.builder(
               controller: widget.scrollController,
               itemCount: _filteredUnits.length,
-              padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
+              padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 0),
               itemBuilder: (context, index) {
                 final unit = _filteredUnits[index];
                 return _buildUnitCardInModal(context, unit);
@@ -124,18 +153,14 @@ class _AllUnitsBottomSheetState extends State<AllUnitsBottomSheet> {
     );
   }
 
-  // >> PERUBAHAN 2: Card disesuaikan untuk menampilkan harga & spesifikasi <<
   Widget _buildUnitCardInModal(BuildContext context, BuildingProperty unit) {
     final String fullImageUrl =
         Imgurl.get('building_property/building_images/${_getUnitImage(unit)}');
-    final specs = unit.specifications;
     final theme = Theme.of(context);
+
     return InkWell(
       onTap: () {
-        Get.toNamed(
-          Routes.DETAIL_BUILDING,
-          arguments: unit, // Kirim objek 'unit' sebagai argumen
-        );
+        Get.toNamed(Routes.DETAIL_BUILDING, arguments: unit);
       },
       borderRadius: BorderRadius.circular(12),
       child: Card(
@@ -143,65 +168,106 @@ class _AllUnitsBottomSheetState extends State<AllUnitsBottomSheet> {
         elevation: 2,
         margin: const EdgeInsets.only(bottom: 16),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Row(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8.0),
-                child: CachedNetworkImage(
-                  imageUrl: fullImageUrl,
-                  width: 80,
-                  height: 80,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) =>
-                      Container(color: Colors.grey[200]),
-                  errorWidget: (context, url, error) => Container(
-                    width: 80,
-                    height: 80,
-                    color: Colors.grey[200],
-                    child: const Icon(Icons.apartment, color: Colors.grey),
-                  ),
+        child: Row(
+          children: [
+            // Gambar di Kiri
+            ClipRRect(
+              borderRadius:
+                  const BorderRadius.horizontal(left: Radius.circular(12)),
+              child: CachedNetworkImage(
+                imageUrl: fullImageUrl,
+                width: 100,
+                height: 110,
+                fit: BoxFit.cover,
+                placeholder: (context, url) =>
+                    Container(color: Colors.grey[200]),
+                errorWidget: (context, url, error) => Container(
+                  width: 100,
+                  height: 110,
+                  color: Colors.grey[200],
+                  child: const Icon(Icons.apartment, color: Colors.grey),
                 ),
               ),
-              const SizedBox(width: 16),
-              Expanded(
+            ),
+            // Teks di Kanan
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+                // >> PERUBAHAN UTAMA DI SINI <<
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  // Ganti Spacer dengan MainAxisAlignment.spaceBetween
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Nama Unit
-                    Text(
-                      unit.name,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+                    // KELOMPOK ATAS: Nama & Status
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          unit.name,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Chip(
+                          label: Text(
+                            _getStatusText(unit.status),
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: theme.primaryColor,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          backgroundColor: theme.primaryColor.withOpacity(0.15),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          materialTapTargetSize:
+                              MaterialTapTargetSize.shrinkWrap,
+                          visualDensity: VisualDensity.compact,
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          side: BorderSide.none,
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 4),
-                    // Harga
-                    Text(
-                      _formatCurrency(unit.price),
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: theme.primaryColor,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    // Spesifikasi (Luas, Kamar Tidur, Kamar Mandi)
-                    Text(
-                      'Luas: ${unit.buildingSize ?? '-'} m² • KT: ${specs?.bedrooms ?? '-'} • KM: ${specs?.bathrooms ?? '-'}',
-                      style: TextStyle(fontSize: 13, color: Colors.grey[700]),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+
+                    // KELOMPOK BAWAH: Harga & Info Ikon
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _formatCurrency(unit.price),
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: theme.primaryColor,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            Flexible(
+                              child: _buildInfoIcon(Icons.inventory_2_outlined,
+                                  '${unit.totalUnits ?? '-'} unit'),
+                            ),
+                            const SizedBox(width: 12),
+                            Flexible(
+                              child: _buildInfoIcon(Icons.square_foot_outlined,
+                                  '${unit.buildingSize ?? '-'} m²'),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

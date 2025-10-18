@@ -529,13 +529,39 @@ class _PropertyCatalogPageState extends State<PropertiesPage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  property.name,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w700),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        property.name,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w700),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.star_rounded,
+                                          size: 15,
+                                          color: Color(0xFFFFB800),
+                                        ),
+                                        SizedBox(width: 3),
+                                        Text(
+                                          property.favoritesCount.toString(),
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w700,
+                                            color: Color(0xFF1a1a1a),
+                                            letterSpacing: -0.2,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
                                 const SizedBox(height: 4),
                                 Row(
@@ -547,7 +573,7 @@ class _PropertyCatalogPageState extends State<PropertiesPage> {
                                       child: Text(
                                         AreaHelper.formatSingleLine(
                                             property.address),
-                                        maxLines: 1,
+                                        maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
                                         style: const TextStyle(
                                             fontSize: 13,
@@ -560,53 +586,9 @@ class _PropertyCatalogPageState extends State<PropertiesPage> {
                             ),
                           ),
                           const SizedBox(width: 12),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              // Text(
-                              //   formatPrice(property.price),
-                              //   style: TextStyle(
-                              //     fontSize: 16,
-                              //     fontWeight: FontWeight.w700,
-                              //     color: theme.colorScheme.primary,
-                              //   ),
-                              // ),
-                              // const SizedBox(height: 2),
-                              // Text(
-                              //   "/${property.price_unit}",
-                              //   style: const TextStyle(
-                              //       fontSize: 12, color: Color(0xFF6B7280)),
-                              // ),
-                            ],
-                          ),
                         ],
                       ),
                       const Spacer(),
-                      // Row(
-                      //   children: [
-                      //     if (property.specifications?.bedrooms != null)
-                      //       _buildDetailItem(Icons.bed_rounded,
-                      //           '${property.specifications!.bedrooms}'),
-                      //     const SizedBox(width: 16),
-                      //     if (property.specifications?.bathrooms != null)
-                      //       _buildDetailItem(Icons.bathtub_rounded,
-                      //           '${property.specifications!.bathrooms}'),
-                      //     const SizedBox(width: 16),
-                      //     if (property.buildingSize != null)
-                      //       _buildDetailItem(Icons.square_foot_rounded,
-                      //           '${property.buildingSize!.toInt()}m²'),
-                      //     const Spacer(),
-                      //     Container(
-                      //       padding: const EdgeInsets.all(8),
-                      //       decoration: BoxDecoration(
-                      //         color: theme.colorScheme.primary.withOpacity(0.1),
-                      //         borderRadius: BorderRadius.circular(8),
-                      //       ),
-                      //       child: Icon(Icons.arrow_forward_rounded,
-                      //           size: 16, color: theme.colorScheme.primary),
-                      //     ),
-                      //   ],
-                      // ),
                     ],
                   ),
                 ),
@@ -615,23 +597,6 @@ class _PropertyCatalogPageState extends State<PropertiesPage> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildDetailItem(IconData icon, String text) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 16, color: const Color(0xFF6B7280)),
-        const SizedBox(width: 4),
-        Text(
-          text,
-          style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: Color(0xFF6B7280)),
-        ),
-      ],
     );
   }
 }
