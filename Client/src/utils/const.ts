@@ -3,7 +3,7 @@ export const TABLET_BREAKPOINT = 1022;
 export const LAPTOP_BREAKPOINT = 1420;
 export const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 export const USD_SYMBOL = '$';
-export const PRODUCTION_LINK = 'https://pt-bumi-nirwana-estate.vercel.app/';
+export const PRODUCTION_LINK = 'https://nest-deploy-lemon.vercel.app/';
 export const CATALOG_NAME = 'catalog';
 export const UNIT = 'detail-unit';
 
