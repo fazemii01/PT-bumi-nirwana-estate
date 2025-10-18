@@ -74,7 +74,7 @@ const CatalogCard: FC<{
 	// const itemTotalArea = Number(table.totalArea).toFixed();
 
 	const totalRooms = Number(table.bedrooms) + Number(table.bathrooms);
-	
+	// console.log(`${name}:`, { bedrooms: table.bedrooms, bathrooms: table.bathrooms });
 	return (
 		<li className={cn('yellow-shadow', s.container)}>
 			<Link className={s.inner} href={`/${CATALOG_NAME}/${id}`}>
@@ -124,6 +124,15 @@ const CatalogCard: FC<{
 								{totalRooms}
 							</li>
 						)}
+
+						{/* <li title={tCatalog('TABLE.TOTALAREA')}>
+							<IconRuler />
+							{land_size + ' ' + UNITS[i18n.language].squareMeters}
+						</li>
+						<li title={tCatalog('TABLE.RUANGAN')}>
+							<IconFloorPlan />
+							{totalRooms}
+						</li> */}
 					</ul>
 				</div>
 			</Link>

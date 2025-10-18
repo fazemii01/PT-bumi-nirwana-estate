@@ -13,7 +13,7 @@ import CatalogPageVideo
 import CatalogListItem
 	from '@modules/pages/catalogPage/components/CatalogListItem';
 import { useMediaQuery, usePropertyPhoto } from '@hooks/index';
-import { LAPTOP_BREAKPOINT, UNIT, CATALOG_NAME } from '@utils/const';
+import { LAPTOP_BREAKPOINT, UNIT } from '@utils/const';
 
 import type { ICatalogTable } from '@t-types/data';
 
@@ -114,7 +114,7 @@ const CatalogPageInformation: FC<{
 							<Link 
 							key={building.id}
 							className={s.inner} 
-							href={`/${CATALOG_NAME}/${id}/${UNIT}/${building.id}`}>
+							href={`/${UNIT}/${building.id}`}>
 								<CatalogListItem
 									
 									id_item={building.id}

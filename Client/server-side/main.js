@@ -10,6 +10,7 @@ const startServer = () => {
         const whitelist = [
             'http://localhost:3001', // Frontend saat dev
             'https://pt-bumi-nirwana-estate.vercel.app', // Frontend saat production
+            'https://nest-deploy-lemon.vercel.app'
         ];
 
         const corsOptions = {
