@@ -115,7 +115,19 @@ const nextConfig = {
 				port: '5000',
 				pathname: '/uploads/**',
 			},
-		], 
+			{
+				protocol: 'https',
+				hostname: 'nxinvaoznovhawvbchxx.supabase.co',
+				port: '',
+				pathname: '/storage/v1/object/public/**',
+			},
+			{
+				protocol: 'https',
+				hostname: 'nest-deploy-lemon.vercel.app',
+				port: '',
+				pathname: '/properties/**',
+			},
+		],
 	},
 
 };

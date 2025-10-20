@@ -22,6 +22,7 @@ function formatBuildingUnitsForCatalog(units: IBuildingProperty[]): ICatalogData
       specifications = {}; 
     }
     
+    
     const location: ITransVersion = {
       lat: unit.location?.coordinates?.[1]?.toString() || null,
       lng: unit.location?.coordinates?.[0]?.toString() || null,
@@ -61,10 +62,11 @@ function formatBuildingUnitsForCatalog(units: IBuildingProperty[]): ICatalogData
       images: unit.images || [],
       floor_plans: unit.floor_plans || [],
       site_plans: unit.site_plans || [],
-      full_name: unit.property?.full_name || '',
-      phone_number: unit.property?.phone_number || '',
-      email: unit.property?.email || '',
-      website: unit.property?.website || '',
+      full_name: unit.property?.agent?.[0]?.full_name || '',
+      phone_number: unit.property?.agent?.[0]?.phone_number || '',
+      email: unit.property?.agent?.[0]?.email || '',
+      website: unit.property?.developer?.[0]?.website || '',
+      // land_size: firstUnit?.land_size || '',
     };
   });
 }

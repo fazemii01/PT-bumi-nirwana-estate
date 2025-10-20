@@ -13,7 +13,7 @@ import CatalogPageVideo
 import CatalogListItem
 	from '@modules/pages/catalogPage/components/CatalogListItem';
 import { useMediaQuery, usePropertyPhoto } from '@hooks/index';
-import { LAPTOP_BREAKPOINT, UNIT, CATALOG_NAME } from '@utils/const';
+import { LAPTOP_BREAKPOINT, UNIT } from '@utils/const';
 
 import type { ICatalogTable } from '@t-types/data';
 
@@ -68,7 +68,7 @@ const CatalogPageInformation: FC<{
 		const { t } = useTranslation('catalog');
 		const isLaptop = useMediaQuery(LAPTOP_BREAKPOINT);
 		// const isVideoBlock = postersList.some(item => item.video);
-		// console.log('Data received for Available Units:', building_property);
+
 		return (
 			<>
 				<article className={cn(s.container, s.info)}>
@@ -111,12 +111,12 @@ const CatalogPageInformation: FC<{
 
 					<div className={s.unitsListContainer}>
 						{building_property && building_property.map((building) => (
-							<Link 
+							<Link
 							key={building.id}
-							className={s.inner} 
-							href={`/${CATALOG_NAME}/${id}/${UNIT}/${building.id}`}>
+							className={s.inner}
+							href={`/${UNIT}/${building.id}`}>
 								<CatalogListItem
-									
+
 									id_item={building.id}
 									building_description={building.description}
 									building_images={building.images}

@@ -7,18 +7,27 @@ import { add } from 'cheerio/lib/api/traversing';
 
 function formatPropertiesForCatalog(properties: Property[]): ICatalogData[] {
   if (!properties) return [];
-  
+
   return properties.map((property) => {
     const address = typeof property.address === 'string'
       ? JSON.parse(property.address)
       : property.address || {};
+
     const specifications = property.specifications || {};
 
     const location: ITransVersion = {
       lat: property.location?.coordinates?.[1]?.toString() || null,
       lng: property.location?.coordinates?.[0]?.toString() || null,
     };
-
+    const building_images =
+      property.building_property?.map((b) => b.images).flat() || [];
+    const firstUnit = property.building_property?.[0];
+    const building_asset = property.building_property?.[0] || {};
+    const building_assets = property.building_property || [];
+    const unitSpecifications = firstUnit && typeof firstUnit.specifications === 'string'
+      ? JSON.parse(firstUnit.specifications)
+      : firstUnit?.specifications || {};
+    // console.log('Parsed Specifications for ' + property.name + ':', unitSpecifications);
     return {
       id: property.id,
       name: property.name,
@@ -29,15 +38,16 @@ function formatPropertiesForCatalog(properties: Property[]): ICatalogData[] {
         id: address.street || '',
       },
       location,
+
       table: {
-        bedrooms: specifications.kamar || 0,
-        bathrooms: specifications.kamar_mandi || 0,
+        bedrooms: unitSpecifications.bedrooms || 0,
+        bathrooms: unitSpecifications.bathrooms || 0,
       },
       description: { en: property.description || '', id: property.description || '' },
       jenis: { en: property.jenis || '', id: property.jenis || '' },
       luas: property.luas,
       type: property.type,
-      land_size: property.land_size,
+      // land_size: property.land_size,
       detail_description: property.detail_description,
       status: property.status,
       contractType: specifications.contractType || '',
@@ -51,7 +61,42 @@ function formatPropertiesForCatalog(properties: Property[]): ICatalogData[] {
       station: {},
       images: property.images || [],
       floor_plans: property.floor_plans || [],
-      site_plans: property.site_plans|| [],
+      site_plans: property.site_plans || [],
+      full_name: property?.agent?.[0]?.full_name || '',
+      phone_number: property?.agent?.[0]?.phone_number || '',
+      email: property?.agent?.[0]?.email || '',
+      website: property?.developer?.[0]?.website || '',
+      land_size: building_asset?.land_size || '',
+      // building_description: building_asset?.description || '',
+      // building_images:
+      //   property.building_property?.map((b) => b.images).flat() || [],
+      // id_item: building_asset?.id || '',
+      building_property: property.building_property?.map(bp => ({
+        id: bp.id,
+        name: bp.name,
+        description: bp.description,
+        images: bp.images || [],
+        land_size: bp.land_size,
+        total_units: bp.total_units,
+        building_size: bp.building_size,
+        price_unit: bp.price_unit || '',    
+        price: bp.price_start_from || 0,              
+        status: bp.status,
+        specifications: bp.specifications,
+        floor_plans: bp.floor_plans || [],
+        building_images: bp.images || [],
+        building_floor_plans: bp.floor_plans || [],
+
+      })) || [],
+      // item_list: property.building_property?.map(bl => ({
+      //   id_item: bl.id,
+      //   name: bl.name,
+      //   price: bl.price?.toString() || '0',
+      //   visibility: bl.status === 'AVAILABLE',
+      //   address: bl.address || '',
+      //   building_description: bl.description || '',
+      //   building_images: bl.images || [],
+      // })) || [],
     };
   });
 }
@@ -69,6 +114,7 @@ const usePropertiesFetching = () => {
     })
       .then((response) => response.json())
       .then((properties: Property[]) => {
+        // console.log('Raw API response:', properties);
         const formattedData = formatPropertiesForCatalog(properties);
         setData(formattedData);
       })

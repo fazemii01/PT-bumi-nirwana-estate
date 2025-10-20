@@ -37,7 +37,7 @@ import {
 	formatTranslation,
 } from '@utils/formatters';
 
-import type { ICatalogData } from '@t-types/data';
+import type { ICatalogData, ICatalogListItemProps } from '@t-types/data';
 
 import s from './CatalogPage.module.scss';
 import Page404 from "@modules/pages/page404/components/Page404";
@@ -97,7 +97,7 @@ const CatalogPage: FC = () => {
 		village,
 		street,
 		postal_code,
-
+		
 		description,
 		detail_description,
 		id,

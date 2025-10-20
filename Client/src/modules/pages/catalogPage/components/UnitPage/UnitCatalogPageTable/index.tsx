@@ -10,7 +10,8 @@ import {
 	formatTableAfterPrefix,
 	formatTableFullPrice,
 	formatToPrefixOnly,
-} from '../../utils/formatters';
+} from '@modules/pages/catalogPage/utils/formatters';
+
 import s from './CatalogPageTable.module.scss';
 
 

@@ -1,0 +1,379 @@
+$primary-color: #00bcd4;
+$text-dark: #1a1a1a;
+$text-light: #666;
+$border-color: #e0e0e0;
+$star-color: #ffa726;
+$bg-light: #f5f5f5;
+
+// .container {
+  
+//   background-color: $bg-light;
+//   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+//   display: block;
+//   width: calc(100% + 40px);
+//   height: 459px;
+//   margin-left: -20px;
+//   border: none;
+//   margin-top: 24px;
+
+//   @include media-tablet {
+//     width: calc(100% + 32px);
+//     margin-left: -16px;
+//     height: 200px;
+//   }
+
+//   &--empty {
+//     border-radius: 18px;
+//     height: 600px;
+//     overflow: hidden;
+//   }
+
+//   &:not(&--empty) {
+//     height: 850px;
+
+//     @include media-laptop {
+//       height: auto;
+//     }
+//   }
+// }
+
+.container {
+  border-radius: 18px;
+  border: 1px solid var(--nude);
+  box-shadow: 0 14px 32px 0 rgba(214, 214, 214, 0.36);
+  padding-top: 40px;
+  padding-left: 20px;
+  padding-right: 20px;
+  margin-bottom: 48px;
+  overflow: hidden;
+
+  @include media-tablet {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  &:not(&.address) {
+    padding-bottom: 40px;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  background-color: white;
+  border-bottom: 1px solid $border-color;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+
+  @media (max-width: 768px) {
+    padding: 0.75rem 1rem;
+  }
+}
+
+.menuBtn,
+.gridBtn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  color: $text-dark;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.7;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 1.25rem;
+    padding: 0.25rem;
+  }
+}
+
+.filters {
+  display: flex;
+  gap: 1rem;
+  margin-left: auto;
+
+  @media (max-width: 768px) {
+    gap: 0.5rem;
+  }
+}
+
+.filterBtn {
+  background: none;
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: $text-dark;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  transition: color 0.2s;
+
+  &:hover {
+    color: $primary-color;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.35rem;
+  }
+}
+
+.listingContainer {
+  padding: 2rem 1.5rem;
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
+}
+.page-layout {
+  display: flex;
+  justify-content: center; 
+  padding: 2rem; 
+}
+.card {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.3s;
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  }
+
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+    border-radius: 12px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 1rem;
+  }
+}
+
+.cardContent {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+
+  @media (max-width: 968px) {
+    flex-direction: column;
+  }
+}
+
+.info {
+  flex: 1;
+}
+
+.district {
+  display: inline-block;
+  color: $primary-color;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+
+  @media (max-width: 480px) {
+    font-size: 0.8rem;
+  }
+}
+
+.name {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: $text-dark;
+  margin: 0.5rem 0;
+
+  @media (max-width: 768px) {
+    font-size: 1.25rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1.1rem;
+  }
+}
+
+.description {
+  color: $text-light;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  margin: 0.75rem 0 1.25rem;
+
+  @media (max-width: 480px) {
+    font-size: 0.875rem;
+  }
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+
+  @media (max-width: 480px) {
+    gap: 0.5rem;
+  }
+}
+
+.stars {
+  display: flex;
+  gap: 2px;
+  font-size: 1.25rem;
+
+  @media (max-width: 480px) {
+    font-size: 1.1rem;
+  }
+}
+
+.starFilled {
+  color: $star-color;
+}
+
+.starEmpty {
+  color: #ddd;
+}
+
+.ratingNumber {
+  font-weight: 700;
+  font-size: 1rem;
+  color: $text-dark;
+
+  @media (max-width: 480px) {
+    font-size: 0.9rem;
+  }
+}
+
+.reviewCount {
+  color: $text-light;
+  font-size: 0.9375rem;
+
+  @media (max-width: 480px) {
+    font-size: 0.875rem;
+  }
+}
+
+.features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+
+  @media (max-width: 768px) {
+    gap: 1rem;
+  }
+
+  @media (max-width: 480px) {
+    gap: 0.75rem;
+  }
+}
+
+.feature {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: $text-light;
+
+  @media (max-width: 480px) {
+    font-size: 0.8rem;
+  }
+}
+
+.icon {
+  font-size: 1rem;
+  color: $text-light;
+
+  @media (max-width: 480px) {
+    font-size: 0.9rem;
+  }
+}
+
+.price {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: $text-dark;
+
+  @media (max-width: 768px) {
+    font-size: 1.25rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1.1rem;
+  }
+}
+
+.currency {
+  font-size: 1rem;
+  font-weight: 500;
+  color: $text-light;
+
+  @media (max-width: 480px) {
+    font-size: 0.9rem;
+  }
+}
+
+.imageSection {
+  position: relative;
+  flex-shrink: 0;
+
+  @media (max-width: 968px) {
+    width: 100%;
+  }
+}
+
+.favoriteBtn {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s;
+  z-index: 10;
+
+  &:hover {
+    transform: scale(1.1);
+    color: #ff4081;
+  }
+
+  @media (max-width: 480px) {
+    width: 35px;
+    height: 35px;
+    font-size: 1.25rem;
+  }
+}
+
+.image {
+  width: 280px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 12px;
+
+  @media (max-width: 968px) {
+    width: 100%;
+    height: 240px;
+  }
+
+  @media (max-width: 480px) {
+    height: 200px;
+  }
+}

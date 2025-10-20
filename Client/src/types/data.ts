@@ -3,7 +3,7 @@ interface ICatalogStaticData {
 	contractType: string;
 	propertyType: string;
 	// realEstateType: string;
-	price: string;
+	
 	
 }
 
@@ -17,12 +17,34 @@ export interface IImage {
 	caption: string;
 	sort_order: number;
 }
+export interface IBuildingProperty {
+  id: string;
+  name: string;
+  description: string;
+  images: IImage[];
+  land_size: string;
+  total_units: number;
+  building_size	: string;
+  price_unit: string;
+  price: number;
+  status: string;
+  specifications: { [key: string]: null | string | number };
+}
 
 export interface IFloorPlan {
 	id: string;
 	name: string;
 	file_url: string;
 	sort_order: number;
+}
+
+export interface ICatalogListItemProps {
+  id_item: string;
+  building_description?: string;
+  building_images?: IImage[];
+  name?: string;
+  price: string;
+  address: string;
 }
 
 export interface ICatalogData extends ICatalogStaticData {
@@ -51,6 +73,9 @@ export interface ICatalogData extends ICatalogStaticData {
 	full_name: string;
 	phone_number: string;
 	email: string;
+	price: string;	
+	building_property: IBuildingProperty[];
+	// item_list: ICatalogListItemProps[];
 }
 
 export interface ITransVersion {

@@ -3,5 +3,5 @@ export { default as useDataFetching } from './useDataFetching';
 export { default as usePropertyPhoto } from './usePropertyPhoto';
 export { default as useCatalogItemFullAddress } from './useCatalogItemFullAddress';
 export { default as useCurrencyFetching } from './useCurrencyFetching';
-export { default as useDataFetchingBuilding } from './useDataFetchingBuilding';
+
 

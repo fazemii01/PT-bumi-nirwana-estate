@@ -47,4 +47,5 @@ export interface IBuildingProperty {
   updated_at: string;
   address: string; 
   location: Location; 
+  
 }

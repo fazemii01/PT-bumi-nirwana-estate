@@ -10,6 +10,7 @@ export interface Location {
   coordinates: [number, number];
 }
 
+
 export interface Property {
   id: string;
   name: string;
@@ -52,8 +53,50 @@ export interface Property {
     file_url: string;
     sort_order: number;
   }[];
-  developer: { name: string } | null;
-  agent: { name: string } | null;
+  developer: { 
+    full_name: string;
+    phone_number: string;
+    email: string;
+    id : string;
+    website: string;
+   }[];
+  agent: {  
+    full_name: string;
+    phone_number: string;
+    email: string;
+    id : string;
+  }[];
+  building_property: {
+    id : string;
+    name: string;
+    total_units: number;
+    status: PropertyStatus;
+    price_start_from: number;
+    land_size: string;
+    building_size: string;
+    description: string;
+    price_unit: string;
+    images: {
+      id: string;
+      image_url: string;
+      caption: string;
+      sort_order: number;
+    }[];
+    specifications: {
+      bedrooms: number;
+      bathrooms: number;
+      family_room: number;
+      kitchen: number;
+      garage: number;
+      [key: string]: any;
+    }
+    floor_plans: {
+      id: string;
+      image_url: string;
+      caption: string;
+      sort_order: number;
+    }
+  } [];
   status_delete: number;
   deleted_at: Date | null;
   created_at: string;

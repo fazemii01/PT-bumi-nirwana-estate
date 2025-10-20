@@ -17,7 +17,7 @@ import {
 	useCurrencyFetching,
 	// usePropertyPhoto,
 } from '@hooks/index';
-import { BACKEND_LOCALHOST, CATALOG_NAME } from '@utils/const';
+import { BACKEND_LOCALHOST, CATALOG_NAME, BACKEND_IMG } from '@utils/const';
 import {
 	formatCatalogTranslation,
 	formatCityTranslation,
@@ -74,7 +74,7 @@ const CatalogCard: FC<{
 	// const itemTotalArea = Number(table.totalArea).toFixed();
 
 	const totalRooms = Number(table.bedrooms) + Number(table.bathrooms);
-	
+	// console.log(`${name}:`, { bedrooms: table.bedrooms, bathrooms: table.bathrooms });
 	return (
 		<li className={cn('yellow-shadow', s.container)}>
 			<Link className={s.inner} href={`/${CATALOG_NAME}/${id}`}>
@@ -83,7 +83,8 @@ const CatalogCard: FC<{
 						className={s.image}
 						width={400}
 						height={300}
-						src={`${BACKEND_LOCALHOST}/uploads/property/property_images/${mainImage.image_url}`}
+						// src={`${BACKEND_IMG}/storage/v1/object/public/building_images/${mainImage.image_url}`}
+						src={mainImage.image_url}
 						alt={mainImage.caption || `Image of ${name}`}
 					/>
 
@@ -111,7 +112,7 @@ const CatalogCard: FC<{
 						</li> */}
 						{/* {description && <p>{description[i18n.language]}</p>} */}
 
-						
+
 						{land_size && (
 							<li title={tCatalog('TABLE.TOTALAREA')}>
 								<IconRuler />
@@ -124,6 +125,15 @@ const CatalogCard: FC<{
 								{totalRooms}
 							</li>
 						)}
+
+						{/* <li title={tCatalog('TABLE.TOTALAREA')}>
+							<IconRuler />
+							{land_size + ' ' + UNITS[i18n.language].squareMeters}
+						</li>
+						<li title={tCatalog('TABLE.RUANGAN')}>
+							<IconFloorPlan />
+							{totalRooms}
+						</li> */}
 					</ul>
 				</div>
 			</Link>
