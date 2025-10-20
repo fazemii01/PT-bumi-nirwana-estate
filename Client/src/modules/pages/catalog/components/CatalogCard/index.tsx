@@ -83,7 +83,7 @@ const CatalogCard: FC<{
 						className={s.image}
 						width={400}
 						height={300}
-						src={`${BACKEND_LOCALHOST}/uploads/property/property_images/${mainImage.image_url}`}
+						src={`${BACKEND_LOCALHOST}/storage/v1/object/public/building_images/${mainImage.image_url}`}
 						alt={mainImage.caption || `Image of ${name}`}
 					/>
 
@@ -111,7 +111,7 @@ const CatalogCard: FC<{
 						</li> */}
 						{/* {description && <p>{description[i18n.language]}</p>} */}
 
-						
+
 						{land_size && (
 							<li title={tCatalog('TABLE.TOTALAREA')}>
 								<IconRuler />

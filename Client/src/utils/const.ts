@@ -12,3 +12,7 @@ export const UNIT = 'detail-unit';
 export const BACKEND_LOCALHOST = IS_PRODUCTION
 	? PRODUCTION_LINK
 	: 'https://nest-deploy-lemon.vercel.app';
+
+export const BACKEND_IMG = IS_PRODUCTION
+	? PRODUCTION_LINK
+	: 'https://nxinvaoznovhawvbchxx.supabase.co/';

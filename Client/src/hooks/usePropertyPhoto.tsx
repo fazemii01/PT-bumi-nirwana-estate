@@ -1,5 +1,5 @@
 import {useMemo} from 'react';
-import {BACKEND_LOCALHOST} from '@utils/const';
+import {BACKEND_IMG, BACKEND_LOCALHOST} from '@utils/const';
 
 interface PropertyImage {
     id: string;
@@ -22,8 +22,8 @@ interface IGalleryList {
 }
 
 const usePropertyPhoto = (images: PropertyImage[] = [], sitePlans: SitePlan[] = []): IGalleryList[] => {
-    const getImagePath = (fileName: string) => `${BACKEND_LOCALHOST}/uploads/property/property_images/${fileName}`;
-    const getFloorPlanPath = (fileName: string) => `${BACKEND_LOCALHOST}/uploads/property/property_site_plans/${fileName}`;
+    const getImagePath = (fileName: string) => `${BACKEND_IMG}/storage/v1/object/public/property_images/${fileName}`;
+    const getFloorPlanPath = (fileName: string) => `${BACKEND_IMG}/storage/v1/object/public/property_site_plans/${fileName}`;
 
     const fileList = useMemo(() => {
         const allFiles = [
