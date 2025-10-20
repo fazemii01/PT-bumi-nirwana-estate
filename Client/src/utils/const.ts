@@ -4,6 +4,7 @@ export const LAPTOP_BREAKPOINT = 1420;
 export const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 export const USD_SYMBOL = '$';
 export const PRODUCTION_LINK = 'https://nest-deploy-lemon.vercel.app';
+export const BACKEND_IMG = 'https://nxinvaoznovhawvbchxx.supabase.co';
 export const CATALOG_NAME = 'catalog';
 export const UNIT = 'detail-unit';
 
@@ -12,7 +13,3 @@ export const UNIT = 'detail-unit';
 export const BACKEND_LOCALHOST = IS_PRODUCTION
 	? PRODUCTION_LINK
 	: 'https://nest-deploy-lemon.vercel.app';
-
-export const BACKEND_IMG = IS_PRODUCTION
-	? PRODUCTION_LINK
-	: 'https://nxinvaoznovhawvbchxx.supabase.co/';
