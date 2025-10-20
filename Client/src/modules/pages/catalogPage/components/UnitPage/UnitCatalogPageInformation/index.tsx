@@ -68,7 +68,7 @@ const CatalogPageInformation: FC<{
 		const { t } = useTranslation('catalog');
 		const isLaptop = useMediaQuery(LAPTOP_BREAKPOINT);
 		// const isVideoBlock = postersList.some(item => item.video);
-		console.log('Data received for Available Units:', building_property);
+
 		return (
 			<>
 				<article className={cn(s.container, s.info)}>
@@ -111,12 +111,12 @@ const CatalogPageInformation: FC<{
 
 					<div className={s.unitsListContainer}>
 						{building_property && building_property.map((building) => (
-							<Link 
+							<Link
 							key={building.id}
-							className={s.inner} 
+							className={s.inner}
 							href={`/${UNIT}/${building.id}`}>
 								<CatalogListItem
-									
+
 									id_item={building.id}
 									building_description={building.description}
 									building_images={building.images}

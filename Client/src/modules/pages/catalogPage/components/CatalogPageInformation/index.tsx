@@ -68,7 +68,7 @@ const CatalogPageInformation: FC<{
 		const { t } = useTranslation('catalog');
 		const isLaptop = useMediaQuery(LAPTOP_BREAKPOINT);
 		// const isVideoBlock = postersList.some(item => item.video);
-		console.log('Data received for Available Units:', building_property);
+		// console.log('Data received for Available Units:', building_property);
 		return (
 			<>
 				<article className={cn(s.container, s.info)}>

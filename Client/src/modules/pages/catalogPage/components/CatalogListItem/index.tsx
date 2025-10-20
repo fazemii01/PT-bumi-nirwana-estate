@@ -31,8 +31,8 @@ const CatalogListItem: FC<ICatalogListItemProps> = ({
   };
 
   const mainImage = building_images?.find((image) => image.sort_order === 0) || null;
-  console.log("Main image:", mainImage);
-  console.log("Full path:", `${BACKEND_LOCALHOST}/uploads/building_property/building_images/${mainImage?.image_url}`);
+  // console.log("Main image:", mainImage);
+  // console.log("Full path:", `${BACKEND_LOCALHOST}/uploads/building_property/building_images/${mainImage?.image_url}`);
 
   return (
     // <div className={styles.container}>
@@ -47,7 +47,7 @@ const CatalogListItem: FC<ICatalogListItemProps> = ({
       // </header> */}
 
       // {/* <div className={styles.listingContainer}> */}
-      
+
         <div key={id_item} className={styles.card}>
           <div className={styles.cardContent}>
             <div className={styles.info}>
@@ -103,7 +103,8 @@ const CatalogListItem: FC<ICatalogListItemProps> = ({
               {mainImage ? (
                 <img
                   className={styles.image}
-                  src={`${BACKEND_LOCALHOST}/uploads/building_property/building_images/${mainImage.image_url}`}
+                  // src={`${BACKEND_LOCALHOST}/uploads/building_property/building_images/${mainImage.image_url}`}
+                  src={mainImage.image_url}
                   alt={mainImage.caption || name}
                 />
               ) : (
@@ -113,7 +114,7 @@ const CatalogListItem: FC<ICatalogListItemProps> = ({
           </div>
         </div>
 
-      
+
   );
 };
 export default CatalogListItem;

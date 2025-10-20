@@ -22,8 +22,8 @@ interface IGalleryList {
 }
 
 const usePropertyPhoto = (images: PropertyImage[] = [], sitePlans: SitePlan[] = []): IGalleryList[] => {
-    const getImagePath = (fileName: string) => `${BACKEND_IMG}/storage/v1/object/public/property_images/${fileName}`;
-    const getFloorPlanPath = (fileName: string) => `${BACKEND_IMG}/storage/v1/object/public/property_site_plans/${fileName}`;
+    // const getImagePath = (fileName: string) => `${BACKEND_IMG}/storage/v1/object/public/property_images/${fileName}`;
+    // const getFloorPlanPath = (fileName: string) => `${BACKEND_IMG}/storage/v1/object/public/property_site_plans/${fileName}`;
 
     const fileList = useMemo(() => {
         const allFiles = [
@@ -38,7 +38,9 @@ const usePropertyPhoto = (images: PropertyImage[] = [], sitePlans: SitePlan[] = 
             const isImage = file.type === 'image';
             const fileName = isImage ? (file as PropertyImage).image_url : (file as SitePlan).file_url;
             const isVideo = videoRegExp.test(fileName);
-            const filePath = isImage ? getImagePath(fileName) : getFloorPlanPath(fileName);
+            const filePath = isImage
+                ? (file as PropertyImage).image_url
+                : (file as SitePlan).file_url;
 
             return {
                 original: filePath,

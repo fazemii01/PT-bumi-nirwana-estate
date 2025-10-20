@@ -114,7 +114,7 @@ const usePropertiesFetching = () => {
     })
       .then((response) => response.json())
       .then((properties: Property[]) => {
-        console.log('Raw API response:', properties);
+        // console.log('Raw API response:', properties);
         const formattedData = formatPropertiesForCatalog(properties);
         setData(formattedData);
       })

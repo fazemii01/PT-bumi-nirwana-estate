@@ -17,7 +17,7 @@ import {
 	useCurrencyFetching,
 	// usePropertyPhoto,
 } from '@hooks/index';
-import { BACKEND_LOCALHOST, CATALOG_NAME } from '@utils/const';
+import { BACKEND_LOCALHOST, CATALOG_NAME, BACKEND_IMG } from '@utils/const';
 import {
 	formatCatalogTranslation,
 	formatCityTranslation,
@@ -83,7 +83,8 @@ const CatalogCard: FC<{
 						className={s.image}
 						width={400}
 						height={300}
-						src={`${BACKEND_LOCALHOST}/storage/v1/object/public/building_images/${mainImage.image_url}`}
+						// src={`${BACKEND_IMG}/storage/v1/object/public/building_images/${mainImage.image_url}`}
+						src={mainImage.image_url}
 						alt={mainImage.caption || `Image of ${name}`}
 					/>
 

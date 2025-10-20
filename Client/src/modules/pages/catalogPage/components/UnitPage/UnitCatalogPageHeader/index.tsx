@@ -50,7 +50,7 @@ const CatalogPageHeader: FC<{
 						images
 							.sort((a, b) => a.sort_order - b.sort_order)
 							.map((image) => {
-								console.log("Image data:", image);
+								// console.log("Image data:", image);
 								return (
 									image.caption && (
 										<li key={image.id}>
