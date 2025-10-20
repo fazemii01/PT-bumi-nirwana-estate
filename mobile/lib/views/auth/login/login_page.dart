@@ -13,6 +13,14 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final LoginController _loginController = Get.put(LoginController());
 
+  void _handleBackButton() {
+    if (Navigator.canPop(context)) {
+      Get.back();
+    } else {
+      Get.offAllNamed(Routes.LAYOUT);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,7 +32,7 @@ class _LoginPageState extends State<LoginPage> {
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios, color: Color(0xFF1A1A1A)),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: _handleBackButton,
         ),
       ),
       body: SafeArea(

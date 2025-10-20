@@ -461,8 +461,7 @@ class _PropertyDetailPageState extends State<PropertyDetailPage> {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(16.0),
                           child: Image.network(
-                            Imgurl.get(
-                                'building_property/building_images/${_getPropertyImage(building)}'),
+                            _getPropertyImage(building),
                             height: 140,
                             width: double.infinity,
                             fit: BoxFit.cover,
