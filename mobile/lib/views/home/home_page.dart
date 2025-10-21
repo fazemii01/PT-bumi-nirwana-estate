@@ -556,8 +556,7 @@ class _HomePageState extends State<HomePage> {
               ClipRRect(
                 borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
                 child: Image.network(
-                  Imgurl.get(
-                      'property/property_images/${_getPropertyImage(property)}'),
+                  _getPropertyImage(property),
                   width: double.infinity,
                   height: 140,
                   fit: BoxFit.cover,
