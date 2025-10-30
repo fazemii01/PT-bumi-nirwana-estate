@@ -28,6 +28,7 @@ function formatPropertiesForCatalog(properties: Property[]): ICatalogData[] {
       ? JSON.parse(firstUnit.specifications)
       : firstUnit?.specifications || {};
     // console.log('Parsed Specifications for ' + property.name + ':', unitSpecifications);
+    // dongeo
     return {
       id: property.id,
       name: property.name,
