@@ -26,6 +26,7 @@ import {
 import type { ICatalogData } from '@t-types/data';
 
 import s from './CatalogCard.module.scss';
+import { parse } from 'path';
 
 const CatalogCard: FC<{
 	props: ICatalogData;
@@ -116,7 +117,7 @@ const CatalogCard: FC<{
 						{land_size && (
 							<li title={tCatalog('TABLE.TOTALAREA')}>
 								<IconRuler />
-								{land_size + ' ' + UNITS[i18n.language].squareMeters}
+								{parseFloat(land_size) + ' ' + UNITS[i18n.language].squareMeters}
 							</li>
 						)}
 						{totalRooms > 0 && (

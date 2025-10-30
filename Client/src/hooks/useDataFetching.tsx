@@ -47,7 +47,7 @@ function formatPropertiesForCatalog(properties: Property[]): ICatalogData[] {
       jenis: { en: property.jenis || '', id: property.jenis || '' },
       luas: property.luas,
       type: property.type,
-      // land_size: property.land_size,
+      
       detail_description: property.detail_description,
       status: property.status,
       contractType: specifications.contractType || '',
@@ -76,7 +76,7 @@ function formatPropertiesForCatalog(properties: Property[]): ICatalogData[] {
         name: bp.name,
         description: bp.description,
         images: bp.images || [],
-        land_size: bp.land_size,
+        // land_size: bp.land_size,
         total_units: bp.total_units,
         building_size: bp.building_size,
         price_unit: bp.price_unit || '',    

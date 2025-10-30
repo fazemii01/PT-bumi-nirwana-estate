@@ -215,12 +215,12 @@ const CatalogPage: FC = () => {
 				<aside>
 					<div className={s.feedback}>
 						<h5 className={s.feedbackTitle}>
-							{tCatalog('FEEDBACK.DO_YOU_LIKE_THIS_PROPERTY')}
+							{tCatalog('TITLE_MARGO')}
 						</h5>
 						<p className={s.feedbackDescription}>
-							{tCatalog('FEEDBACK.IF_YOU_LIKE_THIS_PROPERTY')}
+							{tCatalog('MARGOJOYO')}
 						</p>
-						<FeedbackForm isColumnType message={itemLocationAndAddress} />
+						{/* <FeedbackForm isColumnType message={itemLocationAndAddress} /> */}
 					</div>
 				</aside>
 			</section>

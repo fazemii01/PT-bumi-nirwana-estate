@@ -22,7 +22,7 @@ export interface IBuildingProperty {
   name: string;
   description: string;
   images: IImage[];
-  land_size: string;
+//   land_size: string;
   total_units: number;
   building_size	: string;
   price_unit: string;

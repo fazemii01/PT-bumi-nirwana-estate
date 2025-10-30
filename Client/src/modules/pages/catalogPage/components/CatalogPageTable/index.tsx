@@ -53,7 +53,7 @@ const CatalogPageTable: FC<{
 
 				<tr>
 					<td>{tCatalog('LUAS')}</td>
-					<td>{luas + ' ' + UNITS[i18n.language].squareMeters}</td>
+					<td>{parseFloat(luas) + UNITS[i18n.language].squareMeters}</td>
 				</tr>
 
 				<tr>

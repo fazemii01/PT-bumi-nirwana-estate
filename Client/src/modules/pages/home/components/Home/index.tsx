@@ -29,7 +29,7 @@ const Home = () => {
 			<HomeObjectsInManagement />
 			<HomePartners />
 			{/* <Map /> */}
-			<HomeReviews />
+			{/* <HomeReviews /> */}
 			<Feedback type="owner" />
 			<Chatbot />
 		</>

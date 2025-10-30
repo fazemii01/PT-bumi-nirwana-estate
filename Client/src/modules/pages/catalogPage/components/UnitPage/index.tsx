@@ -1,189 +1,232 @@
-// pages/catalog/detail-unit/[unitId].tsx
-
 import { FC, useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
 import { useTranslation } from 'react-i18next';
-import cn from 'classnames';
-
-
-import ImageGallery from 'react-image-gallery';
-import 'react-image-gallery/styles/css/image-gallery.css';
-import ReactMarkdown from 'react-markdown';
-
-
-import { useDataFetching, useMediaQuery } from '@hooks/index';
-import { BACKEND_LOCALHOST, LAPTOP_BREAKPOINT, TABLET_BREAKPOINT } from '@utils/const';
-import { UNITS } from '@modules/pages/catalogPage/utils/units';
-
+import { useRouter } from 'next/router';
 
 import Loader from '@modules/common/components/Loader';
-import Page404 from '@modules/pages/page404/components/Page404';
-import CatalogPageMap from '@modules/pages/catalogPage/components/CatalogPageMap';
-import IconSliderButton from '@icons/components/IconSliderButton';
-import IconMap from '@icons/components/IconMap';
+import Meta from '@modules/common/components/Meta';
+import FeedbackForm from '@modules/feedback/components/FeedbackForm';
+import CatalogPageCarousel
+	from '@modules/pages/catalogPage/components/CatalogPageCarousel';
+import CatalogPageCrumbs
+	from '@modules/pages/catalogPage/components/CatalogPageCrumbs';
+import CatalogPageHeader
+	from '@modules/pages/catalogPage/components/CatalogPageHeader';
+import CatalogPageInformation
+	from '@modules/pages/catalogPage/components/CatalogPageInformation';
+import CatalogPageNotice
+	from '@modules/pages/catalogPage/components/CatalogPageNotice';
+import CatalogPageTable
+	from '@modules/pages/catalogPage/components/CatalogPageTable';
+import CatalogListItem
+	from '@modules/pages/catalogPage/components/CatalogListItem';
+
+import {
+	formatMetaForCatalogPage
+} from '@modules/pages/catalogPage/utils/formatters';
+
+import {
+	useCatalogItemFullAddress,
+	useDataFetching,
+
+	useMediaQuery,
+} from '@hooks/index';
+import { CATALOG_NAME, LAPTOP_BREAKPOINT } from '@utils/const';
+import {
+	formatCatalogTranslation,
+	formatCityTranslation,
+	formatTranslation,
+} from '@utils/formatters';
+
+import type { ICatalogData } from '@t-types/data';
+
+import s from './CatalogPage.module.scss';
+import Page404 from "@modules/pages/page404/components/Page404";
+
+const CatalogPage: FC = () => {
+	// const router = useRouter();
+	// const {catalog} = router.query;
+	// const {data, loading, initialData} = useDataFetching();
+	// const {i18n, t: tCommon} = useTranslation('common');
+	// const {t: tCatalog} = useTranslation('catalog');
+	// const isLaptop = useMediaQuery(LAPTOP_BREAKPOINT);
+	// const currentPageId = catalog;
+	// const [pageData, setPageData] = useState<ICatalogData>(initialData);
+
+	const router = useRouter();
+	const { catalog: currentPageId } = router.query;
+	const { data, loading } = useDataFetching();
+	const { i18n, t: tCommon } = useTranslation('common');
+	const { t: tCatalog } = useTranslation('catalog');
+	const isLaptop = useMediaQuery(LAPTOP_BREAKPOINT);
+	const [pageData, setPageData] = useState<ICatalogData | null>(null);
+
+	// const itemLocationAndAddress = useCatalogItemFullAddress(
+	//     pageData?.realEstateType,
+	//     pageData?.location,
+	//     pageData?.address,
+	// );
+	const itemLocationAndAddress = useCatalogItemFullAddress(
+		pageData?.realEstateType ?? '',
+		pageData?.location ?? {},
+		pageData?.address ?? {},
+		pageData?.city ?? '',
+		pageData?.street ?? '',
+		pageData?.province ?? '',
+		pageData?.village ?? '',
+		pageData?.postal_code ?? '',
+
+	);
+
+	useEffect(() => {
+		if (!router.isReady || loading) return;
+		const foundItem = data.find((value: ICatalogData) => value.id === currentPageId);
+		setPageData(foundItem || null);
+
+	}, [data, currentPageId, router.isReady, loading]);
+
+	if (loading) {
+		return <Loader type="fullscreen" />;
+	}
+	if (!pageData) {
+		return <Page404 />
+	}
+	const {
+		address,
+		city,
+		province,
+		village,
+		street,
+		postal_code,
+
+		description,
+		detail_description,
+		id,
+		price,
+		propertyType,
+		realEstateType,
+		station,
+		table,
+		location,
+		contractType,
+		images,
+		floor_plans,
+		site_plans,
+		luas,
+		jenis,
+		status,
+		land_size,
+		type
+	} = pageData;
 
 
-import type { ICatalogData, ICatalogTable, IBuildingProperty } from '@t-types/data';
+	// useEffect(() => {
+	// 	if (!router.isReady) return;
+	// 	data.map((value: ICatalogData) => {
+	// 		if (value.id === currentPageId) {
+	// 			setPageData(value);
+	// 		}
+	// 	});
 
+	// 	// eslint-disable-next-line
+	// }, [data, router.query.catalog, router.isReady]);
 
-import s from './UnitPage.module.scss';
+	const realEstateTranslation = tCommon(
+		formatCatalogTranslation(realEstateType),
+	);
 
+	const itemTags = [propertyType, realEstateType];
+	const itemD = [city, street, province, village, postal_code]
+    .filter(Boolean) 
+    .join(', ');     
+	const itemAddress = formatTranslation(i18n.language, address);
+	const itemStation = formatTranslation(i18n.language, station);
+	const itemLocation = formatTranslation(i18n.language, location);
+	const itemDescription = detail_description;
+	const itemJenis = formatTranslation(i18n.language, jenis);
+	const itemCity = tCommon(formatCityTranslation(city));
+	// const itemLuas = luas;
+	const itemOriginalFullAddress = `${city}, ${location.ua}, ${address.ua}`;
+	const itemCityWithLocationAndAddress = `${itemCity}, ${itemLocation}, ${itemAddress}`;
+	const itemRealEstateTypeAndAddress = `${realEstateTranslation} ${tCommon(
+		'ON',
+	)} ${itemAddress}`;
+	
 
-const UnitPage: FC = () => {
-    const router = useRouter();
-    const { t } = useTranslation(['common', 'catalog']);
-    
-    // 1. DATA FETCHING AND STATE MANAGEMENT
-    // =================================================================
-    const { catalog: catalogId, unitId } = router.query;
-    const { data: allProperties, loading } = useDataFetching();
-    
-    const [propertyData, setPropertyData] = useState<ICatalogData | null>(null);
-    const [unitData, setUnitData] = useState<IBuildingProperty | null>(null);
+	// const itemLocationAndAddress = useCatalogItemFullAddress(
+	// 	realEstateType,
+	// 	location,
+	// 	address,
+	// );
 
-    useEffect(() => {
-        if (loading || !router.isReady) return;
+	const pageMetaDescription = formatMetaForCatalogPage(
+		city,
+		address.ua as keyof typeof address,
+		realEstateType,
+	);
 
-        const foundProperty = allProperties.find(p => p.id === catalogId);
-        if (foundProperty) {
-            setPropertyData(foundProperty);
-            const foundUnit = foundProperty.building_property.find(u => u.id === unitId);
-            setUnitData(foundUnit || null);
-        } else {
-            setPropertyData(null);
-            setUnitData(null);
-        }
-    }, [loading, router.isReady, allProperties, catalogId, unitId]);
+	if (loading) {
+		return <Loader type="fullscreen" />;
+	}
 
-    // Media query for responsive design
-    const isTablet = useMediaQuery(TABLET_BREAKPOINT);
-    const isLaptop = useMediaQuery(LAPTOP_BREAKPOINT);
+	if (pageData.id === '0' || !pageData.id) {
+		return <Page404 />
+	}
 
-    
-    // 2. UI RENDERING LOGIC
-    // =================================================================
+	return (
+		<>
+			<Meta title={itemLocationAndAddress} desc={pageMetaDescription} />
 
-    if (loading || !router.isReady) {
-        return <Loader type="fullscreen" />;
-    }
+			<CatalogPageCrumbs address={itemRealEstateTypeAndAddress} />
+			<CatalogPageHeader
+				city={itemCity}
+				address={itemLocationAndAddress}
+				// price={price}
+				makau={itemD}
+				tags={itemTags}
+				images={images} 
+				province={''} 
+				village={''} 
+				postal_code={''} 
+				street={''} 
+				/>
+			<section className={s.container}>
+				<div>
+					{id && <CatalogPageCarousel images={images} sitePlans={site_plans} />}
+					
+					<CatalogPageInformation
+						contractType={contractType}
+						realEstateType={realEstateType}
+						id={id}
+						detail_description={itemDescription}
+						tableInfo={table || {}}
+						address={itemCityWithLocationAndAddress}
+						originalAddress={itemOriginalFullAddress}
+						station={itemStation}
+						price={price}
+						jenis={itemJenis}
+						luas={land_size}
+						status={status}
+						land_size={land_size}
+						type={type}
+						building_property={pageData.building_property || []}
+					/>
+				</div>
+				
+				<aside>
+					<div className={s.feedback}>
+						<h5 className={s.feedbackTitle}>
+							{tCatalog('TITLE_MARGO')}
+						</h5>
+						<p className={s.feedbackDescription}>
+							{tCatalog('MARGOJOYO')}
+						</p>
+						{/* <FeedbackForm isColumnType message={itemLocationAndAddress} /> */}
+					</div>
+				</aside>
+			</section>
 
-    if (!propertyData || !unitData) {
-        return <Page404 />;
-    }
-
-    // Prepare images for the gallery from the specific unit's data
-    const galleryImages = unitData.images.map(img => ({
-        original: `${BACKEND_LOCALHOST}/uploads/building_property/building_images/${img.image_url}`,
-        thumbnail: `${BACKEND_LOCALHOST}/uploads/building_property/building_images/${img.image_url}`,
-        originalAlt: img.caption || unitData.name,
-        thumbnailAlt: img.caption || unitData.name,
-    }));
-
-    // Combine address parts for display
-    const fullAddress = [
-        propertyData.street,
-        propertyData.village,
-        propertyData.city,
-        propertyData.province,
-        propertyData.postal_code,
-    ].filter(Boolean).join(', ');
-
-
-    return (
-        <div className={s.pageContainer}>
-            {/* ## Section 1: Header (from CatalogPageHeader) ## */}
-            <article className={s.header}>
-                <h1 className={s.headerTitle}>{unitData.name}</h1>
-                <p className={s.headerAddress}>
-                    <IconMap />
-                    {fullAddress}
-                </p>
-            </article>
-
-            <section className={s.mainContent}>
-                <div className={s.leftColumn}>
-                    {/* ## Section 2: Image Carousel (from CatalogPageCarousel) ## */}
-                    <article className={s.carouselContainer}>
-                        {galleryImages.length > 0 ? (
-                            <ImageGallery
-                                items={galleryImages}
-                                showNav={!isTablet}
-                                showThumbnails={!isTablet}
-                                showPlayButton={false}
-                                showBullets
-                                lazyLoad
-                                renderLeftNav={(onClick, disabled) => (
-                                    <button className={s.prevButton} onClick={onClick} disabled={disabled}>
-                                        <IconSliderButton />
-                                    </button>
-                                )}
-                                renderRightNav={(onClick, disabled) => (
-                                    <button className={s.nextButton} onClick={onClick} disabled={disabled}>
-                                        <IconSliderButton />
-                                    </button>
-                                )}
-                            />
-                        ) : (
-                            <div className={s.defaultPoster}>No Images Available</div>
-                        )}
-                    </article>
-                    
-                    {/* ## Section 3: Information & Description (from CatalogPageInformation) ## */}
-                    <article className={cn(s.infoCard, s.descriptionCard)}>
-                        <h4 className={s.infoTitle}>{t('catalog:DESCRIPTION')}</h4>
-                        <hr className={s.line} />
-                        <div className={s.descriptionContent}>
-                           {/* Assuming description supports Markdown for rich text formatting */}
-                           <ReactMarkdown>{unitData.description}</ReactMarkdown>
-                        </div>
-                    </article>
-
-                    {/* ## Section 4: Address and Map (from CatalogPageInformation) ## */}
-                     <article className={cn(s.infoCard, s.addressCard)}>
-                        <h4 className={s.infoTitle}>{t('catalog:ADDRESS')}</h4>
-                        <hr className={s.line} />
-                        <p>{fullAddress}</p>
-                        <CatalogPageMap fullAddress={fullAddress} />
-                    </article>
-                </div>
-
-                <aside className={s.rightColumn}>
-                    {/* ## Section 5: Specifications Table (from CatalogPageTable) ## */}
-                    <article className={s.infoCard}>
-                        <h4 className={s.infoTitle}>{t('catalog:INFORMATION')}</h4>
-                        <hr className={s.line} />
-                        <table className={s.specTable}>
-                            <tbody>
-                                <tr>
-                                    <td>{t('catalog:LAND_SIZE')}</td>
-                                    <td>{`${unitData.land_size} ${UNITS['en'].squareMeters}`}</td>
-                                </tr>
-                                <tr>
-                                    <td>{t('catalog:BUILDING_SIZE')}</td>
-                                    <td>{`${unitData.building_size} ${UNITS['en'].squareMeters}`}</td>
-                                </tr>
-                                {/* You can add more rows here for other unit-specific data if available */}
-                                {unitData.specifications?.bedrooms && (
-                                     <tr>
-                                        <td>{t('catalog:TABLE.BEDROOMS')}</td>
-                                        <td>{unitData.specifications.bedrooms}</td>
-                                    </tr>
-                                )}
-                                {unitData.specifications?.bathrooms && (
-                                     <tr>
-                                        <td>{t('catalog:TABLE.BATHROOMS')}</td>
-                                        <td>{unitData.specifications.bathrooms}</td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </article>
-
-                    {/* You can add a feedback/contact form here as well */}
-                </aside>
-            </section>
-        </div>
-    );
+			{isLaptop && <CatalogPageNotice />}
+		</>
+	);
 };
-
-export default UnitPage;
+export default CatalogPage;
