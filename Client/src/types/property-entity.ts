@@ -54,17 +54,20 @@ export interface Property {
     sort_order: number;
   }[];
   developer: { 
-    full_name: string;
+    name: string;
     phone_number: string;
     email: string;
     id : string;
-    website: string;
+    website_url: string;
+    logo_url: string;
    }[];
   agent: {  
     full_name: string;
     phone_number: string;
     email: string;
     id : string;
+    website: string;
+    avatar_url: string;
   }[];
   building_property: {
     id : string;

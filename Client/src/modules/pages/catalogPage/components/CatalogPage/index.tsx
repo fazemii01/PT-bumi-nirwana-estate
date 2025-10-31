@@ -19,7 +19,8 @@ import CatalogPageTable
 	from '@modules/pages/catalogPage/components/CatalogPageTable';
 import CatalogListItem
 	from '@modules/pages/catalogPage/components/CatalogListItem';
-
+import ProfileCard from
+	'@modules/pages/catalogPage/components/ProfileCard';
 import {
 	formatMetaForCatalogPage
 } from '@modules/pages/catalogPage/utils/formatters';
@@ -41,6 +42,7 @@ import type { ICatalogData } from '@t-types/data';
 
 import s from './CatalogPage.module.scss';
 import Page404 from "@modules/pages/page404/components/Page404";
+
 
 const CatalogPage: FC = () => {
 	// const router = useRouter();
@@ -97,7 +99,7 @@ const CatalogPage: FC = () => {
 		village,
 		street,
 		postal_code,
-
+		agent,
 		description,
 		detail_description,
 		id,
@@ -115,7 +117,8 @@ const CatalogPage: FC = () => {
 		jenis,
 		status,
 		land_size,
-		type
+		type,
+		full_name
 	} = pageData;
 
 
@@ -129,15 +132,15 @@ const CatalogPage: FC = () => {
 
 	// 	// eslint-disable-next-line
 	// }, [data, router.query.catalog, router.isReady]);
-
+	const primaryAgent = agent && agent.length > 0 ? agent[0] : null;
 	const realEstateTranslation = tCommon(
 		formatCatalogTranslation(realEstateType),
 	);
 
 	const itemTags = [propertyType, realEstateType];
 	const itemD = [city, street, province, village, postal_code]
-    .filter(Boolean) 
-    .join(', ');     
+		.filter(Boolean)
+		.join(', ');
 	const itemAddress = formatTranslation(i18n.language, address);
 	const itemStation = formatTranslation(i18n.language, station);
 	const itemLocation = formatTranslation(i18n.language, location);
@@ -150,8 +153,8 @@ const CatalogPage: FC = () => {
 	const itemRealEstateTypeAndAddress = `${realEstateTranslation} ${tCommon(
 		'ON',
 	)} ${itemAddress}`;
-	
 
+	{ console.log('Rendering agent:', pageData.agent) }
 	// const itemLocationAndAddress = useCatalogItemFullAddress(
 	// 	realEstateType,
 	// 	location,
@@ -171,6 +174,8 @@ const CatalogPage: FC = () => {
 	if (pageData.id === '0' || !pageData.id) {
 		return <Page404 />
 	}
+	{ console.log('AGENT TYPE:', typeof pageData.agent, Array.isArray(pageData.agent)) }
+	{ console.log('AGENT DATA:', pageData.agent) }
 
 	return (
 		<>
@@ -183,16 +188,16 @@ const CatalogPage: FC = () => {
 				// price={price}
 				makau={itemD}
 				tags={itemTags}
-				images={images} 
-				province={''} 
-				village={''} 
-				postal_code={''} 
-				street={''} 
-				/>
+				images={images}
+				province={''}
+				village={''}
+				postal_code={''}
+				street={''}
+			/>
 			<section className={s.container}>
 				<div>
 					{id && <CatalogPageCarousel images={images} sitePlans={site_plans} />}
-					
+
 					<CatalogPageInformation
 						contractType={contractType}
 						realEstateType={realEstateType}
@@ -209,11 +214,33 @@ const CatalogPage: FC = () => {
 						land_size={land_size}
 						type={type}
 						building_property={pageData.building_property || []}
+						agent={pageData.agent || []}
 					/>
 				</div>
-				
+
 				<aside>
 					<div className={s.feedback}>
+						
+						<h5 className={s.feedbackTitle}>
+							{tCatalog('TITLE_AGENT')}
+						</h5>
+						{pageData.agent && pageData.agent.length > 0 && (
+							<ProfileCard
+								id={pageData.agent[0].id}
+								full_name={pageData.agent[0].full_name}
+								phone_number={pageData.agent[0].phone_number}
+								email={pageData.agent[0].email}
+								website={pageData.agent[0].website}
+								avatar_url={pageData.agent[0].avatar_url}
+								name={pageData.developer[0]?.name || ''}
+								website_url={pageData.developer[0]?.website_url || ''}
+								logo_url={pageData.developer[0]?.logo_url || ''}
+							/>
+						)}
+
+
+						<br />
+
 						<h5 className={s.feedbackTitle}>
 							{tCatalog('TITLE_MARGO')}
 						</h5>

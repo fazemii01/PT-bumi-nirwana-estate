@@ -44,6 +44,14 @@ const CatalogPageInformation: FC<{
 		description: string;
 		images: { id: string; image_url: string; caption: string; sort_order: number }[];
 	}[];
+	agent : {
+		id: string;
+		full_name: string;
+		phone_number: string;
+		email: string;
+		website: string;
+		avatar_url: string;
+	}[];
 }> = ({
 	detail_description,
 	building_property,
@@ -99,11 +107,12 @@ const CatalogPageInformation: FC<{
 				<article className={cn(s.container)}>
 					<h4 className={s.title}>{t('DESCRIPTION')}</h4>
 					<hr className={s.line} />
-					{detail_description && <ul className={s.descriptionList}>
+					<ul className={s.descriptionList} style={{ listStyle: 'none', paddingLeft: 0 }}>
 						{detail_description.split("\n").map((line, index) => (
 							<li key={index}>{line.replace(/^- /, '')}</li>
 						))}
-					</ul>}
+					</ul>
+
 				</article>
 				<article className={cn('yellow-shadow', s.container)}>
 					<h4 className={s.title}>{t('STATUS2')}</h4>
@@ -111,12 +120,12 @@ const CatalogPageInformation: FC<{
 
 					<div className={s.unitsListContainer}>
 						{building_property && building_property.map((building) => (
-							<Link 
-							key={building.id}
-							className={s.inner} 
-							href={`/${CATALOG_NAME}/${id}/${UNIT}/${building.id}`}>
+							<Link
+								key={building.id}
+								className={s.inner}
+								href={`/${CATALOG_NAME}/${id}/${UNIT}/${building.id}`}>
 								<CatalogListItem
-									
+
 									id_item={building.id}
 									building_description={building.description}
 									building_images={building.images}

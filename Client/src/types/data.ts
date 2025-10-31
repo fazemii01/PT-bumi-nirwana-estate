@@ -22,13 +22,32 @@ export interface IBuildingProperty {
   name: string;
   description: string;
   images: IImage[];
+  land_size	: string;
 //   land_size: string;
   total_units: number;
   building_size	: string;
   price_unit: string;
   price: number;
   status: string;
+//   floor_plans: IFloorPlan[];
   specifications: { [key: string]: null | string | number };
+//   floor_plans: IFloorPlan[];
+}
+
+export interface IAgent {
+  id: string;
+  full_name: string;
+  phone_number: string;
+  email: string;
+  website: string;
+  avatar_url: string;
+}
+
+export interface IDeveloper {
+  id: string;
+  name: string;
+  website_url: string;
+  logo_url: string;
 }
 
 export interface IFloorPlan {
@@ -71,11 +90,10 @@ export interface ICatalogData extends ICatalogStaticData {
 	city: string;
 	site_plans: IFloorPlan[];
 	full_name: string;
-	phone_number: string;
-	email: string;
 	price: string;	
 	building_property: IBuildingProperty[];
-	// item_list: ICatalogListItemProps[];
+	agent: IAgent[];
+	developer: IDeveloper[];
 }
 
 export interface ITransVersion {
@@ -83,5 +101,8 @@ export interface ITransVersion {
 }
 
 export interface ICatalogTable {
+	[key: string]: null | string | number;
+}
+export interface ISpecifications {
 	[key: string]: null | string | number;
 }

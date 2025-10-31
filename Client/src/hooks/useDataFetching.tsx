@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { BACKEND_LOCALHOST } from '@utils/const';
 import type { Property } from '../types/property-entity';
-import type { ICatalogData, ITransVersion } from '../types/data';
+import type { ICatalogData, ITransVersion, IFloorPlan } from '../types/data';
 import { add } from 'cheerio/lib/api/traversing';
 
 
@@ -22,13 +22,21 @@ function formatPropertiesForCatalog(properties: Property[]): ICatalogData[] {
     const building_images =
       property.building_property?.map((b) => b.images).flat() || [];
     const firstUnit = property.building_property?.[0];
+
     const building_asset = property.building_property?.[0] || {};
     const building_assets = property.building_property || [];
     const unitSpecifications = firstUnit && typeof firstUnit.specifications === 'string'
       ? JSON.parse(firstUnit.specifications)
       : firstUnit?.specifications || {};
+      
+    const detailUnit = property.building_property?.[0];
+    const detailSpecifications = detailUnit && typeof detailUnit.specifications === 'string'
+      ? JSON.parse(detailUnit.specifications)
+      : firstUnit?.specifications || {};
+
     // console.log('Parsed Specifications for ' + property.name + ':', unitSpecifications);
     // dongeo
+
     return {
       id: property.id,
       name: property.name,
@@ -48,7 +56,7 @@ function formatPropertiesForCatalog(properties: Property[]): ICatalogData[] {
       jenis: { en: property.jenis || '', id: property.jenis || '' },
       luas: property.luas,
       type: property.type,
-      
+
       detail_description: property.detail_description,
       status: property.status,
       contractType: specifications.contractType || '',
@@ -60,35 +68,50 @@ function formatPropertiesForCatalog(properties: Property[]): ICatalogData[] {
       postal_code: address.postal_code || '',
       village: address.village || '',
       station: {},
+      full_name: property.agent?.[0]?.full_name || '',
       images: property.images || [],
       floor_plans: property.floor_plans || [],
       site_plans: property.site_plans || [],
-      full_name: property?.agent?.[0]?.full_name || '',
-      phone_number: property?.agent?.[0]?.phone_number || '',
-      email: property?.agent?.[0]?.email || '',
-      website: property?.developer?.[0]?.website || '',
       land_size: building_asset?.land_size || '',
-      // building_description: building_asset?.description || '',
-      // building_images:
-      //   property.building_property?.map((b) => b.images).flat() || [],
-      // id_item: building_asset?.id || '',
+
       building_property: property.building_property?.map(bp => ({
         id: bp.id,
         name: bp.name,
         description: bp.description,
         images: bp.images || [],
-        // land_size: bp.land_size,
         total_units: bp.total_units,
         building_size: bp.building_size,
-        price_unit: bp.price_unit || '',    
-        price: bp.price_start_from || 0,              
+        price_unit: bp.price_unit || '',
+        price: bp.price_start_from || 0,
         status: bp.status,
-        specifications: bp.specifications,
+        land_size: bp.land_size,
+        specifications: {
+          bedrooms: detailSpecifications.bedrooms || 0,
+          bathrooms: detailSpecifications.bathrooms || 0,
+          offices: detailSpecifications.offices || 0,
+          totalArea: detailSpecifications.totalArea || 0,
+        },
         floor_plans: bp.floor_plans || [],
-        building_images: bp.images || [],
-        building_floor_plans: bp.floor_plans || [],
-
+             
       })) || [],
+
+      agent: Array.isArray(property.agent)
+        ? property.agent
+        : property.agent
+          ? [property.agent]
+          : [],
+
+      developer: Array.isArray(property.developer)
+        ? property.developer
+        : property.developer
+          ? [property.developer]
+          : [],
+      // building_property: Array.isArray(property.building_property)
+      //   ? property.building_property
+      //   : property.building_property
+      //     ? [property.building_property]
+      //     : [],
+        
       // item_list: property.building_property?.map(bl => ({
       //   id_item: bl.id,
       //   name: bl.name,

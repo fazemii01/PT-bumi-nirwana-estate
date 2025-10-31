@@ -13,7 +13,7 @@ import CatalogPageVideo
 import CatalogListItem
 	from '@modules/pages/catalogPage/components/CatalogListItem';
 import { useMediaQuery, usePropertyPhoto } from '@hooks/index';
-import { LAPTOP_BREAKPOINT, UNIT } from '@utils/const';
+import { LAPTOP_BREAKPOINT, UNIT, CATALOG_NAME } from '@utils/const';
 
 import type { ICatalogTable } from '@t-types/data';
 
@@ -44,6 +44,14 @@ const CatalogPageInformation: FC<{
 		description: string;
 		images: { id: string; image_url: string; caption: string; sort_order: number }[];
 	}[];
+	agent : {
+		id: string;
+		full_name: string;
+		phone_number: string;
+		email: string;
+		website: string;
+		avatar_url: string;
+	}[];
 }> = ({
 	detail_description,
 	building_property,
@@ -68,7 +76,7 @@ const CatalogPageInformation: FC<{
 		const { t } = useTranslation('catalog');
 		const isLaptop = useMediaQuery(LAPTOP_BREAKPOINT);
 		// const isVideoBlock = postersList.some(item => item.video);
-
+		// console.log('Data received for Available Units:', building_property);
 		return (
 			<>
 				<article className={cn(s.container, s.info)}>
@@ -99,11 +107,12 @@ const CatalogPageInformation: FC<{
 				<article className={cn(s.container)}>
 					<h4 className={s.title}>{t('DESCRIPTION')}</h4>
 					<hr className={s.line} />
-					{detail_description && <ul className={s.descriptionList}>
+					<ul className={s.descriptionList} style={{ listStyle: 'none', paddingLeft: 0 }}>
 						{detail_description.split("\n").map((line, index) => (
 							<li key={index}>{line.replace(/^- /, '')}</li>
 						))}
-					</ul>}
+					</ul>
+
 				</article>
 				<article className={cn('yellow-shadow', s.container)}>
 					<h4 className={s.title}>{t('STATUS2')}</h4>
@@ -112,9 +121,9 @@ const CatalogPageInformation: FC<{
 					<div className={s.unitsListContainer}>
 						{building_property && building_property.map((building) => (
 							<Link
-							key={building.id}
-							className={s.inner}
-							href={`/${UNIT}/${building.id}`}>
+								key={building.id}
+								className={s.inner}
+								href={`/${CATALOG_NAME}/${id}/${UNIT}/${building.id}`}>
 								<CatalogListItem
 
 									id_item={building.id}
