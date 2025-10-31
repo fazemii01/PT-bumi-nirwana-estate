@@ -18,6 +18,7 @@ import {  MOBILE_BREAKPOINT } from '@utils/const';
 import { COMPANY_INFO } from '@utils/data';
 
 import s from './Footer.module.scss';
+import { JSX } from 'react';
 
 interface ISocials {
 	link: string;

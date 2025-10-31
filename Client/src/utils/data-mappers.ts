@@ -18,15 +18,11 @@ export function transformPropertyToCatalogData(property: any): ICatalogData {
   city: parsedAddress?.city || '',
   price: property.price || '',
   visibility: true,
-  table: parsedTable,
-  description: property.description || '',
-  location: property.location || {},
-  address: parsedAddress,
-  station: {},
+
   images: property.images || [],
   luas: property.luas || '',
   land_size: property.land_size || '',
-  jenis: property.jenis_trans || {},
+
   detail_description: property.detail_description || '',
   floor_plans: property.floor_plans || [],
   site_plans: property.site_plans || [],
@@ -38,10 +34,16 @@ export function transformPropertyToCatalogData(property: any): ICatalogData {
   postal_code: parsedAddress?.postal_code || '',
   village: parsedAddress?.village || '',
   full_name: property.full_name || '',
-  phone_number: property.phone_number || '',
-  email: property.email || '',
+  // phone_number: property.phone_number || '',
+  // email: property.email || '',
   building_property: [],
-  // item_list: [],
-  
+  agent: [],
+  developer: [],
+  address: parsedAddress || { en: '', id: '' },
+  location: property.location || { en: '', id: '' },
+  station: { en: '', id: '' },
+  table: parsedTable || { bedrooms: 0, bathrooms: 0 },
+  description: property.description || { en: '', id: '' },
+  jenis : property.jenis || { en: '', id: '' },
 };
 }
