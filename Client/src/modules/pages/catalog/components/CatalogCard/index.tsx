@@ -11,7 +11,7 @@ import {
 import { UNITS } from '@modules/pages/catalogPage/utils/units';
 import IconFloorPlan from '@icons/components/IconFloorPlan';
 import IconRuler from '@icons/components/IconRuler';
-import { config } from '@fortawesome/fontawesome-svg-core'
+// import { config } from '@fortawesome/fontawesome-svg-core'
 import '@fortawesome/fontawesome-svg-core/styles.css'
 
 import {
