@@ -92,7 +92,6 @@ function formatPropertiesForCatalog(properties: Property[]): ICatalogData[] {
           totalArea: detailSpecifications.totalArea || 0,
         },
         floor_plans: bp.floor_plans || [],
-             
       })) || [],
 
       agent: Array.isArray(property.agent)
