@@ -37,6 +37,9 @@
     font-weight: 500;
   }
 }
+.infoDetail table tbody tr:nth-child(-n+3) {
+  display: none;
+}
 
 .address {
   & p:first-of-type {

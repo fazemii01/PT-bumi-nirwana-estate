@@ -25,6 +25,13 @@ export interface Property {
   land_size: string;
   location: Location;
   address: string;
+  floor_plans: {
+      id: string;
+      name: string;
+      file_url: string;
+      // caption: string;
+      sort_order: number;
+    } [];
   specifications: {
     kamar: number;
     kamar_mandi: number;
@@ -41,13 +48,7 @@ export interface Property {
     caption: string;
     sort_order: number;
   }[];
-  floor_plans: {
-    id: string;
-    name: string;
-    file_url: string;
-    sort_order: number;
-  }[];
-  site_plans: {
+    site_plans: {
     id: string;
     name: string;
     file_url: string;
@@ -74,11 +75,21 @@ export interface Property {
     name: string;
     total_units: number;
     status: PropertyStatus;
-    price_start_from: number;
+    price: number;
     land_size: string;
     building_size: string;
     description: string;
     price_unit: string;
+    address: {
+      street: string;
+      province: string;
+      city: string;
+    };
+    street: string;
+    province: string;
+    city: string;
+    village: string;
+    postal_code: string;
     images: {
       id: string;
       image_url: string;
@@ -95,8 +106,9 @@ export interface Property {
     }
     floor_plans: {
       id: string;
-      image_url: string;
-      caption: string;
+      name: string;
+      file_url: string;
+      // caption: string;
       sort_order: number;
     }
   } [];

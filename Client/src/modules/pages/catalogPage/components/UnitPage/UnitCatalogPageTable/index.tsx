@@ -19,13 +19,16 @@ const CatalogPageTable: FC<{
 	tableInfo: ICatalogTable;
 	contractType: string;
 	realEstateType: string;
-	price: string;
+	price: number;
 	type: string;
 	jenis: string;
 	luas: string;
 	status: string;
 	id: string;
-}> = ({ tableInfo, realEstateType, contractType, price, type, luas, status, id }) => {
+	price_unit: string;
+	building_size: string;
+	total_units: number;
+}> = ({ total_units ,building_size, price_unit, tableInfo, realEstateType, contractType, price, type, luas, status, id }) => {
 	const { i18n, t: tCommon } = useTranslation('common');
 	const { t: tCatalog } = useTranslation('catalog');
 	// const {t} = useTranslation('catalog');
@@ -45,112 +48,122 @@ const CatalogPageTable: FC<{
 	// const itemRealEstateType = tCommon(formatCatalogTranslation(realEstateType));
 
 	return (
-		<table className={s.container}>
-			<tbody>
-				{/* <tr>
-					<td>{tCatalog('STATUS' as string)}</td>
-					<td>{status}</td>
-				</tr> */}
+		<div className={s.wrapper}>
+			<table className={s.container}>
+				<tbody>
+					{status && (
+						<tr>
+							<td>{tCatalog('STATUS')}</td>
+							<td>{status}</td>
+						</tr>
+					)}
+					{Number(total_units) > 0 && (
+						<tr>
+							<td>{tCatalog('TOTAL_UNITS')}</td>
+							<td>{total_units}</td>
+						</tr>
+					)}
 
-				<tr>
-					<td>{tCatalog('LUAS')}</td>
-					<td>{luas + ' ' + UNITS[i18n.language].squareMeters}</td>
-				</tr>
+					{luas && Number(luas) > 0 && (
+						<tr>
+							<td>{tCatalog('LUAS')}</td>
+							<td>{Math.floor(Number(luas)) + ' ' + UNITS[i18n.language].squareMeters}</td>
+						</tr>
+					)}
 
-				<tr>
-					<td>{tCatalog('TYPE_OF_RESIDENCE')}</td>
-					<td>{type}</td>
-				</tr>
+					{building_size && Number(building_size) > 0 && (
+						<tr>
+							<td>{tCatalog('BUILDING_SIZE')}</td>
+							<td>{Math.floor(Number(building_size)) + ' ' + UNITS[i18n.language].squareMeters}</td>
+						</tr>
+					)}
 
-				{table.map((item) => {
-					if (item) {
-						const isCanBeAnyAmount =
-							(item.key === 'offices' ||
-								item.key === 'kitchen' ||
-								item.key === 'bathrooms') &&
-							item.value === 'any';
+					{type && (
+						<tr>
+							<td>{tCatalog('TYPE_OF_RESIDENCE')}</td>
+							<td>{type}</td>
+						</tr>
+					)}
 
-						const isLandPlot = item.key === 'landPlot';
-						const itemKey = item.key.toUpperCase();
-						const itemValue = item.value.toString();
-						let displayValue = itemValue;
+					{price_unit && (
+						<tr>
+							<td>{tCatalog('PRICE_UNIT')}</td>
+							<td>{price_unit}</td>
+						</tr>
+					)}
 
-						if (item.key === 'bathrooms' && itemValue !== 'any') {
-							displayValue = itemValue.replace(' pcs', '');
+					{price > 0 && (
+						<tr>
+							<td>{tCatalog('PRICE')}</td>
+							<td>
+								{new Intl.NumberFormat(i18n.language, {
+									style: 'currency',
+									currency: UNITS[i18n.language].currency,
+									minimumFractionDigits: 0,
+								}).format(Number(price))}
+							</td>
+						</tr>
+					)}
+				</tbody>
+
+				<tbody>
+				</tbody>
+			</table>
+			<table className={s.container}>
+				<tbody>
+					{table.map((item) => {
+						if (item) {
+							const isCanBeAnyAmount =
+								(item.key === 'offices' ||
+									item.key === 'kitchen' ||
+									item.key === 'bathrooms') &&
+								item.value === 'any';
+
+							const isLandPlot = item.key === 'landPlot';
+							const itemKey = item.key.toUpperCase();
+							const itemValue = item.value.toString();
+							let displayValue = itemValue;
+
+							if (item.key === 'bathrooms' && itemValue !== 'any') {
+								displayValue = itemValue.replace(' pcs', '');
+							}
+							const formatAfterPrefix = formatTableAfterPrefix(
+								contractType,
+								i18n.language,
+								itemKey,
+							);
+
+							const isValueWithPrefix = [
+								'RENT1M2',
+								'OPERATIONAL1M2',
+								'TOTALCOST',
+							].includes(itemKey);
+
+							return (
+								<tr key={item.key}>
+									<td>{tCatalog(`TABLE.${itemKey}`)}</td>
+									<td>
+										{isValueWithPrefix
+											? formatTableFullPrice(i18n.language, itemValue)
+											: isCanBeAnyAmount
+												? tCommon('')
+												: isLandPlot
+													? formatToPrefixOnly(i18n.language, itemValue)
+													: displayValue}{' '}
+										<span
+											dangerouslySetInnerHTML={{
+												__html: item.key === 'kitchen' ? '' : formatAfterPrefix,
+											}}
+										/>
+									</td>
+								</tr>
+							);
 						}
-						const formatAfterPrefix = formatTableAfterPrefix(
-							contractType,
-							i18n.language,
-							itemKey,
-						);
+					})}
+				</tbody>
+			</table>
+		</div>
 
-						const isValueWithPrefix = [
-							'RENT1M2',
-							'OPERATIONAL1M2',
-							'TOTALCOST',
-						].includes(itemKey);
-
-						return (
-							<tr key={item.key}>
-								<td>{tCatalog(`TABLE.${itemKey}`)}</td>
-								<td>
-									{isValueWithPrefix
-										? formatTableFullPrice(i18n.language, itemValue)
-										: isCanBeAnyAmount
-											? tCommon('')
-											: isLandPlot
-												? formatToPrefixOnly(i18n.language, itemValue)
-												: displayValue}{' '}
-									<span
-										dangerouslySetInnerHTML={{
-											__html: formatAfterPrefix,
-										}}
-									/>
-								</td>
-							</tr>
-						);
-					}
-				})}
-
-				<br />
-				<br />
-				{/* <hr className={s.line}/> */}
-				{/* <div className={s.infoHeading}>
-					<p>
-						{tCatalog('INFORMATION')} <span className={s.id}>{tCatalog('DEVEP')}</span>
-					</p>
-				</div>
-				<tr>														
-					<td>{tCatalog('PRICE')}</td>	
-					<td>{price}</td>
-				</tr>
-				<tr>														
-					<td>{tCatalog('PRICE')}</td>	
-					<td>{price}</td>
-				</tr>
-				
-				<br />
-				<br /> */}
-				{/* <hr className={s.line}/> */}
-				{/* <div className={s.infoHeading}>
-					<p>
-						{tCatalog('INFORMATION')} <span className={s.id}>{tCatalog('ORANG')}</span>
-					</p>
-				</div>
-				<tr>														
-					<td>{tCatalog('PRICE')}</td>	
-					<td>{price}</td>
-				</tr>
-				<tr>														
-					<td>{tCatalog('PRICE')}</td>	
-					<td>{price}</td>
-				</tr> */}
-			</tbody>
-			<br />
-			<tbody>
-			</tbody>
-		</table>
-				
 	);
 };
 

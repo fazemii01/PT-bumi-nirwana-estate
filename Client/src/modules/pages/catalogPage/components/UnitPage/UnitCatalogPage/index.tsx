@@ -5,17 +5,17 @@ import { useRouter } from 'next/router';
 import Loader from '@modules/common/components/Loader';
 import Meta from '@modules/common/components/Meta';
 import FeedbackForm from '@modules/feedback/components/FeedbackForm';
-import CatalogPageCarousel from '@modules/pages/catalogPage/components/CatalogPageCarousel';
-import CatalogPageCrumbs from '@modules/pages/catalogPage/components/CatalogPageCrumbs';
-import CatalogPageHeader from '@modules/pages/catalogPage/components/CatalogPageHeader';
-import CatalogPageInformation from '@modules/pages/catalogPage/components/CatalogPageInformation';
-import CatalogPageNotice from '@modules/pages/catalogPage/components/CatalogPageNotice';
+import CatalogPageCarousel from '@modules/pages/catalogPage/components/UnitPage/UnitCatalogPageCarousel';
+import CatalogPageCrumbs from '@modules/pages/catalogPage/components/UnitPage/UnitCatalogPageCrumbs';
+import CatalogPageHeader from '@modules/pages/catalogPage/components/UnitPage/UnitCatalogPageHeader';
+import CatalogPageInformation from '@modules/pages/catalogPage/components/UnitPage/UnitCatalogPageInformation';
+import CatalogPageNotice from '@modules/pages/catalogPage/components/UnitPage/UnitCatalogPageNotice';
 import ProfileCard from '@modules/pages/catalogPage/components/ProfileCard';
 import { formatMetaForCatalogPage } from '@modules/pages/catalogPage/utils/formatters';
 
 import {
     useCatalogItemFullAddress, // <-- We are still using this
-    useDataFetching, 
+    useDataFetching,
     useMediaQuery,
 } from '@hooks/index';
 import { LAPTOP_BREAKPOINT } from '@utils/const';
@@ -25,7 +25,7 @@ import {
     formatTranslation,
 } from '@utils/formatters';
 
-// Import your types
+
 import type { ICatalogData, IBuildingProperty } from '@t-types/data';
 
 import s from './CatalogPage.module.scss';
@@ -37,13 +37,13 @@ interface UnitCatalogPageProps {
 }
 
 const UnitCatalogPage: FC<UnitCatalogPageProps> = ({ catalogId: propCatalogId, unitId: propUnitId }) => {
-    // --- 1. ALL HOOKS CALLED AT THE TOP ---
+
     const router = useRouter();
     const { t: tCommon, i18n } = useTranslation('common');
     const { t: tCatalog } = useTranslation('catalog');
     const isLaptop = useMediaQuery(LAPTOP_BREAKPOINT);
-    
-    const { data, loading } = useDataFetching(); 
+
+    const { data, loading } = useDataFetching();
 
     const propertyId = propCatalogId || router.query.catalog;
     const unitId = propUnitId || router.query.unitId;
@@ -51,26 +51,24 @@ const UnitCatalogPage: FC<UnitCatalogPageProps> = ({ catalogId: propCatalogId, u
     const [pageData, setPageData] = useState<ICatalogData | null>(null);
     const [selectedUnit, setSelectedUnit] = useState<IBuildingProperty | null>(null);
 
-    // --- 2. Calculate parser-dependent values here, safely ---
-    // This calculation now safely handles pageData being null
+
     const parsedAddress = (pageData?.address && typeof pageData.address === 'string')
         ? JSON.parse(pageData.address)
-        : (pageData?.address || {}); // Will be {} if pageData.address is null/undefined
+        : (pageData?.address || {});
 
-    // --- 3. HOOK CALL ---
-    // --- FIX A: The hook must use data from 'parsedAddress', not 'pageData' ---
+
     const itemLocationAndAddress = useCatalogItemFullAddress(
         pageData?.realEstateType ?? '',
-        pageData?.location ?? {}, // Location is object, not string
+        pageData?.location ?? {},
         parsedAddress ?? {},
-        parsedAddress?.city ?? '',         // <-- Use parsedAddress.city
-        parsedAddress?.street ?? '',       // <-- Use parsedAddress.street
-        parsedAddress?.province ?? '',     // <-- Use parsedAddress.province
-        parsedAddress?.village ?? '',      // <-- Use parsedAddress.village
-        parsedAddress?.postal_code ?? '', // <-- Use parsedAddress.postal_code
+        parsedAddress?.city ?? '',
+        parsedAddress?.street ?? '',
+        parsedAddress?.province ?? '',
+        parsedAddress?.village ?? '',
+        parsedAddress?.postal_code ?? '',
     );
     
-    // --- Core Logic (useEffect) ---
+
     useEffect(() => {
         if (!router.isReady || loading || !propertyId) return;
 
@@ -79,7 +77,7 @@ const UnitCatalogPage: FC<UnitCatalogPageProps> = ({ catalogId: propCatalogId, u
         );
 
         if (!foundParent) {
-            setPageData(null); 
+            setPageData(null);
             return;
         }
 
@@ -96,7 +94,7 @@ const UnitCatalogPage: FC<UnitCatalogPageProps> = ({ catalogId: propCatalogId, u
 
     }, [data, propertyId, unitId, router.isReady, loading, propCatalogId, propUnitId]);
 
-    // --- Render States (Early Returns) ---
+
     if (loading) {
         return <Loader type="fullscreen" />;
     }
@@ -109,13 +107,11 @@ const UnitCatalogPage: FC<UnitCatalogPageProps> = ({ catalogId: propCatalogId, u
         return <Page404 />;
     }
 
-    // --- Data Parsing & Prioritization ---
-    
     const parsedUnitSpecs = (selectedUnit && typeof selectedUnit.specifications === 'string')
         ? JSON.parse(selectedUnit.specifications)
         : (selectedUnit?.specifications || {});
 
-    // ... (Define Display Variables) ...
+
     const displayName = selectedUnit?.name ?? pageData.name;
     const displayImages = selectedUnit?.images ?? pageData.images;
     const displayPrice = selectedUnit?.price.toString() ?? pageData.price;
@@ -123,8 +119,10 @@ const UnitCatalogPage: FC<UnitCatalogPageProps> = ({ catalogId: propCatalogId, u
     const displayStatus = selectedUnit?.status ?? pageData.status;
     const displayLandSize = selectedUnit?.land_size ?? pageData.land_size;
     const displayTableInfo = selectedUnit ? parsedUnitSpecs : pageData.table;
-    
-    // ... (Data that *always* comes from the Parent) ...
+    const displayFloor_plans = selectedUnit?.floor_plans ?? pageData.floor_plans;
+    const displayPriceUnit = selectedUnit?.price_unit ?? '';
+    const total_units = selectedUnit?.total_units ?? 0;
+
     const {
         id: parentId,
         agent,
@@ -135,36 +133,37 @@ const UnitCatalogPage: FC<UnitCatalogPageProps> = ({ catalogId: propCatalogId, u
         station,
         jenis,
         type,
+        name,
+        floor_plans,
+        images,
+      
     } = pageData;
-    
-    // --- FIX B: Provide default values (e.g., '') during destructuring ---
-    // This guarantees 'city', 'street', etc., are never undefined.
-    const { 
-        city = '', 
-        street = '', 
-        province = '', 
-        village = '', 
-        postal_code = '' 
+
+    const {
+        city = '',
+        street = '',
+        province = '',
+        village = '',
+        postal_code = ''
     } = parsedAddress;
 
-    // --- Helper Variables ---
     const realEstateTranslation = tCommon(formatCatalogTranslation(realEstateType));
     const itemTags = [propertyType, realEstateType];
     const itemD = [city, street, province, village, postal_code].filter(Boolean).join(', ');
-    
+
     const itemStation = formatTranslation(i18n.language, station);
     const itemJenis = formatTranslation(i18n.language, jenis);
-    
-    // --- This is now SAFE ---
-    // 'city' will be '' instead of undefined, so .toLowerCase() works.
-    const itemCity = tCommon(formatCityTranslation(city)); 
-    
+
+
+
+    const itemCity = tCommon(formatCityTranslation(city));
+
     const itemRealEstateTypeAndAddress = `${realEstateTranslation} ${tCommon('ON')} ${itemLocationAndAddress}`;
-    
-    // --- FIX C: Use the safe 'street' variable ---
+
+
     const pageMetaDescription = formatMetaForCatalogPage(
         city,
-        street, // <-- Use the 'street' variable which defaults to ''
+        street,
         realEstateType,
     );
 
@@ -175,11 +174,14 @@ const UnitCatalogPage: FC<UnitCatalogPageProps> = ({ catalogId: propCatalogId, u
         <>
             <Meta title={displayName} desc={pageMetaDescription} />
 
-            <CatalogPageCrumbs address={itemRealEstateTypeAndAddress} />
-            
+            <CatalogPageCrumbs
+                address={itemRealEstateTypeAndAddress}
+                name={displayName}
+            />
+
             <CatalogPageHeader
                 city={itemCity}
-                address={itemLocationAndAddress} 
+                address={itemLocationAndAddress}
                 makau={itemD}
                 tags={itemTags}
                 images={displayImages}
@@ -187,12 +189,14 @@ const UnitCatalogPage: FC<UnitCatalogPageProps> = ({ catalogId: propCatalogId, u
                 village={village}
                 postal_code={postal_code}
                 street={street}
+                name={displayName}
+
             />
-            
+
             <section className={s.container}>
                 <div>
                     <CatalogPageCarousel
-                        images={displayImages} sitePlans={[]}
+                        images={displayImages} floorPlans={displayFloor_plans}
                     />
 
                     <CatalogPageInformation
@@ -202,16 +206,15 @@ const UnitCatalogPage: FC<UnitCatalogPageProps> = ({ catalogId: propCatalogId, u
                         detail_description={displayDescription}
                         tableInfo={displayTableInfo || {}}
                         address={itemLocationAndAddress}
-                        originalAddress={itemD} 
+                        originalAddress={itemD}
                         station={itemStation}
-                        price={displayPrice}
                         jenis={itemJenis}
-                        luas={displayLandSize} 
+                        luas={displayLandSize}
                         status={displayStatus}
-                        land_size={displayLandSize} 
+                        land_size={displayLandSize}
                         type={type}
-                        building_property={pageData.building_property || []} 
-                        agent={pageData.agent || []} 
+                        building_property={pageData.building_property || []}
+                        agent={pageData.agent || []}
                     />
                 </div>
 
@@ -220,7 +223,7 @@ const UnitCatalogPage: FC<UnitCatalogPageProps> = ({ catalogId: propCatalogId, u
                         <h5 className={s.feedbackTitle}>
                             {tCatalog('TITLE_AGENT')}
                         </h5>
-                        
+
                         {primaryAgent && (
                             <ProfileCard
                                 id={primaryAgent.id}
@@ -237,12 +240,19 @@ const UnitCatalogPage: FC<UnitCatalogPageProps> = ({ catalogId: propCatalogId, u
 
                         <br />
 
-                        <h5 className={s.feedbackTitle}>
+                        {/* <h5 className={s.feedbackTitle}>
                             {tCatalog('TITLE_MARGO')}
                         </h5>
                         <p className={s.feedbackDescription}>
                             {tCatalog('MARGOJOYO')}
-                        </p>
+                        </p> */}
+
+                    </div>
+                   
+                </aside>
+                <aside>
+                    <div className={s.feedback}>
+                        <FeedbackForm isColumnType message={`${itemLocationAndAddress} - ${displayName}`} />
                     </div>
                 </aside>
             </section>

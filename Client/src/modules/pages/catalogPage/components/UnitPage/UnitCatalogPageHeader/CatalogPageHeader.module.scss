@@ -83,3 +83,15 @@
     pointer-events: none;
   }
 }
+.name {
+  @include flex-align(center);
+  gap: 4px;
+  color: var(--gray);
+
+  font-size: 12px;
+  font-weight: 500;
+
+  svg {
+    pointer-events: none;
+  }
+}

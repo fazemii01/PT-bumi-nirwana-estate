@@ -8,7 +8,12 @@
   "ADDRESS": "Alamat",
   "DESCRIPTION": "Deskripsi",
   "INFORMATION": "Informasi",
+  "DETAILS_INFO": "Spesifikasi detail",
   "VIDEO": "Video",
+  "PRICE_UNIT": "Satuan Harga",
+  "TOTAL_UNITS": "Total Unit",
+  "PRICE": "Harga",
+  "BUILDING_SIZE": "Luas Bangunan",
   "OBJECT_ID": "ID Objek:",
   "ORANG": "Agen",
   "DEVEP": "Developer",
@@ -46,6 +51,19 @@
     "LANDPLOT": "Kavling tanah",
     "RENT1M2": "Sewa 1 m²",
     "OPERATIONAL1M2": "Operasional 1 m²",
-    "TOTALCOST": "Total biaya"
+    "TOTALCOST": "Total biaya",
+    "FAMILY_ROOM": "Ruang Keluarga",
+    "FLOORS": "Lantai",
+    "GARAGE": "Parkir",
+    "STRUCTURE": "Struktur",
+    "WALLS": "Dinding",
+    "ROOF": "Atap",
+    "DOORS": "Pintu",
+    "WINDOWS": "Jendela",
+    "ELECTRICITY": "Listrik",
+    "WATER_SOURCE": "Sumber air",
+    "INTERNET": "Internet",
+    "SECURITY": "Keamanan",
+    "FACILITIES": "Fasilitas"
   }
 }

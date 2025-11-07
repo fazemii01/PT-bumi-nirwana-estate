@@ -14,6 +14,12 @@ interface SitePlan {
     file_url: string;
     sort_order: number;
 }
+interface floor_plans {
+    id: string;
+    name: string;
+    file_url: string;
+    sort_order: number;
+}
 
 interface IGalleryList {
     original: string;
@@ -21,7 +27,7 @@ interface IGalleryList {
     video?: string;
 }
 
-const usePropertyPhoto = (images: PropertyImage[] = [], sitePlans: SitePlan[] = []): IGalleryList[] => {
+const usePropertyPhoto = (images: PropertyImage[] = [], sitePlans: SitePlan[] = [], floor_plans: floor_plans[] = []): IGalleryList[] => {
     // const getImagePath = (fileName: string) => `${BACKEND_IMG}/storage/v1/object/public/property_images/${fileName}`;
     // const getFloorPlanPath = (fileName: string) => `${BACKEND_IMG}/storage/v1/object/public/property_site_plans/${fileName}`;
 
@@ -29,6 +35,7 @@ const usePropertyPhoto = (images: PropertyImage[] = [], sitePlans: SitePlan[] = 
         const allFiles = [
             ...images.map(img => ({...img, type: 'image'})),
             ...sitePlans.map(plan => ({...plan, type: 'site_plan'})),
+            ...floor_plans.map(plan => ({ ...plan, type: 'floor_plans' })),
         ];
 
         allFiles.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));

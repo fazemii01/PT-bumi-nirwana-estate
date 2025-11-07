@@ -4,7 +4,6 @@ interface ICatalogStaticData {
 	propertyType: string;
 	// realEstateType: string;
 	
-	
 }
 
 export interface IDataBaseResponse extends ICatalogStaticData {
@@ -29,9 +28,11 @@ export interface IBuildingProperty {
   price_unit: string;
   price: number;
   status: string;
-//   floor_plans: IFloorPlan[];
+//   address: ITransVersion;
+  floor_plans: IFloorPlan[];
   specifications: { [key: string]: null | string | number };
 //   floor_plans: IFloorPlan[];
+
 }
 
 export interface IAgent {

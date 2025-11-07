@@ -9,7 +9,7 @@ import { CATALOG_NAME, TABLET_BREAKPOINT } from '@utils/const';
 
 import s from './CatalogPageCrumbs.module.scss';
 
-const CatalogPageCrumbs: FC<{ address: string }> = ({ address }) => {
+const CatalogPageCrumbs: FC<{ address: string; name: string }> = ({ address, name }) => {
 	const { t } = useTranslation('common');
 	const isTablet = useMediaQuery(TABLET_BREAKPOINT);
 
@@ -26,7 +26,8 @@ const CatalogPageCrumbs: FC<{ address: string }> = ({ address }) => {
 				<>
 					<Link href="/">{t('NAVIGATION.MAIN')}/</Link>
 					<Link href={`/${CATALOG_NAME}`}>{t('NAVIGATION.ALL_REAL_ESTATE')}/</Link>
-					<p>{address}</p>
+					{address && <Link href="#">{address} / </Link>}
+					{name && <p>{name}</p>}
 				</>
 			)}
 		</article>

@@ -28,7 +28,7 @@ function formatPropertiesForCatalog(properties: Property[]): ICatalogData[] {
     const unitSpecifications = firstUnit && typeof firstUnit.specifications === 'string'
       ? JSON.parse(firstUnit.specifications)
       : firstUnit?.specifications || {};
-      
+
     const detailUnit = property.building_property?.[0];
     const detailSpecifications = detailUnit && typeof detailUnit.specifications === 'string'
       ? JSON.parse(detailUnit.specifications)
@@ -56,7 +56,7 @@ function formatPropertiesForCatalog(properties: Property[]): ICatalogData[] {
       jenis: { en: property.jenis || '', id: property.jenis || '' },
       luas: property.luas,
       type: property.type,
-
+      floor_plans: property.floor_plans || [],
       detail_description: property.detail_description,
       status: property.status,
       contractType: specifications.contractType || '',
@@ -70,7 +70,7 @@ function formatPropertiesForCatalog(properties: Property[]): ICatalogData[] {
       station: {},
       full_name: property.agent?.[0]?.full_name || '',
       images: property.images || [],
-      floor_plans: property.floor_plans || [],
+
       site_plans: property.site_plans || [],
       land_size: building_asset?.land_size || '',
 
@@ -82,17 +82,34 @@ function formatPropertiesForCatalog(properties: Property[]): ICatalogData[] {
         total_units: bp.total_units,
         building_size: bp.building_size,
         price_unit: bp.price_unit || '',
-        price: bp.price_start_from || 0,
+        price: bp.price || 0,
         status: bp.status,
         land_size: bp.land_size,
-        specifications: {
-          bedrooms: detailSpecifications.bedrooms || 0,
-          bathrooms: detailSpecifications.bathrooms || 0,
-          offices: detailSpecifications.offices || 0,
-          totalArea: detailSpecifications.totalArea || 0,
+        address: {
+          en: bp.address?.street || '',
+          id: bp.address?.street || '',
         },
-        floor_plans: bp.floor_plans || [],
+        specifications: (() => {
+          const specs = bp.specifications;
+          if (!specs) return {};
+          if (typeof specs === 'string') {
+            try {
+              return JSON.parse(specs);
+            } catch {
+              return {};
+            }
+          }
+          return specs;
+        })(),
+
+        floor_plans: Array.isArray(bp.floor_plans)
+          ? bp.floor_plans
+          : bp.floor_plans
+            ? [bp.floor_plans]
+            : [],
       })) || [],
+
+
 
       agent: Array.isArray(property.agent)
         ? property.agent
@@ -110,7 +127,7 @@ function formatPropertiesForCatalog(properties: Property[]): ICatalogData[] {
       //   : property.building_property
       //     ? [property.building_property]
       //     : [],
-        
+
       // item_list: property.building_property?.map(bl => ({
       //   id_item: bl.id,
       //   name: bl.name,

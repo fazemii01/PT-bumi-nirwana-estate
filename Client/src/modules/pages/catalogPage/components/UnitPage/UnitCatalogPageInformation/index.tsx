@@ -3,11 +3,11 @@ import { useTranslation } from 'react-i18next';
 import cn from 'classnames';
 import Link from 'next/link';
 import CatalogPageMap
-	from '@modules/pages/catalogPage/components/CatalogPageMap';
+	from '@modules/pages/catalogPage/components/UnitPage/UnitCatalogPageMap';
 import CatalogPageNotice
-	from '@modules/pages/catalogPage/components/CatalogPageNotice';
+	from '@modules/pages/catalogPage/components/UnitPage/UnitCatalogPageNotice';
 import CatalogPageTable
-	from '@modules/pages/catalogPage/components/CatalogPageTable';
+	from '@modules/pages/catalogPage/components/UnitPage/UnitCatalogPageTable';
 import CatalogPageVideo
 	from "@modules/pages/catalogPage/components/CatalogPageVideo";
 import CatalogListItem
@@ -28,7 +28,7 @@ const CatalogPageInformation: FC<{
 	station: string;
 	contractType: string;
 	realEstateType: string;
-	price: string;
+
 	jenis: string;
 	luas: string;
 	status: string;
@@ -42,9 +42,15 @@ const CatalogPageInformation: FC<{
 		id: string;
 		name: string;
 		description: string;
+		building_size: string;
+		price_unit: string;
+		price: number;
+		status: string;
+		land_size: string;
+		total_units: number;
 		images: { id: string; image_url: string; caption: string; sort_order: number }[];
 	}[];
-	agent : {
+	agent: {
 		id: string;
 		full_name: string;
 		phone_number: string;
@@ -62,12 +68,15 @@ const CatalogPageInformation: FC<{
 	station,
 	realEstateType,
 	contractType,
-	price,
+	// price,
 	jenis,
 	luas,
 	status,
 	land_size,
 	type,
+	building_property: price_unit,
+	building_property: building_size,
+	building_property: total_units,
 	// id_item,
 	// building_description,
 	// building_images,
@@ -83,24 +92,48 @@ const CatalogPageInformation: FC<{
 					<h4 className={s.title}>{t('INFORMATION')}</h4>
 					<hr className={s.line} />
 					<div className={s.infoHeading}>
-
 						<p>
 							{t('OBJECT_ID')} <span className={s.id}>{id.toString().substring(0, 4)}</span>
 						</p>
 					</div>
 
 					<CatalogPageTable
-						price={price}
 						contractType={contractType}
 						realEstateType={realEstateType}
-						tableInfo={tableInfo}
+						tableInfo={{}}
 						jenis={jenis}
 						luas={luas}
 						status={status}
 						type={type}
 						id={id}
+						price_unit={building_property[0]?.price_unit || ''}
+						price={building_property[0]?.price || 0}
+						building_size={building_property[0]?.building_size || ''}
+						total_units={building_property[0]?.total_units || 0}
+
 					/>
 
+					{/* <CatalogPageNotice type="short" /> */}
+				</article>
+				<article className={cn(s.container, s.info, s.infoDetail)}>
+					<h4 className={s.title}>{t('DETAILS_INFO')}</h4>
+					<hr className={s.line} />
+
+					<CatalogPageTable
+
+						contractType=""
+						realEstateType=""
+						tableInfo={tableInfo}
+						jenis=""
+						luas=""
+						status=""
+						type=""
+						id=""
+						price={0}
+						building_size=""
+						price_unit=""
+						total_units={0}
+					/>
 					<CatalogPageNotice type="short" />
 				</article>
 
@@ -114,7 +147,7 @@ const CatalogPageInformation: FC<{
 					</ul>
 
 				</article>
-				<article className={cn('yellow-shadow', s.container)}>
+				{/* <article className={cn('yellow-shadow', s.container)}>
 					<h4 className={s.title}>{t('STATUS2')}</h4>
 					<hr className={s.line} />
 
@@ -144,7 +177,7 @@ const CatalogPageInformation: FC<{
 					{address && <p>{address}</p>}
 					{station && <p>{station}</p>}
 					<CatalogPageMap fullAddress={originalAddress} />
-				</article>
+				</article> */}
 
 				{!isLaptop && <CatalogPageNotice />}
 			</>
