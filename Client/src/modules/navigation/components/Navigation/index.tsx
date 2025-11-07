@@ -42,6 +42,15 @@ const Navigation = () => {
 				`${isMobileNavMode ? `overflow:hidden;` : ``}`,
 			);
 		}
+		if (isMobileNavMode) {
+            document.body.classList.add('menu-is-open');
+        } else {
+            document.body.classList.remove('menu-is-open');
+        }
+
+        return () => {
+            document.body.classList.remove('menu-is-open');
+        };
 		// eslint-disable-next-line
 	}, [isMobileNavMode, isTablet]);
 

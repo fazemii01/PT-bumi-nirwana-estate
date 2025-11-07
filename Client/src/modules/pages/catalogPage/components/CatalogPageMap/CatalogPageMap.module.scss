@@ -12,3 +12,7 @@
     height: 200px;
   }
 }
+
+:global(body.menu-is-open) .container {
+  display: none;
+}

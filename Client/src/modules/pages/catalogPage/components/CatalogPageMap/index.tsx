@@ -32,7 +32,7 @@ const CatalogPageMap: FC<{
   if (!position) {
     return <div>Loading map...</div>;
   }
-
+  
   return (
     <div className={s.container}>
       <MapClient position={position} />

@@ -1,13 +1,19 @@
 .container {
   display: grid;
-  grid-template-columns: minmax(500px, 1fr) minmax(300px, 460px);
+  grid-template-columns: minmax(300px, 1fr) minmax(260px, 460px);
   gap: 20px;
   padding-bottom: 100px;
 
+
   @include media-laptop {
     grid-template-columns: 1fr;
-    gap: unset;
+    gap: 16px;
     padding-bottom: 48px;
+  }
+
+  @include media-tablet {
+    display: block;
+    padding-bottom: 32px;
   }
 }
 
@@ -18,7 +24,9 @@
   border-radius: 18px;
   box-shadow: 0 14px 32px 0 rgba(214, 214, 214, 0.36);
   border: 1px solid var(--nude);
+  background-color: var(--white);
   overflow: hidden;
+
 
   @include media-laptop {
     position: relative;
@@ -26,11 +34,16 @@
   }
 
   @include media-tablet {
-    padding-left: 16px;
-    padding-right: 16px;
+    position: relative;
+    top: unset;
+    padding: 24px 16px 32px;
+    width: 100%;
+    margin-top: 16px;
+    border-radius: 14px;
   }
 
-  &:before, &:after {
+  &:before,
+  &:after {
     content: '';
     position: absolute;
     left: 0;
@@ -59,11 +72,21 @@
     margin-bottom: 16px;
 
     @include media-laptop {
+      font-size: 18px;
+    }
+
+    @include media-tablet {
       font-size: 16px;
+      margin-bottom: 12px;
     }
   }
 
   &Description {
     margin-bottom: 24px;
+
+    @include media-tablet {
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
   }
 }
