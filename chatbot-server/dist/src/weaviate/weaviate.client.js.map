@@ -1,0 +1,1 @@
+{"version":3,"file":"weaviate.client.js","sourceRoot":"","sources":["../../../src/weaviate/weaviate.client.ts"],"names":[],"mappings":";;;;;AAEA,oDAMC;AARD,sEAA2D;AAEpD,KAAK,UAAU,oBAAoB;IACxC,OAAO,yBAAQ,CAAC,cAAc,CAAC;QAC7B,IAAI,EAAE,WAAW;QACjB,IAAI,EAAE,IAAI;QACV,QAAQ,EAAE,KAAK;KAChB,CAAC,CAAC;AACL,CAAC"}

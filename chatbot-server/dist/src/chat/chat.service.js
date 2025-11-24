@@ -28,6 +28,7 @@ const text_splitter_1 = require("langchain/text_splitter");
 const weaviate_1 = require("@langchain/weaviate");
 const weaviate_client_1 = __importDefault(require("weaviate-client"));
 const gpt_tokenizer_1 = require("gpt-tokenizer");
+const groq_llms_1 = __importDefault(require("../llms/groq.llms"));
 let ChatService = class ChatService {
     constructor(httpService) {
         this.httpService = httpService;
@@ -135,10 +136,7 @@ let ChatService = class ChatService {
         });
     }
     async initializeMasterChain() {
-        const llm = new ollama_1.ChatOllama({
-            baseUrl: 'http://localhost:4600',
-            model: 'llama3',
-        });
+        const llm = groq_llms_1.default;
         const baseRetriever = this.vectorStore.asRetriever({
             k: 15,
         });
@@ -254,15 +252,19 @@ CONTEXTS:
         }
         console.log(`Invoking master chain for session ${sessionId}...`);
         const userHistory = this.chatHistories.get(sessionId) || [];
+        const startTime = performance.now();
         const result = await this.masterChain.invoke({
             chat_history: userHistory,
             input: message,
         });
+        const endTime = performance.now();
+        const responseTimeMs = Math.round(endTime - startTime);
         const answer = result.answer ?? result;
         userHistory.push(new messages_1.HumanMessage(message));
         userHistory.push(new messages_1.AIMessage(answer));
         this.chatHistories.set(sessionId, userHistory);
         console.log('Final AI Answer:', answer);
+        console.log(`answered at: ${responseTimeMs} ms`);
         return answer;
     }
     clearHistory(sessionId) {

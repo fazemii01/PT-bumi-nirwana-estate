@@ -23,6 +23,7 @@ import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { WeaviateStore } from '@langchain/weaviate';
 import weaviate, { WeaviateClient } from 'weaviate-client';
 import { encode } from 'gpt-tokenizer';
+import groqOpenAI from '../llms/groq.llms';
 
 type ScoredDoc = {
   doc: Document;
@@ -38,7 +39,7 @@ export class ChatService implements OnModuleInit {
   private visionModel: ChatOllama;
   private chatHistories: Map<string, BaseMessage[]> = new Map();
 
-  constructor(private readonly httpService: HttpService) {}
+  constructor(private readonly httpService: HttpService) { }
 
   async onModuleInit() {
     this.embeddings = new OllamaEmbeddings({
@@ -186,11 +187,11 @@ export class ChatService implements OnModuleInit {
   }
 
   private async initializeMasterChain(): Promise<void> {
-    const llm = new ChatOllama({
-      baseUrl: 'http://localhost:4600',
-      model: 'llama3',
-    });
-
+    // const llm = new ChatOllama({
+    //   baseUrl: 'http://localhost:4600',
+    //   model: 'llama3',
+    // });
+    const llm = groqOpenAI; //testing groq LLM
     const baseRetriever = this.vectorStore.asRetriever({
       k: 15,
     });
@@ -380,10 +381,15 @@ CONTEXTS:
     console.log(`Invoking master chain for session ${sessionId}...`);
     const userHistory = this.chatHistories.get(sessionId) || [];
 
+    const startTime = performance.now();
+
     const result = await this.masterChain.invoke({
       chat_history: userHistory,
       input: message,
     });
+
+    const endTime = performance.now();
+    const responseTimeMs = Math.round(endTime - startTime);
 
     const answer = (result as any).answer ?? result;
 
@@ -392,6 +398,7 @@ CONTEXTS:
     this.chatHistories.set(sessionId, userHistory);
 
     console.log('Final AI Answer:', answer);
+    console.log(`answered at: ${responseTimeMs} ms`);
     return answer as string;
   }
 
